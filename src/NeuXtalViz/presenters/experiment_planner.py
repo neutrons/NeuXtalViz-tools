@@ -124,7 +124,7 @@ class Experiment(NeuXtalVizPresenter):
         self.view.update_tables(title, goniometers, motors)
 
     def update_wavelength(self):
-        wl_min, wl_max = self.view.get_wavelength()
+        wl_min, _ = self.view.get_wavelength()
         self.view.update_wavelength(wl_min)
 
     def create_instrument(self):

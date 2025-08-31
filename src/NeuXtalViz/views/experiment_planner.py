@@ -28,7 +28,12 @@ import pyvista as pv
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
 from matplotlib.figure import Figure
-from matplotlib.ticker import FormatStrFormatter
+from matplotlib.ticker import (
+    FormatStrFormatter,
+    PercentFormatter,
+    FuncFormatter,
+    MaxNLocator,
+)
 
 from NeuXtalViz.views.base_view import NeuXtalVizWidget
 
@@ -59,7 +64,7 @@ class ExperimentView(NeuXtalVizWidget):
         cov_tab = QWidget()
         self.tab_widget.addTab(cov_tab, "Coverage")
 
-        coverage_layout = QVBoxLayout()
+        planner_layout = QVBoxLayout()
 
         self.instrument_combo = QComboBox(self)
         self.instrument_combo.addItem("TOPAZ")
@@ -348,26 +353,57 @@ class ExperimentView(NeuXtalVizWidget):
             Figure(constrained_layout=True, figsize=(6.4, 4.8))
         )
 
-        result_layout.addWidget(NavigationToolbar2QT(self.canvas_cov, self))
-        result_layout.addWidget(self.canvas_cov)
+        self.canvas_cum = FigureCanvas(
+            Figure(constrained_layout=True, figsize=(6.4, 4.8))
+        )
+
+        results_tab = QTabWidget()
+        coverage_tab = QWidget()
+        cumulative_tab = QWidget()
+
+        coverage_layout = QVBoxLayout()
+        cumulative_layout = QVBoxLayout()
+
+        coverage_layout.addWidget(NavigationToolbar2QT(self.canvas_cov, self))
+        coverage_layout.addWidget(self.canvas_cov)
+
+        cumulative_layout.addWidget(
+            NavigationToolbar2QT(self.canvas_cum, self)
+        )
+        cumulative_layout.addWidget(self.canvas_cum)
 
         fig = self.canvas_cov.figure
 
         self.ax_cov = fig.subplots(3, 1, sharex=True)
         self.ax_cov[2].set_xlabel("Resolution Shell [Å]")
-        self.ax_cov[0].set_ylabel("Completeness [%]")
+        self.ax_cov[0].set_ylabel("Completeness")
         self.ax_cov[1].set_ylabel("Redundancy")
-        self.ax_cov[2].set_ylabel("Unique Reflections")
+        self.ax_cov[2].set_ylabel("Unique")
 
-        coverage_layout.addLayout(settings_layout)
-        coverage_layout.addLayout(params_layout)
-        coverage_layout.addLayout(result_layout)
+        fig = self.canvas_cum.figure
 
-        cov_tab.setLayout(coverage_layout)
+        self.ax_cum = fig.subplots(3, 1, sharex=True)
+        self.ax_cum[2].set_xlabel("Orientation Number")
+        self.ax_cum[0].set_ylabel("Completeness")
+        self.ax_cum[1].set_ylabel("Redundancy")
+        self.ax_cum[2].set_ylabel("Unique")
+
+        coverage_tab.setLayout(coverage_layout)
+        cumulative_tab.setLayout(cumulative_layout)
+
+        results_tab.addTab(coverage_tab, "Resolution")
+        results_tab.addTab(cumulative_tab, "Cumulative")
+
+        planner_layout.addLayout(settings_layout)
+        planner_layout.addLayout(params_layout)
+        planner_layout.addLayout(result_layout)
+        planner_layout.addWidget(results_tab)
+
+        cov_tab.setLayout(planner_layout)
 
     def peak_tab(self):
         inst_tab = QWidget()
-        self.tab_widget.addTab(inst_tab, "Peak")
+        self.tab_widget.addTab(inst_tab, "Peaks")
 
         peak_layout = QVBoxLayout()
 
@@ -1420,10 +1456,14 @@ class ExperimentView(NeuXtalVizWidget):
 
         return params_1, params_2
 
-    def plot_statistics(self, sym, asym):
+    def plot_statistics(self, sym, asym, cumsym, cumasym):
         self.ax_cov[0].clear()
         self.ax_cov[1].clear()
         self.ax_cov[2].clear()
+
+        self.ax_cum[0].clear()
+        self.ax_cum[1].clear()
+        self.ax_cum[2].clear()
 
         color = plt.get_cmap("tab20").colors
 
@@ -1440,13 +1480,13 @@ class ExperimentView(NeuXtalVizWidget):
         shel, comp, mult, refl = asym
 
         self.ax_cov[0].bar(
-            x + width, comp, width, color=color[1], label="No symmetry"
+            x + width, comp, width, color=color[1], label="Asymmetry"
         )
         self.ax_cov[1].bar(
-            x + width, mult, width, color=color[3], label="No symmetry"
+            x + width, mult, width, color=color[3], label="Asymmetry"
         )
         self.ax_cov[2].bar(
-            x + width, refl, width, color=color[5], label="No symmetry"
+            x + width, refl, width, color=color[5], label="Asymmetry"
         )
 
         self.ax_cov[0].legend(shadow=True)
@@ -1454,15 +1494,18 @@ class ExperimentView(NeuXtalVizWidget):
         self.ax_cov[2].legend(shadow=True)
 
         self.ax_cov[0].set_ylim(0, 100)
+        self.ax_cov[1].set_ylim(1, self.ax_cov[1].get_ylim()[1])
 
         self.ax_cov[0].minorticks_on()
         self.ax_cov[1].minorticks_on()
         self.ax_cov[2].minorticks_on()
 
         self.ax_cov[2].set_xlabel("Resolution Shell [Å]")
-        self.ax_cov[0].set_ylabel("Completeness [%]")
+        self.ax_cov[0].set_ylabel("Completeness")
         self.ax_cov[1].set_ylabel("Redundancy")
-        self.ax_cov[2].set_ylabel("Unique Reflections")
+        self.ax_cov[2].set_ylabel("Unique")
+
+        self.ax_cov[0].yaxis.set_major_formatter(PercentFormatter(100))
 
         self.ax_cov[0].set_xticks(x + width, shel)
         self.ax_cov[1].set_xticks(x + width, shel)
@@ -1470,6 +1513,56 @@ class ExperimentView(NeuXtalVizWidget):
 
         self.canvas_cov.draw_idle()
         self.canvas_cov.flush_events()
+
+        comp, mult, refl = cumsym
+
+        x = np.arange(1, len(comp) + 1)
+
+        self.ax_cum[0].plot(
+            x, comp, "-o", color=color[0], label="Symmetry", clip_on=False
+        )
+        self.ax_cum[1].plot(
+            x, mult, "-o", color=color[2], label="Symmetry", clip_on=False
+        )
+        self.ax_cum[2].plot(
+            x, refl, "-o", color=color[4], label="Symmetry", clip_on=False
+        )
+
+        comp, mult, refl = cumasym
+
+        self.ax_cum[0].plot(
+            x, comp, "-o", color=color[1], label="Asymmetry", clip_on=False
+        )
+        self.ax_cum[1].plot(
+            x, mult, "-o", color=color[3], label="Asymmetry", clip_on=False
+        )
+        self.ax_cum[2].plot(
+            x, refl, "-o", color=color[5], label="Asymmetry", clip_on=False
+        )
+
+        self.ax_cum[0].legend(shadow=True)
+        self.ax_cum[1].legend(shadow=True)
+        self.ax_cum[2].legend(shadow=True)
+
+        self.ax_cum[0].set_ylim(0, 100)
+        self.ax_cum[1].set_ylim(1, self.ax_cum[1].get_ylim()[1])
+
+        self.ax_cum[0].minorticks_on()
+        self.ax_cum[1].minorticks_on()
+        self.ax_cum[2].minorticks_on()
+
+        self.ax_cum[2].set_xlabel("Orientation Number")
+        self.ax_cum[0].set_ylabel("Completeness")
+        self.ax_cum[1].set_ylabel("Redundancy")
+        self.ax_cum[2].set_ylabel("Unique")
+
+        self.ax_cum[2].xaxis.set_major_locator(MaxNLocator(integer=True))
+        self.ax_cum[2].xaxis.set_major_formatter(
+            FuncFormatter(lambda val, pos: f"#{int(val)}")
+        )
+
+        self.canvas_cum.draw_idle()
+        self.canvas_cum.flush_events()
 
     def plot_instrument(self, gamma_inst, nu_inst, gamma, nu, lamda):
         if self.cb_inst is not None:

@@ -1106,6 +1106,10 @@ class ExperimentModel(NeuXtalVizModel):
     def calculate_statistics(self, point_group, lattice_centering, use, d_min):
         shel_sym, comp_sym, mult_sym, refl_sym = [], [], [], []
         shel_asym, comp_asym, mult_asym, refl_asym = [], [], [], []
+
+        comp_cumsym, mult_cumsym, refl_cumsym = [], [], []
+        comp_cumasym, mult_cumasym, refl_cumasym = [], [], []
+
         if mtd.doesExist("combined"):
             CloneWorkspace(
                 InputWorkspace="combined", OutputWorkspace="filtered"
@@ -1209,13 +1213,61 @@ class ExperimentModel(NeuXtalVizModel):
                     comp_asym.append(completeness * 100)
                     mult_asym.append(redundancy)
                     refl_asym.append(unique)
+
+                rows = np.unique(mtd["filtered"].column("RunNumber")).tolist()
+                for row in rows:
+                    CloneWorkspace(
+                        InputWorkspace="filtered", OutputWorkspace="cumulative"
+                    )
+                    for cumrow in rows:
+                        if cumrow > row:
+                            FilterPeaks(
+                                InputWorkspace="cumulative",
+                                FilterVariable="RunNumber",
+                                FilterValue=str(cumrow),
+                                Operator="!=",
+                                OutputWorkspace="cumulative",
+                            )
+
+                    symmetric = CountReflections(
+                        InputWorkspace="cumulative",
+                        PointGroup=pg,
+                        LatticeCentering=lc,
+                        MinDSpacing=d_min,
+                        MaxDSpacing=d_max,
+                        MissingReflectionsWorkspace="",
+                    )
+
+                    unique, completeness, redundancy, multiple = symmetric
+
+                    comp_cumsym.append(completeness * 100)
+                    mult_cumsym.append(redundancy)
+                    refl_cumsym.append(unique)
+
+                    asymmetric = CountReflections(
+                        InputWorkspace="cumulative",
+                        PointGroup="1",
+                        LatticeCentering=lc,
+                        MinDSpacing=d_min,
+                        MaxDSpacing=d_max,
+                        MissingReflectionsWorkspace="",
+                    )
+
+                    unique, completeness, redundancy, multiple = asymmetric
+
+                    comp_cumasym.append(completeness * 100)
+                    mult_cumasym.append(redundancy)
+                    refl_cumasym.append(unique)
+
             else:
                 return None
 
         sym = (shel_sym, comp_sym, mult_sym, refl_sym)
         asym = (shel_asym, comp_asym, mult_asym, refl_asym)
+        cumsym = (comp_cumsym, mult_cumsym, refl_cumsym)
+        cumasym = (comp_cumasym, mult_cumasym, refl_cumasym)
 
-        return sym, asym
+        return sym, asym, cumsym, cumasym
 
     def hsl_to_rgb(self, hue, saturation, lightness):
         h = np.array(hue)
