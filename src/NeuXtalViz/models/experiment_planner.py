@@ -761,7 +761,14 @@ class ExperimentModel(NeuXtalVizModel):
         hkls_1 = pg.getEquivalents(hkl_1) if equiv else [hkl_1]
         hkls_2 = pg.getEquivalents(hkl_2) if equiv else [hkl_2]
 
-        pairs = list(itertools.product(hkls_1, hkls_2))
+        hkls_1 = [tuple(hkl) for hkl in hkls_1]
+        hkls_2 = [tuple(hkl) for hkl in hkls_2]
+
+        unique_pairs = set()
+        for a, b in itertools.product(hkls_1, hkls_2):
+            if a != b:
+                unique_pairs.add(tuple(sorted((a, b))))
+        pairs = list(unique_pairs)
 
         angles = []
         indices, indices_alt = [], []
@@ -777,17 +784,18 @@ class ExperimentModel(NeuXtalVizModel):
             gamma0, nu0, lamda0 = values0
             gamma1, nu1, lamda1 = values1
 
-            angles.append(settings)
+            if len(lamda0) > 0 and len(lamda1) > 0:
+                angles.append(settings)
 
-            indices.append([list(hkl_1)] * len(lamda0))
-            angles_gamma.append(gamma0)
-            angles_nu.append(nu0)
-            angles_lamda.append(lamda0)
+                indices.append([hkl_1] * len(lamda0))
+                angles_gamma.append(gamma0)
+                angles_nu.append(nu0)
+                angles_lamda.append(lamda0)
 
-            indices_alt.append([list(hkl_2)] * len(lamda1))
-            angles_gamma_alt.append(gamma1)
-            angles_nu_alt.append(nu1)
-            angles_lamda_alt.append(lamda1)
+                indices_alt.append([hkl_2] * len(lamda1))
+                angles_gamma_alt.append(gamma1)
+                angles_nu_alt.append(nu1)
+                angles_lamda_alt.append(lamda1)
 
         angles = np.vstack(angles)
 
