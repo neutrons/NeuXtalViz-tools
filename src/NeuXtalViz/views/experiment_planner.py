@@ -518,6 +518,12 @@ class ExperimentView(NeuXtalVizWidget):
 
         orientation_layout = QHBoxLayout()
 
+        self.combined_box = QCheckBox("Combine All", self)
+        self.combined_box.setToolTip(
+            "Show all combined peaks or individual orientations."
+        )
+        self.combined_box.setChecked(True)
+
         self.add_button = QPushButton("Add Orientation", self)
         self.add_button.setToolTip("Add the current orientation to the plan.")
 
@@ -530,10 +536,12 @@ class ExperimentView(NeuXtalVizWidget):
         self.angles_line.setReadOnly(True)
 
         settings_label = QLabel("Settings:", self)
-        angles_label = QLabel("Goniometer angles:", self)
+        angles_label = QLabel("Goniometer Angles:", self)
 
         self.angles_combo = QComboBox(self)
         self.angles_combo.setToolTip("Select an orientation from the list.")
+
+        orientation_layout.addWidget(self.combined_box)
         orientation_layout.addWidget(settings_label)
         orientation_layout.addWidget(self.angles_combo)
         orientation_layout.addWidget(angles_label)
@@ -563,6 +571,14 @@ class ExperimentView(NeuXtalVizWidget):
         peak_layout.addWidget(self.peaks_table)
 
         inst_tab.setLayout(peak_layout)
+
+    def set_default_symmetry(self):
+        self.crystal_combo.setCurrentIndex(0)
+        self.point_group_combo.setCurrentIndex(1)
+        self.lattice_centering_combo.setCurrentIndex(0)
+
+    def connect_combined(self, update_combined):
+        self.combined_box.toggled.connect(update_combined)
 
     def connect_peak_table(self, update_table):
         self.angles_combo.activated.connect(update_table)
@@ -1295,23 +1311,23 @@ class ExperimentView(NeuXtalVizWidget):
 
         coords = np.array(peak_dict["coords"])
         colors = np.array(peak_dict["colors"])
-        # sizes = np.array(peak_dict['sizes'])
 
         points = pv.PolyData(coords)
         points["colors"] = colors
-        # points['sizes'] = 5*sizes
+
+        size = 5 if peak_dict["type"] == "filtered" else 10
+        spheres = False if peak_dict["type"] == "missing" else True
 
         self.plotter.add_mesh(
             points,
             scalars="colors",
             rgb=True,
             smooth_shading=True,
-            point_size=10,
-            render_points_as_spheres=True,
+            point_size=size,
+            render_points_as_spheres=spheres,
         )
 
         self.plotter.enable_depth_peeling()
-        # self.plotter.add_axes_at_origin()
 
         coords = np.array(peak_dict["axis_coords"])
         colors = np.array(peak_dict["axis_colors"])
@@ -1712,3 +1728,6 @@ class ExperimentView(NeuXtalVizWidget):
 
     def use_symmetry(self):
         return self.symmetry_box.isChecked()
+
+    def draw_all(self):
+        return self.combined_box.isChecked()

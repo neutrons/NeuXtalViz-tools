@@ -1145,7 +1145,7 @@ class ExperimentModel(NeuXtalVizModel):
                 )
 
                 for peak in mtd["missing"]:
-                    h, k, l = peak.getIntHKL()
+                    h, k, l = peak.getHKL()
                     Q = ol.qFromHKL(V3D(h, k, l))
                     peak.setGoniometerMatrix(np.eye(3))
                     peak.setQSampleFrame(Q)
@@ -1243,14 +1243,23 @@ class ExperimentModel(NeuXtalVizModel):
                 OutputWorkspace="combined",
             )
 
+        SortPeaksWorkspace(
+            InputWorkspace="combined",
+            ColumnNameToSortBy="RunNumber",
+            SortAscending=True,
+            OutputWorkspace="combined",
+        )
+
         runs = mtd["combined"].column(0)
 
-        u, new_runs = np.unique(runs, return_index=True)
+        _, new_runs = np.unique(runs, return_index=True)
 
         for new_run, peak in zip(new_runs.tolist(), mtd["combined"]):
             peak.setRunNumber(new_run)
 
-    def get_coverage_info(self, point_group, lattice_centering):
+    def get_coverage_info(
+        self, point_group, lattice_centering, draw_all, row=None
+    ):
         pg = PointGroupFactory.createPointGroup(point_group)
 
         coverage_dict = {}
@@ -1259,9 +1268,24 @@ class ExperimentModel(NeuXtalVizModel):
         # UB_inv = np.linalg.inv(UB)
 
         if mtd.doesExist("filtered"):
-            h = mtd["filtered"].column("h")
-            k = mtd["filtered"].column("k")
-            l = mtd["filtered"].column("l")
+
+            ws = "filtered"
+            if not draw_all and row is not None:
+                if row == -1:
+                    ws = "missing"
+                else:
+                    ws = "individual"
+                    FilterPeaks(
+                        InputWorkspace="filtered",
+                        FilterVariable="RunNumber",
+                        FilterValue=str(row),
+                        Operator="!=",
+                        OutputWorkspace=ws,
+                    )
+
+            h = mtd[ws].column("h")
+            k = mtd[ws].column("k")
+            l = mtd[ws].column("l")
 
             hkls = np.array([h, k, l]).T.astype(int).tolist()
 
@@ -1314,6 +1338,7 @@ class ExperimentModel(NeuXtalVizModel):
 
             coverage_dict["axis_colors"] = (rgb * 255).astype(np.uint8)
             coverage_dict["axis_coords"] = coords
+            coverage_dict["type"] = ws
 
             return coverage_dict
 

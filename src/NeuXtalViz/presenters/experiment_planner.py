@@ -22,6 +22,7 @@ class Experiment(NeuXtalVizPresenter):
         self.view.connect_save_CSV(self.save_CSV)
         self.view.connect_save_experiment(self.save_experiment)
         self.view.connect_load_experiment(self.load_experiment)
+        self.view.connect_combined(self.visualize)
         self.view.connect_peak_table(self.update_peaks)
         self.view.connect_load_mask(self.load_mask)
         self.view.connect_load_detector(self.load_detector)
@@ -37,6 +38,8 @@ class Experiment(NeuXtalVizPresenter):
 
         self.switch_instrument()
         self.switch_crystal()
+
+        self.view.set_default_symmetry()
 
     def load_detector(self):
         inst = self.view.get_instrument()
@@ -249,6 +252,8 @@ class Experiment(NeuXtalVizPresenter):
         if row is not None:
             peak_list = self.model.generate_table(row)
             self.view.update_peaks_table(peak_list)
+            if not self.view.draw_all():
+                self.visualize()
 
     def lookup_angle(self):
         gamma = self.view.get_horizontal()
@@ -387,6 +392,8 @@ class Experiment(NeuXtalVizPresenter):
         lattice_centering = self.view.get_lattice_centering()
         use = self.view.get_orientations_to_use()
         d_min = self.view.get_d_min()
+        draw_all = self.view.draw_all()
+        row = self.view.get_peak_list()
 
         if self.draw_idle:
 
@@ -400,7 +407,7 @@ class Experiment(NeuXtalVizPresenter):
                 self.view.plot_statistics(*stats)
 
                 peak_dict = self.model.get_coverage_info(
-                    point_group, lattice_centering
+                    point_group, lattice_centering, draw_all, row
                 )
                 if peak_dict is not None:
                     peak_dict["axis_limit"] = self.view.get_d_min()
