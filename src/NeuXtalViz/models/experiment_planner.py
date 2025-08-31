@@ -979,7 +979,6 @@ class ExperimentModel(NeuXtalVizModel):
             wavelength = [0.975 * wavelength[0], 1.025 * wavelength[1]]
 
         axes = np.array(self.axes).copy().tolist()
-        print(axes, angles)
 
         for i, angle in enumerate(angles):
             axes[i] = axes[i].format(angle)

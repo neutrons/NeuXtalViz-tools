@@ -227,6 +227,7 @@ class ExperimentView(NeuXtalVizWidget):
 
         self.mesh_table.setRowCount(0)
         self.mesh_table.setColumnCount(4)
+        self.mesh_table.blockSignals(True)
 
         labels = ["Motor", "Min", "Max", "Angles"]
 
@@ -930,7 +931,6 @@ class ExperimentView(NeuXtalVizWidget):
 
         resize = QHeaderView.Stretch
 
-        self.plan_table.horizontalHeader().setStretchLastSection(True)
         self.plan_table.horizontalHeader().setSectionResizeMode(resize)
         self.plan_table.setHorizontalHeaderLabels(labels)
 
@@ -960,7 +960,10 @@ class ExperimentView(NeuXtalVizWidget):
 
         rows = self.mesh_table.rowCount()
 
-        if text.replace(".", "").isnumeric() and len(text.split(".")) <= 2:
+        if (
+            text.lstrip("-").replace(".", "").isnumeric()
+            and len(text.split(".")) <= 2
+        ):
             value = float(text)
             if value.is_integer():
                 value = int(value)
@@ -1134,53 +1137,59 @@ class ExperimentView(NeuXtalVizWidget):
 
         return setting
 
-    def add_orientation(self, title, comment, angles):
-        row = self.get_number_of_orientations()
+    def add_orientations(self, title, comment, angles_list):
+        rows = self.get_number_of_orientations()
         self.plan_table.blockSignals(True)
+        self.plan_table.setUpdatesEnabled(False)
         self.plan_table.setSortingEnabled(False)
-        self.plan_table.setRowCount(row + 1)
+        self.plan_table.setRowCount(rows + len(angles_list))
 
-        col = 0
+        for i, angles in enumerate(angles_list):
 
-        item = QTableWidgetItem(title)
-        self.plan_table.setItem(row, col, item)
-        col += 1
+            row = rows + i
 
-        for angle in angles:
-            item = QTableWidgetItem("{:.1f}".format(angle))
+            col = 0
+
+            item = QTableWidgetItem(title)
             self.plan_table.setItem(row, col, item)
             col += 1
 
-        self.plan_table.setItem(row, col, QTableWidgetItem(comment))
-        col += 1
+            for angle in angles:
+                item = QTableWidgetItem("{:.1f}".format(angle))
+                self.plan_table.setItem(row, col, item)
+                col += 1
 
-        combobox = QComboBox()
-        options = self.get_counting_options()
-        for option in options:
-            combobox.addItem(option)
-        index = self.get_counting_index()
-        if index is not None:
-            combobox.setCurrentIndex(index)
-        self.plan_table.setCellWidget(row, col, combobox)
-        col += 1
+            self.plan_table.setItem(row, col, QTableWidgetItem(comment))
+            col += 1
 
-        val = self.get_count_value()
-        if val is not None:
-            item = QTableWidgetItem("{:.3f}".format(val))
-            self.plan_table.setItem(row, col, item)
-        col += 1
+            combobox = QComboBox()
+            options = self.get_counting_options()
+            for option in options:
+                combobox.addItem(option)
+            index = self.get_counting_index()
+            if index is not None:
+                combobox.setCurrentIndex(index)
+            self.plan_table.setCellWidget(row, col, combobox)
+            col += 1
 
-        flags = Qt.ItemIsUserCheckable | Qt.ItemIsEnabled
+            val = self.get_count_value()
+            if val is not None:
+                item = QTableWidgetItem("{:.3f}".format(val))
+                self.plan_table.setItem(row, col, item)
+            col += 1
 
-        checkbox = QTableWidgetItem("")
-        checkbox.setText("")
-        checkbox.setFlags(flags)
-        checkbox.setCheckState(Qt.Checked)
-        self.plan_table.setItem(row, col, checkbox)
+            flags = Qt.ItemIsUserCheckable | Qt.ItemIsEnabled
 
-        self.set_peak_list(self.get_number_of_orientations())
+            checkbox = QTableWidgetItem("")
+            checkbox.setText("")
+            checkbox.setFlags(flags)
+            checkbox.setCheckState(Qt.Checked)
+            self.plan_table.setItem(row, col, checkbox)
+
+        self.plan_table.setSortingEnabled(False)
+        self.plan_table.setUpdatesEnabled(True)
         self.plan_table.blockSignals(False)
-        self.plan_table.setSortingEnabled(True)
+        self.set_peak_list(self.get_number_of_orientations())
 
     def add_settings(self, titles, settings, comments, counts, values, use):
         self.plan_table.setUpdatesEnabled(False)
@@ -1226,8 +1235,8 @@ class ExperimentView(NeuXtalVizWidget):
             self.plan_table.setItem(row, col, checkbox)
 
         self.plan_table.setUpdatesEnabled(True)
+        self.plan_table.setSortingEnabled(False)
         self.plan_table.blockSignals(False)
-        self.plan_table.setSortingEnabled(True)
 
         self.set_peak_list(self.get_number_of_orientations())
 
@@ -1345,6 +1354,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.reset_view()
 
     def update_peaks_table(self, peaks):
+        self.peaks_table.blockSignals(True)
         self.peaks_table.clearSelection()
         self.peaks_table.setSortingEnabled(False)
         self.peaks_table.setRowCount(0)
@@ -1354,6 +1364,7 @@ class ExperimentView(NeuXtalVizWidget):
             self.set_peak(row, peak)
 
         self.peaks_table.setSortingEnabled(True)
+        self.peaks_table.blockSignals(False)
 
     def set_peak(self, row, peak):
         h, k, l, d, lamda = peak

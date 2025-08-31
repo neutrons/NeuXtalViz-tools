@@ -33,10 +33,10 @@ class Experiment(NeuXtalVizPresenter):
         self.view.connect_update(self.view.update_counting)
         self.view.connect_highlight_angles(self.view.highlight_angles)
 
+        self.draw_idle = True
+
         self.switch_instrument()
         self.switch_crystal()
-
-        self.draw_idle = True
 
     def load_detector(self):
         inst = self.view.get_instrument()
@@ -268,13 +268,31 @@ class Experiment(NeuXtalVizPresenter):
             self.view.update_inst()
 
     def delete_angles(self):
+        worker = self.view.worker(self.delete_angles_process)
+        worker.connect_result(self.delete_angles_complete)
+        worker.connect_finished(self.visualize)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def delete_angles_complete(self, result):
+
+        if result is not None:
+            self.update_peaks()
+
+    def delete_angles_process(self, progress):
+
         rows = self.view.delete_angles()
 
         if len(rows) > 0:
             self.model.delete_angles(rows)
 
-        self.visualize()
-        self.update_peaks()
+            progress("Angles deleted!", 0)
+
+            return True
+
+        else:
+            progress("Invalid parameters.", 0)
 
     def add_orientation(self):
         worker = self.view.worker(self.add_orientation_process)
@@ -294,7 +312,7 @@ class Experiment(NeuXtalVizPresenter):
                 update_angles.append(angle)
 
         title = self.view.get_title()
-        self.view.add_orientation(title, comment, update_angles)
+        self.view.add_orientations(title, comment, [update_angles])
         self.update_peaks()
 
     def add_orientation_process(self, progress):
@@ -329,8 +347,7 @@ class Experiment(NeuXtalVizPresenter):
     def mesh_scan_complete(self, result):
         title = self.view.get_title()
         if result is not None:
-            for angles in result:
-                self.view.add_orientation(title, "Mesh Scan", angles)
+            self.view.add_orientations(title, "Mesh Scan", result)
             self.update_peaks()
 
     def mesh_scan_process(self, progress):
@@ -371,24 +388,26 @@ class Experiment(NeuXtalVizPresenter):
         use = self.view.get_orientations_to_use()
         d_min = self.view.get_d_min()
 
-        stats = self.model.calculate_statistics(
-            point_group, lattice_centering, use, d_min
-        )
+        if self.draw_idle:
 
-        if stats is not None and self.model.has_UB() and self.draw_idle:
-            self.draw_idle = False
-
-            self.view.plot_statistics(*stats)
-
-            peak_dict = self.model.get_coverage_info(
-                point_group, lattice_centering
+            stats = self.model.calculate_statistics(
+                point_group, lattice_centering, use, d_min
             )
-            if peak_dict is not None:
-                peak_dict["axis_limit"] = self.view.get_d_min()
 
-                self.view.add_peaks(peak_dict)
+            if stats is not None and self.model.has_UB():
+                self.draw_idle = False
 
-            self.draw_idle = True
+                self.view.plot_statistics(*stats)
+
+                peak_dict = self.model.get_coverage_info(
+                    point_group, lattice_centering
+                )
+                if peak_dict is not None:
+                    peak_dict["axis_limit"] = self.view.get_d_min()
+
+                    self.view.add_peaks(peak_dict)
+
+                self.draw_idle = True
 
     def optimize_coverage(self):
         worker = self.view.worker(self.optimize_coverage_process)
@@ -401,8 +420,7 @@ class Experiment(NeuXtalVizPresenter):
     def optimize_coverage_complete(self, result):
         title = self.view.get_title()
         if result is not None:
-            for angles in result:
-                self.view.add_orientation(title, "CrystalPlan", angles)
+            self.view.add_orientations(title, "CrystalPlan", result)
             self.update_peaks()
 
     def optimize_coverage_process(self, progress):
