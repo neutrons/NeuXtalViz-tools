@@ -26,11 +26,6 @@ from pyvistaqt import QtInteractor
 
 from NeuXtalViz.views.utilities import Worker, ThreadPool
 
-# themes = {'Default': pv.themes.Theme(),
-#           'Document': pv.themes.DocumentTheme(),
-#           'Dark': pv.themes.DarkTheme(),
-#           'ParaView': pv.themes.ParaViewTheme()}
-
 
 class NeuXtalVizWidget(QWidget):
     """
@@ -80,6 +75,14 @@ class NeuXtalVizWidget(QWidget):
             "Save a screenshot of the current 3D view."
         )
 
+        self.theme_combo = QComboBox(self)
+        self.theme_combo.addItem("default")
+        self.theme_combo.addItem("document")
+        self.theme_combo.addItem("dark")
+        self.theme_combo.addItem("paraview")
+        self.theme_combo.setToolTip("Select theme.")
+        self.theme_combo.currentIndexChanged.connect(self.update_theme)
+
         self.frame = QFrame()
 
         self.plotter = QtInteractor(self.frame)
@@ -95,6 +98,7 @@ class NeuXtalVizWidget(QWidget):
         left_layout.addWidget(self.save_button)
         left_layout.addWidget(self.reset_button)
         left_layout.addWidget(self.camera_button)
+        left_layout.addWidget(self.theme_combo)
 
         # right_layout.addStretch(1)
         right_layout.addWidget(self.recip_box)
@@ -700,6 +704,13 @@ class NeuXtalVizWidget(QWidget):
         """
 
         self.plotter.set_viewup(vec)
+
+    def update_theme(self):
+        theme = self.theme_combo.currentText()
+        pv.set_plot_theme(theme)
+        bg = pv.global_theme.background
+        self.plotter.set_background(bg)
+        self.plotter.render()
 
     def update_labels(self):
         """

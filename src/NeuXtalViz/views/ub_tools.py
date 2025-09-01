@@ -2225,16 +2225,11 @@ class UBView(NeuXtalVizWidget):
 
         grid["scalars"] = signal.T.flatten()
 
-        # cmax = np.nanmax(signal)
-
         _ = self.plotter.add_volume(
             grid,
             opacity="linear",
             show_scalar_bar=False,
             cmap="binary",
-            # clim=[0.0001*cmax, cmax],
-            # log_scale=True,
-            # shade=True,
             culling=True,
         )
 
@@ -2287,8 +2282,8 @@ class UBView(NeuXtalVizWidget):
             mu = np.nanmean(intensities)
             sigma = np.nanstd(intensities)
 
-            cmap = "turbo" if integrate else ["lightblue", "lightgreen"]
-            n_colors = 256 if integrate else 2
+            cmap = "viridis" if integrate else ["lightblue", "lightgreen"]
+            n_colors = 16 if integrate else 2
             clim = [mu - 3 * sigma, mu + 3 * sigma] if integrate else [0, 1]
 
             _, mapper = self.plotter.add_composite(
@@ -2297,11 +2292,12 @@ class UBView(NeuXtalVizWidget):
                 color=None,
                 log_scale=False,
                 style="wireframe",
+                culling=True,
                 cmap=cmap,
                 clim=clim,
                 n_colors=n_colors,
                 show_scalar_bar=False,
-                smooth_shading=True,
+                smooth_shading=False,
             )
 
             self.mapper = mapper
