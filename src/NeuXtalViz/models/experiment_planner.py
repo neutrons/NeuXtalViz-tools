@@ -1435,7 +1435,7 @@ class CrystalPlan:
         rows = np.arange(len(use)).tolist()
 
         for row in rows:
-            if not use[row] or opt[row]:
+            if not use[row]:
                 FilterPeaks(
                     InputWorkspace="crystal_plan",
                     FilterVariable="RunNumber",
@@ -1443,6 +1443,10 @@ class CrystalPlan:
                     Operator="!=",
                     OutputWorkspace="crystal_plan",
                 )
+            if opt[row]:
+                print("Row #{}: {}".format(row, use[row]))
+
+        print(mtd["crystal_plan"].getNumberPeaks())
 
         if np.isclose(wavelength[0], wavelength[1]):
             wavelength = [0.975 * wavelength[0], 1.025 * wavelength[1]]
@@ -1558,7 +1562,7 @@ class CrystalPlan:
                 MissingReflectionsWorkspace="",
             )
 
-            unique, completeness, redundancy, multiple = output
+            _, completeness, _, _ = output
 
             fitness = completeness * (n - i - 1)
 
@@ -1566,13 +1570,12 @@ class CrystalPlan:
 
         return fit
 
-    def crossover(self, n_orient, n_elite, best, selection):
+    def crossover(self, n_orient, best, selection):
         j = 0
-
         genes = "peaks_{}_{}"
         genome = "s_{}_{}"
-
         workspaces = []
+        new_genes = {}
 
         for elite in best:
             for i in range(n_orient):
@@ -1580,45 +1583,72 @@ class CrystalPlan:
                     InputWorkspace=genes.format(i, elite),
                     OutputWorkspace=genome.format(i, j),
                 )
-
                 workspaces.append(genome.format(i, j))
-
+                # Copy gene angles for elite
+                new_genes[genome.format(i, j)] = self.genes[
+                    genes.format(i, elite)
+                ]
             j += 1
 
         for parents in selection:
-            k = np.random.randint(1, n_orient)
-
-            for i in range(k):
-                CloneWorkspace(
-                    InputWorkspace=genes.format(i, parents[0]),
-                    OutputWorkspace=genome.format(i, j + 0),
-                )
-
-                CloneWorkspace(
-                    InputWorkspace=genes.format(i, parents[1]),
-                    OutputWorkspace=genome.format(i, j + 1),
-                )
-
-                workspaces.append(genome.format(i, j + 0))
-                workspaces.append(genome.format(i, j + 1))
-
-            for i in range(k, n_orient):
-                CloneWorkspace(
-                    InputWorkspace=genes.format(i, parents[1]),
-                    OutputWorkspace=genome.format(i, j + 0),
-                )
-
-                CloneWorkspace(
-                    InputWorkspace=genes.format(i, parents[0]),
-                    OutputWorkspace=genome.format(i, j + 1),
-                )
-
-                workspaces.append(genome.format(i, j + 0))
-                workspaces.append(genome.format(i, j + 1))
-
-            j += 2
+            if n_orient == 1:
+                for p in parents:
+                    CloneWorkspace(
+                        InputWorkspace=genes.format(0, p),
+                        OutputWorkspace=genome.format(0, j),
+                    )
+                    workspaces.append(genome.format(0, j))
+                    # Copy gene angles for single-orient
+                    new_genes[genome.format(0, j)] = self.genes[
+                        genes.format(0, p)
+                    ]
+                    j += 1
+            else:
+                k = np.random.randint(1, n_orient)
+                for i in range(k):
+                    CloneWorkspace(
+                        InputWorkspace=genes.format(i, parents[0]),
+                        OutputWorkspace=genome.format(i, j + 0),
+                    )
+                    CloneWorkspace(
+                        InputWorkspace=genes.format(i, parents[1]),
+                        OutputWorkspace=genome.format(i, j + 1),
+                    )
+                    workspaces.append(genome.format(i, j + 0))
+                    workspaces.append(genome.format(i, j + 1))
+                    # Copy gene angles for crossover
+                    new_genes[genome.format(i, j + 0)] = self.genes[
+                        genes.format(i, parents[0])
+                    ]
+                    new_genes[genome.format(i, j + 1)] = self.genes[
+                        genes.format(i, parents[1])
+                    ]
+                for i in range(k, n_orient):
+                    CloneWorkspace(
+                        InputWorkspace=genes.format(i, parents[1]),
+                        OutputWorkspace=genome.format(i, j + 0),
+                    )
+                    CloneWorkspace(
+                        InputWorkspace=genes.format(i, parents[0]),
+                        OutputWorkspace=genome.format(i, j + 1),
+                    )
+                    workspaces.append(genome.format(i, j + 0))
+                    workspaces.append(genome.format(i, j + 1))
+                    new_genes[genome.format(i, j + 0)] = self.genes[
+                        genes.format(i, parents[1])
+                    ]
+                    new_genes[genome.format(i, j + 1)] = self.genes[
+                        genes.format(i, parents[0])
+                    ]
+                j += 2
 
         RenameWorkspaces(InputWorkspaces=workspaces, Prefix="peak")
+
+        updated_genes = {}
+        for old_name, angles in new_genes.items():
+            new_name = old_name.replace("s_", "peaks_")
+            updated_genes[new_name] = angles
+        self.genes = updated_genes
 
     def mutation(self, n_orient, n_indiv, mutation_rate):
         fit = []
@@ -1627,6 +1657,10 @@ class CrystalPlan:
                 if np.random.random() < mutation_rate:
                     self.generation(i, j)
             self.recombination(n_orient, j)
+            for i in range(n_orient):
+                gene_name = "peaks_{}_{}".format(i, j)
+                if gene_name not in self.genes:
+                    self.genes[gene_name] = None
             fit.append(self.fitness("peaks_{}".format(j)))
 
         return np.array(fit)
@@ -1652,7 +1686,7 @@ class CrystalPlan:
                     )
                 )
 
-            self.crossover(n_orient, n_elite, best, selection)
+            self.crossover(n_orient, best, selection)
 
             fit = self.mutation(n_orient, n_indiv, mutation_rate)
 
