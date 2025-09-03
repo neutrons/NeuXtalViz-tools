@@ -746,6 +746,8 @@ class ExperimentView(NeuXtalVizWidget):
             self, "Load mask file", path, file_filters, options=options
         )
 
+        return filename
+
     def load_UB_file_dialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog

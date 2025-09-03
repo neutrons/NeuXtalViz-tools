@@ -61,6 +61,7 @@ class Experiment(NeuXtalVizPresenter):
         inst = self.view.get_instrument()
         path = self.model.get_calibration_file_path(inst)
         filename = self.view.load_mask_dialog(path)
+        print(filename)
 
         if filename:
             self.view.set_mask(filename)
