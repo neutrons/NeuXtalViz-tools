@@ -191,6 +191,13 @@ class UBView(NeuXtalVizWidget):
         parameters_layout.addWidget(self.gamma_line, 1, 5)
         parameters_layout.addWidget(degree_label, 1, 6)
 
+        self.set_ub_button = QPushButton("Set", self)
+        self.set_ub_button.setToolTip("Set the UB matrix.")
+
+        set_layout = QHBoxLayout()
+        set_layout.addWidget(self.set_ub_button)
+        set_layout.addStretch(1)
+
         notation = QDoubleValidator.StandardNotation
 
         validator = QDoubleValidator(-5, 5, 4, notation=notation)
@@ -287,6 +294,22 @@ class UBView(NeuXtalVizWidget):
         self.wk_line.setReadOnly(False)
         self.wl_line.setReadOnly(False)
 
+        notation = QDoubleValidator.StandardNotation
+
+        validator = QDoubleValidator(-100, 190, 4, notation=notation)
+
+        self.uh_line.setValidator(validator)
+        self.uk_line.setValidator(validator)
+        self.ul_line.setValidator(validator)
+
+        self.vh_line.setValidator(validator)
+        self.vk_line.setValidator(validator)
+        self.vl_line.setValidator(validator)
+
+        self.wh_line.setValidator(validator)
+        self.wk_line.setValidator(validator)
+        self.wl_line.setValidator(validator)
+
         orientation_layout = QGridLayout()
 
         orientation_layout.addWidget(a_star_label, 0, 1, Qt.AlignCenter)
@@ -311,6 +334,7 @@ class UBView(NeuXtalVizWidget):
 
         lattice_layout.addLayout(parameters_layout)
         lattice_layout.addStretch(1)
+        lattice_layout.addLayout(set_layout)
 
         directions_layout.addLayout(orientation_layout)
         directions_layout.addStretch(1)
@@ -1771,6 +1795,9 @@ class UBView(NeuXtalVizWidget):
     def connect_select_form(self, select_form):
         self.select_button.clicked.connect(select_form)
 
+    def connect_set_UB(self, set_UB):
+        self.set_ub_button.clicked.connect(set_UB)
+
     def connect_convert_HKL(self, convert_HKL):
         self.convert_to_hkl_button.clicked.connect(convert_HKL)
 
@@ -2358,6 +2385,21 @@ class UBView(NeuXtalVizWidget):
         self.wh_line.setText("{}".format(w[0]))
         self.wk_line.setText("{}".format(w[1]))
         self.wl_line.setText("{}".format(w[2]))
+
+    def get_sample_directions(self):
+        params = (
+            self.uh_line,
+            self.uk_line,
+            self.ul_line,
+            self.vh_line,
+            self.vk_line,
+            self.vl_line,
+        )
+
+        valid_params = all([param.hasAcceptableInput() for param in params])
+
+        if valid_params:
+            return [float(param.text()) for param in params]
 
     def format_with_error(self, value, error):
         if error <= 0:

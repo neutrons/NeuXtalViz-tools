@@ -38,6 +38,7 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_cell_row_highligter(self.highlight_cell)
         self.view.connect_peak_row_highligter(self.highlight_peak)
         self.view.connect_select_cell(self.select_cell)
+        self.view.connect_set_UB(self.set_UB)
 
         self.switch_instrument()
         self.lattice_transform()
@@ -514,6 +515,13 @@ class UB(NeuXtalVizPresenter):
 
             else:
                 progress("Invalid parameters.", 0)
+
+    def set_UB(self):
+        constants = self.view.get_lattice_constants()
+        directions = self.view.get_sample_directions()
+
+        if constants is not None and directions is not None:
+            self.model.set_manual_UB(constants, directions)
 
     def select_cell(self):
         worker = self.view.worker(self.select_cell_process)

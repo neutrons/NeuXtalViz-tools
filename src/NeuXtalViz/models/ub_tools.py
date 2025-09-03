@@ -1874,6 +1874,37 @@ class UBModel(NeuXtalVizModel):
 
         return {key: transform[key] for key in sorted(transform.keys())}
 
+    def set_manual_UB(self, constants, directions):
+        """
+        Set the unit cell parameters and directions manually.
+
+        Parameters
+        ----------
+        constants : list
+            List of unit cell parameters [a, b, c, alpha, beta, gamma].
+        directions : list
+            List of direction indices [u1, u2, u3, v1, v2, v3].
+        """
+
+        a, b, c, alpha, beta, gamma = constants
+        u1, u2, u3, v1, v2, v3 = directions
+
+        for ws in [self.cell, self.primitive_cell, self.table, self.Q]:
+            if mtd.doesExist(ws):
+                SetUB(
+                    Workspace=ws,
+                    a=a,
+                    b=b,
+                    c=c,
+                    alpha=alpha,
+                    beta=beta,
+                    gamma=gamma,
+                    u=[u1, u2, u3],
+                    v=[v1, v2, v3],
+                )
+
+        self.update_UB()
+
     def index_peaks(
         self,
         tol=0.1,
