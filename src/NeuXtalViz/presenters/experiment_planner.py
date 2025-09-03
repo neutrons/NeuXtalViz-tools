@@ -195,7 +195,12 @@ class Experiment(NeuXtalVizPresenter):
             return gamma, nu, lamda
 
         else:
-            progress("Invalid parameters.", 0)
+            if hkl is None:
+                progress("Invalid HKL input.", 0)
+            elif not self.model.has_UB():
+                progress("No UB matrix loaded.", 0)
+            else:
+                progress("Invalid parameters for single peak calculation.", 0)
 
     def calculate_double(self):
         worker = self.view.worker(self.calculate_double_process)
@@ -245,7 +250,14 @@ class Experiment(NeuXtalVizPresenter):
             return gamma_1, nu_1, lamda_1, gamma_2, nu_2, lamda_2
 
         else:
-            progress("Invalid parameters.", 0)
+            if hkl_1 is None:
+                progress("Invalid first hkl input.", 0)
+            elif hkl_2 is None:
+                progress("Invalid second hkl input.", 0)
+            elif not self.model.has_UB():
+                progress("No UB matrix loaded.", 0)
+            else:
+                progress("Invalid parameters for double peak calculation.", 0)
 
     def update_peaks(self):
         row = self.view.get_peak_list()
@@ -297,7 +309,7 @@ class Experiment(NeuXtalVizPresenter):
             return True
 
         else:
-            progress("Invalid parameters.", 0)
+            progress("No rows selected for deletion.", 0)
 
     def add_orientation(self):
         worker = self.view.worker(self.add_orientation_process)
@@ -339,7 +351,7 @@ class Experiment(NeuXtalVizPresenter):
             return angles, all_angles, free_angles
 
         else:
-            progress("Invalid parameters.", 0)
+            progress("No angles provided for orientation.", 0)
 
     def mesh_scan(self):
         worker = self.view.worker(self.mesh_scan_process)
@@ -385,7 +397,7 @@ class Experiment(NeuXtalVizPresenter):
             return angles
 
         else:
-            progress("Invalid parameters.", 0)
+            progress("No mesh angles provided for mesh scan.", 0)
 
     def visualize(self):
         point_group = self.view.get_point_group()
@@ -478,7 +490,7 @@ class Experiment(NeuXtalVizPresenter):
             return values
 
         else:
-            progress("Invalid parameters.", 0)
+            progress("No UB matrix loaded for optimization.", 0)
 
     def update_plan(self):
         instrument = self.view.get_instrument()

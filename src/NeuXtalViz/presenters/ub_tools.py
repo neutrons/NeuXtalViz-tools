@@ -218,7 +218,18 @@ class UB(NeuXtalVizPresenter):
             return mono
 
         else:
-            progress("Invalid parameters.", 0)
+            if instrument is None:
+                progress("Invalid instrument.", 0)
+            elif IPTS is None:
+                progress("Invalid IPTS.", 0)
+            elif runs is None:
+                progress("Invalid run(s).", 0)
+            elif wavelength is None:
+                progress("Invalid wavelength.", 0)
+            elif exp is None and instrument == "DEMAND":
+                progress("Invalid experiment for DEMAND.", 0)
+            else:
+                progress("Invalid parameters for Q conversion.", 0)
 
     def add_peak(self):
         if self.model.has_Q():
@@ -232,6 +243,17 @@ class UB(NeuXtalVizPresenter):
             if all(elem is not None for elem in validate):
                 self.model.add_peak(ind, val, horz, vert)
                 self.visualize()
+            else:
+                if horz is None:
+                    self.update_processing("Invalid horizontal value.", 0)
+                elif vert is None:
+                    self.update_processing("Invalid vertical value.", 0)
+                elif val is None:
+                    self.update_processing("Invalid diffraction value.", 0)
+                else:
+                    self.update_processing(
+                        "Invalid parameters for add_peak.", 0
+                    )
 
     def calculate_hkl(self):
         if self.model.has_Q():
@@ -249,6 +271,15 @@ class UB(NeuXtalVizPresenter):
                     self.view.set_horizontal(horz)
                     self.view.set_vertical(vert)
                     self.update_instrument_view()
+            else:
+                if ind is None:
+                    self.update_processing("Invalid data list index.", 0)
+                elif hkl is None:
+                    self.update_processing("Invalid hkl value.", 0)
+                else:
+                    self.update_processing(
+                        "Invalid parameters for calculating hkl.", 0
+                    )
 
     def update_instrument_view(self):
         worker = self.view.worker(self.update_instrument_view_process)
@@ -295,9 +326,28 @@ class UB(NeuXtalVizPresenter):
                 progress("Data/ROI viewed!", 0)
 
                 return self.model.inst_view, self.model.roi_view
-
+            else:
+                missing = []
+                if d_min is None:
+                    missing.append("d_min")
+                if d_max is None:
+                    missing.append("d_max")
+                if horz is None:
+                    missing.append("horizontal")
+                if vert is None:
+                    missing.append("vertical")
+                if horz_roi is None:
+                    missing.append("horizontal ROI")
+                if vert_roi is None:
+                    missing.append("vertical ROI")
+                if val is None:
+                    missing.append("diffraction value")
+                if missing:
+                    progress(f"Invalid parameter(s): {', '.join(missing)}.", 0)
+                else:
+                    progress("Invalid parameters for instrument view.", 0)
         else:
-            progress("Invalid parameters.", 0)
+            progress("Invalid parameters for instrument view.", 0)
 
     def update_roi(self):
         if self.model.has_Q():
