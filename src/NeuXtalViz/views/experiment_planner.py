@@ -701,7 +701,7 @@ class ExperimentView(NeuXtalVizWidget):
         return self.mask_line.text()
 
     def set_mask(self, filename):
-        return self.mask_line.setText(filename)
+        self.mask_line.setText(filename)
 
     def load_detector_cal_dialog(self, path=""):
         options = QFileDialog.Options()
