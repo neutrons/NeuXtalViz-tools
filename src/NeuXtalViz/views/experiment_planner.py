@@ -59,6 +59,8 @@ class ExperimentView(NeuXtalVizWidget):
         self.peak_tab()
 
         self.layout().addWidget(self.tab_widget, stretch=1)
+        self.plan_table.itemChanged.connect(self.handle_item_changed)
+        self.goniometer_table.itemChanged.connect(self.update_limits)
 
     def coverage_tab(self):
         cov_tab = QWidget()
@@ -961,7 +963,6 @@ class ExperimentView(NeuXtalVizWidget):
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             else:
                 free.append(angle)
-            self.goniometer_table.itemChanged.connect(self.update_limits)
         self.goniometer_table.blockSignals(False)
 
         self.motor_table.setRowCount(0)
@@ -988,7 +989,6 @@ class ExperimentView(NeuXtalVizWidget):
         self.plan_table.horizontalHeader().setSectionResizeMode(resize)
         self.plan_table.setHorizontalHeaderLabels(labels)
 
-        self.plan_table.itemChanged.connect(self.handle_item_changed)
         self.plan_table.blockSignals(False)
 
         self.mesh_table.clearContents()
@@ -1075,6 +1075,8 @@ class ExperimentView(NeuXtalVizWidget):
 
     def update_counting(self):
         self.plan_table.blockSignals(True)
+        self.plan_table.setUpdatesEnabled(False)
+        self.plan_table.setSortingEnabled(False)
 
         title = self.get_title()
         index = self.get_counting_index()
@@ -1095,6 +1097,8 @@ class ExperimentView(NeuXtalVizWidget):
                 item = QTableWidgetItem("{:.3f}".format(value))
                 self.plan_table.setItem(row, col + 1, item)
 
+        self.plan_table.setUpdatesEnabled(True)
+        self.plan_table.setSortingEnabled(True)
         self.plan_table.blockSignals(False)
 
         return rows
@@ -1309,12 +1313,16 @@ class ExperimentView(NeuXtalVizWidget):
 
     def handle_item_changed(self, item):
         self.plan_table.blockSignals(True)
+        self.plan_table.setUpdatesEnabled(False)
+        self.plan_table.setSortingEnabled(False)
 
         col = item.column()
 
         if col == self.plan_table.columnCount() - 1:
             self.viz_ready.emit()
 
+        self.plan_table.setUpdatesEnabled(True)
+        self.plan_table.setSortingEnabled(True)
         self.plan_table.blockSignals(False)
 
     def connect_viz_ready(self, visualize):

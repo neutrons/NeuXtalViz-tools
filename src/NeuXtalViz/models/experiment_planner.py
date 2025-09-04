@@ -1303,12 +1303,12 @@ class ExperimentModel(NeuXtalVizModel):
                 OutputWorkspace="combined",
             )
 
-        SortPeaksWorkspace(
-            InputWorkspace="combined",
-            ColumnNameToSortBy="RunNumber",
-            SortAscending=True,
-            OutputWorkspace="combined",
-        )
+        # SortPeaksWorkspace(
+        #     InputWorkspace="combined",
+        #     ColumnNameToSortBy="RunNumber",
+        #     SortAscending=True,
+        #     OutputWorkspace="combined",
+        # )
 
         runs = mtd["combined"].column(0)
 
