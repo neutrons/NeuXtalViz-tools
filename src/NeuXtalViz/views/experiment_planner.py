@@ -1042,17 +1042,29 @@ class ExperimentView(NeuXtalVizWidget):
             angles[ind] = int(float(self.mesh_table.item(row, 3).text()))
         return limits, angles
 
-    def delete_angles(self):
+    def get_angles_to_delete(self):
         self.plan_table.blockSignals(True)
+        self.plan_table.setUpdatesEnabled(False)
+        self.plan_table.setSortingEnabled(False)
+        rows = list(
+            set(index.row() for index in self.plan_table.selectedIndexes())
+        )
+        return rows
 
-        rows = set(index.row() for index in self.plan_table.selectedIndexes())
+    def delete_angles(self, rows):
+        self.plan_table.blockSignals(True)
+        self.plan_table.setUpdatesEnabled(False)
+        self.plan_table.setSortingEnabled(False)
+        self.plan_table.clearSelection()
+
         for row in sorted(rows, reverse=True):
             self.plan_table.removeRow(row)
 
         self.set_peak_list(self.get_number_of_orientations())
-        self.plan_table.blockSignals(False)
 
-        return rows
+        self.plan_table.setSortingEnabled(True)
+        self.plan_table.setUpdatesEnabled(True)
+        self.plan_table.blockSignals(False)
 
     def highlight_angles(self):
         self.plan_table.setSelectionBehavior(self.plan_table.SelectRows)
@@ -1271,8 +1283,9 @@ class ExperimentView(NeuXtalVizWidget):
             options = self.get_counting_options()
             for option in options:
                 combobox.addItem(option)
-            index = options.index(counts[row])
-            combobox.setCurrentIndex(index)
+            if counts[row] in options:
+                index = options.index(counts[row])
+                combobox.setCurrentIndex(index)
             self.plan_table.setCellWidget(row, col, combobox)
             col += 1
 

@@ -293,21 +293,21 @@ class Experiment(NeuXtalVizPresenter):
 
         self.view.start_worker_pool(worker)
 
-    def delete_angles_complete(self, result):
-
-        if result is not None:
+    def delete_angles_complete(self, rows):
+        if rows is not None:
+            self.view.delete_angles(rows)
             self.update_peaks()
 
     def delete_angles_process(self, progress):
 
-        rows = self.view.delete_angles()
+        rows = self.view.get_angles_to_delete()
 
-        if len(rows) > 0:
+        if rows is not None:
             self.model.delete_angles(rows)
 
             progress("Angles deleted!", 0)
 
-            return True
+            return rows
 
         else:
             progress("No rows selected for deletion.", 0)
