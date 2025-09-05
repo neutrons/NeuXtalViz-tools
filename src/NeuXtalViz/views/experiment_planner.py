@@ -255,6 +255,7 @@ class ExperimentView(NeuXtalVizWidget):
         params_layout = QHBoxLayout()
 
         params_layout.addWidget(self.instrument_combo)
+        params_layout.addStretch(1)
         params_layout.addWidget(wl_label)
         params_layout.addWidget(self.wl_min_line)
         params_layout.addWidget(self.wl_max_line)
@@ -579,9 +580,10 @@ class ExperimentView(NeuXtalVizWidget):
         self.angles_combo = QComboBox(self)
         self.angles_combo.setToolTip("Select an orientation from the list.")
 
-        orientation_layout.addWidget(self.combined_box)
         orientation_layout.addWidget(settings_label)
         orientation_layout.addWidget(self.angles_combo)
+        orientation_layout.addWidget(self.combined_box)
+        orientation_layout.addStretch(1)
         orientation_layout.addWidget(angles_label)
         orientation_layout.addWidget(self.angles_line)
         orientation_layout.addWidget(self.comment_line)

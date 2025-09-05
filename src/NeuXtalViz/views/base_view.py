@@ -300,8 +300,17 @@ class NeuXtalVizWidget(QWidget):
         manual_layout.addWidget(self.viewup_combo, 0, 7)
         manual_layout.addWidget(self.manualup_button, 1, 7)
 
-        directions_tab.setLayout(directions_layout)
-        manual_tab.setLayout(manual_layout)
+        snap_layout = QVBoxLayout()
+        values_layout = QVBoxLayout()
+
+        snap_layout.addLayout(directions_layout)
+        snap_layout.addStretch(1)
+
+        values_layout.addLayout(manual_layout)
+        values_layout.addStretch(1)
+
+        directions_tab.setLayout(snap_layout)
+        manual_tab.setLayout(values_layout)
 
         view_tab.addTab(directions_tab, "Direction View")
         view_tab.addTab(manual_tab, "Manual View")
