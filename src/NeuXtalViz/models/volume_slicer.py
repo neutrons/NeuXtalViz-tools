@@ -82,6 +82,8 @@ class VolumeSlicerModel(NeuXtalVizModel):
         """
         super(VolumeSlicerModel, self).__init__()
 
+        self.W = np.eye(3)
+
     def load_md_histo_workspace(self, filename):
         """
         Load and preprocess a Mantid MD histogram workspace from a file.
