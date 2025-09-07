@@ -26,8 +26,8 @@ colors = {
     "Actinides": "#FAB0E4",  # pink
     "Other Metals": "#CFCFCF",  # gray
     "Halogens": "#FFFEA3",  # yellow
-    "Noble Gases": "#B9F2F0",
-}  # cyan
+    "Noble Gases": "#B9F2F0",  # cyan
+}
 
 
 class PeriodicTableView(QWidget):

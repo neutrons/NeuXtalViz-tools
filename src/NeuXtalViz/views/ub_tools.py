@@ -120,7 +120,7 @@ class UBView(NeuXtalVizWidget):
 
         convert_tab = self.__init_convert_tab()
         peaks_tab = self.__init_peaks_tab()
-        ub_tab = self.__init_ub_tab()
+        self.ub_tab = self.__init_ub_tab()
         values_tab = self.__init_values_tab()
 
         ub_layout.addWidget(convert_tab)
@@ -129,7 +129,7 @@ class UBView(NeuXtalVizWidget):
         ub_layout.addWidget(peaks_tab)
         ub_layout.addLayout(peaks_io_layout)
 
-        ub_layout.addWidget(ub_tab)
+        ub_layout.addWidget(self.ub_tab)
         ub_layout.addLayout(ub_io_layout)
 
         ub_layout.addWidget(values_tab)
