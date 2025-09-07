@@ -14,26 +14,10 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 6
 
    NeuXtalViz.config
    NeuXtalViz.models
+   NeuXtalViz.presenters
+   NeuXtalViz.views
 
-Submodules
-----------
-
-NeuXtalViz.application module
------------------------------
-
-.. automodule:: NeuXtalViz.application
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: NeuXtalViz
-   :members:
-   :undoc-members:
-   :show-inheritance:
