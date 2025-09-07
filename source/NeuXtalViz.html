@@ -139,6 +139,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="NeuXtalViz.tutorials.html">
+    NeuXtalViz tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-external" href="https://single-crystal.ornl.gov">
     Single Crystal Diffraction
   </a>
@@ -241,6 +248,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="NeuXtalViz.tutorials.html">
+    NeuXtalViz tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-external" href="https://single-crystal.ornl.gov">
     Single Crystal Diffraction
   </a>
@@ -292,6 +306,9 @@
   <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="NeuXtalViz.config.html">NeuXtalViz.config package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="NeuXtalViz.models.html">NeuXtalViz.models package</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="NeuXtalViz.presenters.html">NeuXtalViz.presenters package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -351,7 +368,7 @@
                   
   <section id="neuxtalviz-package">
 <h1>NeuXtalViz package<a class="headerlink" href="#neuxtalviz-package" title="Link to this heading">#</a></h1>
-<p>NeuXtalViz (<em>new-crystal-vis</em>) is a toolkit for neutron single-crystal diffraction analysis and visualization.</p>
+<p><em>NeuXtalViz</em> is a toolkit for single-crystal diffraction analysis and visualization.</p>
 <section id="features">
 <h2>Features<a class="headerlink" href="#features" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -360,9 +377,6 @@
 <li><p>Volume slicing</p></li>
 <li><p>Experiment planning</p></li>
 </ul>
-</section>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="NeuXtalViz.config.html">NeuXtalViz.config package</a><ul>
@@ -637,8 +651,232 @@
 <li class="toctree-l2"><a class="reference internal" href="NeuXtalViz.models.html#module-NeuXtalViz.models">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="NeuXtalViz.presenters.html">NeuXtalViz.presenters package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="NeuXtalViz.presenters.html#module-NeuXtalViz.presenters.base_presenter">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.presenters.html#classes">Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.change_lattice"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.change_lattice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.save_screenshot"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.save_screenshot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.update_complete"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.update_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.update_invalid"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.update_invalid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.update_oriented_lattice"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.update_oriented_lattice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.update_processing"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.update_processing()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.update_progress"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.update_progress()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.update_status"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.update_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.view_ab"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.view_ab()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.view_ab_star"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.view_ab_star()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.view_bc"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.view_bc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.view_bc_star"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.view_bc_star()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.view_ca"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.view_ca()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.view_ca_star"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.view_ca_star()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.view_manual"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.view_manual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.view_up_manual"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizPresenter.view_up_manual()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure"><code class="docutils literal notranslate"><span class="pre">CrystalStructure</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.calculate_F2"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.calculate_F2()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.calculate_F2_complete"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.calculate_F2_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.calculate_F2_process"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.calculate_F2_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.calculate_hkl"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.calculate_hkl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.calculate_hkl_complete"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.calculate_hkl_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.calculate_hkl_process"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.calculate_hkl_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.generate_groups"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.generate_groups()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.generate_settings"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.generate_settings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.highlight_row"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.highlight_row()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.load_CIF"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.load_CIF()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.save_INS"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.save_INS()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.select_isotope"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.select_isotope()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.set_atom_table"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.set_atom_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.update_atoms"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.update_atoms()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.update_parameters"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.update_parameters()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.update_selection"><code class="docutils literal notranslate"><span class="pre">CrystalStructure.update_selection()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.add_orientation"><code class="docutils literal notranslate"><span class="pre">Experiment.add_orientation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.add_orientation_complete"><code class="docutils literal notranslate"><span class="pre">Experiment.add_orientation_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.add_orientation_process"><code class="docutils literal notranslate"><span class="pre">Experiment.add_orientation_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.add_settings"><code class="docutils literal notranslate"><span class="pre">Experiment.add_settings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.add_settings_complete"><code class="docutils literal notranslate"><span class="pre">Experiment.add_settings_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.add_settings_process"><code class="docutils literal notranslate"><span class="pre">Experiment.add_settings_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_double"><code class="docutils literal notranslate"><span class="pre">Experiment.calculate_double()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_double_complete"><code class="docutils literal notranslate"><span class="pre">Experiment.calculate_double_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_double_process"><code class="docutils literal notranslate"><span class="pre">Experiment.calculate_double_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single"><code class="docutils literal notranslate"><span class="pre">Experiment.calculate_single()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_alt"><code class="docutils literal notranslate"><span class="pre">Experiment.calculate_single_alt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_complete"><code class="docutils literal notranslate"><span class="pre">Experiment.calculate_single_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_hkl"><code class="docutils literal notranslate"><span class="pre">Experiment.calculate_single_hkl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_process"><code class="docutils literal notranslate"><span class="pre">Experiment.calculate_single_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.create_instrument"><code class="docutils literal notranslate"><span class="pre">Experiment.create_instrument()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.delete_angles"><code class="docutils literal notranslate"><span class="pre">Experiment.delete_angles()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.delete_angles_complete"><code class="docutils literal notranslate"><span class="pre">Experiment.delete_angles_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.delete_angles_process"><code class="docutils literal notranslate"><span class="pre">Experiment.delete_angles_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.load_UB"><code class="docutils literal notranslate"><span class="pre">Experiment.load_UB()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.load_detector"><code class="docutils literal notranslate"><span class="pre">Experiment.load_detector()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.load_experiment"><code class="docutils literal notranslate"><span class="pre">Experiment.load_experiment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.load_goniometer"><code class="docutils literal notranslate"><span class="pre">Experiment.load_goniometer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.load_mask"><code class="docutils literal notranslate"><span class="pre">Experiment.load_mask()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.lookup_angle"><code class="docutils literal notranslate"><span class="pre">Experiment.lookup_angle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.mesh_scan"><code class="docutils literal notranslate"><span class="pre">Experiment.mesh_scan()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.mesh_scan_complete"><code class="docutils literal notranslate"><span class="pre">Experiment.mesh_scan_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.mesh_scan_process"><code class="docutils literal notranslate"><span class="pre">Experiment.mesh_scan_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.optimize_coverage"><code class="docutils literal notranslate"><span class="pre">Experiment.optimize_coverage()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.optimize_coverage_complete"><code class="docutils literal notranslate"><span class="pre">Experiment.optimize_coverage_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.optimize_coverage_process"><code class="docutils literal notranslate"><span class="pre">Experiment.optimize_coverage_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.save_CSV"><code class="docutils literal notranslate"><span class="pre">Experiment.save_CSV()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.save_experiment"><code class="docutils literal notranslate"><span class="pre">Experiment.save_experiment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.switch_centering"><code class="docutils literal notranslate"><span class="pre">Experiment.switch_centering()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.switch_crystal"><code class="docutils literal notranslate"><span class="pre">Experiment.switch_crystal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.switch_group"><code class="docutils literal notranslate"><span class="pre">Experiment.switch_group()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.switch_instrument"><code class="docutils literal notranslate"><span class="pre">Experiment.switch_instrument()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.update_goniometer"><code class="docutils literal notranslate"><span class="pre">Experiment.update_goniometer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.update_peaks"><code class="docutils literal notranslate"><span class="pre">Experiment.update_peaks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.update_plan"><code class="docutils literal notranslate"><span class="pre">Experiment.update_plan()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.update_wavelength"><code class="docutils literal notranslate"><span class="pre">Experiment.update_wavelength()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.visualize"><code class="docutils literal notranslate"><span class="pre">Experiment.visualize()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.periodic_table.Atom"><code class="docutils literal notranslate"><span class="pre">Atom</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.periodic_table.Atom.set_info"><code class="docutils literal notranslate"><span class="pre">Atom.set_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.periodic_table.Atom.set_isotope"><code class="docutils literal notranslate"><span class="pre">Atom.set_isotope()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.periodic_table.PeriodicTable"><code class="docutils literal notranslate"><span class="pre">PeriodicTable</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.periodic_table.PeriodicTable.connect_atom_model_view"><code class="docutils literal notranslate"><span class="pre">PeriodicTable.connect_atom_model_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.periodic_table.PeriodicTable.show_atom_dialog"><code class="docutils literal notranslate"><span class="pre">PeriodicTable.show_atom_dialog()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.periodic_table.PeriodicTable.update_selection"><code class="docutils literal notranslate"><span class="pre">PeriodicTable.update_selection()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.sample_tools.Sample"><code class="docutils literal notranslate"><span class="pre">Sample</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.sample_tools.Sample.add_sample"><code class="docutils literal notranslate"><span class="pre">Sample.add_sample()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.sample_tools.Sample.highlight_row"><code class="docutils literal notranslate"><span class="pre">Sample.highlight_row()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.sample_tools.Sample.load_UB"><code class="docutils literal notranslate"><span class="pre">Sample.load_UB()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.sample_tools.Sample.set_goniometer_table"><code class="docutils literal notranslate"><span class="pre">Sample.set_goniometer_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.sample_tools.Sample.update_parameters"><code class="docutils literal notranslate"><span class="pre">Sample.update_parameters()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB"><code class="docutils literal notranslate"><span class="pre">UB</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.add_peak"><code class="docutils literal notranslate"><span class="pre">UB.add_peak()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.calculate_hkl"><code class="docutils literal notranslate"><span class="pre">UB.calculate_hkl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.calculate_peaks"><code class="docutils literal notranslate"><span class="pre">UB.calculate_peaks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.cluster"><code class="docutils literal notranslate"><span class="pre">UB.cluster()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.cluster_complete"><code class="docutils literal notranslate"><span class="pre">UB.cluster_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.cluster_process"><code class="docutils literal notranslate"><span class="pre">UB.cluster_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.convert_Q"><code class="docutils literal notranslate"><span class="pre">UB.convert_Q()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.convert_Q_complete"><code class="docutils literal notranslate"><span class="pre">UB.convert_Q_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.convert_Q_process"><code class="docutils literal notranslate"><span class="pre">UB.convert_Q_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.convert_to_hkl"><code class="docutils literal notranslate"><span class="pre">UB.convert_to_hkl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.convert_to_hkl_complete"><code class="docutils literal notranslate"><span class="pre">UB.convert_to_hkl_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.convert_to_hkl_process"><code class="docutils literal notranslate"><span class="pre">UB.convert_to_hkl_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.filter_peaks"><code class="docutils literal notranslate"><span class="pre">UB.filter_peaks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.filter_peaks_complete"><code class="docutils literal notranslate"><span class="pre">UB.filter_peaks_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.filter_peaks_process"><code class="docutils literal notranslate"><span class="pre">UB.filter_peaks_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.find_conventional"><code class="docutils literal notranslate"><span class="pre">UB.find_conventional()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.find_conventional_complete"><code class="docutils literal notranslate"><span class="pre">UB.find_conventional_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.find_conventional_process"><code class="docutils literal notranslate"><span class="pre">UB.find_conventional_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.find_niggli"><code class="docutils literal notranslate"><span class="pre">UB.find_niggli()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.find_niggli_complete"><code class="docutils literal notranslate"><span class="pre">UB.find_niggli_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.find_niggli_process"><code class="docutils literal notranslate"><span class="pre">UB.find_niggli_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.find_peaks"><code class="docutils literal notranslate"><span class="pre">UB.find_peaks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.find_peaks_complete"><code class="docutils literal notranslate"><span class="pre">UB.find_peaks_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.find_peaks_process"><code class="docutils literal notranslate"><span class="pre">UB.find_peaks_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.get_clim_method"><code class="docutils literal notranslate"><span class="pre">UB.get_clim_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.get_modulation_info"><code class="docutils literal notranslate"><span class="pre">UB.get_modulation_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.get_normal"><code class="docutils literal notranslate"><span class="pre">UB.get_normal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.hand_index_fractional"><code class="docutils literal notranslate"><span class="pre">UB.hand_index_fractional()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.hand_index_integer"><code class="docutils literal notranslate"><span class="pre">UB.hand_index_integer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.highlight_cell"><code class="docutils literal notranslate"><span class="pre">UB.highlight_cell()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.highlight_peak"><code class="docutils literal notranslate"><span class="pre">UB.highlight_peak()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.index_peaks"><code class="docutils literal notranslate"><span class="pre">UB.index_peaks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.index_peaks_complete"><code class="docutils literal notranslate"><span class="pre">UB.index_peaks_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.index_peaks_process"><code class="docutils literal notranslate"><span class="pre">UB.index_peaks_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.integrate_peaks"><code class="docutils literal notranslate"><span class="pre">UB.integrate_peaks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.integrate_peaks_complete"><code class="docutils literal notranslate"><span class="pre">UB.integrate_peaks_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.integrate_peaks_process"><code class="docutils literal notranslate"><span class="pre">UB.integrate_peaks_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.lattice_transform"><code class="docutils literal notranslate"><span class="pre">UB.lattice_transform()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.load_Q"><code class="docutils literal notranslate"><span class="pre">UB.load_Q()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.load_UB"><code class="docutils literal notranslate"><span class="pre">UB.load_UB()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.load_detector_calibration"><code class="docutils literal notranslate"><span class="pre">UB.load_detector_calibration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.load_goniometer_calibration"><code class="docutils literal notranslate"><span class="pre">UB.load_goniometer_calibration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.load_peaks"><code class="docutils literal notranslate"><span class="pre">UB.load_peaks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.load_tube_calibration"><code class="docutils literal notranslate"><span class="pre">UB.load_tube_calibration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.predict_peaks"><code class="docutils literal notranslate"><span class="pre">UB.predict_peaks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.predict_peaks_complete"><code class="docutils literal notranslate"><span class="pre">UB.predict_peaks_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.predict_peaks_process"><code class="docutils literal notranslate"><span class="pre">UB.predict_peaks_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.refine_UB"><code class="docutils literal notranslate"><span class="pre">UB.refine_UB()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.refine_UB_complete"><code class="docutils literal notranslate"><span class="pre">UB.refine_UB_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.refine_UB_process"><code class="docutils literal notranslate"><span class="pre">UB.refine_UB_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.reslice"><code class="docutils literal notranslate"><span class="pre">UB.reslice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.save_Q"><code class="docutils literal notranslate"><span class="pre">UB.save_Q()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.save_UB"><code class="docutils literal notranslate"><span class="pre">UB.save_UB()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.save_peaks"><code class="docutils literal notranslate"><span class="pre">UB.save_peaks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.select_cell"><code class="docutils literal notranslate"><span class="pre">UB.select_cell()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.select_cell_complete"><code class="docutils literal notranslate"><span class="pre">UB.select_cell_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.select_cell_process"><code class="docutils literal notranslate"><span class="pre">UB.select_cell_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.set_UB"><code class="docutils literal notranslate"><span class="pre">UB.set_UB()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.show_cells"><code class="docutils literal notranslate"><span class="pre">UB.show_cells()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.show_cells_complete"><code class="docutils literal notranslate"><span class="pre">UB.show_cells_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.show_cells_process"><code class="docutils literal notranslate"><span class="pre">UB.show_cells_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.switch_instrument"><code class="docutils literal notranslate"><span class="pre">UB.switch_instrument()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.symmetry_transform"><code class="docutils literal notranslate"><span class="pre">UB.symmetry_transform()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.transform_UB"><code class="docutils literal notranslate"><span class="pre">UB.transform_UB()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.transform_UB_complete"><code class="docutils literal notranslate"><span class="pre">UB.transform_UB_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.transform_UB_process"><code class="docutils literal notranslate"><span class="pre">UB.transform_UB_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_check_hkl"><code class="docutils literal notranslate"><span class="pre">UB.update_check_hkl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_find_distance"><code class="docutils literal notranslate"><span class="pre">UB.update_find_distance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_find_spacing"><code class="docutils literal notranslate"><span class="pre">UB.update_find_spacing()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_instrument_view"><code class="docutils literal notranslate"><span class="pre">UB.update_instrument_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_instrument_view_complete"><code class="docutils literal notranslate"><span class="pre">UB.update_instrument_view_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_instrument_view_process"><code class="docutils literal notranslate"><span class="pre">UB.update_instrument_view_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_lattice_info"><code class="docutils literal notranslate"><span class="pre">UB.update_lattice_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_roi"><code class="docutils literal notranslate"><span class="pre">UB.update_roi()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_scan"><code class="docutils literal notranslate"><span class="pre">UB.update_scan()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_wavelength"><code class="docutils literal notranslate"><span class="pre">UB.update_wavelength()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.visualize"><code class="docutils literal notranslate"><span class="pre">UB.visualize()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.cut_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data_complete"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.cut_data_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data_process"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.cut_data_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_axis"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.get_axis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_clim_method"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.get_clim_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_normal"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.get_normal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_vlim_method"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.get_vlim_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.load_NXS()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS_complete"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.load_NXS_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS_process"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.load_NXS_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.redraw_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data_complete"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.redraw_data_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data_process"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.redraw_data_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.save_cut"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.save_cut()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.save_slice"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.save_slice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.slice_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data_complete"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.slice_data_complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data_process"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.slice_data_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cut"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.update_cut()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cut_value"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.update_cut_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cvals"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.update_cvals()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_lims"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.update_lims()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.update_slice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_value"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.update_slice_value()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+</section>
+<section id="neuxtalviz-application-module">
+<h2>NeuXtalViz.application module<a class="headerlink" href="#neuxtalviz-application-module" title="Link to this heading">#</a></h2>
+</section>
+<section id="module-NeuXtalViz">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-NeuXtalViz" title="Link to this heading">#</a></h2>
 </section>
 </section>
 
@@ -690,7 +928,9 @@
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#features">Features</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#neuxtalviz-application-module">NeuXtalViz.application module</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-NeuXtalViz">Module contents</a></li>
 </ul>
   </nav></div>
 

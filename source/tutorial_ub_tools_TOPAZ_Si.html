@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>NeuXtalViz.config package &#8212; NeuXtalViz  documentation</title>
+    <title>Tutorial: UB Tools with TOPAZ Silicon Data &#8212; NeuXtalViz  documentation</title>
   
   
   
@@ -42,11 +42,10 @@
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'source/NeuXtalViz.config';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'source/tutorial_ub_tools_TOPAZ_Si';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="NeuXtalViz.models package" href="NeuXtalViz.models.html" />
-    <link rel="prev" title="NeuXtalViz package" href="NeuXtalViz.html" />
+    <link rel="prev" title="NeuXtalViz tutorials" href="NeuXtalViz.tutorials.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -131,14 +130,14 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="NeuXtalViz.html">
     NeuXtalViz package
   </a>
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="NeuXtalViz.tutorials.html">
     NeuXtalViz tutorials
   </a>
@@ -240,14 +239,14 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="NeuXtalViz.html">
     NeuXtalViz package
   </a>
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="NeuXtalViz.tutorials.html">
     NeuXtalViz tutorials
   </a>
@@ -303,12 +302,9 @@
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">NeuXtalViz.config package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="NeuXtalViz.models.html">NeuXtalViz.models package</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="NeuXtalViz.presenters.html">NeuXtalViz.presenters package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
-</ul>
-</details></li>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Tutorial: UB Tools with TOPAZ Silicon Data</a></li>
 </ul>
 </div>
 </nav></div>
@@ -350,9 +346,9 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="NeuXtalViz.html" class="nav-link">NeuXtalViz package</a></li>
+    <li class="breadcrumb-item"><a href="NeuXtalViz.tutorials.html" class="nav-link">NeuXtalViz tutorials</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">NeuXtalViz.config package</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Tutorial: UB Tools with TOPAZ Silicon Data</span></li>
   </ul>
 </nav>
 </div>
@@ -369,27 +365,85 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="neuxtalviz-config-package">
-<h1>NeuXtalViz.config package<a class="headerlink" href="#neuxtalviz-config-package" title="Link to this heading">#</a></h1>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+  <section id="tutorial-ub-tools-with-topaz-silicon-data">
+<h1>Tutorial: UB Tools with TOPAZ Silicon Data<a class="headerlink" href="#tutorial-ub-tools-with-topaz-silicon-data" title="Link to this heading">#</a></h1>
+<p>This tutorial demonstrates how to use the UB tools in <em>NeuXtalViz</em> to process TOPAZ Silicon data, following the steps in the automated test script.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../_images/Si_UB_convert_Q.png"><img alt="../_images/Si_UB_convert_Q.png" src="../_images/Si_UB_convert_Q.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Convert to Q workspace.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<section id="step-1-select-instrument-and-data">
+<h2>Step 1: Select Instrument and Data<a class="headerlink" href="#step-1-select-instrument-and-data" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Set the instrument to <strong>TOPAZ</strong>.</p></li>
+<li><p>Enter IPTS number: <code class="docutils literal notranslate"><span class="pre">36169</span></code>.</p></li>
+<li><p>Enter run number: <code class="docutils literal notranslate"><span class="pre">54145</span></code>.</p></li>
+<li><p>Click <strong>Convert</strong> to load and convert the data.</p></li>
+</ul>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../_images/Si_UB_find_peaks.png"><img alt="../_images/Si_UB_find_peaks.png" src="../_images/Si_UB_find_peaks.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Find Peaks.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 </section>
-<section id="module-NeuXtalViz.config.atoms">
-<span id="neuxtalviz-config-atoms-module"></span><h2>NeuXtalViz.config.atoms module<a class="headerlink" href="#module-NeuXtalViz.config.atoms" title="Link to this heading">#</a></h2>
+<section id="step-2-find-peaks">
+<h2>Step 2: Find Peaks<a class="headerlink" href="#step-2-find-peaks" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Adjust peak finding parameters as needed:
+- Max peaks
+- Density threshold
+- Min distance
+- Click <strong>Find</strong> to identify candidate peaks.</p></li>
+</ul>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../_images/Si_UB_primitive_cell.png"><img alt="../_images/Si_UB_primitive_cell.png" src="../_images/Si_UB_primitive_cell.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Primitive Cell Calculation.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 </section>
-<section id="module-NeuXtalViz.config.colormap">
-<span id="neuxtalviz-config-colormap-module"></span><h2>NeuXtalViz.config.colormap module<a class="headerlink" href="#module-NeuXtalViz.config.colormap" title="Link to this heading">#</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="NeuXtalViz.config.colormap.add_modified">
-<span class="sig-name descname"><span class="pre">add_modified</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/NeuXtalViz/config/colormap.py#L217-L222"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.config.colormap.add_modified" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
+<section id="step-3-primitive-cell-calculation">
+<h2>Step 3: Primitive Cell Calculation<a class="headerlink" href="#step-3-primitive-cell-calculation" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Set tolerance and constraints for cell finding.</p></li>
+<li><p>Click <strong>Primitive</strong> to calculate the primitive cell.</p></li>
+</ul>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="../_images/Si_UB_conventional_cell.png"><img alt="../_images/Si_UB_conventional_cell.png" src="../_images/Si_UB_conventional_cell.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Select Conventional Cell.</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 </section>
-<section id="module-NeuXtalViz.config.instruments">
-<span id="neuxtalviz-config-instruments-module"></span><h2>NeuXtalViz.config.instruments module<a class="headerlink" href="#module-NeuXtalViz.config.instruments" title="Link to this heading">#</a></h2>
+<section id="step-4-select-conventional-cell">
+<h2>Step 4: Select Conventional Cell<a class="headerlink" href="#step-4-select-conventional-cell" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Select the desired cell from the table.</p></li>
+<li><p>Click <strong>Select</strong> to set the conventional cell.</p></li>
+</ul>
+<figure class="align-center" id="id5">
+<a class="reference internal image-reference" href="../_images/Si_UB_refine_UB.png"><img alt="../_images/Si_UB_refine_UB.png" src="../_images/Si_UB_refine_UB.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Refine UB Matrix.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 </section>
-<section id="module-NeuXtalViz.config">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-NeuXtalViz.config" title="Link to this heading">#</a></h2>
+<section id="step-5-refine-ub-matrix">
+<h2>Step 5: Refine UB Matrix<a class="headerlink" href="#step-5-refine-ub-matrix" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Switch to the UB tab.</p></li>
+<li><p>Set the cell constraint (e.g., <strong>Cubic</strong>).</p></li>
+<li><p>Click <strong>Refine</strong> to optimize the UB matrix.</p></li>
+</ul>
+<p>This workflow matches the automated test and can be used as a step-by-step guide for new users.</p>
 </section>
 </section>
 
@@ -404,22 +458,13 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="NeuXtalViz.html"
+       href="NeuXtalViz.tutorials.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">NeuXtalViz package</p>
+        <p class="prev-next-title">NeuXtalViz tutorials</p>
       </div>
-    </a>
-    <a class="right-next"
-       href="NeuXtalViz.models.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">NeuXtalViz.models package</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>
@@ -440,14 +485,11 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-NeuXtalViz.config.atoms">NeuXtalViz.config.atoms module</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-NeuXtalViz.config.colormap">NeuXtalViz.config.colormap module</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.config.colormap.add_modified"><code class="docutils literal notranslate"><span class="pre">add_modified()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-NeuXtalViz.config.instruments">NeuXtalViz.config.instruments module</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-NeuXtalViz.config">Module contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-select-instrument-and-data">Step 1: Select Instrument and Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-find-peaks">Step 2: Find Peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-primitive-cell-calculation">Step 3: Primitive Cell Calculation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-select-conventional-cell">Step 4: Select Conventional Cell</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-refine-ub-matrix">Step 5: Refine UB Matrix</a></li>
 </ul>
   </nav></div>
 
