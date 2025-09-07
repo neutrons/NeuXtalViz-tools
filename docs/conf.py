@@ -107,8 +107,6 @@ plot_basedir = ""
 
 add_module_names = False
 
-add_module_names = False
-
 
 def linkcode_resolve(domain, info):
     baseurl = "https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/{}.py"
@@ -132,3 +130,29 @@ def linkcode_resolve(domain, info):
         return "{}#L{}-L{}".format(url, start, stop)
     else:
         return url
+
+
+def skip_pyqt_signal(app, what, name, obj, skip, options):
+    try:
+        from PyQt5.QtCore import pyqtSignal
+    except ImportError:
+        try:
+            from qtpy.QtCore import Signal as pyqtSignal
+        except ImportError:
+            pyqtSignal = None
+    # Skip if the object is a pyqtSignal instance
+    if pyqtSignal is not None and isinstance(obj, pyqtSignal):
+        return True
+    # Also skip if the object is a Signal instance (qtpy)
+    try:
+        from qtpy.QtCore import Signal
+
+        if isinstance(obj, Signal):
+            return True
+    except ImportError:
+        pass
+    return skip
+
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip_pyqt_signal)

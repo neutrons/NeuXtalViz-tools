@@ -1,7 +1,13 @@
-import sys, os, threading
+import sys
+import os
+import threading
+import glob
+import shutil
+
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtTest import QTest
 from PyQt5.QtCore import Qt, QTimer, QThread, QThreadPool
+
 from NeuXtalViz.application import NeuXtalViz
 
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -47,6 +53,15 @@ def run_qt_scenario(scenario):
         os._exit(0)
 
     return rc
+
+
+def copy_generated_pngs(directory):
+    static = os.path.abspath(os.path.join(DIRECTORY, "../../docs/source"))
+    os.makedirs(static, exist_ok=True)
+    for png in glob.glob(
+        os.path.join(directory, "**", "*.png"), recursive=True
+    ):
+        shutil.copy2(png, static)
 
 
 def TOPAZ_Si_UB(app, window):
@@ -139,8 +154,10 @@ def TOPAZ_Si_UB(app, window):
     QTest.qWait(1000 * 5)
 
     app.primaryScreen().grabWindow(window.winId()).save(
-        os.path.join(directory, "ub_tab_refine_UB.png"), "png"
+        os.path.join(directory, "Si_UB_refine_UB.png"), "png"
     )
+
+    copy_generated_pngs(directory)
 
 
 def scenario_other_tab(app: QApplication, window: QWidget) -> None:

@@ -1,7 +1,7 @@
 NeuXtalViz package
 ==================
 
-NeuXtalViz (*new-crystal-vis*) is a toolkit for neutron single-crystal diffraction analysis and visualization.
+*NeuXtalViz* is a toolkit for single-crystal diffraction analysis and visualization.
 
 Features
 --------
@@ -10,14 +10,30 @@ Features
 - Volume slicing
 - Experiment planning
 
-Subpackages
------------
-
 .. toctree::
-   :maxdepth: 6
+   :maxdepth: 4
 
    NeuXtalViz.config
    NeuXtalViz.models
    NeuXtalViz.presenters
    NeuXtalViz.views
+
+Submodules
+----------
+
+NeuXtalViz.application module
+-----------------------------
+
+.. automodule:: NeuXtalViz.application
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: NeuXtalViz
+   :members:
+   :undoc-members:
+   :show-inheritance:
 

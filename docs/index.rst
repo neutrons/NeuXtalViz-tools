@@ -9,4 +9,5 @@ NeuXtalViz documentation
    :caption: Contents:
 
    source/NeuXtalViz
+   source/NeuXtalViz.tutorials
 
