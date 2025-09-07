@@ -14,7 +14,7 @@ Step 1: Select Instrument and Data
 - Set the instrument to **TOPAZ**.
 - Enter IPTS number: ``36169``.
 - Enter run number: ``54145``.
-- Click **Convert to Q** to load and convert the data.
+- Click **Convert** to load and convert the data.
 
 .. figure:: Si_UB_find_peaks.png
    :width: 100%
@@ -28,7 +28,7 @@ Step 2: Find Peaks
   - Max peaks
   - Density threshold
   - Min distance
-  - Click **Find Peaks** to identify candidate peaks.
+  - Click **Find** to identify candidate peaks.
 
 .. figure:: Si_UB_primitive_cell.png
    :width: 100%
@@ -39,7 +39,7 @@ Step 2: Find Peaks
 Step 3: Primitive Cell Calculation
 ----------------------------------
 - Set tolerance and constraints for cell finding.
-- Click **Niggli** to calculate the primitive cell.
+- Click **Primitive** to calculate the primitive cell.
 
 .. figure:: Si_UB_conventional_cell.png
    :width: 100%
@@ -61,7 +61,7 @@ Step 4: Select Conventional Cell
 Step 5: Refine UB Matrix
 ------------------------
 - Switch to the UB tab.
-- Set the optimization method (e.g., **Cubic**).
-- Click **Refine UB** to optimize the UB matrix.
+- Set the cell constraint (e.g., **Cubic**).
+- Click **Refine** to optimize the UB matrix.
 
 This workflow matches the automated test and can be used as a step-by-step guide for new users.
