@@ -107,9 +107,11 @@ plot_basedir = ""
 
 add_module_names = False
 
+add_module_names = False
+
 
 def linkcode_resolve(domain, info):
-    baseurl = "https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/{}.py"
+    baseurl = "https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/{}.py"
     if "py" not in domain:
         return None
     if not info["module"]:
