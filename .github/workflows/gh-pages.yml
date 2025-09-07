@@ -22,11 +22,13 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           environment-file: environment.yml
-          activate-environment: neuxtalviz
+          activate-environment: nxv
           auto-activate-base: false
 
       - name: Build documentation
         run: |
+          source $(conda info --base)/etc/profile.d/conda.sh
+          conda activate nxv
           sphinx-apidoc -o docs/source src/NeuXtalViz
           sphinx-build -b html docs docs/_build/html
 
