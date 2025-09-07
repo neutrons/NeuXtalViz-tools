@@ -16,7 +16,6 @@ Features
    NeuXtalViz.config
    NeuXtalViz.models
    NeuXtalViz.presenters
-   NeuXtalViz.views
 
 Submodules
 ----------

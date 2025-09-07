@@ -52,7 +52,7 @@ Step 4: Select Conventional Cell
 - Select the desired cell from the table.
 - Click **Select** to set the conventional cell.
 
-.. figure:: ub_tab_reSi_UB_refine_UBfine_UB.png
+.. figure:: Si_UB_refine_UB.png
    :width: 100%
    :align: center
 

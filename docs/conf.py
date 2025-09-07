@@ -132,27 +132,21 @@ def linkcode_resolve(domain, info):
         return url
 
 
-def skip_pyqt_signal(app, what, name, obj, skip, options):
+def skip_qt_members(app, what, name, obj, skip, options):
     try:
-        from PyQt5.QtCore import pyqtSignal
+        from PyQt5.QtCore import pyqtSignal, QMetaObject
     except ImportError:
         try:
-            from qtpy.QtCore import Signal as pyqtSignal
+            from qtpy.QtCore import Signal as pyqtSignal, QMetaObject
         except ImportError:
             pyqtSignal = None
-    # Skip if the object is a pyqtSignal instance
+            QMetaObject = None
     if pyqtSignal is not None and isinstance(obj, pyqtSignal):
         return True
-    # Also skip if the object is a Signal instance (qtpy)
-    try:
-        from qtpy.QtCore import Signal
-
-        if isinstance(obj, Signal):
-            return True
-    except ImportError:
-        pass
+    if QMetaObject is not None and isinstance(obj, QMetaObject):
+        return True
     return skip
 
 
 def setup(app):
-    app.connect("autodoc-skip-member", skip_pyqt_signal)
+    app.connect("autodoc-skip-member", skip_qt_members)
