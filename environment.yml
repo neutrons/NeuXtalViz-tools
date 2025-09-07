@@ -21,6 +21,8 @@ dependencies:
   - psutil
   - multiprocess
   - black
+  - sphinx
+  - sphinx-autodoc-typehints
   - pydata-sphinx-theme
   - numpydoc
   - pip:
