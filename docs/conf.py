@@ -109,7 +109,9 @@ add_module_names = False
 
 
 def linkcode_resolve(domain, info):
-    baseurl = "https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/{}.py"
+    baseurl = (
+        "https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/{}.py"
+    )
     if "py" not in domain:
         return None
     if not info["module"]:
