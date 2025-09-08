@@ -4,7 +4,7 @@
 Experiment Plan with Silicon Data
 =================================
 
-This tutorial guides you through planning an experiment using the TOPAZ instrument in NeuXtalViz.
+This tutorial guides through planning an experiment using the TOPAZ instrument in NeuXtalViz with silicon data.
 
 Step 1: Initialize the Experiment Planner
 -----------------------------------------

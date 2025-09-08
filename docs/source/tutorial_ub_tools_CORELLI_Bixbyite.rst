@@ -1,7 +1,7 @@
 UB Tools with Bixbyite Data
 ===========================
 
-This tutorial demonstrates how to use the UB tools in *NeuXtalViz* to process CORELLI Bixbyite (Fe,Mn)_2O_3 data.
+This tutorial demonstrates how to use the UB tools in *NeuXtalViz* to process CORELLI bixbyite (Fe,Mn)_2O_3 data.
 
 Step 1: Select Instrument and Data
 ----------------------------------

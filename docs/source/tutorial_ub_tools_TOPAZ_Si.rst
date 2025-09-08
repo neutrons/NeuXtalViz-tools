@@ -1,7 +1,7 @@
 UB Tools with Silicon Data
 ==========================
 
-This tutorial demonstrates how to use the UB tools in *NeuXtalViz* to process TOPAZ Silicon data.
+This tutorial demonstrates how to use the UB tools in *NeuXtalViz* to process TOPAZ silicon data.
 
 Step 1: Select Instrument and Data
 ----------------------------------
