@@ -7,6 +7,7 @@ NeuXtalViz tutorials
 
    tutorial_ub_tools_TOPAZ_Si
    tutorial_plan_TOPAZ_Si
+   tutorial_volume_TOPAZ_Si
   
 .. toctree::
    :maxdepth: 2
