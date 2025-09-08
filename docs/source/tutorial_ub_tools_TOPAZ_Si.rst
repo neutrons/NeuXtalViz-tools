@@ -1,13 +1,7 @@
-Tutorial: UB Tools with TOPAZ Silicon Data
-=========================================
+UB Tools with TOPAZ Silicon Data
+================================
 
-This tutorial demonstrates how to use the UB tools in *NeuXtalViz* to process TOPAZ Silicon data, following the steps in the automated test script.
-
-.. figure:: Si_UB_convert_Q.png
-   :width: 100%
-   :align: center
-
-   Convert to Q workspace.
+This tutorial demonstrates how to use the UB tools in *NeuXtalViz* to process TOPAZ Silicon data.
 
 Step 1: Select Instrument and Data
 ----------------------------------
@@ -16,19 +10,30 @@ Step 1: Select Instrument and Data
 - Enter run number: ``54145``.
 - Click **Convert** to load and convert the data.
 
+.. figure:: Si_UB_convert_Q.png
+   :width: 100%
+   :align: center
+
+   Convert to Q workspace.
+
+Step 2: Find Peaks
+------------------
+- Adjust peak finding parameters as needed:
+- Max peaks
+- Density threshold
+- Min distance
+- Click **Find** to identify candidate peaks.
+
 .. figure:: Si_UB_find_peaks.png
    :width: 100%
    :align: center
 
    Find Peaks.
 
-Step 2: Find Peaks
-------------------
-- Adjust peak finding parameters as needed:
-  - Max peaks
-  - Density threshold
-  - Min distance
-  - Click **Find** to identify candidate peaks.
+Step 3: Primitive Cell Calculation
+----------------------------------
+- Set tolerance and constraints for cell finding.
+- Click **Primitive** to calculate the primitive cell.
 
 .. figure:: Si_UB_primitive_cell.png
    :width: 100%
@@ -36,10 +41,10 @@ Step 2: Find Peaks
 
    Primitive Cell Calculation.
 
-Step 3: Primitive Cell Calculation
-----------------------------------
-- Set tolerance and constraints for cell finding.
-- Click **Primitive** to calculate the primitive cell.
+Step 4: Select Conventional Cell
+-------------------------------
+- Select the desired cell from the table.
+- Click **Select** to set the conventional cell.
 
 .. figure:: Si_UB_conventional_cell.png
    :width: 100%
@@ -47,10 +52,11 @@ Step 3: Primitive Cell Calculation
 
    Select Conventional Cell.
 
-Step 4: Select Conventional Cell
--------------------------------
-- Select the desired cell from the table.
-- Click **Select** to set the conventional cell.
+Step 5: Refine UB Matrix
+------------------------
+- Switch to the UB Refinement tab.
+- Set the cell constraint (e.g., **Cubic**).
+- Click **Refine** to optimize the UB matrix.
 
 .. figure:: Si_UB_refine_UB.png
    :width: 100%
@@ -58,10 +64,24 @@ Step 4: Select Conventional Cell
 
    Refine UB Matrix.
 
-Step 5: Refine UB Matrix
-------------------------
-- Switch to the UB tab.
-- Set the cell constraint (e.g., **Cubic**).
-- Click **Refine** to optimize the UB matrix.
+Step 6: View Peak
+-----------------
+- Switch to the Peaks tab.
+- Select a peak from the table to view its details.
 
-This workflow matches the automated test and can be used as a step-by-step guide for new users.
+.. figure:: Si_UB_view_peak.png
+   :width: 100%
+   :align: center
+
+   View Peak in Peaks Table.
+
+Step 7: Slice View
+------------------
+- Switch to the Slice tab.
+- Adjust slice parameters and click **Slice** to view the slice in HKL space.
+
+.. figure:: Si_UB_slice_view.png
+   :width: 100%
+   :align: center
+
+   Slice View in HKL Space.

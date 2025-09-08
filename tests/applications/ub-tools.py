@@ -157,6 +157,33 @@ def TOPAZ_Si_UB(app, window):
         os.path.join(directory, "Si_UB_refine_UB.png"), "png"
     )
 
+    ub_view.optimize_combo.setStyleSheet("")
+    ub_view.refine_button.setStyleSheet("")
+
+    ub_view.tab_widget.setCurrentIndex(1)
+    ub_view.peaks_table.selectRow(0)
+
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Si_UB_view_peak.png"), "png"
+    )
+
+    ub_view.peaks_table.clearSelection()
+
+    ub_view.tab_widget.setCurrentIndex(2)
+
+    ub_view.slice_combo.setStyleSheet("background-color: yellow;")
+    ub_view.slice_line.setStyleSheet("background-color: yellow;")
+    ub_view.convert_to_hkl_button.setStyleSheet("background-color: yellow;")
+
+    QTest.mouseClick(ub_view.convert_to_hkl_button, Qt.LeftButton)
+    QTest.qWait(1000 * 15)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Si_UB_slice_view.png"), "png"
+    )
+
     copy_generated_pngs(directory)
 
 
