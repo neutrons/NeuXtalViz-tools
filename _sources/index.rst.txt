@@ -1,7 +1,8 @@
+
 NeuXtalViz documentation
 ========================
 
-NeuXtalViz is a modern neutron crystallography toolkit for visualization and analysis of single-crystal diffraction data. It provides:
+NeuXtalViz (*new-crystal-vis*) is a modern neutron crystallography toolkit for visualization and analysis of single-crystal diffraction data. It provides:
 
 - Interactive graphical user interface (GUI) for data reduction
 - Support for multiple instruments, mainly time-of-flight Laue
