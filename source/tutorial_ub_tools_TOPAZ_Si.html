@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Tutorial: UB Tools with TOPAZ Silicon Data &#8212; NeuXtalViz  documentation</title>
+    <title>UB Tools with TOPAZ Silicon Data &#8212; NeuXtalViz  documentation</title>
   
   
   
@@ -302,9 +302,9 @@
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">TOPAZ Tutorials:</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Tutorial: UB Tools with TOPAZ Silicon Data</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">UB Tools with TOPAZ Silicon Data</a></li>
 </ul>
 </div>
 </nav></div>
@@ -348,7 +348,7 @@
     
     <li class="breadcrumb-item"><a href="NeuXtalViz.tutorials.html" class="nav-link">NeuXtalViz tutorials</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Tutorial: UB Tools with TOPAZ Silicon Data</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">UB Tools with TOPAZ Silicon Data</span></li>
   </ul>
 </nav>
 </div>
@@ -365,16 +365,9 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="tutorial-ub-tools-with-topaz-silicon-data">
-<h1>Tutorial: UB Tools with TOPAZ Silicon Data<a class="headerlink" href="#tutorial-ub-tools-with-topaz-silicon-data" title="Link to this heading">#</a></h1>
-<p>This tutorial demonstrates how to use the UB tools in <em>NeuXtalViz</em> to process TOPAZ Silicon data, following the steps in the automated test script.</p>
-<figure class="align-center" id="id1">
-<a class="reference internal image-reference" href="../_images/Si_UB_convert_Q.png"><img alt="../_images/Si_UB_convert_Q.png" src="../_images/Si_UB_convert_Q.png" style="width: 100%;" />
-</a>
-<figcaption>
-<p><span class="caption-text">Convert to Q workspace.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
-</figcaption>
-</figure>
+  <section id="ub-tools-with-topaz-silicon-data">
+<h1>UB Tools with TOPAZ Silicon Data<a class="headerlink" href="#ub-tools-with-topaz-silicon-data" title="Link to this heading">#</a></h1>
+<p>This tutorial demonstrates how to use the UB tools in <em>NeuXtalViz</em> to process TOPAZ Silicon data.</p>
 <section id="step-1-select-instrument-and-data">
 <h2>Step 1: Select Instrument and Data<a class="headerlink" href="#step-1-select-instrument-and-data" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -382,6 +375,23 @@
 <li><p>Enter IPTS number: <code class="docutils literal notranslate"><span class="pre">36169</span></code>.</p></li>
 <li><p>Enter run number: <code class="docutils literal notranslate"><span class="pre">54145</span></code>.</p></li>
 <li><p>Click <strong>Convert</strong> to load and convert the data.</p></li>
+</ul>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../_images/Si_UB_convert_Q.png"><img alt="../_images/Si_UB_convert_Q.png" src="../_images/Si_UB_convert_Q.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Convert to Q workspace.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-2-find-peaks">
+<h2>Step 2: Find Peaks<a class="headerlink" href="#step-2-find-peaks" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Adjust peak finding parameters as needed:</p></li>
+<li><p>Max peaks</p></li>
+<li><p>Density threshold</p></li>
+<li><p>Min distance</p></li>
+<li><p>Click <strong>Find</strong> to identify candidate peaks.</p></li>
 </ul>
 <figure class="align-center" id="id2">
 <a class="reference internal image-reference" href="../_images/Si_UB_find_peaks.png"><img alt="../_images/Si_UB_find_peaks.png" src="../_images/Si_UB_find_peaks.png" style="width: 100%;" />
@@ -391,14 +401,11 @@
 </figcaption>
 </figure>
 </section>
-<section id="step-2-find-peaks">
-<h2>Step 2: Find Peaks<a class="headerlink" href="#step-2-find-peaks" title="Link to this heading">#</a></h2>
+<section id="step-3-primitive-cell-calculation">
+<h2>Step 3: Primitive Cell Calculation<a class="headerlink" href="#step-3-primitive-cell-calculation" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Adjust peak finding parameters as needed:
-- Max peaks
-- Density threshold
-- Min distance
-- Click <strong>Find</strong> to identify candidate peaks.</p></li>
+<li><p>Set tolerance and constraints for cell finding.</p></li>
+<li><p>Click <strong>Primitive</strong> to calculate the primitive cell.</p></li>
 </ul>
 <figure class="align-center" id="id3">
 <a class="reference internal image-reference" href="../_images/Si_UB_primitive_cell.png"><img alt="../_images/Si_UB_primitive_cell.png" src="../_images/Si_UB_primitive_cell.png" style="width: 100%;" />
@@ -408,11 +415,11 @@
 </figcaption>
 </figure>
 </section>
-<section id="step-3-primitive-cell-calculation">
-<h2>Step 3: Primitive Cell Calculation<a class="headerlink" href="#step-3-primitive-cell-calculation" title="Link to this heading">#</a></h2>
+<section id="step-4-select-conventional-cell">
+<h2>Step 4: Select Conventional Cell<a class="headerlink" href="#step-4-select-conventional-cell" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Set tolerance and constraints for cell finding.</p></li>
-<li><p>Click <strong>Primitive</strong> to calculate the primitive cell.</p></li>
+<li><p>Select the desired cell from the table.</p></li>
+<li><p>Click <strong>Select</strong> to set the conventional cell.</p></li>
 </ul>
 <figure class="align-center" id="id4">
 <a class="reference internal image-reference" href="../_images/Si_UB_conventional_cell.png"><img alt="../_images/Si_UB_conventional_cell.png" src="../_images/Si_UB_conventional_cell.png" style="width: 100%;" />
@@ -422,11 +429,12 @@
 </figcaption>
 </figure>
 </section>
-<section id="step-4-select-conventional-cell">
-<h2>Step 4: Select Conventional Cell<a class="headerlink" href="#step-4-select-conventional-cell" title="Link to this heading">#</a></h2>
+<section id="step-5-refine-ub-matrix">
+<h2>Step 5: Refine UB Matrix<a class="headerlink" href="#step-5-refine-ub-matrix" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Select the desired cell from the table.</p></li>
-<li><p>Click <strong>Select</strong> to set the conventional cell.</p></li>
+<li><p>Switch to the UB Refinement tab.</p></li>
+<li><p>Set the cell constraint (e.g., <strong>Cubic</strong>).</p></li>
+<li><p>Click <strong>Refine</strong> to optimize the UB matrix.</p></li>
 </ul>
 <figure class="align-center" id="id5">
 <a class="reference internal image-reference" href="../_images/Si_UB_refine_UB.png"><img alt="../_images/Si_UB_refine_UB.png" src="../_images/Si_UB_refine_UB.png" style="width: 100%;" />
@@ -436,14 +444,33 @@
 </figcaption>
 </figure>
 </section>
-<section id="step-5-refine-ub-matrix">
-<h2>Step 5: Refine UB Matrix<a class="headerlink" href="#step-5-refine-ub-matrix" title="Link to this heading">#</a></h2>
+<section id="step-6-view-peak">
+<h2>Step 6: View Peak<a class="headerlink" href="#step-6-view-peak" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Switch to the UB tab.</p></li>
-<li><p>Set the cell constraint (e.g., <strong>Cubic</strong>).</p></li>
-<li><p>Click <strong>Refine</strong> to optimize the UB matrix.</p></li>
+<li><p>Switch to the Peaks tab.</p></li>
+<li><p>Select a peak from the table to view its details.</p></li>
 </ul>
-<p>This workflow matches the automated test and can be used as a step-by-step guide for new users.</p>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="../_images/Si_UB_view_peak.png"><img alt="../_images/Si_UB_view_peak.png" src="../_images/Si_UB_view_peak.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">View Peak in Peaks Table.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-7-slice-view">
+<h2>Step 7: Slice View<a class="headerlink" href="#step-7-slice-view" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Switch to the Slice tab.</p></li>
+<li><p>Adjust slice parameters and click <strong>Slice</strong> to view the slice in HKL space.</p></li>
+</ul>
+<figure class="align-center" id="id7">
+<a class="reference internal image-reference" href="../_images/Si_UB_slice_view.png"><img alt="../_images/Si_UB_slice_view.png" src="../_images/Si_UB_slice_view.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Slice View in HKL Space.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 </section>
 </section>
 
@@ -490,6 +517,8 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-primitive-cell-calculation">Step 3: Primitive Cell Calculation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-select-conventional-cell">Step 4: Select Conventional Cell</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-refine-ub-matrix">Step 5: Refine UB Matrix</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-view-peak">Step 6: View Peak</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-slice-view">Step 7: Slice View</a></li>
 </ul>
   </nav></div>
 
