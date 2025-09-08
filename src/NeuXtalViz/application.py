@@ -153,7 +153,25 @@ class NeuXtalViz(QMainWindow):
         structdiff_action.triggered.connect(self.structdiff_GUI)
         app_menu.addAction(structdiff_action)
 
+        # Add About menu
+        help_menu = self.menuBar().addMenu("Help")
+        about_action = QAction("About NeuXtalViz", self)
+        about_action.triggered.connect(self.show_about_dialog)
+        help_menu.addAction(about_action)
+
         # self.showMaximized()
+
+    def show_about_dialog(self):
+        QMessageBox.about(
+            self,
+            "About NeuXtalViz",
+            (
+                "<b>NeuXtalViz</b><br>"
+                "Modern toolkit for single-crystal neutron diffraction analysis and visualization.<br>"
+                "<br>Project webpage: "
+                '<a href="https://zjmorgan.github.io/NeuXtalViz-tools/index.html">https://zjmorgan.github.io/NeuXtalViz-tools/index.html</a>'
+            ),
+        )
 
     def topaz_reduction_GUI(self):
         directory = QFileDialog.getExistingDirectory(
