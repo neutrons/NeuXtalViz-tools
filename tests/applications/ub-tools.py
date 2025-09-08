@@ -1,6 +1,5 @@
 import os
 
-from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtTest import QTest
 from PyQt5.QtCore import Qt
 
@@ -142,6 +141,9 @@ def TOPAZ_Si_UB(app, window):
     app.primaryScreen().grabWindow(window.winId()).save(
         os.path.join(directory, "Si_UB_save_UB.png"), "png"
     )
+    ub_presenter.model.save_UB(
+        os.path.join("/SNS/TOPAZ/IPTS-36169/shared/nxv/", "Si_UB.mat")
+    )
 
     copy_generated_pngs(directory)
 
@@ -158,7 +160,7 @@ def CORELLI_Bixbyite_UB(app, window):
     index = ub_view.instrument_combo.findText("CORELLI")
     ub_view.instrument_combo.setCurrentIndex(index)
     ub_view.ipts_line.setText("36170")
-    ub_view.runs_line.setText("72166:72170")
+    ub_view.runs_line.setText("37055")
 
     ub_view.instrument_combo.setStyleSheet("background-color: yellow;")
     ub_view.ipts_line.setStyleSheet("background-color: yellow;")
@@ -166,7 +168,7 @@ def CORELLI_Bixbyite_UB(app, window):
     ub_view.convert_to_q_button.setStyleSheet("background-color: green;")
 
     QTest.mouseClick(ub_view.convert_to_q_button, Qt.LeftButton)
-    QTest.qWait(1000 * 150)
+    QTest.qWait(1000 * 45)
 
     app.primaryScreen().grabWindow(window.winId()).save(
         os.path.join(directory, "Bixbyite_UB_convert_Q.png"), "png"
@@ -280,10 +282,13 @@ def CORELLI_Bixbyite_UB(app, window):
     app.primaryScreen().grabWindow(window.winId()).save(
         os.path.join(directory, "Bixbyite_UB_save_UB.png"), "png"
     )
+    ub_presenter.model.save_UB(
+        os.path.join("/SNS/CORELLI/IPTS-36170/shared/nxv/", "Bixbyite_UB.mat")
+    )
 
     copy_generated_pngs(directory)
 
 
 if __name__ == "__main__":
-    run_qt_scenario(TOPAZ_Si_UB)
-    # run_qt_scenario(CORELLI_Bixbyite_UB)
+    # run_qt_scenario(TOPAZ_Si_UB)
+    run_qt_scenario(CORELLI_Bixbyite_UB)

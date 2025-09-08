@@ -7,7 +7,7 @@ Step 1: Select Instrument and Data
 ----------------------------------
 - Set the instrument to **CORELLI**.
 - Enter IPTS number: ``36170``.
-- Enter run numbers: ``72166:72170``.
+- Enter run numbers: ``37055``.
 - Click **Convert** to load and convert the data.
 
 .. figure:: Bixbyite_UB_convert_Q.png
