@@ -265,7 +265,7 @@ class ExperimentView(NeuXtalVizWidget):
 
         result_layout = QVBoxLayout()
 
-        values_tab = QTabWidget()
+        self.values_tab = QTabWidget()
 
         goniometer_tab = QWidget()
         motor_tab = QWidget()
@@ -346,11 +346,11 @@ class ExperimentView(NeuXtalVizWidget):
         motor_tab.setLayout(motor_layout)
         plan_tab.setLayout(plan_layout)
 
-        values_tab.addTab(goniometer_tab, "Goniometers")
-        values_tab.addTab(motor_tab, "Calibration/Motors")
-        values_tab.addTab(plan_tab, "Plan")
+        self.values_tab.addTab(goniometer_tab, "Goniometers")
+        self.values_tab.addTab(motor_tab, "Calibration/Motors")
+        self.values_tab.addTab(plan_tab, "Plan")
 
-        result_layout.addWidget(values_tab)
+        result_layout.addWidget(self.values_tab)
 
         self.canvas_cov = FigureCanvas(
             Figure(constrained_layout=True, figsize=(6.4, 4.8))
