@@ -1,16 +1,16 @@
-
 NeuXtalViz documentation
 ========================
 
-NeuXtalViz is a modern crystallography toolkit for visualization, analysis, and UB matrix refinement of single-crystal neutron diffraction data. It provides:
+NeuXtalViz is a modern neutron crystallography toolkit for visualization and analysis of single-crystal diffraction data. It provides:
 
-- Interactive graphical user interface (GUI) for data exploration and UB tools
-- Automated workflows for peak finding, cell calculation, UB refinement, and export
+- Interactive graphical user interface (GUI) for data reduction
 - Support for multiple instruments, mainly time-of-flight Laue
+- Links to third-party crystallography tools
 - Step-by-step tutorials
 
 
 Core libraries and technologies:
+
 - Python 3
 - qtpy for cross-platform GUI
 - NumPy, SciPy for scientific computation
