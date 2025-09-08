@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>UB Tools with Bixbyite Data &#8212; NeuXtalViz  documentation</title>
+    <title>Experiment Plan with Silicon Data &#8212; NeuXtalViz  documentation</title>
   
   
   
@@ -42,10 +42,11 @@
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'source/tutorial_ub_tools_CORELLI_Bixbyite';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'source/tutorial_plan_TOPAZ_Si';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Experiment Plan with Silicon Data" href="tutorial_plan_TOPAZ_Si.html" />
+    <link rel="next" title="UB Tools with Bixbyite Data" href="tutorial_ub_tools_CORELLI_Bixbyite.html" />
+    <link rel="prev" title="UB Tools with Silicon Data" href="tutorial_ub_tools_TOPAZ_Si.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -303,13 +304,13 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">TOPAZ Tutorials:</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Si.html">UB Tools with Silicon Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_plan_TOPAZ_Si.html">Experiment Plan with Silicon Data</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Experiment Plan with Silicon Data</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">CORELLI Tutorials:</span></p>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">UB Tools with Bixbyite Data</a></li>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html">UB Tools with Bixbyite Data</a></li>
 </ul>
 </div>
 </nav></div>
@@ -353,7 +354,7 @@
     
     <li class="breadcrumb-item"><a href="NeuXtalViz.tutorials.html" class="nav-link">NeuXtalViz tutorials</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">UB Tools with Bixbyite Data</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Experiment Plan with Silicon Data</span></li>
   </ul>
 </nav>
 </div>
@@ -370,123 +371,99 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="ub-tools-with-bixbyite-data">
-<h1>UB Tools with Bixbyite Data<a class="headerlink" href="#ub-tools-with-bixbyite-data" title="Link to this heading">#</a></h1>
-<p>This tutorial demonstrates how to use the UB tools in <em>NeuXtalViz</em> to process CORELLI Bixbyite (Fe,Mn)_2O_3 data.</p>
-<section id="step-1-select-instrument-and-data">
-<h2>Step 1: Select Instrument and Data<a class="headerlink" href="#step-1-select-instrument-and-data" title="Link to this heading">#</a></h2>
+  <section id="experiment-plan-with-silicon-data">
+<span id="tutorial-topaz-plan"></span><h1>Experiment Plan with Silicon Data<a class="headerlink" href="#experiment-plan-with-silicon-data" title="Link to this heading">#</a></h1>
+<p>This tutorial guides you through planning an experiment using the TOPAZ instrument in NeuXtalViz.</p>
+<section id="step-1-initialize-the-experiment-planner">
+<h2>Step 1: Initialize the Experiment Planner<a class="headerlink" href="#step-1-initialize-the-experiment-planner" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Set the instrument to <strong>CORELLI</strong>.</p></li>
-<li><p>Enter IPTS number: <code class="docutils literal notranslate"><span class="pre">36170</span></code>.</p></li>
-<li><p>Enter run numbers: <code class="docutils literal notranslate"><span class="pre">37055</span></code>.</p></li>
-<li><p>Click <strong>Convert</strong> to load and convert the data.</p></li>
+<li><p>Open NeuXtalViz and navigate to the Experiment Planner tab.</p></li>
+<li><p>Select “TOPAZ” from the instrument dropdown menu.</p></li>
+<li><p>Load the UB matrix and set initial parameters.</p></li>
 </ul>
 <figure class="align-center" id="id1">
-<a class="reference internal image-reference" href="../_images/Bixbyite_UB_convert_Q.png"><img alt="../_images/Bixbyite_UB_convert_Q.png" src="../_images/Bixbyite_UB_convert_Q.png" style="width: 100%;" />
+<a class="reference internal image-reference" href="../_images/Si_plan_initialize.png"><img alt="../_images/Si_plan_initialize.png" src="../_images/Si_plan_initialize.png" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Convert to Q workspace.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+<p><span class="caption-text">Initial experiment planner setup.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-2-find-peaks">
-<h2>Step 2: Find Peaks<a class="headerlink" href="#step-2-find-peaks" title="Link to this heading">#</a></h2>
+<section id="step-2-update-goniometer-angles">
+<h2>Step 2: Update Goniometer Angles<a class="headerlink" href="#step-2-update-goniometer-angles" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Adjust peak finding parameters as needed:</p></li>
-<li><p>Max peaks</p></li>
-<li><p>Density threshold</p></li>
-<li><p>Min distance</p></li>
-<li><p>Click <strong>Find</strong> to identify candidate peaks.</p></li>
+<li><p>Select the goniometer row and set min/max values (e.g., -90 to 90).</p></li>
 </ul>
 <figure class="align-center" id="id2">
-<a class="reference internal image-reference" href="../_images/Bixbyite_UB_find_peaks.png"><img alt="../_images/Bixbyite_UB_find_peaks.png" src="../_images/Bixbyite_UB_find_peaks.png" style="width: 100%;" />
+<a class="reference internal image-reference" href="../_images/Si_plan_update.png"><img alt="../_images/Si_plan_update.png" src="../_images/Si_plan_update.png" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Find Peaks.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+<p><span class="caption-text">Update goniometer angles.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-3-primitive-cell-calculation">
-<h2>Step 3: Primitive Cell Calculation<a class="headerlink" href="#step-3-primitive-cell-calculation" title="Link to this heading">#</a></h2>
+<section id="step-3-calculate-peaks">
+<h2>Step 3: Calculate Peaks<a class="headerlink" href="#step-3-calculate-peaks" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Set tolerance and constraints for cell finding.</p></li>
-<li><p>Click <strong>Primitive</strong> to calculate the primitive cell.</p></li>
+<li><p>Enter orientation parameters and calculate desired peaks.</p></li>
 </ul>
 <figure class="align-center" id="id3">
-<a class="reference internal image-reference" href="../_images/Bixbyite_UB_primitive_cell.png"><img alt="../_images/Bixbyite_UB_primitive_cell.png" src="../_images/Bixbyite_UB_primitive_cell.png" style="width: 100%;" />
+<a class="reference internal image-reference" href="../_images/Si_plan_calculate_peak.png"><img alt="../_images/Si_plan_calculate_peak.png" src="../_images/Si_plan_calculate_peak.png" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Primitive Cell Calculation.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+<p><span class="caption-text">Calculate peaks table.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-4-select-conventional-cell">
-<h2>Step 4: Select Conventional Cell<a class="headerlink" href="#step-4-select-conventional-cell" title="Link to this heading">#</a></h2>
+<section id="step-4-add-orientation">
+<h2>Step 4: Add Orientation<a class="headerlink" href="#step-4-add-orientation" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Select the desired cell from the table.</p></li>
-<li><p>Click <strong>Select</strong> to set the conventional cell.</p></li>
+<li><p>Add the calculated orientation to the plan.</p></li>
 </ul>
 <figure class="align-center" id="id4">
-<a class="reference internal image-reference" href="../_images/Bixbyite_UB_conventional_cell.png"><img alt="../_images/Bixbyite_UB_conventional_cell.png" src="../_images/Bixbyite_UB_conventional_cell.png" style="width: 100%;" />
+<a class="reference internal image-reference" href="../_images/Si_plan_add_orientation.png"><img alt="../_images/Si_plan_add_orientation.png" src="../_images/Si_plan_add_orientation.png" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Select Conventional Cell.</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+<p><span class="caption-text">Add orientation dialog.</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-5-refine-ub-matrix">
-<h2>Step 5: Refine UB Matrix<a class="headerlink" href="#step-5-refine-ub-matrix" title="Link to this heading">#</a></h2>
+<section id="step-5-optimize-coverage">
+<h2>Step 5: Optimize Coverage<a class="headerlink" href="#step-5-optimize-coverage" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Switch to the UB Refinement tab.</p></li>
-<li><p>Set the cell constraint (e.g., <strong>Cubic</strong>).</p></li>
-<li><p>Click <strong>Refine</strong> to optimize the UB matrix.</p></li>
+<li><p>Set crystal system, point group, and centering, then optimize coverage.</p></li>
 </ul>
 <figure class="align-center" id="id5">
-<a class="reference internal image-reference" href="../_images/Bixbyite_UB_refine_UB.png"><img alt="../_images/Bixbyite_UB_refine_UB.png" src="../_images/Bixbyite_UB_refine_UB.png" style="width: 100%;" />
+<a class="reference internal image-reference" href="../_images/Si_plan_optimize_coverage.png"><img alt="../_images/Si_plan_optimize_coverage.png" src="../_images/Si_plan_optimize_coverage.png" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Refine UB Matrix.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+<p><span class="caption-text">Optimize coverage results.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-6-view-peak">
-<h2>Step 6: View Peak<a class="headerlink" href="#step-6-view-peak" title="Link to this heading">#</a></h2>
+<section id="step-6-update-and-review">
+<h2>Step 6: Update and Review<a class="headerlink" href="#step-6-update-and-review" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Switch to the Peaks tab.</p></li>
-<li><p>Select a peak from the table to view its details.</p></li>
+<li><p>Highlight and update orientations, review info panel for summary.</p></li>
 </ul>
 <figure class="align-center" id="id6">
-<a class="reference internal image-reference" href="../_images/Bixbyite_UB_view_peak.png"><img alt="../_images/Bixbyite_UB_view_peak.png" src="../_images/Bixbyite_UB_view_peak.png" style="width: 100%;" />
+<a class="reference internal image-reference" href="../_images/Si_plan_update_info.png"><img alt="../_images/Si_plan_update_info.png" src="../_images/Si_plan_update_info.png" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-text">View Peak in Peaks Table.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+<p><span class="caption-text">Info panel for experiment summary.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-7-slice-view">
-<h2>Step 7: Slice View<a class="headerlink" href="#step-7-slice-view" title="Link to this heading">#</a></h2>
+<section id="step-7-save-and-export">
+<h2>Step 7: Save and Export<a class="headerlink" href="#step-7-save-and-export" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Switch to the Slice tab.</p></li>
-<li><p>Adjust slice parameters and click <strong>Convert to HKL</strong> to view the slice in HKL space.</p></li>
+<li><p>Save the experiment plan as a CSV file.</p></li>
 </ul>
 <figure class="align-center" id="id7">
-<a class="reference internal image-reference" href="../_images/Bixbyite_UB_slice_view.png"><img alt="../_images/Bixbyite_UB_slice_view.png" src="../_images/Bixbyite_UB_slice_view.png" style="width: 100%;" />
+<a class="reference internal image-reference" href="../_images/Si_plan_save_table_scan.png"><img alt="../_images/Si_plan_save_table_scan.png" src="../_images/Si_plan_save_table_scan.png" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Slice View in HKL Space.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
-</figcaption>
-</figure>
-</section>
-<section id="step-8-save-ub">
-<h2>Step 8: Save UB<a class="headerlink" href="#step-8-save-ub" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p>After refining the UB matrix, click <strong>Save UB</strong> to export the UB matrix and related information.</p></li>
-</ul>
-<figure class="align-center" id="id8">
-<a class="reference internal image-reference" href="../_images/Bixbyite_UB_save_UB.png"><img alt="../_images/Bixbyite_UB_save_UB.png" src="../_images/Bixbyite_UB_save_UB.png" style="width: 100%;" />
-</a>
-<figcaption>
-<p><span class="caption-text">Save UB Matrix and Export Results.</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
+<p><span class="caption-text">Save experiment plan as CSV.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
@@ -503,13 +480,22 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="tutorial_plan_TOPAZ_Si.html"
+       href="tutorial_ub_tools_TOPAZ_Si.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Experiment Plan with Silicon Data</p>
+        <p class="prev-next-title">UB Tools with Silicon Data</p>
       </div>
+    </a>
+    <a class="right-next"
+       href="tutorial_ub_tools_CORELLI_Bixbyite.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">UB Tools with Bixbyite Data</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>
@@ -530,14 +516,13 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-select-instrument-and-data">Step 1: Select Instrument and Data</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-find-peaks">Step 2: Find Peaks</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-primitive-cell-calculation">Step 3: Primitive Cell Calculation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-select-conventional-cell">Step 4: Select Conventional Cell</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-refine-ub-matrix">Step 5: Refine UB Matrix</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-view-peak">Step 6: View Peak</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-slice-view">Step 7: Slice View</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-8-save-ub">Step 8: Save UB</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-initialize-the-experiment-planner">Step 1: Initialize the Experiment Planner</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-update-goniometer-angles">Step 2: Update Goniometer Angles</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-calculate-peaks">Step 3: Calculate Peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-add-orientation">Step 4: Add Orientation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-optimize-coverage">Step 5: Optimize Coverage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-update-and-review">Step 6: Update and Review</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-save-and-export">Step 7: Save and Export</a></li>
 </ul>
   </nav></div>
 
