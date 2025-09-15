@@ -381,8 +381,18 @@
 <span id="neuxtalviz-config-colormap-module"></span><h2>NeuXtalViz.config.colormap module<a class="headerlink" href="#module-NeuXtalViz.config.colormap" title="Link to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="NeuXtalViz.config.colormap.add_modified">
-<span class="sig-name descname"><span class="pre">add_modified</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/config/colormap.py#L217-L222"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.config.colormap.add_modified" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">add_modified</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/config/colormap.py#L217-L234"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.config.colormap.add_modified" title="Link to this definition">#</a></dt>
+<dd><p>Register the custom ‘modified’ colormap and its reversed version.</p>
+<p>The ‘modified’ colormap is based on the color array ‘custom’.
+After calling this function, ‘modified’ can be used as a colormap.</p>
+<dl class="simple">
+<dt>Example usage:</dt><dd><p>import matplotlib.pyplot as plt
+from NeuXtalViz.config.colormap import add_modified
+add_modified()
+plt.imshow(data, cmap=’modified’)</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-NeuXtalViz.config.instruments">

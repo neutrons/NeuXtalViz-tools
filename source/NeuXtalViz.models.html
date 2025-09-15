@@ -3315,71 +3315,9 @@ workspaces.</p>
 </section>
 <section id="module-NeuXtalViz.models.volume_slicer">
 <span id="neuxtalviz-models-volume-slicer-module"></span><h2>NeuXtalViz.models.volume_slicer module<a class="headerlink" href="#module-NeuXtalViz.models.volume_slicer" title="Link to this heading">#</a></h2>
-<section id="volumeslicermodel">
-<h3>VolumeSlicerModel<a class="headerlink" href="#volumeslicermodel" title="Link to this heading">#</a></h3>
-<p>Model for handling 3D volume slicing, cutting, and histogram operations using Mantid workspaces.</p>
-<p>This class provides methods to load, process, and extract slices and cuts from multidimensional histogram workspaces.
-It supports saving slices/cuts, checking workspace states, and computing transformations for visualization.</p>
-</section>
-<section id="id1">
-<h3>Attributes<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
-<dl class="simple">
-<dt>shape<span class="classifier">tuple</span></dt><dd><p>Shape of the loaded volume data.</p>
-</dd>
-<dt>min_lim<span class="classifier">np.ndarray</span></dt><dd><p>Minimum bounds for each dimension.</p>
-</dd>
-<dt>max_lim<span class="classifier">np.ndarray</span></dt><dd><p>Maximum bounds for each dimension.</p>
-</dd>
-<dt>labels<span class="classifier">list</span></dt><dd><p>Axis labels for the volume.</p>
-</dd>
-<dt>spacing<span class="classifier">np.ndarray</span></dt><dd><p>Bin widths for each dimension.</p>
-</dd>
-<dt>signals<span class="classifier">list</span></dt><dd><p>Downsampled signal arrays for each axis.</p>
-</dd>
-<dt>spacings<span class="classifier">list</span></dt><dd><p>Downsampled spacings for each axis.</p>
-</dd>
-</dl>
-</section>
-<section id="id2">
-<h3>Methods<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
-<dl class="simple">
-<dt>load_md_histo_workspace(filename)</dt><dd><p>Load and preprocess a Mantid MD histogram workspace.</p>
-</dd>
-<dt>save_slice(filename)</dt><dd><p>Save the current slice to an ASCII file.</p>
-</dd>
-<dt>save_cut(filename)</dt><dd><p>Save the current cut to an ASCII file.</p>
-</dd>
-<dt>is_histo_loaded()</dt><dd><p>Check if a histogram workspace is loaded.</p>
-</dd>
-<dt>is_sliced()</dt><dd><p>Check if a slice workspace exists.</p>
-</dd>
-<dt>is_cut()</dt><dd><p>Check if a cut workspace exists.</p>
-</dd>
-<dt>set_B()</dt><dd><p>Set the B matrix from the workspace UB.</p>
-</dd>
-<dt>set_W()</dt><dd><p>Set the W matrix from the workspace log.</p>
-</dd>
-<dt>get_histo_info(normal)</dt><dd><p>Get histogram info for a given normal.</p>
-</dd>
-<dt>get_slice_info(normal, value, thickness)</dt><dd><p>Get slice info for a given normal and value.</p>
-</dd>
-<dt>get_cut_info(axis, value, thickness)</dt><dd><p>Get cut info for a given axis and value.</p>
-</dd>
-<dt>calculate_clim(trans, method)</dt><dd><p>Calculate color limits for visualization.</p>
-</dd>
-<dt>orientation_matrix()</dt><dd><p>Compute the orientation matrix.</p>
-</dd>
-<dt>get_transform(reciprocal)</dt><dd><p>Get the transformation matrix.</p>
-</dd>
-<dt>get_transforms()</dt><dd><p>Get projection, transform, and scale matrices.</p>
-</dd>
-<dt>get_normal_plane(ind)</dt><dd><p>Get the normal vector for a plane.</p>
-</dd>
-</dl>
-</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VolumeSlicerModel</span></span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L78-L568"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VolumeSlicerModel</span></span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L17-L508"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel" title="NeuXtalViz.models.base_model.NeuXtalVizModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuXtalVizModel</span></code></a></p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
@@ -3467,7 +3405,7 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_clim">
-<span class="sig-name descname"><span class="pre">calculate_clim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'normal'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L409-L458"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_clim" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_clim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'normal'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L349-L398"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_clim" title="Link to this definition">#</a></dt>
 <dd><p>Calculate color limits for visualization based on a method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3489,7 +3427,7 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_cut_info">
-<span class="sig-name descname"><span class="pre">get_cut_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L349-L407"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_cut_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_cut_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L289-L347"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_cut_info" title="Link to this definition">#</a></dt>
 <dd><p>Get cut information for a given axis and value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3513,7 +3451,7 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_histo_info">
-<span class="sig-name descname"><span class="pre">get_histo_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L227-L258"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_histo_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_histo_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L166-L197"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_histo_info" title="Link to this definition">#</a></dt>
 <dd><p>Get histogram information for a given normal direction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3533,7 +3471,7 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_normal_plane">
-<span class="sig-name descname"><span class="pre">get_normal_plane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L540-L568"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_normal_plane" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_normal_plane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L480-L508"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_normal_plane" title="Link to this definition">#</a></dt>
 <dd><p>Get the normal vector for a plane given an index vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3553,7 +3491,7 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info">
-<span class="sig-name descname"><span class="pre">get_slice_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L260-L347"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_slice_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L199-L287"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info" title="Link to this definition">#</a></dt>
 <dd><p>Get slice information for a given normal and value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3577,7 +3515,7 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transform">
-<span class="sig-name descname"><span class="pre">get_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reciprocal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L479-L515"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transform" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reciprocal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L419-L455"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transform" title="Link to this definition">#</a></dt>
 <dd><p>Get the transformation matrix for the current UB and W matrices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3597,7 +3535,7 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transforms">
-<span class="sig-name descname"><span class="pre">get_transforms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L517-L538"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transforms" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_transforms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L457-L478"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transforms" title="Link to this definition">#</a></dt>
 <dd><p>Get projection, transform, and scale matrices for the current UB and W.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3611,7 +3549,7 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_cut">
-<span class="sig-name descname"><span class="pre">is_cut</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L194-L203"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_cut" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_cut</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L133-L142"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_cut" title="Link to this definition">#</a></dt>
 <dd><p>Check if a cut workspace exists in Mantid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3625,7 +3563,7 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_histo_loaded">
-<span class="sig-name descname"><span class="pre">is_histo_loaded</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L172-L181"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_histo_loaded" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_histo_loaded</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L111-L120"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_histo_loaded" title="Link to this definition">#</a></dt>
 <dd><p>Check if a histogram workspace is loaded in Mantid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3639,7 +3577,7 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_sliced">
-<span class="sig-name descname"><span class="pre">is_sliced</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L183-L192"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_sliced" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_sliced</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L122-L131"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_sliced" title="Link to this definition">#</a></dt>
 <dd><p>Check if a slice workspace exists in Mantid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3653,7 +3591,7 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.load_md_histo_workspace">
-<span class="sig-name descname"><span class="pre">load_md_histo_workspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L87-L148"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.load_md_histo_workspace" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_md_histo_workspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L26-L87"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.load_md_histo_workspace" title="Link to this definition">#</a></dt>
 <dd><p>Load and preprocess a Mantid MD histogram workspace from a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3667,7 +3605,7 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.orientation_matrix">
-<span class="sig-name descname"><span class="pre">orientation_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L460-L477"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.orientation_matrix" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">orientation_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L400-L417"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.orientation_matrix" title="Link to this definition">#</a></dt>
 <dd><p>Compute the orientation matrix for the current UB and W matrices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3681,7 +3619,7 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.save_cut">
-<span class="sig-name descname"><span class="pre">save_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L161-L170"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.save_cut" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L100-L109"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.save_cut" title="Link to this definition">#</a></dt>
 <dd><p>Save the current cut workspace to an ASCII file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3695,7 +3633,7 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.save_slice">
-<span class="sig-name descname"><span class="pre">save_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L150-L159"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.save_slice" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L89-L98"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.save_slice" title="Link to this definition">#</a></dt>
 <dd><p>Save the current slice workspace to an ASCII file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3709,13 +3647,13 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.set_B">
-<span class="sig-name descname"><span class="pre">set_B</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L205-L214"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.set_B" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_B</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L144-L153"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.set_B" title="Link to this definition">#</a></dt>
 <dd><p>Set the B matrix from the UB of the loaded histogram workspace.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.set_W">
-<span class="sig-name descname"><span class="pre">set_W</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L216-L225"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.set_W" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_W</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L155-L164"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.set_W" title="Link to this definition">#</a></dt>
 <dd><p>Set the W matrix from the workspace log if available, otherwise identity.</p>
 </dd></dl>
 
@@ -4007,9 +3945,6 @@ It supports saving slices/cuts, checking workspace states, and computing transfo
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-NeuXtalViz.models.volume_slicer">NeuXtalViz.models.volume_slicer module</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#volumeslicermodel">VolumeSlicerModel</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Attributes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Methods</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel"><code class="docutils literal notranslate"><span class="pre">VolumeSlicerModel</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_clim"><code class="docutils literal notranslate"><span class="pre">VolumeSlicerModel.calculate_clim()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_cut_info"><code class="docutils literal notranslate"><span class="pre">VolumeSlicerModel.get_cut_info()</span></code></a></li>
