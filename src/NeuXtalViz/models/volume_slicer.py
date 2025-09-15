@@ -1,64 +1,3 @@
-"""
-VolumeSlicerModel
-----------------
-Model for handling 3D volume slicing, cutting, and histogram operations using Mantid workspaces.
-
-This class provides methods to load, process, and extract slices and cuts from multidimensional histogram workspaces.
-It supports saving slices/cuts, checking workspace states, and computing transformations for visualization.
-
-Attributes
-----------
-shape : tuple
-    Shape of the loaded volume data.
-min_lim : np.ndarray
-    Minimum bounds for each dimension.
-max_lim : np.ndarray
-    Maximum bounds for each dimension.
-labels : list
-    Axis labels for the volume.
-spacing : np.ndarray
-    Bin widths for each dimension.
-signals : list
-    Downsampled signal arrays for each axis.
-spacings : list
-    Downsampled spacings for each axis.
-
-Methods
--------
-load_md_histo_workspace(filename)
-    Load and preprocess a Mantid MD histogram workspace.
-save_slice(filename)
-    Save the current slice to an ASCII file.
-save_cut(filename)
-    Save the current cut to an ASCII file.
-is_histo_loaded()
-    Check if a histogram workspace is loaded.
-is_sliced()
-    Check if a slice workspace exists.
-is_cut()
-    Check if a cut workspace exists.
-set_B()
-    Set the B matrix from the workspace UB.
-set_W()
-    Set the W matrix from the workspace log.
-get_histo_info(normal)
-    Get histogram info for a given normal.
-get_slice_info(normal, value, thickness)
-    Get slice info for a given normal and value.
-get_cut_info(axis, value, thickness)
-    Get cut info for a given axis and value.
-calculate_clim(trans, method)
-    Calculate color limits for visualization.
-orientation_matrix()
-    Compute the orientation matrix.
-get_transform(reciprocal)
-    Get the transformation matrix.
-get_transforms()
-    Get projection, transform, and scale matrices.
-get_normal_plane(ind)
-    Get the normal vector for a plane.
-"""
-
 from mantid.simpleapi import (
     LoadMD,
     IntegrateMDHistoWorkspace,
@@ -275,6 +214,7 @@ class VolumeSlicerModel(NeuXtalVizModel):
         dict
             Dictionary containing x, y, labels, signal, transform, aspect, value, and title.
         """
+
         self.normal = normal
 
         slice_dict = {}

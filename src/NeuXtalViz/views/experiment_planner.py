@@ -1,5 +1,3 @@
-import sys
-
 from qtpy.QtWidgets import (
     QWidget,
     QTableWidget,

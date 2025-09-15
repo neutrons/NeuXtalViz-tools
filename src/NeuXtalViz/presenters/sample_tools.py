@@ -15,13 +15,34 @@ class Sample(NeuXtalVizPresenter):
         self.view.connect_add_sample(self.add_sample)
 
     def highlight_row(self):
+        """
+        Highlight the selected goniometer row in the view.
+
+        Parameters
+        ----------
+        None
+        """
         goniometer = self.view.get_goniometer()
         self.view.set_angle(goniometer)
 
     def set_goniometer_table(self):
+        """
+        Set the goniometer table in the view and update atoms.
+
+        Parameters
+        ----------
+        None
+        """
         self.view.set_goniometer_table()
 
     def load_UB(self):
+        """
+        Load UB matrix from file and update the view and model.
+
+        Parameters
+        ----------
+        None
+        """
         filename = self.view.load_UB_file_dialog()
 
         if filename:
@@ -31,6 +52,13 @@ class Sample(NeuXtalVizPresenter):
             self.update_oriented_lattice()
 
     def update_parameters(self):
+        """
+        Update sample parameters and constraints in the view.
+
+        Parameters
+        ----------
+        None
+        """
         params = self.view.get_sample_constants()
 
         shape = self.view.get_sample_shape()
@@ -48,6 +76,13 @@ class Sample(NeuXtalVizPresenter):
         self.view.constrain_size(fixed)
 
     def add_sample(self):
+        """
+        Add a sample to the model and update the view with absorption and mesh.
+
+        Parameters
+        ----------
+        None
+        """
         mat_dict = shape_dict = None
 
         goniometers = self.view.get_goniometers()

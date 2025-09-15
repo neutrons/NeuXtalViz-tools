@@ -42,6 +42,13 @@ class Experiment(NeuXtalVizPresenter):
         self.view.set_default_symmetry()
 
     def load_detector(self):
+        """
+        Load detector calibration file and set it in the view.
+
+        Parameters
+        ----------
+        None
+        """
         inst = self.view.get_instrument()
         path = self.model.get_calibration_file_path(inst)
         filename = self.view.load_detector_cal_dialog(path)
@@ -50,6 +57,13 @@ class Experiment(NeuXtalVizPresenter):
             self.view.set_detector_calibration(filename)
 
     def load_goniometer(self):
+        """
+        Load goniometer calibration file and set it in the view.
+
+        Parameters
+        ----------
+        None
+        """
         inst = self.view.get_instrument()
         path = self.model.get_calibration_file_path(inst)
         filename = self.view.load_goniometer_cal_dialog(path)
@@ -58,6 +72,13 @@ class Experiment(NeuXtalVizPresenter):
             self.view.set_goniometer_calibration(filename)
 
     def load_mask(self):
+        """
+        Load detector mask file and set it in the view.
+
+        Parameters
+        ----------
+        None
+        """
         inst = self.view.get_instrument()
         path = self.model.get_calibration_file_path(inst)
         filename = self.view.load_mask_dialog(path)
@@ -67,6 +88,13 @@ class Experiment(NeuXtalVizPresenter):
             self.view.set_mask(filename)
 
     def load_UB(self):
+        """
+        Load UB matrix from file and update the view and model.
+
+        Parameters
+        ----------
+        None
+        """
         filename = self.view.load_UB_file_dialog()
 
         if filename:
@@ -77,6 +105,13 @@ class Experiment(NeuXtalVizPresenter):
             self.view.set_transform(self.model.get_transform())
 
     def switch_instrument(self):
+        """
+        Switch instrument and update all related view parameters.
+
+        Parameters
+        ----------
+        None
+        """
         instrument = self.view.get_instrument()
 
         wavelength = self.model.get_wavelength(instrument)

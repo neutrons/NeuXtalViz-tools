@@ -91,16 +91,37 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_cluster(self.cluster)
 
     def update_find_spacing(self):
+        """
+        Update the find peaks spacing in the view using Q value.
+
+        Parameters
+        ----------
+        None
+        """
         d = self.view.get_find_peaks_spacing()
         Q = 2 * np.pi / d
         self.view.set_find_peaks_distance(Q)
 
     def update_find_distance(self):
+        """
+        Update the find peaks distance in the view using d value.
+
+        Parameters
+        ----------
+        None
+        """
         Q = self.view.get_find_peaks_distance()
         d = 2 * np.pi / Q
         self.view.set_find_peaks_spacing(d)
 
     def hand_index_fractional(self):
+        """
+        Handle fractional indexing for peaks and update the view.
+
+        Parameters
+        ----------
+        None
+        """
         mod_info = self.get_modulation_info()
         hkl_info = self.view.get_indices()
         index_row = self.view.get_peak()
@@ -124,6 +145,13 @@ class UB(NeuXtalVizPresenter):
             self.view.set_indices(hkl, int_hkl, int_mnp)
 
     def hand_index_integer(self):
+        """
+        Handle integer indexing for peaks and update the view.
+
+        Parameters
+        ----------
+        None
+        """
         mod_info = self.get_modulation_info()
         hkl_info = self.view.get_indices()
         index_row = self.view.get_peak()

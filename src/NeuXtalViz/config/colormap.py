@@ -215,6 +215,18 @@ custom = (
 
 
 def add_modified():
+    """
+    Register the custom 'modified' colormap and its reversed version.
+
+    The 'modified' colormap is based on the color array 'custom'.
+    After calling this function, 'modified' can be used as a colormap.
+
+    Example usage:
+        import matplotlib.pyplot as plt
+        from NeuXtalViz.config.colormap import add_modified
+        add_modified()
+        plt.imshow(data, cmap='modified')
+    """
     cmap = ListedColormap(custom, name="modified")
     cmap_r = ListedColormap(custom[::-1, :], name="modified_r")
 

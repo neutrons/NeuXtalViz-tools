@@ -51,11 +51,15 @@ class VolumeSlicer(NeuXtalVizPresenter):
         self.cut_idle = True
 
     def update_lims(self):
+        """
+        Update slice and cut limits in the view based on user input.
+
+        Uses xmin, xmax, ymin, ymax from the view and sets slice/cut limits if valid.
+        """
         xmin = self.view.get_xmin_value()
         xmax = self.view.get_xmax_value()
         ymin = self.view.get_ymin_value()
         ymax = self.view.get_ymax_value()
-
         if (
             xmin is not None
             and xmax is not None
@@ -71,6 +75,11 @@ class VolumeSlicer(NeuXtalVizPresenter):
                 self.view.set_cut_lim(lim)
 
     def update_cvals(self):
+        """
+        Update colorbar value limits in the view based on user input.
+
+        Uses vmin, vmax from the view and sets colorbar limits if valid.
+        """
         vmin = self.view.get_vmin_value()
         vmax = self.view.get_vmax_value()
         if vmin is not None and vmax is not None:

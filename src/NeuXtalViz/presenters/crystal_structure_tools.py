@@ -21,14 +21,35 @@ class CrystalStructure(NeuXtalVizPresenter):
         self.generate_settings()
 
     def highlight_row(self):
+        """
+        Highlight the selected atom row in the view.
+
+        Parameters
+        ----------
+        None
+        """
         scatterer = self.view.get_scatterer()
         self.view.set_atom(scatterer)
 
     def set_atom_table(self):
+        """
+        Set the atom table in the view and update atoms.
+
+        Parameters
+        ----------
+        None
+        """
         self.view.set_atom_table()
         self.update_atoms()
 
     def update_parameters(self):
+        """
+        Update lattice parameters and atom positions in the view.
+
+        Parameters
+        ----------
+        None
+        """
         params = self.view.get_lattice_constants()
         params = self.model.update_parameters(params)
         self.model.update_lattice_parameters(*params)
@@ -43,6 +64,13 @@ class CrystalStructure(NeuXtalVizPresenter):
         self.view.set_transform(self.model.get_transform())
 
     def generate_groups(self):
+        """
+        Generate space groups for the selected crystal system and update the view.
+
+        Parameters
+        ----------
+        None
+        """
         system = self.view.get_crystal_system()
         nos = self.model.generate_space_groups_from_crystal_system(system)
         self.view.update_space_groups(nos)
@@ -50,11 +78,25 @@ class CrystalStructure(NeuXtalVizPresenter):
         self.generate_settings()
 
     def generate_settings(self):
+        """
+        Generate settings for the selected space group and update the view.
+
+        Parameters
+        ----------
+        None
+        """
         no = self.view.get_space_group()
         settings = self.model.generate_settings_from_space_group(no)
         self.view.update_settings(settings)
 
     def load_CIF(self):
+        """
+        Load a CIF file and update the crystal structure in the view and model.
+
+        Parameters
+        ----------
+        None
+        """
         filename = self.view.load_CIF_file_dialog()
 
         if filename:
@@ -106,6 +148,13 @@ class CrystalStructure(NeuXtalVizPresenter):
             self.update_invalid()
 
     def update_atoms(self):
+        """
+        Update atom positions and related information in the view.
+
+        Parameters
+        ----------
+        None
+        """
         params = self.view.get_lattice_constants()
         setting = self.view.get_setting()
         scatterers = self.view.get_scatterers()
@@ -122,6 +171,13 @@ class CrystalStructure(NeuXtalVizPresenter):
         self.view.set_transform(self.model.get_transform())
 
     def calculate_F2(self):
+        """
+        Start calculation of F2 factors using a worker thread.
+
+        Parameters
+        ----------
+        None
+        """
         worker = self.view.worker(self.calculate_F2_process)
         worker.connect_result(self.calculate_F2_complete)
         worker.connect_finished(self.update_complete)
@@ -130,10 +186,26 @@ class CrystalStructure(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def calculate_F2_complete(self, result):
+        """
+        Complete F2 calculation and update the view with results.
+
+        Parameters
+        ----------
+        result : tuple or None
+            Result from F2 calculation.
+        """
         if result is not None:
             self.view.set_factors(*result)
 
     def calculate_F2_process(self, progress):
+        """
+        Worker process for F2 calculation.
+
+        Parameters
+        ----------
+        progress : callable
+            Progress callback function.
+        """
         d_min = self.view.get_minimum_d_spacing()
 
         params = self.view.get_lattice_constants()
@@ -158,6 +230,13 @@ class CrystalStructure(NeuXtalVizPresenter):
             progress("Invalid parameters.", 0)
 
     def calculate_hkl(self):
+        """
+        Start calculation of hkl equivalents using a worker thread.
+
+        Parameters
+        ----------
+        None
+        """
         worker = self.view.worker(self.calculate_hkl_process)
         worker.connect_result(self.calculate_hkl_complete)
         worker.connect_finished(self.update_complete)
@@ -166,10 +245,26 @@ class CrystalStructure(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def calculate_hkl_complete(self, result):
+        """
+        Complete hkl calculation and update the view with results.
+
+        Parameters
+        ----------
+        result : tuple or None
+            Result from hkl calculation.
+        """
         if result is not None:
             self.view.set_equivalents(*result)
 
     def calculate_hkl_process(self, progress):
+        """
+        Worker process for hkl calculation.
+
+        Parameters
+        ----------
+        progress : callable
+            Progress callback function.
+        """
         hkl = self.view.get_hkl()
 
         if hkl is not None:
@@ -189,6 +284,13 @@ class CrystalStructure(NeuXtalVizPresenter):
             progress("Invalid parameters.", 0)
 
     def select_isotope(self):
+        """
+        Select an isotope and show the periodic table dialog.
+
+        Parameters
+        ----------
+        None
+        """
         atom = self.view.get_isotope()
 
         if atom != "":
@@ -200,11 +302,26 @@ class CrystalStructure(NeuXtalVizPresenter):
             self.periodic_table.view.show()
 
     def update_selection(self, data):
+        """
+        Update the selected isotope and atom table in the view.
+
+        Parameters
+        ----------
+        data : object
+            Selected isotope data.
+        """
         self.view.set_isotope(data)
         self.view.set_atom_table()
         self.update_atoms()
 
     def save_INS(self):
+        """
+        Save the current crystal structure to an INS file.
+
+        Parameters
+        ----------
+        None
+        """
         if self.model.has_crystal_structure():
             filename = self.view.save_INS_file_dialog()
 
