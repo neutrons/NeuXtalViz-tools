@@ -2293,12 +2293,13 @@ class UBView(NeuXtalVizWidget):
             mesh, color="k", style="wireframe", render_lines_as_tubes=True
         )
 
+        few = True
         if all([elem is not None for elem in params]) and len(numbers) > 0:
             sphere = pv.Icosphere(radius=1, nsub=0)
 
             geoms, self.indexing = [], {}
             for i, (T, I, ind, no) in enumerate(zip(*params)):
-                ellipsoid = sphere.copy().transform(T)
+                ellipsoid = sphere.copy(deep=False).transform(T)
                 color = I if integrate else ind
                 ellipsoid["scalars"] = np.full(sphere.n_cells, color)
                 geoms.append(ellipsoid)
@@ -2318,11 +2319,13 @@ class UBView(NeuXtalVizWidget):
                 scalars="scalars",
                 color=None,
                 log_scale=False,
-                style="wireframe",
+                style="wireframe" if few else "points",
                 culling=True,
                 cmap=cmap,
                 clim=clim,
                 n_colors=n_colors,
+                point_size=10,
+                render_points_as_spheres=True,
                 show_scalar_bar=False,
                 smooth_shading=False,
             )
