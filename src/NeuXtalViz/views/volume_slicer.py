@@ -25,6 +25,12 @@ from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
 from matplotlib.figure import Figure
 from matplotlib.transforms import Affine2D
 
+from mpl_toolkits.axisartist import Axes, GridHelperCurveLinear
+from mpl_toolkits.axisartist.grid_finder import (
+    ExtremeFinderSimple,
+    MaxNLocator,
+)
+
 from NeuXtalViz.views.base_view import NeuXtalVizWidget
 from NeuXtalViz.config import colormap
 
@@ -61,8 +67,11 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         self.layout().addWidget(self.tab_widget, stretch=1)
 
-        self.reset_slice()
-        self.reset_cut()
+        self.reset_slice_cut()
+
+        self._cx = None
+        self._sx = None
+        self._sy = None
 
     def slicer_tab(self):
         slice_tab = QWidget()
@@ -643,14 +652,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         self.plotter.update()
 
-    def reset_slice(self):
-        self._slice_zoom_xlim = None
-        self._slice_zoom_ylim = None
-
-    def reset_cut(self):
-        self._cut_zoom_xlim = None
-        self._cut_zoom_ylim = None
-
     def connect_slice_ready(self, reslice):
         self.slice_ready.connect(reslice)
 
@@ -659,6 +660,18 @@ class VolumeSlicerView(NeuXtalVizWidget):
         return "x={:.3f}, y={:.3f}".format(x, y)
 
     def add_slice(self, slice_dict):
+        if self._cx is not None:
+            self.ax_cut.callbacks.disconnect(self._cx)
+        if self._sx is not None:
+            self.ax_slice.callbacks.disconnect(self._sx)
+        if self._sy is not None:
+            self.ax_slice.callbacks.disconnect(self._sy)
+
+        self.xmin_line.blockSignals(True)
+        self.xmax_line.blockSignals(True)
+        self.ymin_line.blockSignals(True)
+        self.ymax_line.blockSignals(True)
+
         self.max_slider.blockSignals(True)
         self.max_slider.setValue(100)
         self.max_slider.blockSignals(False)
@@ -692,7 +705,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         self.ax_slice.format_coord = self.__format_axis_coord
 
-        transform = Affine2D(T) + self.ax_slice.transData
+        transform = Affine2D(T)
         self.transform = transform
 
         self.xlim = np.array([x.min(), x.max()])
@@ -700,8 +713,32 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         if self.cb is not None:
             self.cb.remove()
+            self.cb = None
 
-        self.ax_slice.clear()
+        self.ax_slice.remove()
+
+        extreme_finder = ExtremeFinderSimple(20, 20)
+
+        grid_locator1 = MaxNLocator(nbins=10)
+        grid_locator2 = MaxNLocator(nbins=10)
+
+        grid_locator1.set_params(integer=True)
+        grid_locator2.set_params(integer=True)
+
+        grid_helper = GridHelperCurveLinear(
+            transform,
+            extreme_finder=extreme_finder,
+            grid_locator1=grid_locator1,
+            grid_locator2=grid_locator2,
+        )
+
+        self.ax_slice = self.fig_slice.add_subplot(
+            1, 1, 1, axes_class=Axes, grid_helper=grid_helper
+        )
+
+        self.ax_slice.set_aspect(aspect)
+
+        trans = transform + self.ax_slice.transData
 
         im = self.ax_slice.pcolormesh(
             x,
@@ -712,9 +749,25 @@ class VolumeSlicerView(NeuXtalVizWidget):
             vmin=vmin,
             vmax=vmax,
             shading="flat",
+            transform=trans,
             rasterized=True,
-            transform=transform,
         )
+
+        self.trans = trans
+
+        self.ax_slice.set_xlabel(labels[0])
+        self.ax_slice.set_ylabel(labels[1])
+
+        self.im = im
+        self.vmin, self.vmax = self.im.norm.vmin, self.im.norm.vmax
+
+        self.ax_slice.set_title(title)
+
+        self.cb = self.fig_slice.colorbar(self.im, ax=self.ax_slice)
+        self.cb.minorticks_on()
+
+        self.canvas_slice.draw_idle()
+        self.canvas_slice.flush_events()
 
         self.im = im
         self.vmin, self.vmax = self.im.norm.vmin, self.im.norm.vmax
@@ -722,36 +775,42 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.set_vmin_value(self.vmin)
         self.set_vmax_value(self.vmax)
 
-        self.set_xmin_value(self.xlim[0])
-        self.set_xmax_value(self.xlim[1])
+        if self.get_xmin_value() is None:
+            self.set_xmin_value(self.xlim[0])
+        if self.get_xmax_value() is None:
+            self.set_xmax_value(self.xlim[1])
 
-        self.set_ymin_value(self.ylim[0])
-        self.set_ymax_value(self.ylim[1])
+        if self.get_ymin_value() is None:
+            self.set_ymin_value(self.ylim[0])
+        if self.get_ymax_value() is None:
+            self.set_ymax_value(self.ylim[1])
 
-        self.ax_slice.set_aspect(aspect)
-        self.ax_slice.set_xlabel(labels[0])
-        self.ax_slice.set_ylabel(labels[1])
-        self.ax_slice.set_title(title)
-        self.ax_slice.minorticks_on()
+        xmin, ymin = self.get_xmin_value(), self.get_ymin_value()
+        xmax, ymax = self.get_xmax_value(), self.get_ymax_value()
 
-        self.ax_slice.xaxis.get_major_locator().set_params(integer=True)
-        self.ax_slice.yaxis.get_major_locator().set_params(integer=True)
+        xmin, ymin, _ = np.dot(self.T, [xmin, ymin, 1])
+        xmax, ymax, _ = np.dot(self.T, [xmax, ymax, 1])
 
-        self.cb = self.fig_slice.colorbar(self.im, ax=self.ax_slice)
-        self.cb.minorticks_on()
-
-        self.ax_slice.set_xlim(self._slice_zoom_xlim)
-        self.ax_slice.set_ylim(self._slice_zoom_ylim)
-
-        if self._slice_zoom_xlim is not None:
-            if self._slice_zoom_ylim is not None:
-                self.slice_limits(self.ax_slice)
-
-        self.ax_slice.callbacks.connect("xlim_changed", self.slice_limits)
-        self.ax_slice.callbacks.connect("ylim_changed", self.slice_limits)
+        self.ax_slice.set_xlim([xmin, xmax])
+        self.ax_slice.set_ylim([ymin, ymax])
 
         self.canvas_slice.draw_idle()
         self.canvas_slice.flush_events()
+
+        self._cx = self.ax_cut.callbacks.connect(
+            "xlim_changed", self.cut_limits
+        )
+        self._sx = self.ax_slice.callbacks.connect(
+            "xlim_changed", self.slice_limits
+        )
+        self._sy = self.ax_slice.callbacks.connect(
+            "ylim_changed", self.slice_limits
+        )
+
+        self.xmin_line.blockSignals(False)
+        self.xmax_line.blockSignals(False)
+        self.ymin_line.blockSignals(False)
+        self.ymax_line.blockSignals(False)
 
     def update_lines(self, alpha):
         lines = self.ax_slice.get_lines()
@@ -761,6 +820,18 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.canvas_slice.flush_events()
 
     def add_cut(self, cut_dict):
+        if self._cx is not None:
+            self.ax_cut.callbacks.disconnect(self._cx)
+        if self._sx is not None:
+            self.ax_slice.callbacks.disconnect(self._sx)
+        if self._sy is not None:
+            self.ax_slice.callbacks.disconnect(self._sy)
+
+        self.xmin_line.blockSignals(True)
+        self.xmax_line.blockSignals(True)
+        self.ymin_line.blockSignals(True)
+        self.ymax_line.blockSignals(True)
+
         x = cut_dict["x"]
         y = cut_dict["y"]
         e = cut_dict["e"]
@@ -796,8 +867,8 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         l = self.toggle_line_box.isChecked()
 
-        self.ax_slice.plot(*l0, "w--", lw=1, alpha=l, transform=self.transform)
-        self.ax_slice.plot(*l1, "w--", lw=1, alpha=l, transform=self.transform)
+        self.ax_slice.plot(*l0, "w--", lw=1, alpha=l, transform=self.trans)
+        self.ax_slice.plot(*l1, "w--", lw=1, alpha=l, transform=self.trans)
 
         self.ax_cut.clear()
 
@@ -809,15 +880,12 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         self.ax_cut.xaxis.get_major_locator().set_params(integer=True)
 
-        self.ax_cut.set_xlim(self._cut_zoom_xlim)
-        self.ax_cut.set_ylim(self._cut_zoom_ylim)
+        if line_cut == "Axis 1":
+            lims = [self.get_xmin_value(), self.get_xmax_value()]
+        else:
+            lims = [self.get_ymin_value(), self.get_ymax_value()]
 
-        if self._cut_zoom_xlim is not None:
-            if self._cut_zoom_ylim is not None:
-                self.cut_limits(self.ax_cut)
-
-        self.ax_cut.callbacks.connect("xlim_changed", self.cut_limits)
-        self.ax_cut.callbacks.connect("ylim_changed", self.cut_limits)
+        self.ax_cut.set_xlim(lims)
 
         self.canvas_cut.draw_idle()
         self.canvas_cut.flush_events()
@@ -839,6 +907,21 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.fig_slice.canvas.mpl_connect(
             "motion_notify_event", self.on_motion
         )
+
+        self._cx = self.ax_cut.callbacks.connect(
+            "xlim_changed", self.cut_limits
+        )
+        self._sx = self.ax_slice.callbacks.connect(
+            "xlim_changed", self.slice_limits
+        )
+        self._sy = self.ax_slice.callbacks.connect(
+            "ylim_changed", self.slice_limits
+        )
+
+        self.xmin_line.blockSignals(False)
+        self.xmax_line.blockSignals(False)
+        self.ymin_line.blockSignals(False)
+        self.ymax_line.blockSignals(False)
 
     def on_press(self, event):
         if (
@@ -990,28 +1073,35 @@ class VolumeSlicerView(NeuXtalVizWidget):
     def set_ymax_value(self, val):
         self.ymax_line.setText(str(round(val, 4)))
 
+    def reset_slice_cut(self):
+        self.xmin_line.blockSignals(True)
+        self.xmax_line.blockSignals(True)
+        self.ymin_line.blockSignals(True)
+        self.ymax_line.blockSignals(True)
+        self.xmin_line.setText("")
+        self.xmax_line.setText("")
+        self.ymin_line.setText("")
+        self.ymax_line.setText("")
+        self.xmin_line.blockSignals(False)
+        self.xmax_line.blockSignals(False)
+        self.ymin_line.blockSignals(False)
+        self.ymax_line.blockSignals(False)
+
     def slice_limits(self, ax):
         self.xmin_line.blockSignals(True)
         self.xmax_line.blockSignals(True)
         self.ymin_line.blockSignals(True)
         self.ymax_line.blockSignals(True)
-        xlim = ax.get_xlim()
-        ylim = ax.get_ylim()
-        self._slice_zoom_xlim = xlim
-        self._slice_zoom_ylim = ylim
-        xmin, xmax = xlim
-        ymin, ymax = ylim
+        slice_xlim = ax.get_xlim()
+        slice_ylim = ax.get_ylim()
+        xmin, xmax = slice_xlim
+        ymin, ymax = slice_ylim
         xmin, ymin, _ = np.dot(self.T_inv, [xmin, ymin, 1])
         xmax, ymax, _ = np.dot(self.T_inv, [xmax, ymax, 1])
         self.set_xmin_value(xmin)
         self.set_xmax_value(xmax)
         self.set_ymin_value(ymin)
         self.set_ymax_value(ymax)
-        line_cut = self.get_cut()
-        if line_cut == "Axis 1":
-            self.set_cut_lim([xmin, xmax])
-        else:
-            self.set_cut_lim([ymin, ymax])
         self.xmin_line.blockSignals(False)
         self.xmax_line.blockSignals(False)
         self.ymin_line.blockSignals(False)
@@ -1022,19 +1112,15 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.xmax_line.blockSignals(True)
         self.ymin_line.blockSignals(True)
         self.ymax_line.blockSignals(True)
-        xlim = ax.get_xlim()
-        ylim = ax.get_ylim()
-        self._cut_zoom_xlim = xlim
-        self._cut_zoom_ylim = ylim
-        xmin, xmax = xlim
-        ymin, ymax = ylim
+        cut_lim = ax.get_xlim()
+        xmin, xmax = cut_lim
         line_cut = self.get_cut()
         if line_cut == "Axis 1":
             self.set_xmin_value(xmin)
             self.set_xmax_value(xmax)
         else:
-            self.set_ymin_value(ymin)
-            self.set_ymax_value(ymax)
+            self.set_ymin_value(xmin)
+            self.set_ymax_value(xmax)
         self.xmin_line.blockSignals(False)
         self.xmax_line.blockSignals(False)
         self.ymin_line.blockSignals(False)

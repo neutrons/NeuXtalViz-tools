@@ -185,9 +185,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
         if self.draw_idle:
             self.draw_idle = False
 
-            if reset:
-                self.view.reset_slice()
-                self.view.reset_cut()
+            self.view.reset_slice_cut()
 
             worker = self.view.worker(self.redraw_data_process)
             worker.connect_result(self.redraw_data_complete)
@@ -241,8 +239,6 @@ class VolumeSlicer(NeuXtalVizPresenter):
     def slice_data(self):
         if self.slice_idle:
             self.slice_idle = False
-
-            self.view.reset_cut()
 
             worker = self.view.worker(self.slice_data_process)
             worker.connect_result(self.slice_data_complete)

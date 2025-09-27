@@ -196,7 +196,9 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         return histo_dict
 
-    def get_slice_info(self, normal, value, thickness=0.01):
+    def get_slice_info(
+        self, normal, value, thickness=0.01, xlim=None, ylim=None
+    ):
         """
         Get slice information for a given normal and value.
 
@@ -208,6 +210,10 @@ class VolumeSlicerModel(NeuXtalVizModel):
             Position along the normal to slice.
         thickness : float, optional
             Thickness of the slice (default 0.01).
+        xlim : list, optional
+            X-axis limits for the slice (default None).
+        ylim : list, optional
+            Y-axis limits for the slice (default None).
 
         Returns
         -------
@@ -221,9 +227,27 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         integrate = [value - thickness, value + thickness]
 
+        xbin = None
+        if xlim is not None:
+            if xlim[1] > xlim[0]:
+                xbin = [xlim[0], 0, xlim[1]]
+        ybin = None
+        if ylim is not None:
+            if ylim[1] > ylim[0]:
+                ybin = [ylim[0], 0, ylim[1]]
+
+        slice_lims = [xbin, ybin]
+
         self.integrate = integrate
 
-        pbin = [None if norm == 0 else integrate for norm in normal]
+        pbin = []
+        j = 0
+        for i, norm in enumerate(normal):
+            if norm == 0:
+                pbin.append(slice_lims[j])
+                j += 1
+            else:
+                pbin.append(integrate)
 
         IntegrateMDHistoWorkspace(
             InputWorkspace="volume",
@@ -232,6 +256,8 @@ class VolumeSlicerModel(NeuXtalVizModel):
             P3Bin=pbin[2],
             OutputWorkspace="slice",
         )
+
+        self.slice_bin = pbin
 
         i = np.abs(normal).tolist().index(1)
 
@@ -310,6 +336,8 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         pbin = [None if ax == 0 else integrate for ax in axis]
 
+        self.integrate = integrate
+
         IntegrateMDHistoWorkspace(
             InputWorkspace="slice",
             P1Bin=pbin[0],
@@ -317,6 +345,8 @@ class VolumeSlicerModel(NeuXtalVizModel):
             P3Bin=pbin[2],
             OutputWorkspace="cut",
         )
+
+        self.cut_bin = pbin
 
         i = np.abs(self.normal).tolist().index(1)
         j = np.array(axis).tolist().index(1)
