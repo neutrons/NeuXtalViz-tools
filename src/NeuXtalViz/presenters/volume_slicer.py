@@ -7,14 +7,14 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
         self.view.connect_load_NXS(self.load_NXS)
 
-        self.view.connect_slice_combo(self.redraw_data)
+        self.view.connect_slice_combo(self.update_volume)
         self.view.connect_cut_combo(self.update_cut)
 
         self.view.connect_slice_thickness_line(self.update_slice)
         self.view.connect_cut_thickness_line(self.update_cut)
 
-        self.view.connect_clim_combo(self.redraw_data)
-        self.view.connect_cbar_combo(self.redraw_data)
+        self.view.connect_clim_combo(self.update_slice)
+        self.view.connect_cbar_combo(self.update_volume)
 
         self.view.connect_min_slider(self.view.update_colorbar_min)
         self.view.connect_max_slider(self.view.update_colorbar_max)
@@ -39,9 +39,9 @@ class VolumeSlicer(NeuXtalVizPresenter):
         self.view.connect_ymin_line(self.update_lims)
         self.view.connect_ymax_line(self.update_lims)
 
-        self.view.connect_vol_scale_combo(self.redraw_data)
-        self.view.connect_opacity_combo(self.redraw_data)
-        self.view.connect_range_combo(self.redraw_data)
+        self.view.connect_vol_scale_combo(self.update_volume)
+        self.view.connect_opacity_combo(self.update_volume)
+        self.view.connect_range_combo(self.update_volume)
 
         self.view.connect_save_slice(self.save_slice)
         self.view.connect_save_cut(self.save_cut)
@@ -89,8 +89,10 @@ class VolumeSlicer(NeuXtalVizPresenter):
                 self.view.update_colorbar_vlims(vmin, vmax)
 
     def update_slice_value(self):
-
         self.redraw_data(False)
+
+    def update_volume(self):
+        self.redraw_data(True)
 
     def update_cut_value(self):
 
@@ -185,7 +187,8 @@ class VolumeSlicer(NeuXtalVizPresenter):
         if self.draw_idle:
             self.draw_idle = False
 
-            self.view.reset_slice_cut()
+            if reset:
+                self.view.reset_slice_cut()
 
             worker = self.view.worker(self.redraw_data_process)
             worker.connect_result(self.redraw_data_complete)

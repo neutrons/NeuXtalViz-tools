@@ -67,11 +67,19 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         self.spacing = np.array([dim.getBinWidth() for dim in dims])
 
-        scale = 1 / 16 / self.spacing
+        compress = 1 / 32 / self.spacing
+        compress[compress <= 1] = 1
+        compress = compress.round().astype(int)
+
+        scale = 1 / 4 / self.spacing
         scale[scale <= 1] = 1
         scale = scale.round().astype(int)
 
-        blocks = [(scale[0], 1, 1), (1, scale[1], 1), (1, 1, scale[2])]
+        blocks = [
+            (compress[0], scale[1], scale[2]),
+            (scale[0], compress[1], scale[2]),
+            (scale[0], scale[1], compress[2]),
+        ]
 
         self.signals = []
         self.spacings = []

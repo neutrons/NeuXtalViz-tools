@@ -2293,9 +2293,12 @@ class UBView(NeuXtalVizWidget):
             mesh, color="k", style="wireframe", render_lines_as_tubes=True
         )
 
-        few = True
+        few = len(numbers) < 100
         if all([elem is not None for elem in params]) and len(numbers) > 0:
-            sphere = pv.Icosphere(radius=1, nsub=0)
+            if few:
+                sphere = pv.Icosphere(radius=1, nsub=0)
+            else:
+                sphere = pv.PolyData([0, 0, 0])
 
             geoms, self.indexing = [], {}
             for i, (T, I, ind, no) in enumerate(zip(*params)):
