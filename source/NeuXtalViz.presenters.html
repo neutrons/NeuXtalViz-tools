@@ -2292,7 +2292,7 @@
 
 <span class="target" id="module-NeuXtalViz.presenters.volume_slicer"></span><dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VolumeSlicer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L4-L326"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VolumeSlicer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L4-L329"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter" title="NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuXtalVizPresenter</span></code></a></p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
@@ -2422,107 +2422,110 @@
 <tr class="row-even"><td><p><strong>update_slice_value</strong></p></td>
 <td></td>
 </tr>
+<tr class="row-odd"><td><p><strong>update_volume</strong></p></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data">
-<span class="sig-name descname"><span class="pre">cut_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L280-L289"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cut_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L283-L292"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data_complete">
-<span class="sig-name descname"><span class="pre">cut_data_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L291-L294"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cut_data_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L294-L297"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data_process">
-<span class="sig-name descname"><span class="pre">cut_data_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L296-L312"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cut_data_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L299-L315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_axis">
-<span class="sig-name descname"><span class="pre">get_axis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L147-L158"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_axis" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_axis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L149-L160"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_axis" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_clim_method">
-<span class="sig-name descname"><span class="pre">get_clim_method</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L160-L170"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_clim_method" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_clim_method</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L162-L172"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_clim_method" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_normal">
-<span class="sig-name descname"><span class="pre">get_normal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L135-L145"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_normal" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_normal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L137-L147"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_normal" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_vlim_method">
-<span class="sig-name descname"><span class="pre">get_vlim_method</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L172-L182"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_vlim_method" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_vlim_method</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L174-L184"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_vlim_method" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS">
-<span class="sig-name descname"><span class="pre">load_NXS</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L107-L117"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_NXS</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L109-L119"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS_complete">
-<span class="sig-name descname"><span class="pre">load_NXS_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L119-L120"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_NXS_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L121-L122"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS_process">
-<span class="sig-name descname"><span class="pre">load_NXS_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L122-L133"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_NXS_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L124-L135"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data">
-<span class="sig-name descname"><span class="pre">redraw_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L184-L195"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">redraw_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L186-L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data_complete">
-<span class="sig-name descname"><span class="pre">redraw_data_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L197-L205"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">redraw_data_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L200-L208"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data_process">
-<span class="sig-name descname"><span class="pre">redraw_data_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L207-L237"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">redraw_data_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L210-L240"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.save_cut">
-<span class="sig-name descname"><span class="pre">save_cut</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L321-L326"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.save_cut" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_cut</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L324-L329"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.save_cut" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.save_slice">
-<span class="sig-name descname"><span class="pre">save_slice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L314-L319"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.save_slice" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_slice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L317-L322"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.save_slice" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data">
-<span class="sig-name descname"><span class="pre">slice_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L239-L248"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">slice_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L242-L251"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data_complete">
-<span class="sig-name descname"><span class="pre">slice_data_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L250-L254"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">slice_data_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L253-L257"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data_process">
-<span class="sig-name descname"><span class="pre">slice_data_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L256-L278"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">slice_data_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L259-L281"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cut">
-<span class="sig-name descname"><span class="pre">update_cut</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L103-L105"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cut" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_cut</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L105-L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cut" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cut_value">
-<span class="sig-name descname"><span class="pre">update_cut_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L95-L97"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cut_value" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_cut_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L97-L99"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cut_value" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2541,12 +2544,17 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice">
-<span class="sig-name descname"><span class="pre">update_slice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L99-L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_slice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L101-L103"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_value">
-<span class="sig-name descname"><span class="pre">update_slice_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L91-L93"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_value" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_slice_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L91-L92"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_value" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_volume">
+<span class="sig-name descname"><span class="pre">update_volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L94-L95"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_volume" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2809,6 +2817,7 @@
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_lims"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.update_lims()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.update_slice()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_value"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.update_slice_value()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_volume"><code class="docutils literal notranslate"><span class="pre">VolumeSlicer.update_volume()</span></code></a></li>
 </ul>
 </li>
 </ul>
