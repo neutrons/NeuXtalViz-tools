@@ -3308,7 +3308,7 @@ workspaces.</p>
 <span id="neuxtalviz-models-volume-slicer-module"></span><h2>NeuXtalViz.models.volume_slicer module<a class="headerlink" href="#module-NeuXtalViz.models.volume_slicer" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VolumeSlicerModel</span></span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L17-L508"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VolumeSlicerModel</span></span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L17-L538"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel" title="NeuXtalViz.models.base_model.NeuXtalVizModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuXtalVizModel</span></code></a></p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
@@ -3346,7 +3346,7 @@ workspaces.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_oriented_lattice_parameters</span></code>()</p></td>
 <td><p>Obtain the oriented lattice parameters.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_slice_info</span></code></a>(normal, value[, thickness])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_slice_info</span></code></a>(normal, value[, thickness, ...])</p></td>
 <td><p>Get slice information for a given normal and value.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transform" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform</span></code></a>([reciprocal])</p></td>
@@ -3396,7 +3396,7 @@ workspaces.</p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_clim">
-<span class="sig-name descname"><span class="pre">calculate_clim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'normal'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L349-L398"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_clim" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_clim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'normal'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L379-L428"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_clim" title="Link to this definition">#</a></dt>
 <dd><p>Calculate color limits for visualization based on a method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3418,7 +3418,7 @@ workspaces.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_cut_info">
-<span class="sig-name descname"><span class="pre">get_cut_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L289-L347"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_cut_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_cut_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L315-L377"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_cut_info" title="Link to this definition">#</a></dt>
 <dd><p>Get cut information for a given axis and value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3462,7 +3462,7 @@ workspaces.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_normal_plane">
-<span class="sig-name descname"><span class="pre">get_normal_plane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L480-L508"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_normal_plane" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_normal_plane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L510-L538"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_normal_plane" title="Link to this definition">#</a></dt>
 <dd><p>Get the normal vector for a plane given an index vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3482,7 +3482,7 @@ workspaces.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info">
-<span class="sig-name descname"><span class="pre">get_slice_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L199-L287"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_slice_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L199-L313"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info" title="Link to this definition">#</a></dt>
 <dd><p>Get slice information for a given normal and value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3492,6 +3492,10 @@ workspaces.</p>
 <dt><strong>value</strong><span class="classifier">float</span></dt><dd><p>Position along the normal to slice.</p>
 </dd>
 <dt><strong>thickness</strong><span class="classifier">float, optional</span></dt><dd><p>Thickness of the slice (default 0.01).</p>
+</dd>
+<dt><strong>xlim</strong><span class="classifier">list, optional</span></dt><dd><p>X-axis limits for the slice (default None).</p>
+</dd>
+<dt><strong>ylim</strong><span class="classifier">list, optional</span></dt><dd><p>Y-axis limits for the slice (default None).</p>
 </dd>
 </dl>
 </dd>
@@ -3506,7 +3510,7 @@ workspaces.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transform">
-<span class="sig-name descname"><span class="pre">get_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reciprocal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L419-L455"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transform" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reciprocal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L449-L485"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transform" title="Link to this definition">#</a></dt>
 <dd><p>Get the transformation matrix for the current UB and W matrices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3526,7 +3530,7 @@ workspaces.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transforms">
-<span class="sig-name descname"><span class="pre">get_transforms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L457-L478"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transforms" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_transforms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L487-L508"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transforms" title="Link to this definition">#</a></dt>
 <dd><p>Get projection, transform, and scale matrices for the current UB and W.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3596,7 +3600,7 @@ workspaces.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.orientation_matrix">
-<span class="sig-name descname"><span class="pre">orientation_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L400-L417"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.orientation_matrix" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">orientation_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L430-L447"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.orientation_matrix" title="Link to this definition">#</a></dt>
 <dd><p>Compute the orientation matrix for the current UB and W matrices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
