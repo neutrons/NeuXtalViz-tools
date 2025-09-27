@@ -67,7 +67,7 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         self.spacing = np.array([dim.getBinWidth() for dim in dims])
 
-        scale = 0.125 / self.spacing
+        scale = 1 / 16 / self.spacing
         scale[scale <= 1] = 1
         scale = scale.round().astype(int)
 

@@ -24,7 +24,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
         self.view.connect_slice_scale_combo(self.update_slice)
         self.view.connect_cut_scale_combo(self.update_cut)
 
-        self.view.connect_slice_line(self.redraw_data)
+        self.view.connect_slice_line(self.update_slice_value)
         self.view.connect_cut_line(self.update_cut)
 
         self.view.connect_slice_ready(self.update_slice)
@@ -52,9 +52,9 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
     def update_lims(self):
         """
-        Update slice and cut limits in the view based on user input.
+        Update slice and cut limits in the view based on input.
 
-        Uses xmin, xmax, ymin, ymax from the view and sets slice/cut limits if valid.
+        Uses xmin/max, ymin/max and sets slice/cut limits if valid.
         """
         xmin = self.view.get_xmin_value()
         xmax = self.view.get_xmax_value()
@@ -89,12 +89,10 @@ class VolumeSlicer(NeuXtalVizPresenter):
                 self.view.update_colorbar_vlims(vmin, vmax)
 
     def update_slice_value(self):
-        self.view.update_slice_value()
 
-        self.update_slice()
+        self.redraw_data(False)
 
     def update_cut_value(self):
-        self.view.update_cut_value()
 
         self.update_cut()
 
@@ -183,9 +181,13 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
         return method
 
-    def redraw_data(self):
+    def redraw_data(self, reset=True):
         if self.draw_idle:
             self.draw_idle = False
+
+            if reset:
+                self.view.reset_slice()
+                self.view.reset_cut()
 
             worker = self.view.worker(self.redraw_data_process)
             worker.connect_result(self.redraw_data_complete)
@@ -239,6 +241,8 @@ class VolumeSlicer(NeuXtalVizPresenter):
     def slice_data(self):
         if self.slice_idle:
             self.slice_idle = False
+
+            self.view.reset_cut()
 
             worker = self.view.worker(self.slice_data_process)
             worker.connect_result(self.slice_data_complete)

@@ -62,7 +62,7 @@ class NeuXtalVizPresenter:
 
         Parameters
         ----------
-        progress : int
+        progress : int, str
             Progress step or value.
         """
 
@@ -74,7 +74,7 @@ class NeuXtalVizPresenter:
         """
 
         self.update_status("Invalid parameters.")
-        self.update_progress(0)
+        self.update_progress("Error.")
 
     def update_complete(self, status="Complete!"):
         """
@@ -87,7 +87,7 @@ class NeuXtalVizPresenter:
         """
 
         self.update_status(status)
-        self.update_progress(0)
+        self.update_progress("Done")
 
     def update_processing(self, status="Processing...", progress=1):
         """

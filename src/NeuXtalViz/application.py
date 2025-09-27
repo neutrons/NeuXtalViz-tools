@@ -24,9 +24,14 @@ import pyvista
 
 pyvista.set_plot_theme("document")
 
-import qdarktheme
+theme = False
+try:
+    import qdarktheme
 
-qdarktheme.enable_hi_dpi()
+    qdarktheme.enable_hi_dpi()
+    theme = True
+except ImportError:
+    print("Default theme")
 
 from NeuXtalViz.views.crystal_structure_tools import CrystalStructureView
 from NeuXtalViz.models.crystal_structure_tools import CrystalStructureModel
@@ -213,7 +218,7 @@ class NeuXtalViz(QMainWindow):
 
     def olex2_reduction_GUI(self):
         try:
-            subprocess.Popen(["olex2"])
+            subprocess.Popen(["/SNS/software/scd/olex2/olex2"])
         except subprocess.CalledProcessError as e:
             QMessageBox.critical(
                 self, "Error", f"Failed to execute olex2:\n{e}"
@@ -239,8 +244,6 @@ class NeuXtalViz(QMainWindow):
 
 
 def handle_exception(exc_type, exc_value, exc_traceback):
-    import traceback
-    from qtpy.QtWidgets import QMessageBox
 
     error_message = "".join(
         traceback.format_exception(exc_type, exc_value, exc_traceback)
@@ -254,13 +257,10 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
 
 def gui():
-    import sys
-    from qtpy.QtWidgets import QApplication
-    import qdarktheme
-
     sys.excepthook = handle_exception
     app = QApplication(sys.argv)
-    qdarktheme.setup_theme("light")
+    if theme:
+        qdarktheme.setup_theme("light")
     window = NeuXtalViz()
     window.show()
     sys.exit(app.exec_())

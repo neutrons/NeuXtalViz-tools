@@ -1,15 +1,3 @@
-"""
-UBModel and related utilities for crystallographic analysis in NeuXtalViz.
-
-This module provides the UBModel class, which encapsulates methods for loading, manipulating, and analyzing crystallographic data, including peak finding, UB matrix determination, lattice refinement, and peak clustering. It interfaces with Mantid algorithms for data processing and supports both conventional and modulated structures.
-
-Classes
--------
-UBModel
-    Main model for UB matrix and peak table operations, including loading/saving, indexing, integration, and clustering.
-
-"""
-
 import os
 from collections import defaultdict
 
@@ -54,7 +42,7 @@ from mantid.simpleapi import (
     SetGoniometer,
     PreprocessDetectorsToMD,
     CompressEvents,
-    GroupDetectors,
+    SmoothNeighbours,
     GroupWorkspaces,
     UnGroupWorkspace,
     RenameWorkspace,
@@ -63,7 +51,6 @@ from mantid.simpleapi import (
     LoadMD,
     SaveMD,
     MergeMD,
-    LoadNexus,
     LoadIsawDetCal,
     LoadParameterFile,
     LoadEmptyInstrument,
@@ -464,33 +451,12 @@ class UBModel(NeuXtalVizModel):
                 PreprocessDetectorsToMD(
                     InputWorkspace=input_ws, OutputWorkspace="detectors"
                 )
-                cols, rows = inst["BankPixels"]
-                c, r = [int(val) for val in grouping.split("x")]
-                shape = (-1, cols, rows)
-                # det_id = np.array(mtd['detectors'].column(4)).reshape(*shape)
-                det_map = np.array(mtd["detectors"].column(5)).reshape(*shape)
-                shape = det_map.shape
-                i, j, k = np.meshgrid(
-                    np.arange(shape[0]),
-                    np.arange(shape[1]),
-                    np.arange(shape[2]),
-                    indexing="ij",
-                )
-                keys = np.stack((i, j // c, k // r), axis=-1)
-                keys_flat = keys.reshape(-1, keys.shape[-1])
-                det_map_flat = det_map.ravel().astype(str)
-                grouped_ids = defaultdict(list)
-                for key, detector_id in zip(
-                    map(tuple, keys_flat), det_map_flat
-                ):
-                    grouped_ids[key].append(detector_id)
-                detector_list = ",".join(
-                    "+".join(group) for group in grouped_ids.values()
-                )
-                GroupDetectors(
+                x_bins, y_bins = [int(val) for val in grouping.split("x")]
+                SmoothNeighbours(
                     InputWorkspace="data",
                     OutputWorkspace="data",
-                    GroupingPattern=detector_list,
+                    SumPixelsX=x_bins,
+                    SumPixelsY=y_bins,
                 )
                 return True
 
@@ -601,7 +567,7 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        int
+        num_ws : int
             Number of workspaces.
         """
 
@@ -787,7 +753,7 @@ class UBModel(NeuXtalVizModel):
             signal = mtd["Q3D"].getSignalArray().copy()
             signal[np.isclose(signal, 0)] = np.nan
 
-            threshold = np.nanpercentile(signal, 90)
+            threshold = np.nanpercentile(signal, 99)
             signal[signal <= threshold] = np.nan
 
             # threshold = np.nanpercentile(signal, 99)

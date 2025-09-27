@@ -440,12 +440,17 @@ class NeuXtalVizWidget(QWidget):
 
         Parameters
         ----------
-        progress : int
-            Step.
+        progress : int, str
+            Step or status.
 
         """
 
-        self.progress_bar.setValue(progress)
+        if type(progress) is int:
+            self.progress_bar.setFormat("%p%")
+            self.progress_bar.setValue(progress)
+        else:
+            self.progress_bar.setFormat(progress)
+            self.progress_bar.setValue(0)
 
     def set_oriented_lattice_parameters(
         self, a, b, c, alpha, beta, gamma, u, v
