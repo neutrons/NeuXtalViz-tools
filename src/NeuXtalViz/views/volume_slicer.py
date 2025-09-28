@@ -657,7 +657,8 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
     def __format_axis_coord(self, x, y):
         x, y, _ = np.dot(self.T_inv, [x, y, 1])
-        return "x={:.3f}, y={:.3f}".format(x, y)
+        h, k, l = np.dot(self.W, [x, y, self.z])
+        return "hkl = ({:.3f}, {:.3f}, {:.3f})".format(h, k, l)
 
     def add_slice(self, slice_dict):
         if self._cx is not None:
@@ -689,6 +690,9 @@ class VolumeSlicerView(NeuXtalVizWidget):
         title = slice_dict["title"]
         signal = slice_dict["signal"]
 
+        self.z = slice_dict["z"]
+        self.W = slice_dict["W"]
+
         scale = self.get_slice_scale()
 
         vmin = np.nanmin(signal)
@@ -702,8 +706,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         self.T_inv = np.linalg.inv(T)
         self.T = T
-
-        self.ax_slice.format_coord = self.__format_axis_coord
 
         transform = Affine2D(T)
         self.transform = transform
@@ -768,6 +770,8 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         self.canvas_slice.draw_idle()
         self.canvas_slice.flush_events()
+
+        self.ax_slice.format_coord = self.__format_axis_coord
 
         self.im = im
         self.vmin, self.vmax = self.im.norm.vmin, self.im.norm.vmax

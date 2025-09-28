@@ -1206,6 +1206,12 @@ class UBModel(NeuXtalVizModel):
             Q, R = scipy.linalg.qr(Bp)
 
             ind = np.array(normal) != 1
+            i = ind.tolist().index(False)
+
+            W = np.column_stack([U, V, W])
+
+            slice_dict["z"] = value
+            slice_dict["W"] = np.column_stack([W[:, ind], W[:, i]])
 
             v = scipy.linalg.cholesky(np.dot(R.T, R)[ind][:, ind], lower=False)
 

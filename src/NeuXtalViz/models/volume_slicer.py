@@ -300,6 +300,10 @@ class VolumeSlicerModel(NeuXtalVizModel):
         Q, R = scipy.linalg.qr(Bp)
 
         ind = np.abs(normal) != 1
+        i = ind.tolist().index(False)
+
+        slice_dict["z"] = value
+        slice_dict["W"] = np.column_stack([self.W[:, ind], self.W[:, i]])
 
         v = scipy.linalg.cholesky(np.dot(R.T, R)[ind][:, ind], lower=False)
 

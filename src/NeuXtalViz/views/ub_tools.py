@@ -3167,7 +3167,8 @@ class UBView(NeuXtalVizWidget):
 
     def __format_axis_coord(self, x, y):
         x, y, _ = np.dot(self.T_inv, [x, y, 1])
-        return "x={:.3f}, y={:.3f}".format(x, y)
+        h, k, l = np.dot(self.W, [x, y, self.z])
+        return "hkl = ({:.3f}, {:.3f}, {:.3f})".format(h, k, l)
 
     def update_slice(self, slice_dict):
         cmap = cmaps[self.get_colormap()]
@@ -3179,6 +3180,9 @@ class UBView(NeuXtalVizWidget):
         title = slice_dict["title"]
         signal = slice_dict["signal"]
         clip = slice_dict["clip"]
+
+        self.z = slice_dict["z"]
+        self.W = slice_dict["W"]
 
         scale = self.get_slice_scale()
 
@@ -3197,8 +3201,6 @@ class UBView(NeuXtalVizWidget):
         transform = Affine2D(T)
 
         self.T_inv = np.linalg.inv(T)
-
-        self.ax_slice.format_coord = self.__format_axis_coord
 
         self.ax_slice.remove()
 
@@ -3256,6 +3258,8 @@ class UBView(NeuXtalVizWidget):
 
         self.canvas_slice.draw_idle()
         self.canvas_slice.flush_events()
+
+        self.ax_slice.format_coord = self.__format_axis_coord
 
     def update_cluster_table(self, peak_info):
         centroids = peak_info["satellites"].round(3).astype(str)
