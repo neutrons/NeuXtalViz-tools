@@ -53,6 +53,9 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_vertical(self.update_roi)
         self.view.connect_horizontal_roi(self.update_roi)
         self.view.connect_vertical_roi(self.update_roi)
+        self.view.connect_instrument_scale_combo(self.update_instrument_view)
+        self.view.connect_vlim_combo(self.update_instrument_view)
+        self.view.connect_vbar_combo(self.update_instrument_view)
 
         self.view.connect_add_peak(self.add_peak)
         self.view.connect_check_hkl(self.calculate_hkl)
@@ -348,6 +351,14 @@ class UB(NeuXtalVizPresenter):
                 progress("Detector viewed...", 50)
 
                 self.model.extract_roi(horz, vert, horz_roi, vert_roi, val)
+
+                signal = self.model.inst_view["counts"]
+
+                clip = self.model.calculate_clim(
+                    signal, self.get_vlim_method()
+                )
+
+                self.model.inst_view["clip"] = clip
 
                 progress("ROI viewed...", 70)
 
@@ -1081,6 +1092,18 @@ class UB(NeuXtalVizPresenter):
 
     def get_clim_method(self):
         ctype = self.view.get_clim_clip_type()
+
+        if ctype == "μ±3×σ":
+            method = "normal"
+        elif ctype == "Q₃/Q₁±1.5×IQR":
+            method = "boxplot"
+        else:
+            method = None
+
+        return method
+
+    def get_vlim_method(self):
+        ctype = self.view.get_vlim_clip_type()
 
         if ctype == "μ±3×σ":
             method = "normal"

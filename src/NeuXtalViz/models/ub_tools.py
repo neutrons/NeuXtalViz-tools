@@ -572,8 +572,7 @@ class UBModel(NeuXtalVizModel):
         """
 
         if mtd.doesExist("data"):
-            input_ws_names = mtd["data"].getNames()
-            return len(input_ws_names)
+            return self.runs
 
     def convert_data(self, instrument, wavelength, lorentz, min_d=None):
         """
@@ -1241,7 +1240,7 @@ class UBModel(NeuXtalVizModel):
         data : np.ndarray
             Input data for which to calculate color limits.
         method : str, optional
-            Method for calculating limits ('normal', 'boxplot', or 'manual'). Default is 'normal'.
+            Method for calculating limits ('normal', 'boxplot', or 'min/max'). Default is 'normal'.
 
         Returns
         -------

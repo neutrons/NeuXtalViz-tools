@@ -1524,6 +1524,29 @@ class UBView(NeuXtalVizWidget):
         self.check_k_line.setValidator(validator)
         self.check_l_line.setValidator(validator)
 
+        self.vlim_combo = QComboBox(self)
+        self.vlim_combo.addItem("Min/Max")
+        self.vlim_combo.addItem("μ±3×σ")
+        self.vlim_combo.addItem("Q₃/Q₁±1.5×IQR")
+        self.vlim_combo.setCurrentIndex(1)
+        self.vlim_combo.setToolTip("Select color limit adjustment method.")
+
+        self.vbar_combo = QComboBox(self)
+        self.vbar_combo.addItem("Sequential")
+        self.vbar_combo.addItem("Rainbow")
+        self.vbar_combo.addItem("Binary")
+        self.vbar_combo.addItem("Diverging")
+        self.vbar_combo.addItem("Modified")
+        self.vbar_combo.setCurrentIndex(0)
+        self.vbar_combo.setToolTip("Select color map for the slice view.")
+
+        self.instrument_scale_combo = QComboBox(self)
+        self.instrument_scale_combo.addItem("Linear")
+        self.instrument_scale_combo.addItem("Log")
+        self.instrument_scale_combo.setToolTip(
+            "Select the scale for the instrument view."
+        )
+
         data_layout = QHBoxLayout()
         data_layout.addWidget(self.data_combo)
         data_layout.addWidget(self.check_hkl_button)
@@ -1531,10 +1554,9 @@ class UBView(NeuXtalVizWidget):
         data_layout.addWidget(self.check_k_line)
         data_layout.addWidget(self.check_l_line)
         data_layout.addStretch(1)
-        data_layout.addWidget(d_min_label)
-        data_layout.addWidget(self.d_min_line)
-        data_layout.addWidget(d_max_label)
-        data_layout.addWidget(self.d_max_line)
+        data_layout.addWidget(self.vlim_combo)
+        data_layout.addWidget(self.vbar_combo)
+        data_layout.addWidget(self.instrument_scale_combo)
 
         vertical_label = QLabel("Vertical Angle:", self)
         horizontal_label = QLabel("Horizontal Angle:", self)
@@ -1577,6 +1599,11 @@ class UBView(NeuXtalVizWidget):
         angle_layout.addWidget(self.vertical_line)
         angle_layout.addWidget(vertical_roi_label)
         angle_layout.addWidget(self.vertical_roi_line)
+        angle_layout.addStretch(1)
+        angle_layout.addWidget(d_min_label)
+        angle_layout.addWidget(self.d_min_line)
+        angle_layout.addWidget(d_max_label)
+        angle_layout.addWidget(self.d_max_line)
 
         self.add_peak_button = QPushButton("Add Peak", self)
         self.add_peak_button.setToolTip("Add a peak to the list.")
@@ -1888,6 +1915,15 @@ class UBView(NeuXtalVizWidget):
     def connect_slice_combo(self, update_slice):
         self.slice_combo.currentIndexChanged.connect(update_slice)
 
+    def connect_vlim_combo(self, update_clim):
+        self.vlim_combo.currentIndexChanged.connect(update_clim)
+
+    def connect_vbar_combo(self, update_cbar):
+        self.vbar_combo.currentIndexChanged.connect(update_cbar)
+
+    def connect_instrument_scale_combo(self, update_view):
+        self.instrument_scale_combo.currentIndexChanged.connect(update_view)
+
     def update_colorbar_min(self):
         min_val = self.min_slider.value()
         max_val = self.max_slider.value()
@@ -2085,17 +2121,17 @@ class UBView(NeuXtalVizWidget):
 
         return filename
 
-    def set_data_list(self, rows):
+    def set_data_list(self, values):
         self.data_combo.clear()
-        if rows is not None:
-            for row in range(rows):
-                self.data_combo.addItem((str(row + 1)))
+        if values is not None:
+            for row in range(len(values)):
+                self.data_combo.addItem("{}: {}".format(row + 1, values[row]))
             self.data_combo.setCurrentIndex(0)
 
     def get_data_list(self):
         val = self.data_combo.currentText()
         if len(val) >= 1:
-            return int(val) - 1
+            return int(val.split(":")[0]) - 1
 
     def set_wavelength(self, wavelength):
         if type(wavelength) is list:
@@ -2990,10 +3026,10 @@ class UBView(NeuXtalVizWidget):
         self.check_k_line.setText(str(round(k, 4)))
         self.check_l_line.setText(str(round(l, 4)))
 
-    def update_instrument_view(self, inst_view, norm="linear"):
+    def update_instrument_view(self, inst_view):
         gamma = inst_view["gamma"]
         nu = inst_view["nu"]
-        counts = inst_view["counts"]
+        counts = inst_view["clip"]
 
         if self.cb_inst is not None:
             self.cb_inst.remove()
@@ -3008,9 +3044,8 @@ class UBView(NeuXtalVizWidget):
             c=counts,
             s=1,
             marker="o",
-            norm=norm,
-            vmin=0,
-            vmax=np.percentile(counts, 95),
+            norm=self.get_instrument_scale(),
+            cmap=cmaps[self.get_instrument_colormap()],
             rasterized=True,
         )
 
@@ -3164,6 +3199,15 @@ class UBView(NeuXtalVizWidget):
 
     def get_colormap(self):
         return self.cbar_combo.currentText()
+
+    def get_instrument_colormap(self):
+        return self.vbar_combo.currentText()
+
+    def get_vlim_clip_type(self):
+        return self.clim_combo.currentText()
+
+    def get_instrument_scale(self):
+        return self.instrument_scale_combo.currentText().lower()
 
     def __format_axis_coord(self, x, y):
         x, y, _ = np.dot(self.T_inv, [x, y, 1])
