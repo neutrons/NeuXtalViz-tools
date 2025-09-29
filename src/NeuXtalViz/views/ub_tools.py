@@ -3204,7 +3204,7 @@ class UBView(NeuXtalVizWidget):
         return self.vbar_combo.currentText()
 
     def get_vlim_clip_type(self):
-        return self.clim_combo.currentText()
+        return self.vlim_combo.currentText()
 
     def get_instrument_scale(self):
         return self.instrument_scale_combo.currentText().lower()
