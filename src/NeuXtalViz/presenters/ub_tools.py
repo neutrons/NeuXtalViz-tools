@@ -315,7 +315,7 @@ class UB(NeuXtalVizPresenter):
     def update_instrument_view(self):
         worker = self.view.worker(self.update_instrument_view_process)
         worker.connect_result(self.update_instrument_view_complete)
-        worker.connect_finished(self.visualize)
+        # worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
 
         self.view.start_worker_pool(worker)

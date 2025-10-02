@@ -24,14 +24,6 @@ import pyvista
 
 pyvista.set_plot_theme("document")
 
-theme = False
-try:
-    import qdarktheme
-
-    qdarktheme.enable_hi_dpi()
-    theme = True
-except ImportError:
-    print("Default theme")
 
 from NeuXtalViz.views.crystal_structure_tools import CrystalStructureView
 from NeuXtalViz.models.crystal_structure_tools import CrystalStructureModel
@@ -121,10 +113,10 @@ class NeuXtalViz(QMainWindow):
         self.cs = CrystalStructure(cs_view, cs_model)
         app_stack.addWidget(cs_view)
 
-        s_view = SampleView(self)
-        s_model = SampleModel()
-        self.s = Sample(s_view, s_model)
-        app_stack.addWidget(s_view)
+        # s_view = SampleView(self)
+        # s_model = SampleModel()
+        # self.s = Sample(s_view, s_model)
+        # app_stack.addWidget(s_view)
 
         layout.addWidget(app_stack)
 
@@ -259,8 +251,6 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 def gui():
     sys.excepthook = handle_exception
     app = QApplication(sys.argv)
-    if theme:
-        qdarktheme.setup_theme("light")
     window = NeuXtalViz()
     window.show()
     sys.exit(app.exec_())

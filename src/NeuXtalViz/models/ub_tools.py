@@ -750,10 +750,19 @@ class UBModel(NeuXtalVizModel):
             CompactMD(InputWorkspace="Q3D", OutputWorkspace="Q3D")
 
             signal = mtd["Q3D"].getSignalArray().copy()
-            signal[np.isclose(signal, 0)] = np.nan
 
-            threshold = np.nanpercentile(signal, 99)
-            signal[signal <= threshold] = np.nan
+            mu = scipy.ndimage.gaussian_filter(signal, 4, mode="nearest")
+            mu2 = scipy.ndimage.gaussian_filter(signal**2, 4, mode="nearest")
+            var = np.maximum(mu2 - mu**2, 0.0)
+            std = np.sqrt(var) + 1e-6
+
+            Z = (signal - mu) / std
+
+            mask = Z > 3
+
+            signal[~mask] = np.nan
+
+            signal[np.isclose(signal, 0)] = np.nan
 
             # threshold = np.nanpercentile(signal, 99)
             # signal[signal >= threshold] = threshold
