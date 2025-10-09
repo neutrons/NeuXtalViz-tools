@@ -814,7 +814,7 @@ class NeuXtalVizWidget(QWidget):
 
         """
 
-        self.plotter.view_xy()
+        self.plotter.view_vector([0, 0, 1], [0, 1, 0])
 
     def view_yz(self):
         """
@@ -822,7 +822,7 @@ class NeuXtalVizWidget(QWidget):
 
         """
 
-        self.plotter.view_yz()
+        self.plotter.view_vector([1, 0, 0], [0, 1, 0])
 
     def view_zx(self):
         """
@@ -830,7 +830,7 @@ class NeuXtalVizWidget(QWidget):
 
         """
 
-        self.plotter.view_zx()
+        self.plotter.view_vector([0, 1, 0], [0, 0, 1])
 
     def view_yx(self):
         """
@@ -838,7 +838,7 @@ class NeuXtalVizWidget(QWidget):
 
         """
 
-        self.plotter.view_yx()
+        self.plotter.view_vector([0, 0, -1], [0, 1, 0])
 
     def view_zy(self):
         """
@@ -846,7 +846,7 @@ class NeuXtalVizWidget(QWidget):
 
         """
 
-        self.plotter.view_zy()
+        self.plotter.view_vector([-1, 0, 0], [0, 1, 0])
 
     def view_xz(self):
         """
@@ -854,7 +854,7 @@ class NeuXtalVizWidget(QWidget):
 
         """
 
-        self.plotter.view_xz()
+        self.plotter.view_vector([0, -1, 0], [0, 0, 1])
 
     def set_position(self, pos):
         """
