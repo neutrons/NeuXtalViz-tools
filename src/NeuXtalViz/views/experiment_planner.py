@@ -44,7 +44,8 @@ class ExperimentView(NeuXtalVizWidget):
     analysis, peak calculation, and plan management.
     """
 
-    roi_ready = Signal()
+    roi_ready = Signal(float, float)
+    sel_ready = Signal(float, float)
     viz_ready = Signal()
 
     def __init__(self, parent=None):
@@ -454,6 +455,8 @@ class ExperimentView(NeuXtalVizWidget):
         nu_label.setToolTip("Nu angle (vertical) in degrees.")
         intersect_label = QLabel("λ [Å]", self)
         intersect_label.setToolTip("Wavelength in Ångström.")
+        d_label = QLabel("d [Å]", self)
+        d_label.setToolTip("Interplanar d-spacing in Ångström.")
 
         self.horizontal_line = QLineEdit()
         self.horizontal_line.setToolTip(
@@ -466,9 +469,15 @@ class ExperimentView(NeuXtalVizWidget):
         self.intersect_line = QLineEdit()
         self.intersect_line.setToolTip("Wavelength (λ) for the selected peak.")
 
+        self.d_spacing_line = QLineEdit()
+        self.d_spacing_line.setToolTip(
+            "Interplanar d-spacing (d) for the selected peak."
+        )
+
         self.horizontal_line.setReadOnly(True)
         self.vertical_line.setReadOnly(True)
         self.intersect_line.setReadOnly(True)
+        self.d_spacing_line.setReadOnly(True)
 
         self.horizontal_alt_line = QLineEdit()
         self.horizontal_alt_line.setToolTip(
@@ -483,25 +492,31 @@ class ExperimentView(NeuXtalVizWidget):
             "Wavelength (λ) for the alternate peak."
         )
 
+        self.d_spacing_alt_line = QLineEdit()
+        self.d_spacing_alt_line.setToolTip(
+            "Interplanar d-spacing (d) for the alternate peak."
+        )
+
         self.horizontal_alt_line.setReadOnly(True)
         self.vertical_alt_line.setReadOnly(True)
         self.intersect_alt_line.setReadOnly(True)
+        self.d_spacing_alt_line.setReadOnly(True)
 
-        self.calculate_single_button = QPushButton("Individual Peak", self)
+        self.calculate_single_button = QPushButton("Individual", self)
         self.calculate_single_button.setToolTip(
             "Calculate instrument angles for the first peak."
         )
-        self.calculate_double_button = QPushButton("Simultaneous Peaks", self)
+        self.calculate_double_button = QPushButton("Simultaneous", self)
         self.calculate_double_button.setToolTip(
             "Calculate instrument angles for both peaks simultaneously."
         )
 
-        self.calculate_single_alt_button = QPushButton("Individual Peak", self)
+        self.calculate_single_alt_button = QPushButton("Individual", self)
         self.calculate_single_alt_button.setToolTip(
             "Calculate instrument angles for the second peak."
         )
 
-        self.equivalents_box = QCheckBox("Allow Equivalents", self)
+        self.equivalents_box = QCheckBox("Equivalents", self)
         self.equivalents_box.setToolTip(
             "Allow equivalent reflections in the calculation."
         )
@@ -528,6 +543,7 @@ class ExperimentView(NeuXtalVizWidget):
         calculator_layout.addWidget(gamma_label, 0, 6, Qt.AlignCenter)
         calculator_layout.addWidget(nu_label, 0, 7, Qt.AlignCenter)
         calculator_layout.addWidget(intersect_label, 0, 8, Qt.AlignCenter)
+        calculator_layout.addWidget(d_label, 0, 9, Qt.AlignCenter)
 
         calculator_layout.addWidget(self.horizontal_line, 1, 6)
         calculator_layout.addWidget(self.horizontal_alt_line, 2, 6)
@@ -538,12 +554,34 @@ class ExperimentView(NeuXtalVizWidget):
         calculator_layout.addWidget(self.intersect_line, 1, 8)
         calculator_layout.addWidget(self.intersect_alt_line, 2, 8)
 
+        calculator_layout.addWidget(self.d_spacing_line, 1, 9)
+        calculator_layout.addWidget(self.d_spacing_alt_line, 2, 9)
+
         peak_layout.addLayout(calculator_layout)
 
         self.canvas_inst = FigureCanvas(Figure(constrained_layout=True))
+        self.canvas_laue = FigureCanvas(Figure(constrained_layout=True))
 
-        peak_layout.addWidget(NavigationToolbar2QT(self.canvas_inst, self))
-        peak_layout.addWidget(self.canvas_inst)
+        view_tab = QTabWidget()
+
+        coverage_layout = QVBoxLayout()
+        laue_layout = QVBoxLayout()
+
+        coverage_tab = QWidget()
+        laue_tab = QWidget()
+
+        coverage_layout.addWidget(NavigationToolbar2QT(self.canvas_inst, self))
+        coverage_layout.addWidget(self.canvas_inst)
+        laue_layout.addWidget(NavigationToolbar2QT(self.canvas_laue, self))
+        laue_layout.addWidget(self.canvas_laue)
+
+        coverage_tab.setLayout(coverage_layout)
+        laue_tab.setLayout(laue_layout)
+
+        view_tab.addTab(coverage_tab, "Coverage View")
+        view_tab.addTab(laue_tab, "Laue View")
+
+        peak_layout.addWidget(view_tab)
 
         self.fig_inst = self.canvas_inst.figure
         self.ax_inst = self.fig_inst.subplots(1, 1)
@@ -552,6 +590,13 @@ class ExperimentView(NeuXtalVizWidget):
 
         self.cb_inst = None
         self.cb_inst_alt = None
+
+        self.fig_laue = self.canvas_laue.figure
+        self.ax_laue = self.fig_laue.subplots(1, 1)
+        self.ax_laue.clear()
+        self.ax_laue.invert_xaxis()
+
+        self.cb_laue = None
 
         orientation_layout = QHBoxLayout()
 
@@ -573,7 +618,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.angles_line.setReadOnly(True)
 
         settings_label = QLabel("Settings:", self)
-        angles_label = QLabel("Goniometer Angles:", self)
+        angles_label = QLabel("Goniometer:", self)
 
         self.angles_combo = QComboBox(self)
         self.angles_combo.setToolTip("Select an orientation from the list.")
@@ -597,6 +642,7 @@ class ExperimentView(NeuXtalVizWidget):
         )
         self.peaks_table.setRowCount(0)
         self.peaks_table.setColumnCount(5)
+        self.peaks_table.setSelectionBehavior(QTableWidget.SelectRows)
 
         header = ["h", "k", "l", "d", "λ"]
 
@@ -686,6 +732,9 @@ class ExperimentView(NeuXtalVizWidget):
 
     def connect_load_goniometer(self, load_goniometer_cal):
         self.gon_browse_button.clicked.connect(load_goniometer_cal)
+
+    def connect_peak_row_highlighter(self, highlight_row):
+        self.peaks_table.itemSelectionChanged.connect(highlight_row)
 
     def get_detector_calibration(self):
         return self.cal_line.text()
@@ -1587,7 +1636,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.canvas_cum.draw_idle()
         self.canvas_cum.flush_events()
 
-    def plot_instrument(self, gamma_inst, nu_inst, gamma, nu, lamda):
+    def plot_instrument(self, gamma_inst, nu_inst, gamma, nu, lamda, d):
         if self.cb_inst is not None:
             self.cb_inst.remove()
             self.cb_inst = None
@@ -1639,9 +1688,11 @@ class ExperimentView(NeuXtalVizWidget):
         gamma_1,
         nu_1,
         lamda_1,
+        d_1,
         gamma_2,
         nu_2,
         lamda_2,
+        d_2,
     ):
         if self.cb_inst is not None:
             self.cb_inst.remove()
@@ -1725,11 +1776,18 @@ class ExperimentView(NeuXtalVizWidget):
         if self.vertical_line.hasAcceptableInput():
             return float(self.vertical_line.text())
 
+    def get_d(self):
+        if self.d_spacing_line.hasAcceptableInput():
+            return float(self.d_spacing_line.text())
+
     def set_horizontal(self, val):
         self.horizontal_line.setText(str(round(val, 2)))
 
     def set_vertical(self, val):
         self.vertical_line.setText(str(round(val, 2)))
+
+    def set_d(self, val):
+        self.d_spacing_line.setText(str(round(val, 4)))
 
     def get_horizontal_alternate(self):
         if self.horizontal_alt_line.hasAcceptableInput():
@@ -1741,6 +1799,11 @@ class ExperimentView(NeuXtalVizWidget):
             if self.vertical_alt_line.text() != "":
                 return float(self.vertical_alt_line.text())
 
+    def get_d_alternate(self):
+        if self.d_spacing_alt_line.hasAcceptableInput():
+            if self.d_spacing_alt_line.text() != "":
+                return float(self.d_spacing_alt_line.text())
+
     def set_horizontal_alternate(self, val):
         value = str(round(val, 2)) if val is not None else ""
         self.horizontal_alt_line.setText(value)
@@ -1748,6 +1811,10 @@ class ExperimentView(NeuXtalVizWidget):
     def set_vertical_alternate(self, val):
         value = str(round(val, 2)) if val is not None else ""
         self.vertical_alt_line.setText(value)
+
+    def set_d_alternate(self, val):
+        value = str(round(val, 4)) if val is not None else ""
+        self.d_spacing_alt_line.setText(value)
 
     def set_angles(self, values):
         ang = "(" + ", ".join(np.array(values).astype(str)) + ")"
@@ -1769,10 +1836,8 @@ class ExperimentView(NeuXtalVizWidget):
             and self.fig_inst.canvas.toolbar.mode == ""
         ):
             horz, vert = event.xdata, event.ydata
-            self.set_horizontal(horz)
-            self.set_vertical(vert)
 
-            self.roi_ready.emit()
+            self.roi_ready.emit(horz, vert)
 
     def update_inst(self):
         for line in self.ax_inst.lines:
@@ -1847,3 +1912,83 @@ class ExperimentView(NeuXtalVizWidget):
 
     def draw_all(self):
         return self.combined_box.isChecked()
+
+    def plot_laue(self, gamma_laue, nu_laue, gamma, nu, lamda, d):
+        if self.cb_laue is not None:
+            self.cb_laue.remove()
+            self.cb_laue = None
+
+        self.ax_laue.clear()
+        self.ax_laue.invert_xaxis()
+
+        self.ax_laue.scatter(
+            gamma_laue, nu_laue, color="lightgray", marker="o", rasterized=True
+        )
+
+        sort = np.argsort(d)
+
+        self.im = self.ax_laue.scatter(
+            gamma[sort],
+            nu[sort],
+            c=d[sort],
+            marker="o",
+            rasterized=True,
+            cmap="turbo",
+        )
+
+        self.ax_laue.set_aspect(1)
+        self.ax_laue.minorticks_on()
+
+        self.ax_laue.set_xlabel(r"$\gamma$")
+        self.ax_laue.set_ylabel(r"$\nu$")
+
+        fmt_str_form = FormatStrFormatter(r"$%d^\circ$")
+
+        self.ax_laue.xaxis.set_major_formatter(fmt_str_form)
+        self.ax_laue.yaxis.set_major_formatter(fmt_str_form)
+
+        if len(lamda) > 0:
+            self.cb_laue = self.fig_laue.colorbar(
+                self.im, ax=self.ax_laue, orientation="horizontal"
+            )
+            self.cb_laue.minorticks_on()
+            self.cb_laue.ax.set_xlabel(r"$d$ [Å]")
+
+        self.fig_laue.canvas.mpl_connect(
+            "button_press_event", self.on_press_laue
+        )
+
+        self.canvas_laue.draw_idle()
+        self.canvas_laue.flush_events()
+
+    def on_press_laue(self, event):
+        if (
+            event.inaxes == self.ax_laue
+            and self.fig_laue.canvas.toolbar.mode == ""
+        ):
+            horz, vert = event.xdata, event.ydata
+            self.sel_ready.emit(horz, vert)
+
+    def update_laue(self, horz, vert):
+        for line in self.ax_laue.lines:
+            line.remove()
+
+        self.ax_laue.axvline(x=horz, color="k", linestyle="--")
+        self.ax_laue.axhline(y=vert, color="k", linestyle="--")
+
+        self.canvas_laue.draw_idle()
+        self.canvas_laue.flush_events()
+
+    def connect_sel_ready(self, lookup):
+        self.sel_ready.connect(lookup)
+
+    def highlight_peak(self, row):
+        self.peaks_table.blockSignals(True)
+        self.peaks_table.clearSelection()
+        self.peaks_table.setSelectionBehavior(self.peaks_table.SelectRows)
+        self.peaks_table.selectRow(row)
+        self.peaks_table.blockSignals(False)
+
+    def get_peak(self):
+        row = self.peaks_table.currentRow()
+        return row

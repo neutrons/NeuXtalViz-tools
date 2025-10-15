@@ -29,10 +29,12 @@ class Experiment(NeuXtalVizPresenter):
         self.view.connect_load_goniometer(self.load_goniometer)
 
         self.view.connect_roi_ready(self.lookup_angle)
+        self.view.connect_sel_ready(self.select_peak)
         self.view.connect_viz_ready(self.visualize)
 
         self.view.connect_update(self.view.update_counting)
         self.view.connect_highlight_angles(self.view.highlight_angles)
+        self.view.connect_peak_row_highlighter(self.highlight_peak)
 
         self.draw_idle = True
 
@@ -45,9 +47,6 @@ class Experiment(NeuXtalVizPresenter):
         """
         Load detector calibration file and set it in the view.
 
-        Parameters
-        ----------
-        None
         """
         inst = self.view.get_instrument()
         path = self.model.get_calibration_file_path(inst)
@@ -60,9 +59,6 @@ class Experiment(NeuXtalVizPresenter):
         """
         Load goniometer calibration file and set it in the view.
 
-        Parameters
-        ----------
-        None
         """
         inst = self.view.get_instrument()
         path = self.model.get_calibration_file_path(inst)
@@ -75,9 +71,6 @@ class Experiment(NeuXtalVizPresenter):
         """
         Load detector mask file and set it in the view.
 
-        Parameters
-        ----------
-        None
         """
         inst = self.view.get_instrument()
         path = self.model.get_calibration_file_path(inst)
@@ -91,9 +84,6 @@ class Experiment(NeuXtalVizPresenter):
         """
         Load UB matrix from file and update the view and model.
 
-        Parameters
-        ----------
-        None
         """
         filename = self.view.load_UB_file_dialog()
 
@@ -108,9 +98,6 @@ class Experiment(NeuXtalVizPresenter):
         """
         Switch instrument and update all related view parameters.
 
-        Parameters
-        ----------
-        None
         """
         instrument = self.view.get_instrument()
 
@@ -216,7 +203,7 @@ class Experiment(NeuXtalVizPresenter):
 
             progress("Calculating peak coverage", 15)
 
-            gamma, nu, lamda = self.model.individual_peak(
+            gamma, nu, lamda, d = self.model.individual_peak(
                 hkl,
                 wavelength,
                 axes,
@@ -228,7 +215,7 @@ class Experiment(NeuXtalVizPresenter):
 
             progress("Peak calculated!", 0)
 
-            return gamma, nu, lamda
+            return gamma, nu, lamda, d
 
         else:
             if hkl is None:
@@ -278,12 +265,12 @@ class Experiment(NeuXtalVizPresenter):
                 hkl_1, hkl_2, wavelength, axes, polarities, limits, equiv, pg
             )
 
-            gamma_1, nu_1, lamda_1 = peak_1
-            gamma_2, nu_2, lamda_2 = peak_2
+            gamma_1, nu_1, lamda_1, d_1 = peak_1
+            gamma_2, nu_2, lamda_2, d_2 = peak_2
 
             progress("Peaks calculated!", 0)
 
-            return gamma_1, nu_1, lamda_1, gamma_2, nu_2, lamda_2
+            return gamma_1, nu_1, lamda_1, d_1, gamma_2, nu_2, lamda_2, d_2
 
         else:
             if hkl_1 is None:
@@ -300,16 +287,27 @@ class Experiment(NeuXtalVizPresenter):
         if row is not None:
             peak_list = self.model.generate_table(row)
             self.view.update_peaks_table(peak_list)
-            if not self.view.draw_all():
-                self.visualize()
+            result = self.model.get_laue_info()
+            if result is not None:
+                self.view.plot_laue(self.model.gamma, self.model.nu, *result)
+            # if not self.view.draw_all():
+            self.visualize()
 
-    def lookup_angle(self):
-        gamma = self.view.get_horizontal()
-        nu = self.view.get_vertical()
+    def lookup_angle(self, gamma, nu):
 
         vals = self.model.get_angles(gamma, nu)
         if vals is not None:
-            angles, gamma, nu, lamda, gamma_alt, nu_alt, lamda_alt = vals
+            (
+                angles,
+                gamma,
+                nu,
+                lamda,
+                d,
+                gamma_alt,
+                nu_alt,
+                lamda_alt,
+                d_alt,
+            ) = vals
             self.view.set_comment(self.model.comment)
             self.view.set_angles(angles)
             self.view.set_horizontal(gamma)
@@ -318,7 +316,25 @@ class Experiment(NeuXtalVizPresenter):
             self.view.set_horizontal_alternate(gamma_alt)
             self.view.set_vertical_alternate(nu_alt)
             self.view.set_intersect_alternate(lamda_alt)
+            self.view.set_d(d)
+            self.view.set_d_alternate(d_alt)
             self.view.update_inst()
+
+    def select_peak(self, gamma, nu):
+
+        vals = self.model.get_peak_selection(gamma, nu)
+        if vals is not None:
+            gamma, nu, row = vals
+            self.view.update_laue(gamma, nu)
+            self.view.highlight_peak(row)
+
+    def highlight_peak(self):
+        row = self.view.get_peak()
+
+        vals = self.model.get_peak_index(row)
+        if vals is not None:
+            gamma, nu, row = vals
+            self.view.update_laue(gamma, nu)
 
     def delete_angles(self):
         worker = self.view.worker(self.delete_angles_process)

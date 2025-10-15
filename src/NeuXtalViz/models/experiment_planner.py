@@ -641,20 +641,21 @@ class ExperimentModel(NeuXtalVizModel):
         hkls = pg.getEquivalents(hkl) if equiv else [hkl]
 
         indices, angles = [], []
-        angles_gamma, angles_nu, angles_lamda = [], [], []
+        angles_gamma, angles_nu, angles_lamda, angles_d = [], [], [], []
 
         for hkl in hkls:
             settings, values = self.calculate_individual_peak(
                 hkl, wavelength, axes, polarities, limits, step
             )
 
-            gamma, nu, lamda = values
+            gamma, nu, lamda, d = values
 
             indices.append([hkl] * len(lamda))
             angles.append(settings)
             angles_gamma.append(gamma)
             angles_nu.append(nu)
             angles_lamda.append(lamda)
+            angles_d.append([d] * len(lamda))
 
         angles = np.vstack(angles)
 
@@ -662,6 +663,7 @@ class ExperimentModel(NeuXtalVizModel):
         gamma = np.concatenate(angles_gamma)
         nu = np.concatenate(angles_nu)
         lamda = np.concatenate(angles_lamda)
+        d = np.concatenate(angles_d)
 
         self.angles = angles
 
@@ -669,13 +671,15 @@ class ExperimentModel(NeuXtalVizModel):
         self.angles_gamma = gamma
         self.angles_nu = nu
         self.angles_lamda = lamda
+        self.angles_d = d
 
         self.angles_indices_alt = None
         self.angles_gamma_alt = None
         self.angles_nu_alt = None
         self.angles_lamda_alt = None
+        self.angles_d_alt = None
 
-        return gamma, nu, lamda
+        return gamma, nu, lamda, d
 
     def calculate_individual_peak(
         self, hkl, wavelength, axes, polarities, limits, step=1
@@ -710,6 +714,8 @@ class ExperimentModel(NeuXtalVizModel):
         Q_lab = np.einsum("kij,j->ki", Rs, Q_sample)
 
         lamda = -4 * np.pi * Q_lab[:, 2] / Q**2
+        d = 2 * np.pi / Q
+
         mask = (lamda > wavelength[0]) & (lamda < wavelength[1])
 
         k = 2 * np.pi / lamda
@@ -742,7 +748,7 @@ class ExperimentModel(NeuXtalVizModel):
 
             settings = settings[mask]
 
-        return settings, (gamma, nu, lamda)
+        return settings, (gamma, nu, lamda, d)
 
     def simultaneous_peaks(
         self,
@@ -773,16 +779,21 @@ class ExperimentModel(NeuXtalVizModel):
         angles = []
         indices, indices_alt = [], []
 
-        angles_gamma, angles_nu, angles_lamda = [], [], []
-        angles_gamma_alt, angles_nu_alt, angles_lamda_alt = [], [], []
+        angles_gamma, angles_nu, angles_lamda, angles_d = [], [], [], []
+        angles_gamma_alt, angles_nu_alt, angles_lamda_alt, angles_d_alt = (
+            [],
+            [],
+            [],
+            [],
+        )
 
         for hkl_1, hkl_2 in pairs:
             settings, values0, values1 = self.simultaneous_peaks_hkl(
                 hkl_1, hkl_2, wavelength, axes, polarities, limits, step
             )
 
-            gamma0, nu0, lamda0 = values0
-            gamma1, nu1, lamda1 = values1
+            gamma0, nu0, lamda0, d0 = values0
+            gamma1, nu1, lamda1, d1 = values1
 
             if len(lamda0) > 0 and len(lamda1) > 0:
                 angles.append(settings)
@@ -791,11 +802,13 @@ class ExperimentModel(NeuXtalVizModel):
                 angles_gamma.append(gamma0)
                 angles_nu.append(nu0)
                 angles_lamda.append(lamda0)
+                angles_d.append([d0] * len(lamda0))
 
                 indices_alt.append([hkl_2] * len(lamda1))
                 angles_gamma_alt.append(gamma1)
                 angles_nu_alt.append(nu1)
                 angles_lamda_alt.append(lamda1)
+                angles_d_alt.append([d1] * len(lamda1))
 
         angles = np.vstack(angles)
 
@@ -803,11 +816,13 @@ class ExperimentModel(NeuXtalVizModel):
         gamma = np.concatenate(angles_gamma)
         nu = np.concatenate(angles_nu)
         lamda = np.concatenate(angles_lamda)
+        d = np.concatenate(angles_d)
 
         indices_alt = np.vstack(indices_alt)
         gamma_alt = np.concatenate(angles_gamma_alt)
         nu_alt = np.concatenate(angles_nu_alt)
         lamda_alt = np.concatenate(angles_lamda_alt)
+        d_alt = np.concatenate(angles_d_alt)
 
         self.angles = angles
 
@@ -815,13 +830,15 @@ class ExperimentModel(NeuXtalVizModel):
         self.angles_gamma = gamma
         self.angles_nu = nu
         self.angles_lamda = lamda
+        self.angles_d = d
 
         self.angles_indices_alt = indices_alt
         self.angles_gamma_alt = gamma_alt
         self.angles_nu_alt = nu_alt
         self.angles_lamda_alt = lamda_alt
+        self.angles_d_alt = d_alt
 
-        return (gamma, nu, lamda), (gamma_alt, nu_alt, lamda_alt)
+        return (gamma, nu, lamda, d), (gamma_alt, nu_alt, lamda_alt, d_alt)
 
     def simultaneous_peaks_hkl(
         self, hkl_1, hkl_2, wavelength, axes, polarities, limits, step=1
@@ -857,6 +874,9 @@ class ExperimentModel(NeuXtalVizModel):
 
         lamda0 = -4 * np.pi * Q0_lab[:, 2] / Q0**2
         lamda1 = -4 * np.pi * Q1_lab[:, 2] / Q1**2
+
+        d0 = 2 * np.pi / Q0
+        d1 = 2 * np.pi / Q1
 
         mask = (
             (lamda0 > wavelength[0])
@@ -925,7 +945,7 @@ class ExperimentModel(NeuXtalVizModel):
 
             angles = angles[mask]
 
-        return angles, (gamma0, nu0, lamda0), (gamma1, nu1, lamda1)
+        return angles, (gamma0, nu0, lamda0, d0), (gamma1, nu1, lamda1, d1)
 
     def get_angles(self, gamma, nu):
         if len(self.angles_gamma) > 0:
@@ -938,8 +958,9 @@ class ExperimentModel(NeuXtalVizModel):
             gamma = self.angles_gamma[i]
             nu = self.angles_nu[i]
             lamda = self.angles_lamda[i]
+            d = self.angles_d[i]
 
-            gamma_alt = nu_alt = lamda_alt = None
+            gamma_alt = nu_alt = lamda_alt = d_alt = None
 
             self.comment = (
                 "#(" + ", ".join(self.angles_indices[i].astype(str)) + ")"
@@ -949,6 +970,7 @@ class ExperimentModel(NeuXtalVizModel):
                 gamma_alt = self.angles_gamma_alt[i]
                 nu_alt = self.angles_nu_alt[i]
                 lamda_alt = self.angles_lamda_alt[i]
+                d_alt = self.angles_d_alt[i]
 
                 self.comment += (
                     ")_#("
@@ -956,7 +978,17 @@ class ExperimentModel(NeuXtalVizModel):
                     + ")"
                 )
 
-            return angles, gamma, nu, lamda, gamma_alt, nu_alt, lamda_alt
+            return (
+                angles,
+                gamma,
+                nu,
+                lamda,
+                d,
+                gamma_alt,
+                nu_alt,
+                lamda_alt,
+                d_alt,
+            )
 
     def add_mesh(
         self, mesh_angles, wavelength, d_min, rows, free_angles, all_angles
@@ -1402,14 +1434,74 @@ class ExperimentModel(NeuXtalVizModel):
 
             return coverage_dict
 
+    def get_laue_info(self):
+
+        if mtd.doesExist("table"):
+
+            lamda_peaks = []
+            gamma_peaks = []
+            nu_peaks = []
+            d_peaks = []
+
+            for peak in mtd["table"]:
+                lamda = peak.getWavelength()
+                Q_lab = peak.getQLabFrame()
+
+                Q = np.linalg.norm(Q_lab)
+
+                d = 2 * np.pi / Q
+                k = 2 * np.pi / lamda
+
+                ki = k * np.array([0, 0, 1])
+                kf = Q_lab + ki
+
+                gamma = np.rad2deg(np.arctan2(kf[0], kf[2]))
+                nu = np.rad2deg(np.arcsin(kf[1] / k))
+
+                lamda_peaks.append(lamda)
+                gamma_peaks.append(gamma)
+                nu_peaks.append(nu)
+                d_peaks.append(d)
+
+            lamda_peaks = np.array(lamda_peaks)
+            gamma_peaks = np.array(gamma_peaks)
+            nu_peaks = np.array(nu_peaks)
+            d_peaks = np.array(d_peaks)
+
+            self.lamda_peaks = lamda_peaks
+            self.gamma_peaks = gamma_peaks
+            self.nu_peaks = nu_peaks
+            self.d_peaks = d_peaks
+
+            return gamma_peaks, nu_peaks, lamda_peaks, d_peaks
+
+    def get_peak_index(self, i):
+
+        if len(self.lamda_peaks) > 0:
+            gamma = self.gamma_peaks[i]
+            nu = self.nu_peaks[i]
+
+            return gamma, nu, i
+
+    def get_peak_selection(self, gamma, nu):
+
+        if len(self.lamda_peaks) > 0:
+            d2 = (self.gamma_peaks - gamma) ** 2 + (self.nu_peaks - nu) ** 2
+
+            i = np.argmin(d2)
+
+            gamma = self.gamma_peaks[i]
+            nu = self.nu_peaks[i]
+
+            return gamma, nu, i
+
     def crystal_plan(self, *args):
         return CrystalPlan(*args)
 
 
 class CrystalPlan:
     """
-    Genetic algorithm-based class for optimizing experiment plans in
-    NeuXtalViz.
+    Genetic algorithm for optimizing experiment plans in NeuXtalViz.
 
     This class generates, recombines, and evaluates sets of orientations
     and settings to maximize experiment coverage and completeness.

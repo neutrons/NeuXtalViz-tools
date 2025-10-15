@@ -1107,9 +1107,9 @@ class UBView(NeuXtalVizWidget):
         self.d2_line = QLineEdit()
         self.phi_line = QLineEdit()
 
-        self.d1_line.setEnabled(False)
-        self.d2_line.setEnabled(False)
-        self.phi_line.setEnabled(False)
+        self.d1_line.setReadOnly(True)
+        self.d2_line.setReadOnly(True)
+        self.phi_line.setReadOnly(True)
 
         self.calculate = QPushButton("Calculate", self)
         self.calculate.setToolTip(
