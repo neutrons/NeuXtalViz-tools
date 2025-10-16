@@ -1497,15 +1497,16 @@ class ExperimentView(NeuXtalVizWidget):
         l = "{:.3f}".format(l)
         d = "{:.4f}".format(d)
         lamda = "{:.4f}".format(lamda)
-        self.peaks_table.setItem(row, 0, self.set_item_value(h))
-        self.peaks_table.setItem(row, 1, self.set_item_value(k))
-        self.peaks_table.setItem(row, 2, self.set_item_value(l))
-        self.peaks_table.setItem(row, 3, self.set_item_value(d))
-        self.peaks_table.setItem(row, 4, self.set_item_value(lamda))
+        self.peaks_table.setItem(row, 0, self.set_item_value(h, row))
+        self.peaks_table.setItem(row, 1, self.set_item_value(k, row))
+        self.peaks_table.setItem(row, 2, self.set_item_value(l, row))
+        self.peaks_table.setItem(row, 3, self.set_item_value(d, row))
+        self.peaks_table.setItem(row, 4, self.set_item_value(lamda, row))
 
-    def set_item_value(self, value):
+    def set_item_value(self, value, row):
         item = QTableWidgetItem()
         item.setData(Qt.DisplayRole, float(value))
+        item.setData(Qt.UserRole, row)
         return item
 
     def get_input_hkls(self):
@@ -1986,9 +1987,13 @@ class ExperimentView(NeuXtalVizWidget):
         self.peaks_table.blockSignals(True)
         self.peaks_table.clearSelection()
         self.peaks_table.setSelectionBehavior(self.peaks_table.SelectRows)
-        self.peaks_table.selectRow(row)
+        for r in range(self.peaks_table.rowCount()):
+            if self.peaks_table.item(r, 0).data(Qt.UserRole) == row:
+                self.peaks_table.selectRow(r)
         self.peaks_table.blockSignals(False)
 
     def get_peak(self):
         row = self.peaks_table.currentRow()
-        return row
+        for r in range(self.peaks_table.rowCount()):
+            if self.peaks_table.item(r, 0).data(Qt.UserRole) == row:
+                return r
