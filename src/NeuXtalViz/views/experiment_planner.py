@@ -1503,7 +1503,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.peaks_table.setItem(row, 3, self.set_item_value(d, row))
         self.peaks_table.setItem(row, 4, self.set_item_value(lamda, row))
 
-    def set_item_value(self, value, row):
+    def set_item_value(self, value, row=0):
         item = QTableWidgetItem()
         item.setData(Qt.DisplayRole, float(value))
         item.setData(Qt.UserRole, row)
