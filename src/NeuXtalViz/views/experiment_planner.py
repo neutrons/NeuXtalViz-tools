@@ -146,14 +146,6 @@ class ExperimentView(NeuXtalVizWidget):
         self.save_plan_button.setToolTip(
             "Save the current experiment plan as a CSV file."
         )
-        self.save_experiment_button = QPushButton("Save Experiment", self)
-        self.save_experiment_button.setToolTip(
-            "Save the current experiment as a NeXus file."
-        )
-        self.load_experiment_button = QPushButton("Load Experiment", self)
-        self.load_experiment_button.setToolTip(
-            "Load an experiment from a NeXus file."
-        )
 
         self.wl_min_line = QLineEdit("0.4")
         self.wl_min_line.setToolTip(
@@ -165,9 +157,7 @@ class ExperimentView(NeuXtalVizWidget):
         )
 
         self.d_min_line = QLineEdit("0.7")
-        self.d_min_line.setToolTip(
-            "Set the minimum d-spacing (d(min)) in Ångströms."
-        )
+        self.d_min_line.setToolTip("Set the minimum d-spacing in Ångströms.")
 
         wl_label = QLabel("λ:")
         d_min_label = QLabel("d(min):")
@@ -244,9 +234,19 @@ class ExperimentView(NeuXtalVizWidget):
         self.mesh_button = QPushButton("Add Mesh", self)
         self.mesh_button.setToolTip("Add a mesh scan to the experiment plan.")
 
+        self.save_experiment_button = QPushButton("Save Experiment", self)
+        self.save_experiment_button.setToolTip(
+            "Save the current experiment as a NeXus file."
+        )
+        self.load_experiment_button = QPushButton("Load Experiment", self)
+        self.load_experiment_button.setToolTip(
+            "Load an experiment from a NeXus file."
+        )
+
         settings_layout = QHBoxLayout()
 
         settings_layout.addWidget(self.load_UB_button)
+        settings_layout.addStretch(1)
         settings_layout.addWidget(self.crystal_combo)
         settings_layout.addWidget(self.point_group_combo)
         settings_layout.addWidget(self.lattice_centering_combo)
@@ -254,13 +254,20 @@ class ExperimentView(NeuXtalVizWidget):
         params_layout = QHBoxLayout()
 
         params_layout.addWidget(self.instrument_combo)
-        params_layout.addStretch(1)
         params_layout.addWidget(wl_label)
         params_layout.addWidget(self.wl_min_line)
         params_layout.addWidget(self.wl_max_line)
         params_layout.addWidget(d_min_label)
         params_layout.addWidget(self.d_min_line)
         params_layout.addWidget(angstrom_label)
+        params_layout.addStretch(1)
+
+        details_layout = QGridLayout()
+
+        details_layout.addLayout(settings_layout, 0, 0)
+        details_layout.addLayout(params_layout, 1, 0)
+        details_layout.addWidget(self.load_experiment_button, 0, 1)
+        details_layout.addWidget(self.save_experiment_button, 1, 1)
 
         result_layout = QVBoxLayout()
 
@@ -294,8 +301,6 @@ class ExperimentView(NeuXtalVizWidget):
         save_layout.addWidget(self.mesh_button)
         save_layout.addStretch(1)
         save_layout.addWidget(self.save_plan_button)
-        save_layout.addWidget(self.save_experiment_button)
-        save_layout.addWidget(self.load_experiment_button)
 
         goniometer_layout.addLayout(mode_layout)
         goniometer_layout.addWidget(self.goniometer_table)
@@ -396,8 +401,7 @@ class ExperimentView(NeuXtalVizWidget):
         results_tab.addTab(coverage_tab, "Resolution")
         results_tab.addTab(cumulative_tab, "Cumulative")
 
-        planner_layout.addLayout(settings_layout)
-        planner_layout.addLayout(params_layout)
+        planner_layout.addLayout(details_layout)
         planner_layout.addLayout(result_layout)
         planner_layout.addWidget(results_tab)
 
@@ -954,9 +958,10 @@ class ExperimentView(NeuXtalVizWidget):
     def set_peak_list(self, rows):
         self.angles_combo.blockSignals(True)
         self.angles_combo.clear()
-        self.angles_combo.addItem("0: Missing")
+        self.angles_combo.addItem("Missing")
         for row in range(rows):
             self.angles_combo.addItem((str(row + 1)))
+        self.angles_combo.setCurrentIndex(self.angles_combo.count() - 1)
         self.angles_combo.blockSignals(False)
 
     def get_peak_list(self):
@@ -964,6 +969,8 @@ class ExperimentView(NeuXtalVizWidget):
         if val is not None:
             if val.split(":")[0].isdigit():
                 return int(val.split(":")[0]) - 1
+            else:
+                return -1
 
     def set_wavelength(self, wavelength):
         self.wl_min_line.blockSignals(True)

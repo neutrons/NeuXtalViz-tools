@@ -42,8 +42,6 @@ from mantid.simpleapi import (
 from mantid.kernel import V3D
 from mantid.geometry import PointGroupFactory
 
-from collections import defaultdict
-
 import numpy as np
 from scipy.spatial.transform import Rotation
 
