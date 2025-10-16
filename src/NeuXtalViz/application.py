@@ -120,6 +120,12 @@ class NeuXtalViz(QMainWindow):
 
         layout.addWidget(app_stack)
 
+        app_menu = self.menuBar().addMenu("Experiment")
+
+        browser_action = QAction("Experiment Browser", self)
+        browser_action.triggered.connect(self.experiment_browser_GUI)
+        app_menu.addAction(browser_action)
+
         app_menu = self.menuBar().addMenu("Reduction")
 
         topaz_action = QAction("TOPAZ", self)
@@ -198,6 +204,14 @@ class NeuXtalViz(QMainWindow):
         except subprocess.CalledProcessError as e:
             QMessageBox.critical(
                 self, "Error", f"Failed to execute shelxle:\n{e}"
+            )
+
+    def experiment_browser_GUI(self):
+        try:
+            subprocess.Popen(["/SNS/software/scd/experiment.sh"])
+        except subprocess.CalledProcessError as e:
+            QMessageBox.critical(
+                self, "Error", f"Failed to execute experiment browser:\n{e}"
             )
 
     def garnet_reduction_GUI(self):
