@@ -3,6 +3,8 @@ import os
 import csv
 import itertools
 
+from collections import defaultdict
+
 from mantid.simpleapi import (
     CreatePeaksWorkspace,
     ConvertPeaksWorkspace,
@@ -1379,19 +1381,41 @@ class ExperimentModel(NeuXtalVizModel):
 
             hkls = np.array([h, k, l]).T.astype(int).tolist()
 
-            hkl_dict = {}
-            hkl_dict[(0, 0, 0)] = 0
+            # hkl_dict = {}
+            # hkl_dict[(0, 0, 0)] = 0
+            # for hkl in hkls:
+            #     if centering_conditions[lattice_centering](*hkl):
+            #         equiv_hkls = pg.getEquivalents(hkl)
+            #         for equiv_hkl in equiv_hkls:
+            #             key = tuple(equiv_hkl)
+            #             no = hkl_dict.get(key)
+            #             if no is None:
+            #                 no = 1
+            #             else:
+            #                 no += 1
+            #             hkl_dict[key] = no
+
+            cond = centering_conditions[lattice_centering]
+            rep_count = defaultdict(int)
+            rep_members = {}
+
+            def rep_of(hkl):
+                eq = tuple(map(tuple, pg.getEquivalents(hkl)))
+                rep = min(eq)
+                if rep not in rep_members:
+                    rep_members[rep] = eq
+                return rep
+
             for hkl in hkls:
-                if centering_conditions[lattice_centering](*hkl):
-                    equiv_hkls = pg.getEquivalents(hkl)
-                    for equiv_hkl in equiv_hkls:
-                        key = tuple(equiv_hkl)
-                        no = hkl_dict.get(key)
-                        if no is None:
-                            no = 1
-                        else:
-                            no += 1
-                        hkl_dict[key] = no
+                if cond(*hkl):
+                    rep_count[rep_of(tuple(hkl))] += 1
+
+            hkl_dict = {}
+            for rep, cnt in rep_count.items():
+                for m in rep_members[rep]:
+                    hkl_dict[m] = hkl_dict.get(m, 0) + cnt
+
+            hkl_dict[(0, 0, 0)] = 0
 
             nos = np.array([value for value in hkl_dict.values()])
             hkls = np.array([key for key in hkl_dict.keys()])
