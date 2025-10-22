@@ -195,7 +195,7 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        np.ndarray
+        UB : ndarray
             3x3 UB matrix if present, else None.
         """
 
@@ -224,7 +224,7 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        str
+        name : str
             Instrument name.
         """
 
@@ -241,7 +241,7 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        list
+        settings : list
             List of goniometer settings.
         """
 
@@ -258,7 +258,7 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        float
+        wavelength : float
             Wavelength in angstroms.
         """
 
@@ -275,7 +275,7 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        str
+        filepath : str
             File path to raw data.
         """
 

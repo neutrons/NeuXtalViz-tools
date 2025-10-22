@@ -2001,6 +2001,4 @@ class ExperimentView(NeuXtalVizWidget):
 
     def get_peak(self):
         row = self.peaks_table.currentRow()
-        for r in range(self.peaks_table.rowCount()):
-            if self.peaks_table.item(r, 0).data(Qt.UserRole) == row:
-                return r
+        return self.peaks_table.item(row, 0).data(Qt.UserRole)
