@@ -461,24 +461,41 @@ class Experiment(NeuXtalVizPresenter):
 
         if self.draw_idle:
 
+            self.update_processing()
+
+            self.update_processing("Calculating statistics...", 5)
+
             stats = self.model.calculate_statistics(
                 point_group, lattice_centering, use, d_min
             )
+
+            self.update_processing("Statistics calculated...", 30)
 
             if stats is not None and self.model.has_UB():
                 self.draw_idle = False
 
                 self.view.plot_statistics(*stats)
 
+                self.update_processing("Calculating coverage...", 50)
+
                 peak_dict = self.model.get_coverage_info(
                     point_group, lattice_centering, draw_all, row
                 )
+
+                self.update_processing("Coverage calculated...", 80)
+
                 if peak_dict is not None:
                     peak_dict["axis_limit"] = self.view.get_d_min()
 
                     self.view.add_peaks(peak_dict)
 
                 self.draw_idle = True
+
+            else:
+
+                self.view.add_peaks(None)
+
+            self.update_complete("Data visualized!")
 
     def optimize_coverage(self):
         worker = self.view.worker(self.optimize_coverage_process)

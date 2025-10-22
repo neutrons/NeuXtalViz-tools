@@ -246,7 +246,6 @@ class ExperimentView(NeuXtalVizWidget):
         settings_layout = QHBoxLayout()
 
         settings_layout.addWidget(self.load_UB_button)
-        settings_layout.addStretch(1)
         settings_layout.addWidget(self.crystal_combo)
         settings_layout.addWidget(self.point_group_combo)
         settings_layout.addWidget(self.lattice_centering_combo)
@@ -260,7 +259,6 @@ class ExperimentView(NeuXtalVizWidget):
         params_layout.addWidget(d_min_label)
         params_layout.addWidget(self.d_min_line)
         params_layout.addWidget(angstrom_label)
-        params_layout.addStretch(1)
 
         details_layout = QGridLayout()
 
@@ -1423,6 +1421,10 @@ class ExperimentView(NeuXtalVizWidget):
 
     def add_peaks(self, peak_dict):
         self.plotter.clear_actors()
+
+        if peak_dict is None:
+            self.reset_view()
+            return None
 
         coords = np.array(peak_dict["coords"])
         colors = np.array(peak_dict["colors"])
