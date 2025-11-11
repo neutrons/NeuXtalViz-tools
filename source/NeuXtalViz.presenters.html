@@ -899,7 +899,7 @@
 
 <span class="target" id="module-NeuXtalViz.presenters.experiment_planner"></span><dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L4-L676"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L4-L753"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter" title="NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuXtalVizPresenter</span></code></a></p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
@@ -1014,16 +1014,28 @@
 <tr class="row-even"><td><p><strong>calculate_single_process</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>create_instrument</strong></p></td>
+<tr class="row-odd"><td><p><strong>convert_to_hkl</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>delete_angles</strong></p></td>
+<tr class="row-even"><td><p><strong>convert_to_hkl_complete</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>delete_angles_complete</strong></p></td>
+<tr class="row-odd"><td><p><strong>convert_to_hkl_process</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>delete_angles_process</strong></p></td>
+<tr class="row-even"><td><p><strong>create_instrument</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>delete_angles</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>delete_angles_complete</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>delete_angles_process</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_normal</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><strong>highlight_peak</strong></p></td>
@@ -1091,222 +1103,242 @@
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.add_orientation">
-<span class="sig-name descname"><span class="pre">add_orientation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L366-L372"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.add_orientation" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_orientation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L367-L373"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.add_orientation" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.add_orientation_complete">
-<span class="sig-name descname"><span class="pre">add_orientation_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L374-L385"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.add_orientation_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_orientation_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L375-L386"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.add_orientation_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.add_orientation_process">
-<span class="sig-name descname"><span class="pre">add_orientation_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L387-L406"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.add_orientation_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_orientation_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L388-L407"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.add_orientation_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.add_settings">
-<span class="sig-name descname"><span class="pre">add_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L638-L644"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.add_settings" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L715-L721"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.add_settings" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.add_settings_complete">
-<span class="sig-name descname"><span class="pre">add_settings_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L646-L648"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.add_settings_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_settings_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L723-L725"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.add_settings_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.add_settings_process">
-<span class="sig-name descname"><span class="pre">add_settings_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L650-L676"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.add_settings_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_settings_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L727-L753"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.add_settings_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.calculate_double">
-<span class="sig-name descname"><span class="pre">calculate_double</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L228-L234"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_double" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_double</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L229-L235"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_double" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.calculate_double_complete">
-<span class="sig-name descname"><span class="pre">calculate_double_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L236-L240"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_double_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_double_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L237-L241"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_double_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.calculate_double_process">
-<span class="sig-name descname"><span class="pre">calculate_double_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L242-L283"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_double_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_double_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L243-L284"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_double_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single">
-<span class="sig-name descname"><span class="pre">calculate_single</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L162-L164"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_single</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L163-L165"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_alt">
-<span class="sig-name descname"><span class="pre">calculate_single_alt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L166-L168"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_alt" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_single_alt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L167-L169"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_alt" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_complete">
-<span class="sig-name descname"><span class="pre">calculate_single_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L178-L180"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_single_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L179-L181"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_hkl">
-<span class="sig-name descname"><span class="pre">calculate_single_hkl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L170-L176"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_hkl" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_single_hkl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L171-L177"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_hkl" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_process">
-<span class="sig-name descname"><span class="pre">calculate_single_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L182-L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_single_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L183-L227"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_process" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.convert_to_hkl">
+<span class="sig-name descname"><span class="pre">convert_to_hkl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L455-L460"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.convert_to_hkl" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.convert_to_hkl_complete">
+<span class="sig-name descname"><span class="pre">convert_to_hkl_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L462-L464"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.convert_to_hkl_complete" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.convert_to_hkl_process">
+<span class="sig-name descname"><span class="pre">convert_to_hkl_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L466-L517"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.convert_to_hkl_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.create_instrument">
-<span class="sig-name descname"><span class="pre">create_instrument</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L153-L160"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.create_instrument" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">create_instrument</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L154-L161"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.create_instrument" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.delete_angles">
-<span class="sig-name descname"><span class="pre">delete_angles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L339-L345"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.delete_angles" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">delete_angles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L340-L346"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.delete_angles" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.delete_angles_complete">
-<span class="sig-name descname"><span class="pre">delete_angles_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L347-L350"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.delete_angles_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">delete_angles_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L348-L351"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.delete_angles_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.delete_angles_process">
-<span class="sig-name descname"><span class="pre">delete_angles_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L352-L364"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.delete_angles_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">delete_angles_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L353-L365"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.delete_angles_process" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.get_normal">
+<span class="sig-name descname"><span class="pre">get_normal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L519-L529"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.get_normal" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.highlight_peak">
-<span class="sig-name descname"><span class="pre">highlight_peak</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L331-L337"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.highlight_peak" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">highlight_peak</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L332-L338"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.highlight_peak" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.load_UB">
-<span class="sig-name descname"><span class="pre">load_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L83-L95"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.load_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L84-L96"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.load_UB" title="Link to this definition">#</a></dt>
 <dd><p>Load UB matrix from file and update the view and model.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.load_detector">
-<span class="sig-name descname"><span class="pre">load_detector</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L46-L56"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.load_detector" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_detector</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L47-L57"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.load_detector" title="Link to this definition">#</a></dt>
 <dd><p>Load detector calibration file and set it in the view.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.load_experiment">
-<span class="sig-name descname"><span class="pre">load_experiment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L606-L636"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.load_experiment" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_experiment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L683-L713"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.load_experiment" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.load_goniometer">
-<span class="sig-name descname"><span class="pre">load_goniometer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L58-L68"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.load_goniometer" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_goniometer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L59-L69"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.load_goniometer" title="Link to this definition">#</a></dt>
 <dd><p>Load goniometer calibration file and set it in the view.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.load_mask">
-<span class="sig-name descname"><span class="pre">load_mask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L70-L81"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.load_mask" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_mask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L71-L82"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.load_mask" title="Link to this definition">#</a></dt>
 <dd><p>Load detector mask file and set it in the view.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.lookup_angle">
-<span class="sig-name descname"><span class="pre">lookup_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L296-L321"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.lookup_angle" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">lookup_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L297-L322"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.lookup_angle" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.mesh_scan">
-<span class="sig-name descname"><span class="pre">mesh_scan</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L408-L414"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.mesh_scan" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">mesh_scan</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L409-L415"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.mesh_scan" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.mesh_scan_complete">
-<span class="sig-name descname"><span class="pre">mesh_scan_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L416-L420"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.mesh_scan_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">mesh_scan_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L417-L421"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.mesh_scan_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.mesh_scan_process">
-<span class="sig-name descname"><span class="pre">mesh_scan_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L422-L452"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.mesh_scan_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">mesh_scan_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L423-L453"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.mesh_scan_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.optimize_coverage">
-<span class="sig-name descname"><span class="pre">optimize_coverage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L500-L506"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.optimize_coverage" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">optimize_coverage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L577-L583"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.optimize_coverage" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.optimize_coverage_complete">
-<span class="sig-name descname"><span class="pre">optimize_coverage_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L508-L512"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.optimize_coverage_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">optimize_coverage_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L585-L589"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.optimize_coverage_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.optimize_coverage_process">
-<span class="sig-name descname"><span class="pre">optimize_coverage_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L514-L562"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.optimize_coverage_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">optimize_coverage_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L591-L639"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.optimize_coverage_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.save_CSV">
-<span class="sig-name descname"><span class="pre">save_CSV</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L592-L597"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.save_CSV" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_CSV</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L669-L674"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.save_CSV" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.save_experiment">
-<span class="sig-name descname"><span class="pre">save_experiment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L599-L604"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.save_experiment" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_experiment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L676-L681"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.save_experiment" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.select_peak">
-<span class="sig-name descname"><span class="pre">select_peak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L323-L329"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.select_peak" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select_peak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L324-L330"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.select_peak" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.switch_centering">
-<span class="sig-name descname"><span class="pre">switch_centering</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L136-L137"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.switch_centering" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">switch_centering</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L137-L138"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.switch_centering" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.switch_crystal">
-<span class="sig-name descname"><span class="pre">switch_crystal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L118-L125"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.switch_crystal" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">switch_crystal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L119-L126"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.switch_crystal" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.switch_group">
-<span class="sig-name descname"><span class="pre">switch_group</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L127-L134"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.switch_group" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">switch_group</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L128-L135"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.switch_group" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.switch_instrument">
-<span class="sig-name descname"><span class="pre">switch_instrument</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L97-L116"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.switch_instrument" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">switch_instrument</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L98-L117"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.switch_instrument" title="Link to this definition">#</a></dt>
 <dd><p>Switch instrument and update all related view parameters.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.update_goniometer">
-<span class="sig-name descname"><span class="pre">update_goniometer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L139-L147"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.update_goniometer" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_goniometer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L140-L148"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.update_goniometer" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.update_peaks">
-<span class="sig-name descname"><span class="pre">update_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L285-L294"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.update_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L286-L295"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.update_peaks" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.update_plan">
-<span class="sig-name descname"><span class="pre">update_plan</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L564-L590"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.update_plan" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_plan</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L641-L667"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.update_plan" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.update_wavelength">
-<span class="sig-name descname"><span class="pre">update_wavelength</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L149-L151"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.update_wavelength" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_wavelength</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L150-L152"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.update_wavelength" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.experiment_planner.Experiment.visualize">
-<span class="sig-name descname"><span class="pre">visualize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L454-L498"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.visualize" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">visualize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/experiment_planner.py#L531-L575"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.experiment_planner.Experiment.visualize" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1560,7 +1592,7 @@
 
 <span class="target" id="module-NeuXtalViz.presenters.ub_tools"></span><dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L6-L1219"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L4-L1216"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter" title="NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuXtalVizPresenter</span></code></a></p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
@@ -1857,147 +1889,147 @@
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.add_peak">
-<span class="sig-name descname"><span class="pre">add_peak</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L265-L287"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.add_peak" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_peak</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L263-L285"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.add_peak" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.calculate_hkl">
-<span class="sig-name descname"><span class="pre">calculate_hkl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L289-L313"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.calculate_hkl" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_hkl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L287-L311"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.calculate_hkl" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.calculate_peaks">
-<span class="sig-name descname"><span class="pre">calculate_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1074-L1079"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.calculate_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1072-L1077"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.calculate_peaks" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.cluster">
-<span class="sig-name descname"><span class="pre">cluster</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1184-L1189"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.cluster" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cluster</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1181-L1186"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.cluster" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.cluster_complete">
-<span class="sig-name descname"><span class="pre">cluster_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1191-L1196"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.cluster_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cluster_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1188-L1193"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.cluster_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.cluster_process">
-<span class="sig-name descname"><span class="pre">cluster_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1198-L1219"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.cluster_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cluster_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1195-L1216"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.cluster_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.convert_Q">
-<span class="sig-name descname"><span class="pre">convert_Q</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L180-L186"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.convert_Q" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">convert_Q</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L178-L184"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.convert_Q" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.convert_Q_complete">
-<span class="sig-name descname"><span class="pre">convert_Q_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L188-L192"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.convert_Q_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">convert_Q_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L186-L190"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.convert_Q_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.convert_Q_process">
-<span class="sig-name descname"><span class="pre">convert_Q_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L194-L263"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.convert_Q_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">convert_Q_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L192-L261"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.convert_Q_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.convert_to_hkl">
-<span class="sig-name descname"><span class="pre">convert_to_hkl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1121-L1130"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.convert_to_hkl" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">convert_to_hkl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1119-L1128"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.convert_to_hkl" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.convert_to_hkl_complete">
-<span class="sig-name descname"><span class="pre">convert_to_hkl_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1132-L1136"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.convert_to_hkl_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">convert_to_hkl_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1130-L1134"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.convert_to_hkl_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.convert_to_hkl_process">
-<span class="sig-name descname"><span class="pre">convert_to_hkl_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1138-L1182"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.convert_to_hkl_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">convert_to_hkl_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1136-L1179"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.convert_to_hkl_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.filter_peaks">
-<span class="sig-name descname"><span class="pre">filter_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L933-L939"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.filter_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">filter_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L931-L937"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.filter_peaks" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.filter_peaks_complete">
-<span class="sig-name descname"><span class="pre">filter_peaks_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L941-L942"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.filter_peaks_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">filter_peaks_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L939-L940"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.filter_peaks_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.filter_peaks_process">
-<span class="sig-name descname"><span class="pre">filter_peaks_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L944-L961"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.filter_peaks_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">filter_peaks_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L942-L959"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.filter_peaks_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.find_conventional">
-<span class="sig-name descname"><span class="pre">find_conventional</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L518-L524"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_conventional" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">find_conventional</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L516-L522"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_conventional" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.find_conventional_complete">
-<span class="sig-name descname"><span class="pre">find_conventional_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L526-L527"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_conventional_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">find_conventional_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L524-L525"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_conventional_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.find_conventional_process">
-<span class="sig-name descname"><span class="pre">find_conventional_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L529-L546"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_conventional_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">find_conventional_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L527-L544"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_conventional_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.find_niggli">
-<span class="sig-name descname"><span class="pre">find_niggli</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L548-L554"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_niggli" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">find_niggli</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L546-L552"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_niggli" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.find_niggli_complete">
-<span class="sig-name descname"><span class="pre">find_niggli_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L556-L557"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_niggli_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">find_niggli_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L554-L555"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_niggli_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.find_niggli_process">
-<span class="sig-name descname"><span class="pre">find_niggli_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L559-L576"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_niggli_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">find_niggli_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L557-L574"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_niggli_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.find_peaks">
-<span class="sig-name descname"><span class="pre">find_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L481-L487"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">find_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L479-L485"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_peaks" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.find_peaks_complete">
-<span class="sig-name descname"><span class="pre">find_peaks_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L489-L490"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_peaks_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">find_peaks_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L487-L488"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_peaks_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.find_peaks_process">
-<span class="sig-name descname"><span class="pre">find_peaks_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L492-L516"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_peaks_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">find_peaks_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L490-L514"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.find_peaks_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.get_clim_method">
-<span class="sig-name descname"><span class="pre">get_clim_method</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1093-L1103"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.get_clim_method" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_clim_method</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1091-L1101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.get_clim_method" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.get_modulation_info">
-<span class="sig-name descname"><span class="pre">get_modulation_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L754-L767"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.get_modulation_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_modulation_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L752-L765"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.get_modulation_info" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.get_normal">
-<span class="sig-name descname"><span class="pre">get_normal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1081-L1091"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.get_normal" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_normal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1079-L1089"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.get_normal" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.get_vlim_method">
-<span class="sig-name descname"><span class="pre">get_vlim_method</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1105-L1115"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.get_vlim_method" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_vlim_method</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1103-L1113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.get_vlim_method" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.hand_index_fractional">
-<span class="sig-name descname"><span class="pre">hand_index_fractional</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L120-L148"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.hand_index_fractional" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">hand_index_fractional</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L118-L146"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.hand_index_fractional" title="Link to this definition">#</a></dt>
 <dd><p>Handle fractional indexing for peaks and update the view.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2010,7 +2042,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.hand_index_integer">
-<span class="sig-name descname"><span class="pre">hand_index_integer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L150-L178"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.hand_index_integer" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">hand_index_integer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L148-L176"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.hand_index_integer" title="Link to this definition">#</a></dt>
 <dd><p>Handle integer indexing for peaks and update the view.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2023,197 +2055,197 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.highlight_cell">
-<span class="sig-name descname"><span class="pre">highlight_cell</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L645-L647"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.highlight_cell" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">highlight_cell</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L643-L645"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.highlight_cell" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.highlight_peak">
-<span class="sig-name descname"><span class="pre">highlight_peak</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L649-L656"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.highlight_peak" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">highlight_peak</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L647-L654"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.highlight_peak" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.index_peaks">
-<span class="sig-name descname"><span class="pre">index_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L769-L775"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.index_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">index_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L767-L773"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.index_peaks" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.index_peaks_complete">
-<span class="sig-name descname"><span class="pre">index_peaks_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L777-L778"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.index_peaks_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">index_peaks_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L775-L776"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.index_peaks_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.index_peaks_process">
-<span class="sig-name descname"><span class="pre">index_peaks_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L780-L816"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.index_peaks_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">index_peaks_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L778-L814"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.index_peaks_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.integrate_peaks">
-<span class="sig-name descname"><span class="pre">integrate_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L885-L891"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.integrate_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">integrate_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L883-L889"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.integrate_peaks" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.integrate_peaks_complete">
-<span class="sig-name descname"><span class="pre">integrate_peaks_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L893-L894"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.integrate_peaks_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">integrate_peaks_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L891-L892"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.integrate_peaks_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.integrate_peaks_process">
-<span class="sig-name descname"><span class="pre">integrate_peaks_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L896-L931"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.integrate_peaks_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">integrate_peaks_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L894-L929"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.integrate_peaks_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.lattice_transform">
-<span class="sig-name descname"><span class="pre">lattice_transform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L658-L665"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.lattice_transform" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">lattice_transform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L656-L663"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.lattice_transform" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.load_Q">
-<span class="sig-name descname"><span class="pre">load_Q</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L993-L1002"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.load_Q" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_Q</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L991-L1000"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.load_Q" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.load_UB">
-<span class="sig-name descname"><span class="pre">load_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1037-L1048"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.load_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1035-L1046"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.load_UB" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.load_detector_calibration">
-<span class="sig-name descname"><span class="pre">load_detector_calibration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L963-L971"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.load_detector_calibration" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_detector_calibration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L961-L969"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.load_detector_calibration" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.load_goniometer_calibration">
-<span class="sig-name descname"><span class="pre">load_goniometer_calibration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L973-L981"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.load_goniometer_calibration" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_goniometer_calibration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L971-L979"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.load_goniometer_calibration" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.load_peaks">
-<span class="sig-name descname"><span class="pre">load_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1015-L1024"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.load_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1013-L1022"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.load_peaks" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.load_tube_calibration">
-<span class="sig-name descname"><span class="pre">load_tube_calibration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L983-L991"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.load_tube_calibration" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_tube_calibration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L981-L989"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.load_tube_calibration" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.predict_peaks">
-<span class="sig-name descname"><span class="pre">predict_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L818-L824"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.predict_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">predict_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L816-L822"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.predict_peaks" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.predict_peaks_complete">
-<span class="sig-name descname"><span class="pre">predict_peaks_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L826-L827"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.predict_peaks_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">predict_peaks_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L824-L825"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.predict_peaks_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.predict_peaks_process">
-<span class="sig-name descname"><span class="pre">predict_peaks_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L829-L883"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.predict_peaks_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">predict_peaks_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L827-L881"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.predict_peaks_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.refine_UB">
-<span class="sig-name descname"><span class="pre">refine_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L709-L715"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.refine_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">refine_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L707-L713"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.refine_UB" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.refine_UB_complete">
-<span class="sig-name descname"><span class="pre">refine_UB_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L717-L718"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.refine_UB_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">refine_UB_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L715-L716"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.refine_UB_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.refine_UB_process">
-<span class="sig-name descname"><span class="pre">refine_UB_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L720-L752"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.refine_UB_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">refine_UB_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L718-L750"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.refine_UB_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.reslice">
-<span class="sig-name descname"><span class="pre">reslice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1117-L1119"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.reslice" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">reslice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1115-L1117"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.reslice" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.save_Q">
-<span class="sig-name descname"><span class="pre">save_Q</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1004-L1013"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.save_Q" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_Q</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1002-L1011"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.save_Q" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.save_UB">
-<span class="sig-name descname"><span class="pre">save_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1050-L1059"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.save_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1048-L1057"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.save_UB" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.save_peaks">
-<span class="sig-name descname"><span class="pre">save_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1026-L1035"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.save_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1024-L1033"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.save_peaks" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.select_cell">
-<span class="sig-name descname"><span class="pre">select_cell</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L615-L621"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.select_cell" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select_cell</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L613-L619"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.select_cell" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.select_cell_complete">
-<span class="sig-name descname"><span class="pre">select_cell_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L623-L624"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.select_cell_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select_cell_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L621-L622"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.select_cell_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.select_cell_process">
-<span class="sig-name descname"><span class="pre">select_cell_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L626-L643"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.select_cell_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select_cell_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L624-L641"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.select_cell_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.set_UB">
-<span class="sig-name descname"><span class="pre">set_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L608-L613"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.set_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L606-L611"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.set_UB" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.show_cells">
-<span class="sig-name descname"><span class="pre">show_cells</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L578-L584"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.show_cells" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">show_cells</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L576-L582"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.show_cells" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.show_cells_complete">
-<span class="sig-name descname"><span class="pre">show_cells_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L586-L588"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.show_cells_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">show_cells_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L584-L586"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.show_cells_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.show_cells_process">
-<span class="sig-name descname"><span class="pre">show_cells_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L590-L606"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.show_cells_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">show_cells_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L588-L604"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.show_cells_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.switch_instrument">
-<span class="sig-name descname"><span class="pre">switch_instrument</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1061-L1068"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.switch_instrument" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">switch_instrument</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1059-L1066"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.switch_instrument" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.symmetry_transform">
-<span class="sig-name descname"><span class="pre">symmetry_transform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L667-L677"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.symmetry_transform" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">symmetry_transform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L665-L675"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.symmetry_transform" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.transform_UB">
-<span class="sig-name descname"><span class="pre">transform_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L679-L685"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.transform_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">transform_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L677-L683"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.transform_UB" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.transform_UB_complete">
-<span class="sig-name descname"><span class="pre">transform_UB_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L687-L688"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.transform_UB_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">transform_UB_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L685-L686"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.transform_UB_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.transform_UB_process">
-<span class="sig-name descname"><span class="pre">transform_UB_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L690-L707"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.transform_UB_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">transform_UB_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L688-L705"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.transform_UB_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.update_check_hkl">
-<span class="sig-name descname"><span class="pre">update_check_hkl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L425-L437"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_check_hkl" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_check_hkl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L423-L435"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_check_hkl" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.update_find_distance">
-<span class="sig-name descname"><span class="pre">update_find_distance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L108-L118"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_find_distance" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_find_distance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L106-L116"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_find_distance" title="Link to this definition">#</a></dt>
 <dd><p>Update the find peaks distance in the view using d value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2226,7 +2258,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.update_find_spacing">
-<span class="sig-name descname"><span class="pre">update_find_spacing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L96-L106"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_find_spacing" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_find_spacing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L94-L104"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_find_spacing" title="Link to this definition">#</a></dt>
 <dd><p>Update the find peaks spacing in the view using Q value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2239,42 +2271,42 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.update_instrument_view">
-<span class="sig-name descname"><span class="pre">update_instrument_view</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L315-L321"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_instrument_view" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_instrument_view</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L313-L319"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_instrument_view" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.update_instrument_view_complete">
-<span class="sig-name descname"><span class="pre">update_instrument_view_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L323-L329"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_instrument_view_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_instrument_view_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L321-L327"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_instrument_view_complete" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.update_instrument_view_process">
-<span class="sig-name descname"><span class="pre">update_instrument_view_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L331-L389"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_instrument_view_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_instrument_view_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L329-L387"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_instrument_view_process" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.update_lattice_info">
-<span class="sig-name descname"><span class="pre">update_lattice_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L469-L479"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_lattice_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_lattice_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L467-L477"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_lattice_info" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.update_roi">
-<span class="sig-name descname"><span class="pre">update_roi</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L391-L406"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_roi" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_roi</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L389-L404"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_roi" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.update_scan">
-<span class="sig-name descname"><span class="pre">update_scan</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L408-L423"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_scan" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_scan</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L406-L421"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_scan" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.update_wavelength">
-<span class="sig-name descname"><span class="pre">update_wavelength</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1070-L1072"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_wavelength" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_wavelength</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L1068-L1070"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.update_wavelength" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.ub_tools.UB.visualize">
-<span class="sig-name descname"><span class="pre">visualize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L439-L467"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.visualize" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">visualize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/ub_tools.py#L437-L465"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.ub_tools.UB.visualize" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2653,10 +2685,14 @@
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_complete"><code class="docutils literal notranslate"><span class="pre">Experiment.calculate_single_complete()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_hkl"><code class="docutils literal notranslate"><span class="pre">Experiment.calculate_single_hkl()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.experiment_planner.Experiment.calculate_single_process"><code class="docutils literal notranslate"><span class="pre">Experiment.calculate_single_process()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.experiment_planner.Experiment.convert_to_hkl"><code class="docutils literal notranslate"><span class="pre">Experiment.convert_to_hkl()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.experiment_planner.Experiment.convert_to_hkl_complete"><code class="docutils literal notranslate"><span class="pre">Experiment.convert_to_hkl_complete()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.experiment_planner.Experiment.convert_to_hkl_process"><code class="docutils literal notranslate"><span class="pre">Experiment.convert_to_hkl_process()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.experiment_planner.Experiment.create_instrument"><code class="docutils literal notranslate"><span class="pre">Experiment.create_instrument()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.experiment_planner.Experiment.delete_angles"><code class="docutils literal notranslate"><span class="pre">Experiment.delete_angles()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.experiment_planner.Experiment.delete_angles_complete"><code class="docutils literal notranslate"><span class="pre">Experiment.delete_angles_complete()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.experiment_planner.Experiment.delete_angles_process"><code class="docutils literal notranslate"><span class="pre">Experiment.delete_angles_process()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.experiment_planner.Experiment.get_normal"><code class="docutils literal notranslate"><span class="pre">Experiment.get_normal()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.experiment_planner.Experiment.highlight_peak"><code class="docutils literal notranslate"><span class="pre">Experiment.highlight_peak()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.experiment_planner.Experiment.load_UB"><code class="docutils literal notranslate"><span class="pre">Experiment.load_UB()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.presenters.experiment_planner.Experiment.load_detector"><code class="docutils literal notranslate"><span class="pre">Experiment.load_detector()</span></code></a></li>
