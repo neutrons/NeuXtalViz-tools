@@ -29,6 +29,9 @@ class Experiment(NeuXtalVizPresenter):
         self.view.connect_load_goniometer(self.load_goniometer)
         self.view.connect_convert_to_hkl(self.convert_to_hkl)
 
+        self.view.connect_slice_combo(self.convert_to_hkl)
+        self.view.connect_slice_thickness_line(self.convert_to_hkl)
+
         self.view.connect_roi_ready(self.lookup_angle)
         self.view.connect_sel_ready(self.select_peak)
         self.view.connect_viz_ready(self.visualize)

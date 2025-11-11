@@ -789,6 +789,15 @@ class ExperimentView(NeuXtalVizWidget):
     def connect_convert_to_hkl(self, convert_to_hkl):
         self.coverage_button.clicked.connect(convert_to_hkl)
 
+    def connect_slice_thickness_line(self, update_slice):
+        self.slice_thickness_line.editingFinished.connect(update_slice)
+
+    def connect_slice_line(self, update_slice):
+        self.slice_line.editingFinished.connect(update_slice)
+
+    def connect_slice_combo(self, update_slice):
+        self.slice_combo.currentIndexChanged.connect(update_slice)
+
     def connect_combined(self, update_combined):
         self.combined_box.toggled.connect(update_combined)
 
@@ -2217,6 +2226,7 @@ class ExperimentView(NeuXtalVizWidget):
             x,
             y,
             signal,
+            vmin=0,
             cmap="turbo",
             shading="flat",
             transform=trans,

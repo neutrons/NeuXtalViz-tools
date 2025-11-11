@@ -1610,7 +1610,7 @@ class ExperimentModel(NeuXtalVizModel):
         return *proj, invalid
 
     def calculate_rotations(
-        self, mesh_angles, U, V, W, normal, value, thickness
+        self, mesh_angles, U, V, W, normal, value, thickness, factor=2
     ):
         limits, ns = mesh_angles
 
@@ -1657,6 +1657,26 @@ class ExperimentModel(NeuXtalVizModel):
             i3 = self.to_index(Q3, Q_max, scale, n)
 
             coverage[i1, i2, i3] += 1
+
+        coverage = (
+            coverage.repeat(factor, axis=0)
+            .repeat(factor, axis=1)
+            .repeat(factor, axis=2)
+        )
+
+        Qx = Qx[:, 0, 0]
+        Qy = Qy[0, :, 0]
+        Qz = Qz[0, 0, :]
+
+        ix = np.linspace(0, n - 1, n * factor)
+        iy = np.linspace(0, n - 1, n * factor)
+        iz = np.linspace(0, n - 1, n * factor)
+
+        Qx = np.interp(ix, np.arange(n), Qx)
+        Qy = np.interp(iy, np.arange(n), Qy)
+        Qz = np.interp(iz, np.arange(n), Qz)
+
+        Qx, Qy, Qz = np.meshgrid(Qx, Qy, Qz, indexing="ij")
 
         P = np.column_stack([U, V, W])
         UB = mtd["coverage"].sample().getOrientedLattice().getUB()
@@ -1715,6 +1735,7 @@ class ExperimentModel(NeuXtalVizModel):
         )
 
         stats[np.isclose(stats, 0)] = np.nan
+        stats = np.ceil(stats)
 
         Bp = np.dot(UB, P)
 
