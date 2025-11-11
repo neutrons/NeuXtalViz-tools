@@ -32,7 +32,12 @@ from matplotlib.ticker import (
     FuncFormatter,
     MaxNLocator,
 )
-
+from matplotlib.transforms import Affine2D
+from mpl_toolkits.axisartist import Axes, GridHelperCurveLinear
+from mpl_toolkits.axisartist.grid_finder import (
+    ExtremeFinderSimple,
+    MaxNLocator,
+)
 from NeuXtalViz.views.base_view import NeuXtalVizWidget
 
 
@@ -56,6 +61,7 @@ class ExperimentView(NeuXtalVizWidget):
 
         self.coverage_tab()
         self.peak_tab()
+        self.mesh_tab()
 
         self.layout().addWidget(self.tab_widget, stretch=1)
         self.plan_table.itemChanged.connect(self.handle_item_changed)
@@ -218,22 +224,6 @@ class ExperimentView(NeuXtalVizWidget):
         self.motor_table.horizontalHeader().setSectionResizeMode(resize)
         self.motor_table.setHorizontalHeaderLabels(labels)
 
-        self.mesh_table = QTableWidget()
-        self.mesh_table.setToolTip("Table for mesh scan angles and limits.")
-
-        self.mesh_table.setRowCount(0)
-        self.mesh_table.setColumnCount(4)
-        self.mesh_table.blockSignals(True)
-
-        labels = ["Motor", "Min", "Max", "Angles"]
-
-        self.mesh_table.horizontalHeader().setStretchLastSection(True)
-        self.mesh_table.horizontalHeader().setSectionResizeMode(resize)
-        self.mesh_table.setHorizontalHeaderLabels(labels)
-
-        self.mesh_button = QPushButton("Add Mesh", self)
-        self.mesh_button.setToolTip("Add a mesh scan to the experiment plan.")
-
         self.save_experiment_button = QPushButton("Save Experiment", self)
         self.save_experiment_button.setToolTip(
             "Save the current experiment as a NeXus file."
@@ -287,7 +277,6 @@ class ExperimentView(NeuXtalVizWidget):
         planning_layout.addWidget(self.title_line)
         planning_layout.addWidget(self.count_combo)
         planning_layout.addWidget(self.count_line)
-        planning_layout.addWidget(self.update_button)
         planning_layout.addStretch(1)
         planning_layout.addWidget(settings_label)
         planning_layout.addWidget(self.settings_line)
@@ -296,7 +285,7 @@ class ExperimentView(NeuXtalVizWidget):
         save_layout = QHBoxLayout()
         save_layout.addWidget(self.delete_button)
         save_layout.addWidget(self.highlight_button)
-        save_layout.addWidget(self.mesh_button)
+        save_layout.addWidget(self.update_button)
         save_layout.addStretch(1)
         save_layout.addWidget(self.save_plan_button)
 
@@ -339,7 +328,6 @@ class ExperimentView(NeuXtalVizWidget):
 
         plan_layout.addLayout(planning_layout)
         plan_layout.addWidget(self.plan_table)
-        plan_layout.addWidget(self.mesh_table)
         plan_layout.addLayout(save_layout)
         plan_layout.setStretch(1, 2)
         plan_layout.setStretch(2, 1)
@@ -404,6 +392,141 @@ class ExperimentView(NeuXtalVizWidget):
         planner_layout.addWidget(results_tab)
 
         cov_tab.setLayout(planner_layout)
+
+    def mesh_tab(self):
+        inst_tab = QWidget()
+        self.tab_widget.addTab(inst_tab, "Mesh")
+
+        self.mesh_table = QTableWidget()
+        self.mesh_table.setToolTip("Table for mesh scan angles and limits.")
+
+        self.mesh_table.setRowCount(0)
+        self.mesh_table.setColumnCount(4)
+        self.mesh_table.blockSignals(True)
+
+        labels = ["Motor", "Min", "Max", "Angles"]
+
+        resize = QHeaderView.Stretch
+
+        self.mesh_table.horizontalHeader().setStretchLastSection(True)
+        self.mesh_table.horizontalHeader().setSectionResizeMode(resize)
+        self.mesh_table.setHorizontalHeaderLabels(labels)
+
+        self.mesh_button = QPushButton("Add Mesh", self)
+        self.mesh_button.setToolTip("Add a mesh scan to the experiment plan.")
+
+        self.coverage_button = QPushButton("Calculate", self)
+        self.coverage_button.setToolTip("Calculate slice from the mesh scan.")
+
+        self.slice_combo = QComboBox(self)
+        self.slice_combo.addItem("Axis 1/2")
+        self.slice_combo.addItem("Axis 1/3")
+        self.slice_combo.addItem("Axis 2/3")
+        self.slice_combo.setCurrentIndex(0)
+        self.slice_combo.setToolTip("Select the axes for the slice view.")
+
+        slice_label = QLabel("Slice:", self)
+
+        notation = QDoubleValidator.StandardNotation
+
+        validator = QDoubleValidator(-10, 10, 5, notation=notation)
+
+        self.slice_line = QLineEdit("0.0")
+        self.slice_line.setValidator(validator)
+        self.slice_line.setToolTip("Enter the slice position value.")
+
+        validator = QDoubleValidator(0.0001, 100, 5, notation=notation)
+
+        slice_thickness_label = QLabel("Thickness:", self)
+
+        self.slice_thickness_line = QLineEdit("0.1")
+        self.slice_thickness_line.setValidator(validator)
+        self.slice_thickness_line.setToolTip(
+            "Enter the slice thickness value."
+        )
+
+        control_layout = QHBoxLayout()
+        control_layout.addWidget(self.coverage_button)
+        control_layout.addWidget(self.slice_combo)
+        control_layout.addWidget(slice_label)
+        control_layout.addWidget(self.slice_line)
+        control_layout.addWidget(slice_thickness_label)
+        control_layout.addWidget(self.slice_thickness_line)
+        control_layout.addWidget(self.mesh_button)
+
+        mesh_layout = QVBoxLayout()
+        mesh_layout.addWidget(self.mesh_table)
+        mesh_layout.addLayout(control_layout)
+
+        self.canvas_slice = FigureCanvas(Figure(constrained_layout=True))
+        self.cb_slice = None
+
+        self.fig_slice = self.canvas_slice.figure
+        self.ax_slice = self.fig_slice.subplots(1, 1)
+
+        mesh_layout.addWidget(NavigationToolbar2QT(self.canvas_slice, self))
+        mesh_layout.addWidget(self.canvas_slice)
+
+        convert_to_hkl_params_layout = QGridLayout()
+
+        notation = QDoubleValidator.StandardNotation
+
+        validator = QDoubleValidator(-10, 10, 5, notation=notation)
+
+        self.U1_line = QLineEdit("1")
+        self.U2_line = QLineEdit("0")
+        self.U3_line = QLineEdit("0")
+
+        self.V1_line = QLineEdit("0")
+        self.V2_line = QLineEdit("1")
+        self.V3_line = QLineEdit("0")
+
+        self.W1_line = QLineEdit("0")
+        self.W2_line = QLineEdit("0")
+        self.W3_line = QLineEdit("1")
+
+        self.U1_line.setValidator(validator)
+        self.U2_line.setValidator(validator)
+        self.U3_line.setValidator(validator)
+
+        self.V1_line.setValidator(validator)
+        self.V2_line.setValidator(validator)
+        self.V3_line.setValidator(validator)
+
+        self.W1_line.setValidator(validator)
+        self.W2_line.setValidator(validator)
+        self.W3_line.setValidator(validator)
+
+        ax1_label = QLabel("1:")
+        ax2_label = QLabel("2:")
+        ax3_label = QLabel("3:")
+
+        h_label = QLabel("h")
+        k_label = QLabel("k")
+        l_label = QLabel("l")
+
+        convert_to_hkl_params_layout.addWidget(h_label, 0, 1, Qt.AlignCenter)
+        convert_to_hkl_params_layout.addWidget(k_label, 0, 2, Qt.AlignCenter)
+        convert_to_hkl_params_layout.addWidget(l_label, 0, 3, Qt.AlignCenter)
+        convert_to_hkl_params_layout.addWidget(ax1_label, 1, 0, Qt.AlignCenter)
+        convert_to_hkl_params_layout.addWidget(ax2_label, 2, 0, Qt.AlignCenter)
+        convert_to_hkl_params_layout.addWidget(ax3_label, 3, 0, Qt.AlignCenter)
+
+        convert_to_hkl_params_layout.addWidget(self.U1_line, 1, 1)
+        convert_to_hkl_params_layout.addWidget(self.V1_line, 2, 1)
+        convert_to_hkl_params_layout.addWidget(self.W1_line, 3, 1)
+
+        convert_to_hkl_params_layout.addWidget(self.U2_line, 1, 2)
+        convert_to_hkl_params_layout.addWidget(self.V2_line, 2, 2)
+        convert_to_hkl_params_layout.addWidget(self.W2_line, 3, 2)
+
+        convert_to_hkl_params_layout.addWidget(self.U3_line, 1, 3)
+        convert_to_hkl_params_layout.addWidget(self.V3_line, 2, 3)
+        convert_to_hkl_params_layout.addWidget(self.W3_line, 3, 3)
+
+        mesh_layout.addLayout(convert_to_hkl_params_layout)
+
+        inst_tab.setLayout(mesh_layout)
 
     def peak_tab(self):
         inst_tab = QWidget()
@@ -662,6 +785,9 @@ class ExperimentView(NeuXtalVizWidget):
         self.crystal_combo.setCurrentIndex(0)
         self.point_group_combo.setCurrentIndex(1)
         self.lattice_centering_combo.setCurrentIndex(0)
+
+    def connect_convert_to_hkl(self, convert_to_hkl):
+        self.coverage_button.clicked.connect(convert_to_hkl)
 
     def connect_combined(self, update_combined):
         self.combined_box.toggled.connect(update_combined)
@@ -2004,3 +2130,113 @@ class ExperimentView(NeuXtalVizWidget):
     def get_peak(self):
         row = self.peaks_table.currentRow()
         return self.peaks_table.item(row, 0).data(Qt.UserRole)
+
+    def get_projection_matrix(self):
+        params = (
+            self.U1_line,
+            self.U2_line,
+            self.U3_line,
+            self.V1_line,
+            self.V2_line,
+            self.V3_line,
+            self.W1_line,
+            self.W2_line,
+            self.W3_line,
+        )
+        valid_params = all([param.hasAcceptableInput() for param in params])
+
+        if valid_params:
+            params = [float(param.text()) for param in params]
+
+            return params
+
+    def get_slice_value(self):
+        if self.slice_line.hasAcceptableInput():
+            return float(self.slice_line.text())
+
+    def get_slice_thickness(self):
+        if self.slice_thickness_line.hasAcceptableInput():
+            return float(self.slice_thickness_line.text())
+
+    def get_slice(self):
+        return self.slice_combo.currentText()
+
+    def __format_axis_coord(self, x, y):
+        x, y, _ = np.dot(self.T_inv, [x, y, 1])
+        h, k, l = np.dot(self.W, [x, y, self.z])
+        return "hkl = ({:.3f}, {:.3f}, {:.3f})".format(h, k, l)
+
+    def update_slice(self, slice_dict):
+        x = slice_dict["x"]
+        y = slice_dict["y"]
+
+        labels = slice_dict["labels"]
+        title = slice_dict["title"]
+        signal = slice_dict["signal"]
+
+        self.z = slice_dict["z"]
+        self.W = slice_dict["W"]
+
+        T = slice_dict["transform"]
+        aspect = slice_dict["aspect"]
+
+        transform = Affine2D(T)
+
+        self.T_inv = np.linalg.inv(T)
+
+        self.ax_slice.remove()
+
+        if self.cb_slice is not None:
+            self.cb_slice.remove()
+            self.cb_slice = None
+
+        extreme_finder = ExtremeFinderSimple(20, 20)
+
+        grid_locator1 = MaxNLocator(nbins=10)
+        grid_locator2 = MaxNLocator(nbins=10)
+
+        grid_locator1.set_params(integer=True)
+        grid_locator2.set_params(integer=True)
+
+        grid_helper = GridHelperCurveLinear(
+            transform,
+            extreme_finder=extreme_finder,
+            grid_locator1=grid_locator1,
+            grid_locator2=grid_locator2,
+        )
+
+        self.ax_slice = self.fig_slice.add_subplot(
+            1, 1, 1, axes_class=Axes, grid_helper=grid_helper
+        )
+
+        self.ax_slice.set_aspect(aspect)
+
+        trans = transform + self.ax_slice.transData
+
+        im = self.ax_slice.pcolormesh(
+            x,
+            y,
+            signal,
+            cmap="turbo",
+            shading="flat",
+            transform=trans,
+            rasterized=True,
+        )
+
+        self.ax_slice.set_xlabel(labels[0])
+        self.ax_slice.set_ylabel(labels[1])
+
+        self.im = im
+        self.vmin, self.vmax = self.im.norm.vmin, self.im.norm.vmax
+
+        self.ax_slice.set_title(title)
+        self.ax_slice.grid(True)
+
+        self.cb_slice = self.fig_slice.colorbar(self.im, ax=self.ax_slice)
+        self.cb_slice.minorticks_on()
+        self.cb_slice.ax.set_ylabel("Redundancy")
+
+        self.canvas_slice.draw_idle()
+        self.canvas_slice.flush_events()
+
+        self.ax_slice.format_coord = self.__format_axis_coord

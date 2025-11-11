@@ -27,6 +27,7 @@ class Experiment(NeuXtalVizPresenter):
         self.view.connect_load_mask(self.load_mask)
         self.view.connect_load_detector(self.load_detector)
         self.view.connect_load_goniometer(self.load_goniometer)
+        self.view.connect_convert_to_hkl(self.convert_to_hkl)
 
         self.view.connect_roi_ready(self.lookup_angle)
         self.view.connect_sel_ready(self.select_peak)
@@ -450,6 +451,82 @@ class Experiment(NeuXtalVizPresenter):
 
         else:
             progress("No mesh angles provided for mesh scan.", 0)
+
+    def convert_to_hkl(self):
+        worker = self.view.worker(self.convert_to_hkl_process)
+        worker.connect_result(self.convert_to_hkl_complete)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def convert_to_hkl_complete(self, result):
+        if result is not None:
+            self.view.update_slice(result)
+
+    def convert_to_hkl_process(self, progress):
+        instrument = self.view.get_instrument()
+        mode = self.view.get_mode()
+
+        axes, polarities = self.model.get_axes_polarities(instrument, mode)
+        self.model.generate_axes(axes, polarities)
+
+        proj = self.view.get_projection_matrix()
+
+        value = self.view.get_slice_value()
+
+        thickness = self.view.get_slice_thickness()
+
+        validate = [proj, value, thickness]
+
+        if all(elem is not None for elem in validate):
+            U, V, W, invalid = self.model.validate_projection(proj)
+
+            if not invalid:
+
+                norm = self.get_normal()
+
+                angles = self.view.get_mesh_angles()
+
+                wavelength = self.view.get_wavelength()
+
+                if len(angles) > 0:
+
+                    progress("Initializing instrument", 5)
+
+                    self.create_instrument()
+
+                    self.model.calculate_footprint(wavelength)
+
+                    progress("Calculating footprint", 50)
+
+                    result = self.model.calculate_rotations(
+                        angles, U, V, W, norm, value, thickness
+                    )
+
+                    progress("Footprint calculated!", 0)
+
+                    return result
+
+                else:
+                    progress("No angles provided for orientation.", 0)
+
+            else:
+                progress("Invalid projections.", 0)
+
+        else:
+            progress("Invalid parameters.", 0)
+
+    def get_normal(self):
+        slice_plane = self.view.get_slice()
+
+        if slice_plane == "Axis 1/2":
+            norm = [0, 0, 1]
+        elif slice_plane == "Axis 1/3":
+            norm = [0, 1, 0]
+        else:
+            norm = [1, 0, 0]
+
+        return norm
 
     def visualize(self):
         point_group = self.view.get_point_group()

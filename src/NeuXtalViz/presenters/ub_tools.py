@@ -1,5 +1,3 @@
-import numpy as np
-
 from NeuXtalViz.presenters.base_presenter import NeuXtalVizPresenter
 
 
@@ -211,7 +209,7 @@ class UB(NeuXtalVizPresenter):
             validate.append(exp)
 
         if all(elem is not None for elem in validate):
-            mono = np.isclose(wavelength[0], wavelength[1])
+            mono = self.model.is_mono(wavelength)
 
             progress("Processing...", 1)
 
@@ -1147,10 +1145,9 @@ class UB(NeuXtalVizPresenter):
         validate = [proj, value, thickness, width]
 
         if all(elem is not None for elem in validate):
-            proj = np.array(proj).reshape(3, 3)
+            U, V, W, invalid = self.model.validate_projection(proj)
 
-            if not np.isclose(np.linalg.det(proj), 0):
-                U, V, W = proj
+            if not invalid:
 
                 norm = self.get_normal()
 

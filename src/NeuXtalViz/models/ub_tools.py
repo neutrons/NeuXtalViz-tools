@@ -811,6 +811,9 @@ class UBModel(NeuXtalVizModel):
             self.nu = np.rad2deg(np.arcsin(kf_y))
             self.gamma = np.rad2deg(np.arctan2(kf_x, kf_z))
 
+    def is_mono(self, wavelength):
+        return np.isclose(wavelength[0], wavelength[1])
+
     def add_peak(self, ind, val, horz, vert):
         """
         Add a peak to the peaks table.
@@ -1239,6 +1242,11 @@ class UBModel(NeuXtalVizModel):
             slice_dict["title"] = title
 
             return slice_dict
+
+    def validate_projection(self, proj):
+        proj = np.array(proj).reshape(3, 3)
+        invalid = np.isclose(np.linalg.det(proj), 0)
+        return *proj, invalid
 
     def calculate_clim(self, data, method="normal"):
         """

@@ -28,6 +28,7 @@ from mantid.simpleapi import (
     MaskDetectors,
     ExtractMonitors,
     PreprocessDetectorsToMD,
+    CreateMDHistoWorkspace,
     SmoothNeighbours,
     MaskBTP,
     AddSampleLog,
@@ -46,6 +47,10 @@ from mantid.geometry import PointGroupFactory
 
 import numpy as np
 from scipy.spatial.transform import Rotation
+from scipy.stats import binned_statistic_2d
+import scipy.linalg
+
+import skimage
 
 from NeuXtalViz.models.base_model import NeuXtalVizModel
 from NeuXtalViz.config.instruments import beamlines
@@ -312,6 +317,9 @@ class ExperimentModel(NeuXtalVizModel):
 
         if mtd.doesExist("filtered"):
             DeleteWorkspace(Workspace="filtered")
+
+        if mtd.doesExist("footprint"):
+            DeleteWorkspace(Workspace="footprint")
 
     def get_crystal_system_point_groups(self, crystal_system):
         return crystal_system_point_groups[crystal_system]
@@ -1517,6 +1525,234 @@ class ExperimentModel(NeuXtalVizModel):
 
             return gamma, nu, i
 
+    def to_index(self, Q, Q_max, scale, n):
+        idx = np.round((Q + Q_max) * scale).astype(np.int32)
+        return np.clip(idx, 0, n - 1)
+
+    def extract_data(self, ws):
+
+        dims = mtd[ws].getNonIntegratedDimensions()
+
+        xs = [
+            np.linspace(
+                dim.getMinimum() + dim.getBinWidth() / 2,
+                dim.getMaximum() - dim.getBinWidth() / 2,
+                dim.getNBins(),
+            )
+            for dim in dims
+        ]
+
+        signal = mtd[ws].getSignalArray().squeeze().copy()
+        errors = np.sqrt(mtd[ws].getErrorSquaredArray().squeeze())
+
+        return np.meshgrid(*xs, indexing="ij"), signal, errors
+
+    def calculate_footprint(self, wavelength, n=200):
+        if not mtd.doesExist("footprint"):
+            lamda_min, lamda_max = wavelength
+            k_min = 2 * np.pi / lamda_max
+            k_max = 2 * np.pi / lamda_min
+
+            two_theta = np.array(mtd["detectors"].column("TwoTheta"))
+            azimthal = np.array(mtd["detectors"].column("Azimuthal"))
+
+            Q_max = 2 * k_max * np.sin(0.5 * np.nanmax(two_theta))
+
+            hist = np.zeros((n, n, n))
+
+            kx_hat = np.sin(two_theta) * np.cos(azimthal)
+            ky_hat = np.sin(two_theta) * np.sin(azimthal)
+            kz_hat = np.cos(two_theta) - 1
+
+            scale = (n - 1) / (2 * Q_max)
+
+            Qx_1 = k_min * kx_hat
+            Qy_1 = k_min * ky_hat
+            Qz_1 = k_min * kz_hat
+
+            Qx_2 = k_max * kx_hat
+            Qy_2 = k_max * ky_hat
+            Qz_2 = k_max * kz_hat
+
+            Qx_1_ind = self.to_index(Qx_1, Q_max, scale, n)
+            Qy_1_ind = self.to_index(Qy_1, Q_max, scale, n)
+            Qz_1_ind = self.to_index(Qz_1, Q_max, scale, n)
+
+            Qx_2_ind = self.to_index(Qx_2, Q_max, scale, n)
+            Qy_2_ind = self.to_index(Qy_2, Q_max, scale, n)
+            Qz_2_ind = self.to_index(Qz_2, Q_max, scale, n)
+
+            pts = np.column_stack(
+                [Qx_1_ind, Qy_1_ind, Qz_1_ind, Qx_2_ind, Qy_2_ind, Qz_2_ind]
+            )
+            _, indices = np.unique(pts, axis=0, return_index=True)
+
+            for i in indices:
+                q1 = Qx_1_ind[i], Qy_1_ind[i], Qz_1_ind[i]
+                q2 = Qx_2_ind[i], Qy_2_ind[i], Qz_2_ind[i]
+                ix, iy, iz = skimage.draw.line_nd(q1, q2, endpoint=False)
+                hist[ix, iy, iz] = 1
+
+            CreateMDHistoWorkspace(
+                SignalInput=hist.flatten(order="F"),
+                ErrorInput=hist.flatten(order="F"),
+                Dimensionality=3,
+                Extents=3 * [-Q_max, Q_max],
+                NumberOfBins=3 * [n],
+                Names="Qx,Qy,Qz",
+                Units="inv. ang.,inv. ang.,inv. ang.",
+                OutputWorkspace="footprint",
+            )
+
+    def validate_projection(self, proj):
+        proj = np.array(proj).reshape(3, 3)
+        invalid = np.isclose(np.linalg.det(proj), 0)
+        return *proj, invalid
+
+    def calculate_rotations(
+        self, mesh_angles, U, V, W, normal, value, thickness
+    ):
+        limits, ns = mesh_angles
+
+        mins, maxs = zip(*limits)
+
+        axes = [
+            np.linspace(lo, hi, n + 1)[:-1]
+            for lo, hi, n in zip(mins, maxs, ns)
+        ]
+
+        grids = np.meshgrid(*axes, indexing="ij")
+        points = np.stack(grids, axis=-1).reshape(-1, len(limits))
+
+        (Qx, Qy, Qz), signal, _ = self.extract_data("footprint")
+
+        coverage = np.zeros_like(signal)
+        mask = signal > 0
+
+        Q = [Qx[mask], Qy[mask], Qz[mask]]
+
+        n = Qx.shape[0]
+        Q_max = Qx[-1, 0, 0]
+        scale = (n - 1) / (2 * Q_max)
+
+        for i, angles in enumerate(points):
+            axes = np.array(self.axes).copy().tolist()
+            for i, angle in enumerate(angles):
+                axes[i] = axes[i].format(angle)
+            SetGoniometer(
+                Workspace="instrument",
+                Axis0=axes[0],
+                Axis1=axes[1],
+                Axis2=axes[2],
+                Axis3=axes[3],
+                Axis4=axes[4],
+                Axis5=axes[5],
+            )
+            R = mtd["instrument"].run().getGoniometer().getR()
+
+            Q1, Q2, Q3 = np.einsum("ij,j...->i...", R.T, Q)
+
+            i1 = self.to_index(Q1, Q_max, scale, n)
+            i2 = self.to_index(Q2, Q_max, scale, n)
+            i3 = self.to_index(Q3, Q_max, scale, n)
+
+            coverage[i1, i2, i3] += 1
+
+        P = np.column_stack([U, V, W])
+        UB = mtd["coverage"].sample().getOrientedLattice().getUB()
+
+        ub_inv = np.linalg.inv(2 * np.pi * UB @ P)
+
+        X, Y, Z = np.einsum("ij,j...->i...", ub_inv, [Qx, Qy, Qz])
+
+        char_dict = {0: "0", 1: "{1}", -1: "-{1}"}
+        chars = ["H", "K", "L"]
+        names = [
+            "["
+            + ",".join(
+                char_dict.get(j, "{0}{1}").format(
+                    j, chars[np.argmax(np.abs(P[:, i]))]
+                )
+                for j in P[:, i]
+            )
+            + "]"
+            for i in range(3)
+        ]
+
+        ind = normal.index(1)
+
+        if ind == 2:
+            x, y, z = X, Y, Z
+            labels, name = (names[0], names[1]), names[2]
+        elif ind == 1:
+            x, y, z = X, Z, Y
+            labels, name = (names[0], names[2]), names[1]
+        else:
+            x, y, z = Y, Z, X
+            labels, name = (names[1], names[2]), names[0]
+
+        form = "{} = ({:.2f},{:.2f})"
+
+        title = form.format(name, value - thickness, value + thickness)
+
+        mask = np.abs(z - value) < thickness
+
+        x, y = x[mask], y[mask]
+
+        cov = coverage[mask]
+
+        mask = cov > 0
+
+        if mask.sum() > 0:
+            bins_x = np.linspace(x[mask].min(), x[mask].max(), 100)
+            bins_y = np.linspace(y[mask].min(), y[mask].max(), 101)
+        else:
+            bins_x = np.linspace(-thickness, thickness, 100)
+            bins_y = np.linspace(-thickness, thickness, 101)
+
+        stats, x_edges, y_edges, _ = binned_statistic_2d(
+            x, y, cov, statistic="mean", bins=[bins_x, bins_y]
+        )
+
+        stats[np.isclose(stats, 0)] = np.nan
+
+        Bp = np.dot(UB, P)
+
+        slice_dict = {}
+
+        slice_dict["x"] = x_edges
+        slice_dict["y"] = y_edges
+        slice_dict["labels"] = labels
+
+        slice_dict["signal"] = stats.T
+
+        Q, R = scipy.linalg.qr(Bp)
+
+        ind = np.array(normal) != 1
+        i = ind.tolist().index(False)
+
+        slice_dict["z"] = value
+        slice_dict["W"] = np.column_stack([P[:, ind], P[:, i]])
+
+        v = scipy.linalg.cholesky(np.dot(R.T, R)[ind][:, ind], lower=False)
+
+        v /= v[0, 0]
+
+        T = np.eye(3)
+        T[:2, :2] = v
+
+        s = np.diag(T).copy()
+        T[1, 1] = 1
+
+        T[0, 2] = -T[0, 1] * y.min()
+
+        slice_dict["transform"] = T
+        slice_dict["aspect"] = s[1]
+        slice_dict["value"] = value
+        slice_dict["title"] = title
+
+        return slice_dict
+
     def crystal_plan(self, *args):
         return CrystalPlan(*args)
 
@@ -1559,8 +1795,6 @@ class CrystalPlan:
                 )
             if opt[row]:
                 print("Row #{}: {}".format(row, use[row]))
-
-        print(mtd["crystal_plan"].getNumberPeaks())
 
         if np.isclose(wavelength[0], wavelength[1]):
             wavelength = [0.975 * wavelength[0], 1.025 * wavelength[1]]
