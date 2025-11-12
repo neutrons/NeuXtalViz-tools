@@ -1773,10 +1773,8 @@ class ExperimentView(NeuXtalVizWidget):
         self.ax_cum[1].set_ylabel("Redundancy")
         self.ax_cum[2].set_ylabel("Unique")
 
-        self.ax_cum[2].xaxis.set_major_locator(MaxNLocator(integer=True))
-        self.ax_cum[2].xaxis.set_major_formatter(
-            FuncFormatter(lambda val, pos: f"#{int(val)}")
-        )
+        if len(x) >= 2:
+            self.ax_cum[2].xaxis.get_major_locator().set_params(integer=True)
 
         self.canvas_cum.draw_idle()
         self.canvas_cum.flush_events()
