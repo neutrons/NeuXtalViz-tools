@@ -1088,11 +1088,34 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        bool
+        sliced : bool
             True if data is sliced, False otherwise.
         """
 
         return mtd.doesExist("slice")
+
+    def get_Q(self, d):
+        """
+        Convert to Q momentum transfer magnitude.
+
+        Returns
+        -------
+        Q : float
+            Momentum transfer.
+        """
+        return 2 * np.pi / d
+
+    def get_d(self, Q):
+        """
+        Convert to d-spacing.
+
+        Returns
+        -------
+        d : float
+            Interplanar d-spacing.
+
+        """
+        return 2 * np.pi / Q
 
     def get_slice_info(self, U, V, W, normal, value, thickness, width):
         """

@@ -2226,7 +2226,7 @@ class ExperimentView(NeuXtalVizWidget):
             x,
             y,
             signal,
-            vmin=0,
+            vmin=1,
             cmap="turbo",
             shading="flat",
             transform=trans,

@@ -100,7 +100,7 @@ class UB(NeuXtalVizPresenter):
         None
         """
         d = self.view.get_find_peaks_spacing()
-        Q = 2 * np.pi / d
+        Q = self.model.get_Q(d)
         self.view.set_find_peaks_distance(Q)
 
     def update_find_distance(self):
@@ -112,7 +112,7 @@ class UB(NeuXtalVizPresenter):
         None
         """
         Q = self.view.get_find_peaks_distance()
-        d = 2 * np.pi / Q
+        d = self.model.get_d(Q)
         self.view.set_find_peaks_spacing(d)
 
     def hand_index_fractional(self):

@@ -1547,7 +1547,7 @@ class ExperimentModel(NeuXtalVizModel):
 
         return np.meshgrid(*xs, indexing="ij"), signal, errors
 
-    def calculate_footprint(self, wavelength, n=200):
+    def calculate_footprint(self, wavelength, d_min, n=200):
         if not mtd.doesExist("footprint"):
             lamda_min, lamda_max = wavelength
             k_min = 2 * np.pi / lamda_max
@@ -1556,7 +1556,7 @@ class ExperimentModel(NeuXtalVizModel):
             two_theta = np.array(mtd["detectors"].column("TwoTheta"))
             azimthal = np.array(mtd["detectors"].column("Azimuthal"))
 
-            Q_max = 2 * k_max * np.sin(0.5 * np.nanmax(two_theta))
+            Q_max = 2 * np.pi / d_min
 
             hist = np.zeros((n, n, n))
 

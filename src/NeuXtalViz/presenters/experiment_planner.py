@@ -479,7 +479,9 @@ class Experiment(NeuXtalVizPresenter):
 
         thickness = self.view.get_slice_thickness()
 
-        validate = [proj, value, thickness]
+        d_min = self.view.get_d_min()
+
+        validate = [proj, value, thickness, d_min]
 
         if all(elem is not None for elem in validate):
             U, V, W, invalid = self.model.validate_projection(proj)
@@ -498,7 +500,7 @@ class Experiment(NeuXtalVizPresenter):
 
                     self.create_instrument()
 
-                    self.model.calculate_footprint(wavelength)
+                    self.model.calculate_footprint(wavelength, d_min)
 
                     progress("Calculating footprint", 50)
 
