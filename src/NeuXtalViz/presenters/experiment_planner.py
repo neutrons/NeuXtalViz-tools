@@ -700,6 +700,7 @@ class Experiment(NeuXtalVizPresenter):
             self.view.set_instrument(instrument)
             self.switch_instrument()
             self.view.set_mode(mode)
+            self.update_goniometer()
             self.update_oriented_lattice()
             self.view.set_transform(self.model.get_transform())
             self.view.set_wavelength(wl)
