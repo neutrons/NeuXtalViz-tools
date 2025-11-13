@@ -1574,6 +1574,16 @@ class ExperimentModel(NeuXtalVizModel):
             Qy_2 = k_max * ky_hat
             Qz_2 = k_max * kz_hat
 
+            Q = np.sqrt(Qx_2**2 + Qy_2**2 + Qz_2**2)
+            mask = Q > Q_max
+            clip = np.ones_like(Q)
+
+            clip[mask] = Q_max / Q[mask]
+
+            Qx_2 = Qx_2 * clip
+            Qy_2 = Qy_2 * clip
+            Qz_2 = Qz_2 * clip
+
             Qx_1_ind = self.to_index(Qx_1, Q_max, scale, n)
             Qy_1_ind = self.to_index(Qy_1, Q_max, scale, n)
             Qz_1_ind = self.to_index(Qz_1, Q_max, scale, n)
@@ -1603,6 +1613,12 @@ class ExperimentModel(NeuXtalVizModel):
                 Units="inv. ang.,inv. ang.,inv. ang.",
                 OutputWorkspace="footprint",
             )
+
+            # (Qx, Qy, Qz), signal, _ = self.extract_data("footprint")
+
+            # Q = np.sqrt(Qx**2 + Qy**2 + Qz**2)
+
+            # signal[Q > Q_max] = np.nan
 
     def validate_projection(self, proj):
         proj = np.array(proj).reshape(3, 3)
