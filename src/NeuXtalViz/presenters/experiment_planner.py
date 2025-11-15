@@ -481,6 +481,10 @@ class Experiment(NeuXtalVizPresenter):
 
         d_min = self.view.get_d_min()
 
+        symm = self.view.use_symmetry_mesh()
+
+        point_group = self.view.get_point_group()
+
         validate = [proj, value, thickness, d_min]
 
         if all(elem is not None for elem in validate):
@@ -496,16 +500,24 @@ class Experiment(NeuXtalVizPresenter):
 
                 if len(angles) > 0:
 
-                    progress("Initializing instrument", 5)
+                    progress("Initializing instrument...", 5)
 
                     self.create_instrument()
 
                     self.model.calculate_footprint(wavelength, d_min)
 
-                    progress("Calculating footprint", 50)
+                    progress("Calculating footprint...", 50)
 
                     result = self.model.calculate_rotations(
-                        angles, U, V, W, norm, value, thickness
+                        angles,
+                        U,
+                        V,
+                        W,
+                        norm,
+                        value,
+                        thickness,
+                        point_group,
+                        symm,
                     )
 
                     progress("Footprint calculated!", 0)

@@ -415,6 +415,10 @@ class ExperimentView(NeuXtalVizWidget):
         self.mesh_button = QPushButton("Add Mesh", self)
         self.mesh_button.setToolTip("Add a mesh scan to the experiment plan.")
 
+        self.mesh_symmetry_box = QCheckBox("Use Symmetry", self)
+        self.mesh_symmetry_box.setToolTip("Apply symmetry to mesh.")
+        self.mesh_symmetry_box.setChecked(False)
+
         self.coverage_button = QPushButton("Calculate", self)
         self.coverage_button.setToolTip("Calculate slice from the mesh scan.")
 
@@ -452,6 +456,7 @@ class ExperimentView(NeuXtalVizWidget):
         control_layout.addWidget(self.slice_line)
         control_layout.addWidget(slice_thickness_label)
         control_layout.addWidget(self.slice_thickness_line)
+        control_layout.addWidget(self.mesh_symmetry_box)
         control_layout.addWidget(self.mesh_button)
 
         mesh_layout = QVBoxLayout()
@@ -2167,6 +2172,9 @@ class ExperimentView(NeuXtalVizWidget):
 
     def get_slice(self):
         return self.slice_combo.currentText()
+
+    def use_symmetry_mesh(self):
+        return self.mesh_symmetry_box.isChecked()
 
     def __format_axis_coord(self, x, y):
         x, y, _ = np.dot(self.T_inv, [x, y, 1])

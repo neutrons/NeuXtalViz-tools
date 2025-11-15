@@ -28,7 +28,8 @@ from mantid.simpleapi import (
     MaskDetectors,
     ExtractMonitors,
     PreprocessDetectorsToMD,
-    CreateMDHistoWorkspace,
+    CreateMDWorkspace,
+    BinMD,
     SmoothNeighbours,
     MaskBTP,
     AddSampleLog,
@@ -1603,22 +1604,21 @@ class ExperimentModel(NeuXtalVizModel):
                 ix, iy, iz = skimage.draw.line_nd(q1, q2, endpoint=False)
                 hist[ix, iy, iz] = 1
 
-            CreateMDHistoWorkspace(
-                SignalInput=hist.flatten(order="F"),
-                ErrorInput=hist.flatten(order="F"),
-                Dimensionality=3,
+            CreateMDWorkspace(
+                Dimensions=3,
                 Extents=3 * [-Q_max, Q_max],
-                NumberOfBins=3 * [n],
                 Names="Qx,Qy,Qz",
-                Units="inv. ang.,inv. ang.,inv. ang.",
+                Units=3 * ["inv. ang."],
                 OutputWorkspace="footprint",
             )
-
-            # (Qx, Qy, Qz), signal, _ = self.extract_data("footprint")
-
-            # Q = np.sqrt(Qx**2 + Qy**2 + Qz**2)
-
-            # signal[Q > Q_max] = np.nan
+            BinMD(
+                InputWorkspace="footprint",
+                AlignedDim0="Qx,-{},{},{}".format(Q_max, Q_max, n),
+                AlignedDim1="Qy,-{},{},{}".format(Q_max, Q_max, n),
+                AlignedDim2="Qz,-{},{},{}".format(Q_max, Q_max, n),
+                OutputWorkspace="footprint",
+            )
+            mtd["footprint"].setSignalArray(hist)
 
     def validate_projection(self, proj):
         proj = np.array(proj).reshape(3, 3)
@@ -1626,7 +1626,17 @@ class ExperimentModel(NeuXtalVizModel):
         return *proj, invalid
 
     def calculate_rotations(
-        self, mesh_angles, U, V, W, normal, value, thickness, factor=2
+        self,
+        mesh_angles,
+        U,
+        V,
+        W,
+        normal,
+        value,
+        thickness,
+        point_group="1",
+        use_symmetry=False,
+        factor=2,
     ):
         limits, ns = mesh_angles
 
@@ -1637,66 +1647,107 @@ class ExperimentModel(NeuXtalVizModel):
             for lo, hi, n in zip(mins, maxs, ns)
         ]
 
+        UB = mtd["coverage"].sample().getOrientedLattice().getUB()
+
         grids = np.meshgrid(*axes, indexing="ij")
         points = np.stack(grids, axis=-1).reshape(-1, len(limits))
-
-        (Qx, Qy, Qz), signal, _ = self.extract_data("footprint")
-
-        coverage = np.zeros_like(signal)
-        mask = signal > 0
-
-        Q = [Qx[mask], Qy[mask], Qz[mask]]
-
-        n = Qx.shape[0]
-        Q_max = Qx[-1, 0, 0]
-        scale = (n - 1) / (2 * Q_max)
 
         for i, angles in enumerate(points):
             axes = np.array(self.axes).copy().tolist()
             for i, angle in enumerate(angles):
                 axes[i] = axes[i].format(angle)
-            SetGoniometer(
-                Workspace="instrument",
-                Axis0=axes[0],
-                Axis1=axes[1],
-                Axis2=axes[2],
-                Axis3=axes[3],
-                Axis4=axes[4],
-                Axis5=axes[5],
+
+        meshmap = str(axes)
+
+        if use_symmetry:
+            meshmap += "_" + point_group
+
+        if not mtd.doesExist(meshmap):
+            UB_inv = np.linalg.inv(UB)
+
+            (Qx, Qy, Qz), signal, _ = self.extract_data("footprint")
+
+            coverage = np.zeros_like(signal)
+            mask = signal > 0
+
+            Q = [Qx[mask], Qy[mask], Qz[mask]]
+
+            n = Qx.shape[0]
+            Q_max = Qx[-1, 0, 0]
+            scale = (n - 1) / (2 * Q_max)
+
+            if use_symmetry:
+                pg = PointGroupFactory.createPointGroup(point_group)
+                laue_group = pg.getLauePointGroupSymbol()
+                pg = PointGroupFactory.createPointGroup(laue_group)
+            else:
+                pg = PointGroupFactory.createPointGroup("1")
+
+            symops = list(pg.getSymmetryOperations())
+
+            for i, angles in enumerate(points):
+                axes = np.array(self.axes).copy().tolist()
+                for i, angle in enumerate(angles):
+                    axes[i] = axes[i].format(angle)
+                SetGoniometer(
+                    Workspace="instrument",
+                    Axis0=axes[0],
+                    Axis1=axes[1],
+                    Axis2=axes[2],
+                    Axis3=axes[3],
+                    Axis4=axes[4],
+                    Axis5=axes[5],
+                )
+                R = mtd["instrument"].run().getGoniometer().getR()
+
+                Q1, Q2, Q3 = np.einsum("ij,j...->i...", R.T, Q)
+
+                h, k, l = np.einsum("ij,j...->i...", UB_inv, [Q1, Q2, Q3])
+
+                for symop in symops:
+
+                    T = np.column_stack(
+                        [
+                            symop.transformHKL([*hkl])
+                            for hkl in np.eye(3).tolist()
+                        ]
+                    )
+
+                    Q1, Q2, Q3 = np.einsum("ij,j...->i...", UB @ T, [h, k, l])
+
+                    i1 = self.to_index(Q1, Q_max, scale, n)
+                    i2 = self.to_index(Q2, Q_max, scale, n)
+                    i3 = self.to_index(Q3, Q_max, scale, n)
+
+                    coverage[i1, i2, i3] += 1
+
+            coverage = (
+                coverage.repeat(factor, axis=0)
+                .repeat(factor, axis=1)
+                .repeat(factor, axis=2)
             )
-            R = mtd["instrument"].run().getGoniometer().getR()
 
-            Q1, Q2, Q3 = np.einsum("ij,j...->i...", R.T, Q)
+            CreateMDWorkspace(
+                Dimensions=3,
+                Extents=3 * [-Q_max, Q_max],
+                Names="Qx,Qy,Qz",
+                Units=3 * ["inv. ang."],
+                OutputWorkspace=meshmap,
+            )
+            BinMD(
+                InputWorkspace=meshmap,
+                AlignedDim0="Qx,-{},{},{}".format(Q_max, Q_max, 2 * n),
+                AlignedDim1="Qy,-{},{},{}".format(Q_max, Q_max, 2 * n),
+                AlignedDim2="Qz,-{},{},{}".format(Q_max, Q_max, 2 * n),
+                OutputWorkspace=meshmap,
+            )
+            mtd[meshmap].setSignalArray(coverage)
 
-            i1 = self.to_index(Q1, Q_max, scale, n)
-            i2 = self.to_index(Q2, Q_max, scale, n)
-            i3 = self.to_index(Q3, Q_max, scale, n)
+        (Qx, Qy, Qz), coverage, _ = self.extract_data(meshmap)
 
-            coverage[i1, i2, i3] += 1
-
-        coverage = (
-            coverage.repeat(factor, axis=0)
-            .repeat(factor, axis=1)
-            .repeat(factor, axis=2)
-        )
-
-        Qx = Qx[:, 0, 0]
-        Qy = Qy[0, :, 0]
-        Qz = Qz[0, 0, :]
-
-        ix = np.linspace(0, n - 1, n * factor)
-        iy = np.linspace(0, n - 1, n * factor)
-        iz = np.linspace(0, n - 1, n * factor)
-
-        Qx = np.interp(ix, np.arange(n), Qx)
-        Qy = np.interp(iy, np.arange(n), Qy)
-        Qz = np.interp(iz, np.arange(n), Qz)
-
-        Qx, Qy, Qz = np.meshgrid(Qx, Qy, Qz, indexing="ij")
+        n = Qx.shape[0]
 
         P = np.column_stack([U, V, W])
-        UB = mtd["coverage"].sample().getOrientedLattice().getUB()
-
         ub_inv = np.linalg.inv(2 * np.pi * UB @ P)
 
         X, Y, Z = np.einsum("ij,j...->i...", ub_inv, [Qx, Qy, Qz])
