@@ -1785,9 +1785,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.canvas_cov.draw_idle()
         self.canvas_cov.flush_events()
 
-        comp, mult, refl = cumsym
-
-        x = np.arange(1, len(comp) + 1)
+        x, comp, mult, refl = cumsym
 
         self.ax_cum[0].plot(
             x, comp, "-o", color=color[0], label="Symmetry", clip_on=False
@@ -1799,7 +1797,7 @@ class ExperimentView(NeuXtalVizWidget):
             x, refl, "-o", color=color[4], label="Symmetry", clip_on=False
         )
 
-        comp, mult, refl = cumasym
+        x, comp, mult, refl = cumasym
 
         self.ax_cum[0].plot(
             x, comp, "-o", color=color[1], label="Asymmetry", clip_on=False

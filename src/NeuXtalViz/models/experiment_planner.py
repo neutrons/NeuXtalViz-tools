@@ -1167,164 +1167,173 @@ class ExperimentModel(NeuXtalVizModel):
         comp_cumsym, mult_cumsym, refl_cumsym = [], [], []
         comp_cumasym, mult_cumasym, refl_cumasym = [], [], []
 
-        if mtd.doesExist("combined"):
-            CloneWorkspace(
-                InputWorkspace="combined", OutputWorkspace="filtered"
+        if not mtd.doesExist("combined"):
+            return None
+
+        CloneWorkspace(InputWorkspace="combined", OutputWorkspace="filtered")
+
+        rows = np.arange(len(use)).tolist()
+
+        for row in rows:
+            if not use[row]:
+                FilterPeaks(
+                    InputWorkspace="filtered",
+                    FilterVariable="RunNumber",
+                    FilterValue=str(row),
+                    Operator="!=",
+                    OutputWorkspace="filtered",
+                )
+
+        if mtd["filtered"].getNumberPeaks() == 0:
+            return None
+
+        ol = mtd["combined"].sample().getOrientedLattice()
+        d_max = np.max([ol.d(1, 0, 0), ol.d(0, 1, 0), ol.d(0, 0, 1)])
+
+        d = 1 / np.sqrt(np.linspace(1 / d_max**2, 1 / d_min**2, 5))
+
+        pg, lc = self.get_symmetry(point_group, lattice_centering)
+
+        symmetric = CountReflections(
+            InputWorkspace="filtered",
+            PointGroup=pg,
+            LatticeCentering=lc,
+            MinDSpacing=d_min,
+            MaxDSpacing=d_max,
+            MissingReflectionsWorkspace="missing",
+        )
+        print(symmetric)
+
+        ConvertPeaksWorkspace(
+            PeakWorkspace="missing", OutputWorkspace="missing"
+        )
+
+        for peak in mtd["missing"]:
+            h, k, l = peak.getHKL()
+            Q = ol.qFromHKL(V3D(h, k, l))
+            peak.setGoniometerMatrix(np.eye(3))
+            peak.setQSampleFrame(Q)
+            peak.setQLabFrame(Q)
+
+        HFIRCalculateGoniometer(Workspace="missing", Wavelength=1)
+
+        unique, completeness, redundancy, _, _ = symmetric
+
+        shel_sym = ["Overall"]
+        comp_sym = [completeness * 100]
+        mult_sym = [redundancy]
+        refl_sym = [unique]
+
+        for i in range(len(d) - 1):
+            unique, completeness, redundancy, _ = CountReflections(
+                InputWorkspace="filtered",
+                PointGroup=pg,
+                LatticeCentering=lc,
+                MinDSpacing=d[i + 1],
+                MaxDSpacing=d[i],
+                MissingReflectionsWorkspace="",
             )
 
-            rows = np.arange(len(use)).tolist()
+            shel_sym.append("{:.2f}-{:.2f}".format(d[i], d[i + 1]))
+            comp_sym.append(completeness * 100)
+            mult_sym.append(redundancy)
+            refl_sym.append(unique)
 
-            for row in rows:
-                if not use[row]:
+        unique, completeness, redundancy, _ = CountReflections(
+            InputWorkspace="filtered",
+            PointGroup="1",
+            LatticeCentering=lc,
+            MinDSpacing=d_min,
+            MaxDSpacing=d_max,
+            MissingReflectionsWorkspace="",
+        )
+
+        shel_asym = ["Overall"]
+        comp_asym = [completeness * 100]
+        mult_asym = [redundancy]
+        refl_asym = [unique]
+
+        for i in range(len(d) - 1):
+            unique, completeness, redundancy, _ = CountReflections(
+                InputWorkspace="filtered",
+                PointGroup="1",
+                LatticeCentering=lc,
+                MinDSpacing=d[i + 1],
+                MaxDSpacing=d[i],
+                MissingReflectionsWorkspace="",
+            )
+
+            shel_asym.append("{:.2f}-{:.2f}".format(d[i], d[i + 1]))
+            comp_asym.append(completeness * 100)
+            mult_asym.append(redundancy)
+            refl_asym.append(unique)
+
+        rows = np.unique(mtd["filtered"].column("RunNumber")).tolist()
+        rows = self.downsample(rows)
+        for row in rows:
+            CloneWorkspace(
+                InputWorkspace="filtered", OutputWorkspace="cumulative"
+            )
+            for cumrow in rows:
+                if cumrow > row:
                     FilterPeaks(
-                        InputWorkspace="filtered",
+                        InputWorkspace="cumulative",
                         FilterVariable="RunNumber",
-                        FilterValue=str(row),
+                        FilterValue=str(cumrow),
                         Operator="!=",
-                        OutputWorkspace="filtered",
+                        OutputWorkspace="cumulative",
                     )
 
-            if mtd["filtered"].getNumberPeaks() > 0:
-                ol = mtd["combined"].sample().getOrientedLattice()
-                d_max = np.max([ol.d(1, 0, 0), ol.d(0, 1, 0), ol.d(0, 0, 1)])
+            symmetric = CountReflections(
+                InputWorkspace="cumulative",
+                PointGroup=pg,
+                LatticeCentering=lc,
+                MinDSpacing=d_min,
+                MaxDSpacing=d_max,
+                MissingReflectionsWorkspace="",
+            )
 
-                d = 1 / np.sqrt(np.linspace(1 / d_max**2, 1 / d_min**2, 5))
+            unique, completeness, redundancy, _ = symmetric
 
-                pg, lc = self.get_symmetry(point_group, lattice_centering)
+            comp_cumsym.append(completeness * 100)
+            mult_cumsym.append(redundancy)
+            refl_cumsym.append(unique)
 
-                symmetric = CountReflections(
-                    InputWorkspace="filtered",
-                    PointGroup=pg,
-                    LatticeCentering=lc,
-                    MinDSpacing=d_min,
-                    MaxDSpacing=d_max,
-                    MissingReflectionsWorkspace="missing",
-                )
+            asymmetric = CountReflections(
+                InputWorkspace="cumulative",
+                PointGroup="1",
+                LatticeCentering=lc,
+                MinDSpacing=d_min,
+                MaxDSpacing=d_max,
+                MissingReflectionsWorkspace="",
+            )
 
-                ConvertPeaksWorkspace(
-                    PeakWorkspace="missing", OutputWorkspace="missing"
-                )
+            unique, completeness, redundancy, _ = asymmetric
 
-                for peak in mtd["missing"]:
-                    h, k, l = peak.getHKL()
-                    Q = ol.qFromHKL(V3D(h, k, l))
-                    peak.setGoniometerMatrix(np.eye(3))
-                    peak.setQSampleFrame(Q)
-                    peak.setQLabFrame(Q)
-
-                HFIRCalculateGoniometer(Workspace="missing", Wavelength=1)
-
-                unique, completeness, redundancy, multiple, _ = symmetric
-
-                shel_sym = ["Overall"]
-                comp_sym = [completeness * 100]
-                mult_sym = [redundancy]
-                refl_sym = [unique]
-
-                for i in range(len(d) - 1):
-                    symmetric = CountReflections(
-                        InputWorkspace="filtered",
-                        PointGroup=pg,
-                        LatticeCentering=lc,
-                        MinDSpacing=d[i + 1],
-                        MaxDSpacing=d[i],
-                        MissingReflectionsWorkspace="",
-                    )
-
-                    unique, completeness, redundancy, multiple = symmetric
-
-                    shel_sym.append("{:.2f}-{:.2f}".format(d[i], d[i + 1]))
-                    comp_sym.append(completeness * 100)
-                    mult_sym.append(redundancy)
-                    refl_sym.append(unique)
-
-                asymmetric = CountReflections(
-                    InputWorkspace="filtered",
-                    PointGroup="1",
-                    LatticeCentering=lc,
-                    MinDSpacing=d_min,
-                    MaxDSpacing=d_max,
-                    MissingReflectionsWorkspace="",
-                )
-
-                unique, completeness, redundancy, multiple = asymmetric
-
-                shel_asym = ["Overall"]
-                comp_asym = [completeness * 100]
-                mult_asym = [redundancy]
-                refl_asym = [unique]
-
-                for i in range(len(d) - 1):
-                    asymmetric = CountReflections(
-                        InputWorkspace="filtered",
-                        PointGroup="1",
-                        LatticeCentering=lc,
-                        MinDSpacing=d[i + 1],
-                        MaxDSpacing=d[i],
-                        MissingReflectionsWorkspace="",
-                    )
-
-                    unique, completeness, redundancy, multiple = asymmetric
-
-                    shel_asym.append("{:.2f}-{:.2f}".format(d[i], d[i + 1]))
-                    comp_asym.append(completeness * 100)
-                    mult_asym.append(redundancy)
-                    refl_asym.append(unique)
-
-                rows = np.unique(mtd["filtered"].column("RunNumber")).tolist()
-                for row in rows:
-                    CloneWorkspace(
-                        InputWorkspace="filtered", OutputWorkspace="cumulative"
-                    )
-                    for cumrow in rows:
-                        if cumrow > row:
-                            FilterPeaks(
-                                InputWorkspace="cumulative",
-                                FilterVariable="RunNumber",
-                                FilterValue=str(cumrow),
-                                Operator="!=",
-                                OutputWorkspace="cumulative",
-                            )
-
-                    symmetric = CountReflections(
-                        InputWorkspace="cumulative",
-                        PointGroup=pg,
-                        LatticeCentering=lc,
-                        MinDSpacing=d_min,
-                        MaxDSpacing=d_max,
-                        MissingReflectionsWorkspace="",
-                    )
-
-                    unique, completeness, redundancy, multiple = symmetric
-
-                    comp_cumsym.append(completeness * 100)
-                    mult_cumsym.append(redundancy)
-                    refl_cumsym.append(unique)
-
-                    asymmetric = CountReflections(
-                        InputWorkspace="cumulative",
-                        PointGroup="1",
-                        LatticeCentering=lc,
-                        MinDSpacing=d_min,
-                        MaxDSpacing=d_max,
-                        MissingReflectionsWorkspace="",
-                    )
-
-                    unique, completeness, redundancy, multiple = asymmetric
-
-                    comp_cumasym.append(completeness * 100)
-                    mult_cumasym.append(redundancy)
-                    refl_cumasym.append(unique)
-
-            else:
-                return None
+            comp_cumasym.append(completeness * 100)
+            mult_cumasym.append(redundancy)
+            refl_cumasym.append(unique)
 
         sym = (shel_sym, comp_sym, mult_sym, refl_sym)
         asym = (shel_asym, comp_asym, mult_asym, refl_asym)
-        cumsym = (comp_cumsym, mult_cumsym, refl_cumsym)
-        cumasym = (comp_cumasym, mult_cumasym, refl_cumasym)
+        cumsym = (rows, comp_cumsym, mult_cumsym, refl_cumsym)
+        cumasym = (rows, comp_cumasym, mult_cumasym, refl_cumasym)
 
         return sym, asym, cumsym, cumasym
+
+    def downsample(self, arr, n=14):
+        m = len(arr)
+        if m <= n // 2 + 2:
+            return arr[:]
+        elif m <= n + 2:
+            return [arr[0]] + [val for val in arr[1:-1:2]] + [arr[-1]]
+
+        k = n
+
+        step = (m - 1) / (k + 1)
+        indices = [int(round(step * (i + 1))) for i in range(k)]
+
+        return [arr[0]] + [arr[i] for i in indices] + [arr[-1]]
 
     def hsl_to_rgb(self, hue, saturation, lightness):
         h = np.array(hue)

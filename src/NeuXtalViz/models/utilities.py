@@ -1,5 +1,4 @@
 from mantid.simpleapi import mtd
-
 import multiprocessing
 import numpy as np
 
