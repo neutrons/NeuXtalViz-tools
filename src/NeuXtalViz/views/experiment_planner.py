@@ -1233,55 +1233,41 @@ class ExperimentView(NeuXtalVizWidget):
                     self.mesh_table.setItem(row, col, text)
 
     def calculate_mesh_step(self, item):
-        """Automatically calculate Step column based on (Max - Min) / Angles."""
+        """Automatically calculate step size based on min, max, and angle."""
         row = item.row()
         col = item.column()
 
-        # Only recalculate if Min (col 1), Max (col 2), or Angles (col 3) changed
         if col not in [1, 2, 3]:
             return
 
-        try:
-            # Get the values from the row
-            min_item = self.mesh_table.item(row, 1)
-            max_item = self.mesh_table.item(row, 2)
-            angles_item = self.mesh_table.item(row, 3)
+        min_item = self.mesh_table.item(row, 1)
+        max_item = self.mesh_table.item(row, 2)
+        angles_item = self.mesh_table.item(row, 3)
 
-            # Check if all required items exist and have valid text
-            if not all([min_item, max_item, angles_item]):
-                return
+        if not all([min_item, max_item, angles_item]):
+            return
 
-            min_text = min_item.text().strip()
-            max_text = max_item.text().strip()
-            angles_text = angles_item.text().strip()
+        min_text = min_item.text().strip()
+        max_text = max_item.text().strip()
+        angles_text = angles_item.text().strip()
 
-            # Check if all fields have valid numeric values
-            if not all([min_text, max_text, angles_text]):
-                return
+        if not all([min_text, max_text, angles_text]):
+            return
 
-            min_val = float(min_text)
-            max_val = float(max_text)
-            angles_val = float(angles_text)
+        min_val = float(min_text)
+        max_val = float(max_text)
+        angles_val = float(angles_text)
 
-            # Avoid division by zero
-            if angles_val <= 0:
-                return
+        if angles_val <= 0:
+            return
 
-            # Calculate step: (max - min) / angles
-            step = (max_val - min_val) / angles_val
+        step = (max_val - min_val) / angles_val
 
-            # Block signals to avoid recursive updates
-            self.mesh_table.blockSignals(True)
-            step_item = QTableWidgetItem(f"{step:.6g}")
-            step_item.setFlags(
-                step_item.flags() & ~Qt.ItemIsEditable
-            )  # Make read-only
-            self.mesh_table.setItem(row, 4, step_item)
-            self.mesh_table.blockSignals(False)
-
-        except (ValueError, ZeroDivisionError):
-            # Invalid input, don't update
-            pass
+        self.mesh_table.blockSignals(True)
+        step_item = QTableWidgetItem("{:.2f}".format(step))
+        step_item.setFlags(step_item.flags() & ~Qt.ItemIsEditable)
+        self.mesh_table.setItem(row, 4, step_item)
+        self.mesh_table.blockSignals(False)
 
     def get_mesh_angles(self):
         rows = self.mesh_table.rowCount()
