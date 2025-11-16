@@ -1172,14 +1172,14 @@ class ExperimentModel(NeuXtalVizModel):
 
         CloneWorkspace(InputWorkspace="combined", OutputWorkspace="filtered")
 
-        rows = np.arange(len(use)).tolist()
-
+        runs = np.unique(mtd["filtered"].column("RunNumber")).tolist()
+        rows = np.arange(len(runs)).tolist()
         for row in rows:
             if not use[row]:
                 FilterPeaks(
                     InputWorkspace="filtered",
                     FilterVariable="RunNumber",
-                    FilterValue=str(row),
+                    FilterValue=str(runs[row]),
                     Operator="!=",
                     OutputWorkspace="filtered",
                 )
@@ -1202,7 +1202,6 @@ class ExperimentModel(NeuXtalVizModel):
             MaxDSpacing=d_max,
             MissingReflectionsWorkspace="missing",
         )
-        print(symmetric)
 
         ConvertPeaksWorkspace(
             PeakWorkspace="missing", OutputWorkspace="missing"
@@ -1268,9 +1267,8 @@ class ExperimentModel(NeuXtalVizModel):
             mult_asym.append(redundancy)
             refl_asym.append(unique)
 
-        rows = np.unique(mtd["filtered"].column("RunNumber")).tolist()
-        rows = self.downsample(rows)
-        for row in rows:
+        dowrows = self.downsample(rows)
+        for row in dowrows:
             CloneWorkspace(
                 InputWorkspace="filtered", OutputWorkspace="cumulative"
             )
@@ -1279,7 +1277,7 @@ class ExperimentModel(NeuXtalVizModel):
                     FilterPeaks(
                         InputWorkspace="cumulative",
                         FilterVariable="RunNumber",
-                        FilterValue=str(cumrow),
+                        FilterValue=str(runs[cumrow]),
                         Operator="!=",
                         OutputWorkspace="cumulative",
                     )
@@ -1314,10 +1312,12 @@ class ExperimentModel(NeuXtalVizModel):
             mult_cumasym.append(redundancy)
             refl_cumasym.append(unique)
 
+        x = np.array(runs)[np.array(dowrows)]
+
         sym = (shel_sym, comp_sym, mult_sym, refl_sym)
         asym = (shel_asym, comp_asym, mult_asym, refl_asym)
-        cumsym = (rows, comp_cumsym, mult_cumsym, refl_cumsym)
-        cumasym = (rows, comp_cumasym, mult_cumasym, refl_cumasym)
+        cumsym = (x, comp_cumsym, mult_cumsym, refl_cumsym)
+        cumasym = (x, comp_cumasym, mult_cumasym, refl_cumasym)
 
         return sym, asym, cumsym, cumasym
 
