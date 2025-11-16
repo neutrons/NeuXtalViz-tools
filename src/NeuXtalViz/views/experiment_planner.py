@@ -66,6 +66,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.layout().addWidget(self.tab_widget, stretch=1)
         self.plan_table.itemChanged.connect(self.handle_item_changed)
         self.goniometer_table.itemChanged.connect(self.update_limits)
+        self.mesh_table.itemChanged.connect(self.calculate_mesh_step)
 
     def coverage_tab(self):
         cov_tab = QWidget()
@@ -404,7 +405,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.mesh_table.setColumnCount(5)
         self.mesh_table.blockSignals(True)
 
-        labels = ["Motor", "Min", "Max", "Angles", "Steps"]
+        labels = ["Motor", "Min", "Max", "Angles", "Step"]
 
         resize = QHeaderView.Stretch
 
@@ -1189,6 +1190,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.mesh_table.setRowCount(0)
         self.mesh_table.setRowCount(len(free))
 
+        self.mesh_table.blockSignals(True)
         row = 0
         for gon in goniometers:
             angle, amin, amax = gon
@@ -1198,7 +1200,17 @@ class ExperimentView(NeuXtalVizWidget):
                 self.mesh_table.setItem(row, 1, QTableWidgetItem(amin))
                 self.mesh_table.setItem(row, 2, QTableWidgetItem(amax))
                 self.mesh_table.setItem(row, 3, QTableWidgetItem("1"))
+
+                min_val = float(amin)
+                max_val = float(amax)
+                angle_val = 1.0
+                step = (max_val - min_val) / angle_val
+                step_item = QTableWidgetItem("{:.2f}".format(step))
+                step_item.setFlags(step_item.flags() & ~Qt.ItemIsEditable)
+                self.mesh_table.setItem(row, 4, step_item)
+
                 row += 1
+        self.mesh_table.blockSignals(False)
 
     def update_limits(self, item):
         text = item.text()
@@ -1219,6 +1231,57 @@ class ExperimentView(NeuXtalVizWidget):
                 if angle == self.mesh_table.item(row, 0).text():
                     text = QTableWidgetItem(str(value))
                     self.mesh_table.setItem(row, col, text)
+
+    def calculate_mesh_step(self, item):
+        """Automatically calculate Step column based on (Max - Min) / Angles."""
+        row = item.row()
+        col = item.column()
+
+        # Only recalculate if Min (col 1), Max (col 2), or Angles (col 3) changed
+        if col not in [1, 2, 3]:
+            return
+
+        try:
+            # Get the values from the row
+            min_item = self.mesh_table.item(row, 1)
+            max_item = self.mesh_table.item(row, 2)
+            angles_item = self.mesh_table.item(row, 3)
+
+            # Check if all required items exist and have valid text
+            if not all([min_item, max_item, angles_item]):
+                return
+
+            min_text = min_item.text().strip()
+            max_text = max_item.text().strip()
+            angles_text = angles_item.text().strip()
+
+            # Check if all fields have valid numeric values
+            if not all([min_text, max_text, angles_text]):
+                return
+
+            min_val = float(min_text)
+            max_val = float(max_text)
+            angles_val = float(angles_text)
+
+            # Avoid division by zero
+            if angles_val <= 0:
+                return
+
+            # Calculate step: (max - min) / angles
+            step = (max_val - min_val) / angles_val
+
+            # Block signals to avoid recursive updates
+            self.mesh_table.blockSignals(True)
+            step_item = QTableWidgetItem(f"{step:.6g}")
+            step_item.setFlags(
+                step_item.flags() & ~Qt.ItemIsEditable
+            )  # Make read-only
+            self.mesh_table.setItem(row, 4, step_item)
+            self.mesh_table.blockSignals(False)
+
+        except (ValueError, ZeroDivisionError):
+            # Invalid input, don't update
+            pass
 
     def get_mesh_angles(self):
         rows = self.mesh_table.rowCount()
