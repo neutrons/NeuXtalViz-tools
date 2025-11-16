@@ -401,10 +401,10 @@ class ExperimentView(NeuXtalVizWidget):
         self.mesh_table.setToolTip("Table for mesh scan angles and limits.")
 
         self.mesh_table.setRowCount(0)
-        self.mesh_table.setColumnCount(4)
+        self.mesh_table.setColumnCount(5)
         self.mesh_table.blockSignals(True)
 
-        labels = ["Motor", "Min", "Max", "Angles"]
+        labels = ["Motor", "Min", "Max", "Angles", "Steps"]
 
         resize = QHeaderView.Stretch
 

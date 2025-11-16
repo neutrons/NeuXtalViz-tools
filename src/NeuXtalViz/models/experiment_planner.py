@@ -648,6 +648,7 @@ class ExperimentModel(NeuXtalVizModel):
         pg = PointGroupFactory.createPointGroup(pg)
 
         hkls = pg.getEquivalents(hkl) if equiv else [hkl]
+        print(hkls)
 
         indices, angles = [], []
         angles_gamma, angles_nu, angles_lamda, angles_d = [], [], [], []
@@ -659,7 +660,9 @@ class ExperimentModel(NeuXtalVizModel):
 
             gamma, nu, lamda, d = values
 
-            indices.append([hkl] * len(lamda))
+            indices.append(
+                [hkl] * len(lamda) if len(lamda) > 0 else np.zeros((0, 3))
+            )
             angles.append(settings)
             angles_gamma.append(gamma)
             angles_nu.append(nu)
@@ -807,13 +810,21 @@ class ExperimentModel(NeuXtalVizModel):
             if len(lamda0) > 0 and len(lamda1) > 0:
                 angles.append(settings)
 
-                indices.append([hkl_1] * len(lamda0))
+                indices.append(
+                    [hkl_1] * len(lamda0)
+                    if len(lamda0) > 0
+                    else np.zeros((0, 3))
+                )
                 angles_gamma.append(gamma0)
                 angles_nu.append(nu0)
                 angles_lamda.append(lamda0)
                 angles_d.append([d0] * len(lamda0))
 
-                indices_alt.append([hkl_2] * len(lamda1))
+                indices_alt.append(
+                    [hkl_2] * len(lamda1)
+                    if len(lamda1) > 0
+                    else np.zeros((0, 3))
+                )
                 angles_gamma_alt.append(gamma1)
                 angles_nu_alt.append(nu1)
                 angles_lamda_alt.append(lamda1)
