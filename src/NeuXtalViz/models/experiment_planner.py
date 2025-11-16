@@ -648,10 +648,10 @@ class ExperimentModel(NeuXtalVizModel):
         pg = PointGroupFactory.createPointGroup(pg)
 
         hkls = pg.getEquivalents(hkl) if equiv else [hkl]
-        print(hkls)
 
         indices, angles = [], []
-        angles_gamma, angles_nu, angles_lamda, angles_d = [], [], [], []
+        angles_gamma, angles_nu = [], []
+        angles_lamda, angles_d = [], []
 
         for hkl in hkls:
             settings, values = self.calculate_individual_peak(
@@ -791,13 +791,10 @@ class ExperimentModel(NeuXtalVizModel):
         angles = []
         indices, indices_alt = [], []
 
-        angles_gamma, angles_nu, angles_lamda, angles_d = [], [], [], []
-        angles_gamma_alt, angles_nu_alt, angles_lamda_alt, angles_d_alt = (
-            [],
-            [],
-            [],
-            [],
-        )
+        angles_gamma, angles_nu = [], []
+        angles_lamda, angles_d = [], []
+        angles_gamma_alt, angles_nu_alt = [], []
+        angles_lamda_alt, angles_d_alt = [], []
 
         for hkl_1, hkl_2 in pairs:
             settings, values0, values1 = self.simultaneous_peaks_hkl(
