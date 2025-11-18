@@ -38,6 +38,7 @@ from mantid.simpleapi import (
     HB3AAdjustSampleNorm,
     LoadWANDSCD,
     Load,
+    MaskBTP,
     Rebin,
     SetGoniometer,
     PreprocessDetectorsToMD,
@@ -442,6 +443,42 @@ class UBModel(NeuXtalVizModel):
                     NumberOfBins=1,
                     OutputWorkspace="data",
                 )
+                cols, rows = beamlines[instrument]["BankPixels"]
+                mask_cols, mask_rows = beamlines[instrument]["MaskEdges"]
+                mask_cols //= 4
+                mask_rows //= 4
+                MaskBTP(
+                    Workspace="data",
+                    Instrument=inst["Name"],
+                    Tube="0-{},{}-{}".format(
+                        mask_cols, cols - mask_cols, cols
+                    ),
+                )
+                MaskBTP(
+                    Workspace="data",
+                    Instrument=inst["Name"],
+                    Pixel="0-{},{}-{}".format(
+                        mask_rows, rows - mask_rows, rows
+                    ),
+                )
+                mask_lost = beamlines[instrument].get("MaskLost")
+                if mask_lost is not None:
+                    for btp in mask_lost:
+                        bank, tube, pixel = btp
+                        MaskBTP(
+                            Workspace="data",
+                            Instrument=inst["Name"],
+                            Bank=bank,
+                            Tube=tube,
+                            Pixel=pixel,
+                        )
+                banks = beamlines[instrument]["MaskBanks"]
+                for bank in banks:
+                    MaskBTP(
+                        Workspace="data",
+                        Instrument=inst["Name"],
+                        Bank=bank,
+                    )
                 group = mtd["data"].isGroup()
                 if not group:
                     GroupWorkspaces(
@@ -2506,6 +2543,11 @@ class UBModel(NeuXtalVizModel):
         return d_min
 
     def avoid_aluminum_contamination(self, d_min, d_max, delta=0.1):
+        """
+        Arblaster, J. W. Selected Values of the Crystallographic
+        Properties of Elements; ASM International, 2018
+        """
+
         aluminum = CrystalStructure(
             "4.05 4.05 4.05", "F m -3 m", "Al 0 0 0 1.0 0.005"
         )
@@ -2518,13 +2560,55 @@ class UBModel(NeuXtalVizModel):
 
         ds = list(generator.getDValues(hkls))
 
+        self.avoid_contamination(ds, d_max, delta)
+
+    def avoid_copper_contamination(self, d_min, d_max, delta=0.1):
+        """
+        Arblaster, J. W. Selected Values of the Crystallographic
+        Properties of Elements; ASM International, 2018
+        """
+
+        copper = CrystalStructure(
+            "3.61 3.61 3.61", "F m -3 m", "Cu 0 0 0 1.0 0.005"
+        )
+
+        generator = ReflectionGenerator(copper)
+
+        hkls = generator.getUniqueHKLsUsingFilter(
+            d_min, d_max, ReflectionConditionFilter.StructureFactor
+        )
+
+        ds = list(generator.getDValues(hkls))
+
+        self.avoid_contamination(ds, d_max, delta)
+
+    def avoid_iron_contamination(self, d_min, d_max, delta=0.1):
+        """
+        Arblaster, J. W. Selected Values of the Crystallographic
+        Properties of Elements; ASM International, 2018
+        """
+        aluminum = CrystalStructure(
+            "2.87 2.87 2.87", "I m -3 m", "Fe 0 0 0 1.0 0.005"
+        )
+
+        generator = ReflectionGenerator(aluminum)
+
+        hkls = generator.getUniqueHKLsUsingFilter(
+            d_min, d_max, ReflectionConditionFilter.StructureFactor
+        )
+
+        ds = list(generator.getDValues(hkls))
+
+        self.avoid_contamination(ds, d_max, delta)
+
+    def avoid_contamination(self, ds, d_max, delta=0.1):
         if self.has_peaks():
             for peak in mtd[self.table]:
                 d_spacing = peak.getDSpacing()
                 Q_mod = 2 * np.pi / d_spacing
                 for d in ds:
                     Q = 2 * np.pi / d
-                    if Q - delta < Q_mod < Q + delta or d_spacing > d_max:
+                    if (Q - delta < Q_mod < Q + delta) or d_spacing > d_max:
                         peak.setRunNumber(-1)
 
             FilterPeaks(

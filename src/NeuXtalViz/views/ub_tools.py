@@ -496,6 +496,10 @@ class UBView(NeuXtalVizWidget):
         angstrom_unit_label = QLabel("Å")
         self.aluminum_box = QCheckBox("Avoid Aluminum", self)
         self.aluminum_box.setChecked(True)
+        self.copper_box = QCheckBox("Avoid Copper", self)
+        self.copper_box.setChecked(False)
+        self.iron_box = QCheckBox("Avoid Iron", self)
+        self.iron_box.setChecked(False)
 
         validator = QIntValidator(10, 1000, self)
 
@@ -558,6 +562,8 @@ class UBView(NeuXtalVizWidget):
         find_action_layout = QHBoxLayout()
         find_action_layout.addWidget(self.find_button)
         find_action_layout.addWidget(self.aluminum_box)
+        find_action_layout.addWidget(self.copper_box)
+        find_action_layout.addWidget(self.iron_box)
         find_action_layout.addStretch(1)
 
         find_tab_layout.addLayout(find_params_layout)
@@ -2525,6 +2531,12 @@ class UBView(NeuXtalVizWidget):
 
     def get_avoid_aluminum(self):
         return self.aluminum_box.isChecked()
+
+    def get_avoid_copper(self):
+        return self.copper_box.isChecked()
+
+    def get_avoid_iron(self):
+        return self.iron_box.isChecked()
 
     def get_calculate_UB_tol(self):
         param = self.calculate_tolerance_line

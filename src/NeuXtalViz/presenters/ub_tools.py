@@ -494,6 +494,8 @@ class UB(NeuXtalVizPresenter):
             params = self.view.get_find_peaks_parameters()
             edge = self.view.get_find_peaks_edge()
             no_al = self.view.get_avoid_aluminum()
+            no_cu = self.view.get_avoid_copper()
+            no_fe = self.view.get_avoid_iron()
 
             if Q_min is not None and params is not None:
                 progress("Processing...", 1)
@@ -505,6 +507,10 @@ class UB(NeuXtalVizPresenter):
 
                 if no_al and d_min < d_max:
                     self.model.avoid_aluminum_contamination(d_min, d_max)
+                if no_cu and d_min < d_max:
+                    self.model.avoid_copper_contamination(d_min, d_max)
+                if no_fe and d_min < d_max:
+                    self.model.avoid_iron_contamination(d_min, d_max)
 
                 progress("Peaks found...", 90)
 
