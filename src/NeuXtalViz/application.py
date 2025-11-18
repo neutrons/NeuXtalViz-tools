@@ -186,7 +186,10 @@ class NeuXtalViz(QMainWindow):
             main_py_path = os.path.join(directory, "main.py")
             if os.path.isfile(main_py_path):
                 try:
-                    subprocess.Popen(["mantidpython", main_py_path])
+                    subprocess.Popen(
+                        ["mantidpython", main_py_path],
+                        cwd=directory,
+                    )
                 except subprocess.CalledProcessError as e:
                     QMessageBox.critical(
                         self, "Error", f"Failed to execute main.py:\n{e}"

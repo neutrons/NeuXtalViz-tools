@@ -2552,15 +2552,7 @@ class UBModel(NeuXtalVizModel):
             "4.05 4.05 4.05", "F m -3 m", "Al 0 0 0 1.0 0.005"
         )
 
-        generator = ReflectionGenerator(aluminum)
-
-        hkls = generator.getUniqueHKLsUsingFilter(
-            d_min, d_max, ReflectionConditionFilter.StructureFactor
-        )
-
-        ds = list(generator.getDValues(hkls))
-
-        self.avoid_contamination(ds, d_max, delta)
+        self.avoid_contamination(aluminum, d_min, d_max, delta)
 
     def avoid_copper_contamination(self, d_min, d_max, delta=0.1):
         """
@@ -2572,26 +2564,23 @@ class UBModel(NeuXtalVizModel):
             "3.61 3.61 3.61", "F m -3 m", "Cu 0 0 0 1.0 0.005"
         )
 
-        generator = ReflectionGenerator(copper)
-
-        hkls = generator.getUniqueHKLsUsingFilter(
-            d_min, d_max, ReflectionConditionFilter.StructureFactor
-        )
-
-        ds = list(generator.getDValues(hkls))
-
-        self.avoid_contamination(ds, d_max, delta)
+        self.avoid_contamination(copper, d_min, d_max, delta)
 
     def avoid_iron_contamination(self, d_min, d_max, delta=0.1):
         """
         Arblaster, J. W. Selected Values of the Crystallographic
         Properties of Elements; ASM International, 2018
         """
+
         aluminum = CrystalStructure(
             "2.87 2.87 2.87", "I m -3 m", "Fe 0 0 0 1.0 0.005"
         )
 
-        generator = ReflectionGenerator(aluminum)
+        self.avoid_contamination(aluminum, d_min, d_max, delta)
+
+    def avoid_contamination(self, sample, d_min, d_max, delta=0.1):
+
+        generator = ReflectionGenerator(sample)
 
         hkls = generator.getUniqueHKLsUsingFilter(
             d_min, d_max, ReflectionConditionFilter.StructureFactor
@@ -2599,9 +2588,6 @@ class UBModel(NeuXtalVizModel):
 
         ds = list(generator.getDValues(hkls))
 
-        self.avoid_contamination(ds, d_max, delta)
-
-    def avoid_contamination(self, ds, d_max, delta=0.1):
         if self.has_peaks():
             for peak in mtd[self.table]:
                 d_spacing = peak.getDSpacing()
