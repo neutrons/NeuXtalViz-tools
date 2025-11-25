@@ -1644,7 +1644,7 @@ class ExperimentModel(NeuXtalVizModel):
 
     def calculate_rotations(
         self,
-        mesh_angles,
+        angles,
         U,
         V,
         W,
@@ -1655,19 +1655,22 @@ class ExperimentModel(NeuXtalVizModel):
         use_symmetry=False,
         factor=2,
     ):
-        limits, ns = mesh_angles
+        if len(angles) == 2:
+            limits, ns = angles
 
-        mins, maxs = zip(*limits)
+            mins, maxs = zip(*limits)
 
-        axes = [
-            np.linspace(lo, hi, n + 1)[:-1]
-            for lo, hi, n in zip(mins, maxs, ns)
-        ]
+            axes = [
+                np.linspace(lo, hi, n + 1)[:-1]
+                for lo, hi, n in zip(mins, maxs, ns)
+            ]
+
+            grids = np.meshgrid(*axes, indexing="ij")
+            points = np.stack(grids, axis=-1).reshape(-1, len(limits))
+        else:
+            points = np.array(angles)
 
         UB = mtd["coverage"].sample().getOrientedLattice().getUB()
-
-        grids = np.meshgrid(*axes, indexing="ij")
-        points = np.stack(grids, axis=-1).reshape(-1, len(limits))
 
         for i, angles in enumerate(points):
             axes = np.array(self.axes).copy().tolist()

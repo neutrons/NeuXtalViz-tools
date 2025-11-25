@@ -420,8 +420,13 @@ class ExperimentView(NeuXtalVizWidget):
         self.mesh_symmetry_box.setToolTip("Apply symmetry to mesh.")
         self.mesh_symmetry_box.setChecked(False)
 
-        self.coverage_button = QPushButton("Calculate", self)
-        self.coverage_button.setToolTip("Calculate slice from the mesh scan.")
+        self.coverage_mesh_button = QPushButton("Calculate Mesh", self)
+        self.coverage_mesh_button.setToolTip(
+            "Calculate slice from the mesh scan."
+        )
+
+        self.coverage_plan_button = QPushButton("Calculate Plan", self)
+        self.coverage_plan_button.setToolTip("Calculate slice from the plan.")
 
         self.slice_combo = QComboBox(self)
         self.slice_combo.addItem("Axis 1/2")
@@ -451,7 +456,8 @@ class ExperimentView(NeuXtalVizWidget):
         )
 
         control_layout = QHBoxLayout()
-        control_layout.addWidget(self.coverage_button)
+        control_layout.addWidget(self.coverage_mesh_button)
+        control_layout.addWidget(self.coverage_plan_button)
         control_layout.addWidget(self.slice_combo)
         control_layout.addWidget(slice_label)
         control_layout.addWidget(self.slice_line)
@@ -792,8 +798,11 @@ class ExperimentView(NeuXtalVizWidget):
         self.point_group_combo.setCurrentIndex(1)
         self.lattice_centering_combo.setCurrentIndex(0)
 
-    def connect_convert_to_hkl(self, convert_to_hkl):
-        self.coverage_button.clicked.connect(convert_to_hkl)
+    def connect_convert_mesh_to_hkl(self, convert_to_hkl):
+        self.coverage_mesh_button.clicked.connect(convert_to_hkl)
+
+    def connect_convert_plan_to_hkl(self, convert_to_hkl):
+        self.coverage_plan_button.clicked.connect(convert_to_hkl)
 
     def connect_slice_thickness_line(self, update_slice):
         self.slice_thickness_line.editingFinished.connect(update_slice)
@@ -1284,6 +1293,19 @@ class ExperimentView(NeuXtalVizWidget):
             limits[ind][1] = float(self.mesh_table.item(row, 2).text())
             angles[ind] = int(float(self.mesh_table.item(row, 3).text()))
         return limits, angles
+
+    def get_plan_angles(self):
+        col = self.plan_table.columnCount() - 1
+
+        settings = []
+        for row in range(self.get_number_of_orientations()):
+            setting = self.get_angle_setting(row)
+            item = self.plan_table.item(row, col)
+            use = item.checkState() == Qt.Checked
+            if use:
+                settings.append(setting)
+
+        return settings
 
     def get_angles_to_delete(self):
         self.plan_table.blockSignals(True)

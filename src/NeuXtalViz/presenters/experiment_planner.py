@@ -27,7 +27,8 @@ class Experiment(NeuXtalVizPresenter):
         self.view.connect_load_mask(self.load_mask)
         self.view.connect_load_detector(self.load_detector)
         self.view.connect_load_goniometer(self.load_goniometer)
-        self.view.connect_convert_to_hkl(self.convert_to_hkl)
+        self.view.connect_convert_mesh_to_hkl(self.convert_mesh_to_hkl)
+        self.view.connect_convert_plan_to_hkl(self.convert_plan_to_hkl)
 
         self.view.connect_slice_combo(self.convert_to_hkl)
         self.view.connect_slice_thickness_line(self.convert_to_hkl)
@@ -46,6 +47,8 @@ class Experiment(NeuXtalVizPresenter):
         self.switch_crystal()
 
         self.view.set_default_symmetry()
+
+        self.mesh = True
 
     def load_detector(self):
         """
@@ -455,6 +458,14 @@ class Experiment(NeuXtalVizPresenter):
         else:
             progress("No mesh angles provided for mesh scan.", 0)
 
+    def convert_mesh_to_hkl(self):
+        self.mesh = True
+        self.convert_to_hkl()
+
+    def convert_plan_to_hkl(self):
+        self.mesh = False
+        self.convert_to_hkl()
+
     def convert_to_hkl(self):
         worker = self.view.worker(self.convert_to_hkl_process)
         worker.connect_result(self.convert_to_hkl_complete)
@@ -494,7 +505,10 @@ class Experiment(NeuXtalVizPresenter):
 
                 norm = self.get_normal()
 
-                angles = self.view.get_mesh_angles()
+                if self.mesh:
+                    angles = self.view.get_mesh_angles()
+                else:
+                    angles = self.view.get_plan_angles()
 
                 wavelength = self.view.get_wavelength()
 

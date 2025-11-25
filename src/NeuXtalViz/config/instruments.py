@@ -101,6 +101,27 @@ beamlines = {
         "Counting": ["BL11B:Det:PCharge:C", "seconds"],
         "Title": "BL11B:CS:RunInfo:Title",
     },
+    "IMAGINE": {
+        "Name": "IMAGINE",
+        "InstrumentName": "CG4D",
+        "Facility": "HFIR",
+        "Wavelength": [2, 4.5],
+        "Grouping": "8x8",
+        "BankPixels": [512, 512],
+        "MaskEdges": [32, 32],
+        "MaskBanks": [],
+        "Goniometers": ["s1,0,1,0,1"],
+        "Goniometer": {
+            "Goniometer": {
+                "CG4D:Mot:sgl": [1, 0, 0, -1, 0, 0],
+                "CG4D:Mot:sgu": [0, 0, 1, -1, 0, 0],
+                "CG4D:Mot:s1": [0, 1, 0, 1, -180, 180],
+            }
+        },
+        "RawFile": "nexus/CG4D_{}.nxs.h5",
+        "Counting": ["seconds"],
+        "Title": "CG4D:CS:RunInfo:Title",
+    },
     "WAND²": {
         "Name": "WAND",
         "InstrumentName": "HB2C",
