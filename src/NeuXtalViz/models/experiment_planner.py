@@ -785,7 +785,7 @@ class ExperimentModel(NeuXtalVizModel):
         unique_pairs = set()
         for a, b in itertools.product(hkls_1, hkls_2):
             if a != b:
-                unique_pairs.add(tuple(sorted((a, b))))
+                unique_pairs.add((a, b))
         pairs = list(unique_pairs)
 
         angles = []
@@ -1681,6 +1681,7 @@ class ExperimentModel(NeuXtalVizModel):
 
         if use_symmetry:
             meshmap += "_" + point_group
+        print(meshmap)
 
         if not mtd.doesExist(meshmap):
             UB_inv = np.linalg.inv(UB)

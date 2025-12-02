@@ -1297,13 +1297,26 @@ class ExperimentView(NeuXtalVizWidget):
     def get_plan_angles(self):
         col = self.plan_table.columnCount() - 1
 
+        all_angles = self.get_all_angles()
+        n = len(all_angles)
+
+        limits = self.get_goniometer_limits()
+        angles = [1] * n
+
         settings = []
         for row in range(self.get_number_of_orientations()):
             setting = self.get_angle_setting(row)
             item = self.plan_table.item(row, col)
             use = item.checkState() == Qt.Checked
             if use:
-                settings.append(setting)
+                k = 0
+                for j, angle in enumerate(limits):
+                    if angle[1] == angle[0]:
+                        angles[j] = angle[0]
+                    else:
+                        angles[j] = setting[k]
+                        k += 1
+                settings.append(angles)
 
         return settings
 
