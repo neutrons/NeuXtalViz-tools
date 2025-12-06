@@ -852,7 +852,7 @@ class UB(NeuXtalVizPresenter):
 
                 lamda_min, lamda_max = wavelength
 
-                if self.model.is_mono(lamda_min, lamda_max):
+                if self.model.is_mono(wavelength):
                     lamda_min, lamda_max = 0.97 * lamda_min, 1.03 * lamda_max
 
                 progress("Processing...", 1)
