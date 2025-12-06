@@ -149,10 +149,8 @@ class UB(NeuXtalVizPresenter):
         """
         Handle integer indexing for peaks and update the view.
 
-        Parameters
-        ----------
-        None
         """
+
         mod_info = self.get_modulation_info()
         hkl_info = self.view.get_indices()
         index_row = self.view.get_peak()
@@ -854,7 +852,7 @@ class UB(NeuXtalVizPresenter):
 
                 lamda_min, lamda_max = wavelength
 
-                if np.isclose(lamda_min, lamda_max):
+                if self.model.is_mono(lamda_min, lamda_max):
                     lamda_min, lamda_max = 0.97 * lamda_min, 1.03 * lamda_max
 
                 progress("Processing...", 1)
