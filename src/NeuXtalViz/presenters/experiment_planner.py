@@ -49,6 +49,7 @@ class Experiment(NeuXtalVizPresenter):
         self.view.set_default_symmetry()
 
         self.mesh = True
+        self.convert_idle = True
 
     def load_detector(self):
         """
@@ -467,15 +468,17 @@ class Experiment(NeuXtalVizPresenter):
         self.convert_to_hkl()
 
     def convert_to_hkl(self):
-        worker = self.view.worker(self.convert_to_hkl_process)
-        worker.connect_result(self.convert_to_hkl_complete)
-        worker.connect_progress(self.update_processing)
+        if self.convert_idle:
+            worker = self.view.worker(self.convert_to_hkl_process)
+            worker.connect_result(self.convert_to_hkl_complete)
+            worker.connect_progress(self.update_processing)
 
-        self.view.start_worker_pool(worker)
+            self.view.start_worker_pool(worker)
 
     def convert_to_hkl_complete(self, result):
         if result is not None:
             self.view.update_slice(result)
+        self.convert_idle = False
 
     def convert_to_hkl_process(self, progress):
         instrument = self.view.get_instrument()
@@ -532,6 +535,7 @@ class Experiment(NeuXtalVizPresenter):
                         thickness,
                         point_group,
                         symm,
+                        self.mesh,
                     )
 
                     progress("Footprint calculated!", 0)

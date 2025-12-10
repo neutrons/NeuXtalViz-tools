@@ -1651,11 +1651,12 @@ class ExperimentModel(NeuXtalVizModel):
         normal,
         value,
         thickness,
+        mesh,
         point_group="1",
         use_symmetry=False,
         factor=2,
     ):
-        if len(angles) == 2:
+        if mesh:
             limits, ns = angles
 
             mins, maxs = zip(*limits)
@@ -1681,7 +1682,6 @@ class ExperimentModel(NeuXtalVizModel):
 
         if use_symmetry:
             meshmap += "_" + point_group
-        print(meshmap)
 
         if not mtd.doesExist(meshmap):
             UB_inv = np.linalg.inv(UB)

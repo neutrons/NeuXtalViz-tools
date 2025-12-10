@@ -456,7 +456,6 @@ class ExperimentView(NeuXtalVizWidget):
         )
 
         control_layout = QHBoxLayout()
-        control_layout.addWidget(self.coverage_mesh_button)
         control_layout.addWidget(self.coverage_plan_button)
         control_layout.addWidget(self.slice_combo)
         control_layout.addWidget(slice_label)
@@ -464,6 +463,7 @@ class ExperimentView(NeuXtalVizWidget):
         control_layout.addWidget(slice_thickness_label)
         control_layout.addWidget(self.slice_thickness_line)
         control_layout.addWidget(self.mesh_symmetry_box)
+        control_layout.addWidget(self.coverage_mesh_button)
         control_layout.addWidget(self.mesh_button)
 
         mesh_layout = QVBoxLayout()
@@ -1311,7 +1311,7 @@ class ExperimentView(NeuXtalVizWidget):
             if use:
                 k = 0
                 for j, angle in enumerate(limits):
-                    if angle[1] == angle[0]:
+                    if np.isclose(angle[1], angle[0]):
                         angles[j] = angle[0]
                     else:
                         angles[j] = setting[k]
