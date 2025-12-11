@@ -478,7 +478,7 @@ class Experiment(NeuXtalVizPresenter):
     def convert_to_hkl_complete(self, result):
         if result is not None:
             self.view.update_slice(result)
-        self.convert_idle = False
+        self.convert_idle = True
 
     def convert_to_hkl_process(self, progress):
         instrument = self.view.get_instrument()
@@ -533,9 +533,9 @@ class Experiment(NeuXtalVizPresenter):
                         norm,
                         value,
                         thickness,
+                        self.mesh,
                         point_group,
                         symm,
-                        self.mesh,
                     )
 
                     progress("Footprint calculated!", 0)
