@@ -1673,12 +1673,14 @@ class ExperimentModel(NeuXtalVizModel):
 
         UB = mtd["coverage"].sample().getOrientedLattice().getUB()
 
+        title = []
         for i, angles in enumerate(points):
             axes = np.array(self.axes).copy().tolist()
             for i, angle in enumerate(angles):
                 axes[i] = axes[i].format(angle)
+            title.append(str(axes))
 
-        meshmap = str(axes)
+        meshmap = ",".join(title)
 
         if use_symmetry:
             meshmap += "_" + point_group

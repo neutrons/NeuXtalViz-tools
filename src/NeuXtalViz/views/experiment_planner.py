@@ -1310,13 +1310,14 @@ class ExperimentView(NeuXtalVizWidget):
             use = item.checkState() == Qt.Checked
             if use:
                 k = 0
+                values = angles.copy()
                 for j, angle in enumerate(limits):
                     if np.isclose(angle[1], angle[0]):
-                        angles[j] = angle[0]
+                        values[j] = float(angle[0])
                     else:
-                        angles[j] = setting[k]
+                        values[j] = float(setting[k])
                         k += 1
-                settings.append(angles)
+                settings.append(values)
 
         return settings
 
