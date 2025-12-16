@@ -161,6 +161,8 @@ class ExperimentModel(NeuXtalVizModel):
         )
 
         self.comment = ""
+        self.hkl = None
+        self.hkl_alt = None
 
     def initialize_instrument(self, instrument, logs, cal, gon, mask):
         inst = self.get_instrument_name(instrument)
@@ -979,9 +981,10 @@ class ExperimentModel(NeuXtalVizModel):
 
             gamma_alt = nu_alt = lamda_alt = d_alt = None
 
-            self.comment = (
-                "#(" + ", ".join(self.angles_indices[i].astype(str)) + ")"
-            )
+            self.hkl = self.angles_indices[i]
+            self.hkl_alt = None
+
+            self.comment = "#(" + ", ".join(self.hkl.astype(str)) + ")"
 
             if self.angles_lamda_alt is not None:
                 gamma_alt = self.angles_gamma_alt[i]
@@ -989,10 +992,10 @@ class ExperimentModel(NeuXtalVizModel):
                 lamda_alt = self.angles_lamda_alt[i]
                 d_alt = self.angles_d_alt[i]
 
+                self.hkl_alt = self.angles_indices_alt[i]
+
                 self.comment += (
-                    ")_#("
-                    + ", ".join(self.angles_indices_alt[i].astype(str))
-                    + ")"
+                    ")_#(" + ", ".join(self.hkl_alt.astype(str)) + ")"
                 )
 
             return (
@@ -1006,6 +1009,20 @@ class ExperimentModel(NeuXtalVizModel):
                 lamda_alt,
                 d_alt,
             )
+
+    def calculate_harmonics(self, hkl, wavelength, wavelength_band):
+        scale = (
+            np.gcd.reduce(hkl.astype(int)) if not np.mod(hkl, 1).any() else 1
+        )
+        n_lo = int(max(1, np.ceil(wavelength / wavelength_band[1] * scale)))
+        n_hi = int(np.floor(wavelength / wavelength_band[0] * scale))
+
+        lamda_harmonics = []
+        hkl_harmonics = []
+        for n in range(n_lo, n_hi + 1):
+            lamda_harmonics.append(wavelength * scale / n)
+            hkl_harmonics.append(hkl if scale / n == 1 else None)
+        return hkl_harmonics, lamda_harmonics
 
     def add_mesh(
         self, mesh_angles, wavelength, d_min, rows, free_angles, all_angles

@@ -34,8 +34,9 @@ class Experiment(NeuXtalVizPresenter):
         self.view.connect_slice_thickness_line(self.convert_to_hkl)
 
         self.view.connect_roi_ready(self.lookup_angle)
-        self.view.connect_sel_ready(self.select_peak)
-        self.view.connect_viz_ready(self.visualize)
+        self.view.connect_selection_ready(self.select_peak)
+        self.view.connect_visualization_ready(self.visualize)
+        self.view.connect_harmonic_ready(self.calculate_harmonics)
 
         self.view.connect_update(self.view.update_counting)
         self.view.connect_highlight_angles(self.view.highlight_angles)
@@ -327,6 +328,23 @@ class Experiment(NeuXtalVizPresenter):
             self.view.set_d(d)
             self.view.set_d_alternate(d_alt)
             self.view.update_inst()
+
+    def calculate_harmonics(self):
+        band = self.view.get_wavelength()
+        wavelength = self.view.get_intersect()
+        hkl = self.model.hkl
+        validate = [band, wavelength, hkl]
+        if all(elem is not None for elem in validate):
+            harmonics = self.model.calculate_harmonics(hkl, wavelength, band)
+            self.view.plot_harmonics(*harmonics)
+        wavelength_alt = self.view.get_intersect_alternate()
+        hkl_alt = self.model.hkl_alt
+        validate = [band, wavelength_alt, hkl_alt]
+        if all(elem is not None for elem in validate):
+            harmonics = self.model.calculate_harmonics(
+                hkl_alt, wavelength_alt, band
+            )
+            self.view.plot_harmonics_alternate(*harmonics)
 
     def select_peak(self, gamma, nu):
 

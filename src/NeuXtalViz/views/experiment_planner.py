@@ -52,6 +52,7 @@ class ExperimentView(NeuXtalVizWidget):
     roi_ready = Signal(float, float)
     sel_ready = Signal(float, float)
     viz_ready = Signal()
+    harm_ready = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -721,7 +722,7 @@ class ExperimentView(NeuXtalVizWidget):
         peak_layout.addWidget(view_tab)
 
         self.fig_inst = self.canvas_inst.figure
-        self.ax_inst = self.fig_inst.subplots(1, 1)
+        self.ax_band, self.ax_inst = self.fig_inst.subplots(2, 1)
         self.ax_inst.clear()
         self.ax_inst.invert_xaxis()
 
@@ -1604,7 +1605,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.plan_table.setSortingEnabled(True)
         self.plan_table.blockSignals(False)
 
-    def connect_viz_ready(self, visualize):
+    def connect_visualization_ready(self, visualize):
         self.viz_ready.connect(visualize)
 
     def get_instrument(self):
@@ -1876,6 +1877,15 @@ class ExperimentView(NeuXtalVizWidget):
             self.cb_inst_alt.remove()
             self.cb_inst_alt = None
 
+        x = self.get_wavelength()
+        dx = np.diff(x) / 20
+
+        self.ax_band.clear()
+        self.ax_band.minorticks_on()
+        self.ax_band.set_xlabel(r"$\lambda$ [Å]")
+        self.ax_band.set_xlim(x[0] - dx[0], x[1] + dx[0])
+        self.ax_band.set_ylim(0, 1)
+
         self.ax_inst.clear()
         self.ax_inst.invert_xaxis()
 
@@ -1932,6 +1942,15 @@ class ExperimentView(NeuXtalVizWidget):
         if self.cb_inst_alt is not None:
             self.cb_inst_alt.remove()
             self.cb_inst_alt = None
+
+        x = self.get_wavelength()
+        dx = np.diff(x) / 20
+
+        self.ax_band.clear()
+        self.ax_band.minorticks_on()
+        self.ax_band.set_xlabel(r"$\lambda$ [Å]")
+        self.ax_band.set_xlim(x[0] - dx[0], x[1] + dx[0])
+        self.ax_band.set_ylim(0, 1)
 
         self.ax_inst.clear()
         self.ax_inst.invert_xaxis()
@@ -2055,6 +2074,9 @@ class ExperimentView(NeuXtalVizWidget):
     def set_comment(self, values):
         self.comment_line.setText(str(values))
 
+    def get_comment(self):
+        return self.comment_line.text()
+
     def get_angles(self):
         ang = self.angles_line.text()
         ang = ang.strip("(").strip(")").split(",")
@@ -2070,6 +2092,47 @@ class ExperimentView(NeuXtalVizWidget):
 
             self.roi_ready.emit(horz, vert)
 
+    def plot_harmonics(self, hkls, lamdas):
+        for line in self.ax_band.lines:
+            line.remove()
+        for text in self.ax_band.texts:
+            text.remove()
+
+        for hkl, lamda in zip(hkls, lamdas):
+            self.ax_band.axvline(x=lamda, color="C0", linestyle="--")
+            if hkl is not None:
+                self.ax_band.text(
+                    lamda,
+                    0.95,
+                    f"({hkl[0]:.0f} {hkl[1]:.0f} {hkl[2]:.0f})",
+                    rotation=90,
+                    verticalalignment="top",
+                    horizontalalignment="right",
+                    transform=self.ax_band.get_xaxis_transform(),
+                    color="k",
+                )
+
+        self.canvas_inst.draw_idle()
+        self.canvas_inst.flush_events()
+
+    def plot_harmonics_alternate(self, hkls, lamdas):
+        for hkl, lamda in zip(hkls, lamdas):
+            self.ax_band.axvline(x=lamda, color="C1", linestyle="--")
+            if hkl is not None:
+                self.ax_band.text(
+                    lamda,
+                    0.05,
+                    f"({hkl[0]:.0f} {hkl[1]:.0f} {hkl[2]:.0f})",
+                    rotation=90,
+                    verticalalignment="bottom",
+                    horizontalalignment="left",
+                    transform=self.ax_band.get_xaxis_transform(),
+                    color="k",
+                )
+
+        self.canvas_inst.draw_idle()
+        self.canvas_inst.flush_events()
+
     def update_inst(self):
         for line in self.ax_inst.lines:
             line.remove()
@@ -2081,6 +2144,11 @@ class ExperimentView(NeuXtalVizWidget):
 
         horz_alt = self.get_horizontal_alternate()
         vert_alt = self.get_vertical_alternate()
+
+        for line in self.ax_band.lines:
+            line.remove()
+
+        self.harm_ready.emit()
 
         if horz_alt is None and vert_alt is None:
             self.ax_inst.axvline(x=horz, color="k", linestyle="--")
@@ -2134,6 +2202,9 @@ class ExperimentView(NeuXtalVizWidget):
 
     def connect_roi_ready(self, lookup):
         self.roi_ready.connect(lookup)
+
+    def connect_harmonic_ready(self, lookup):
+        self.harm_ready.connect(lookup)
 
     def use_equivalents(self):
         return self.equivalents_box.isChecked()
@@ -2210,7 +2281,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.canvas_laue.draw_idle()
         self.canvas_laue.flush_events()
 
-    def connect_sel_ready(self, lookup):
+    def connect_selection_ready(self, lookup):
         self.sel_ready.connect(lookup)
 
     def highlight_peak(self, row):
