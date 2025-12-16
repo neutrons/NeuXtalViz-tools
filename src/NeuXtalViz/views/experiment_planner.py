@@ -722,7 +722,9 @@ class ExperimentView(NeuXtalVizWidget):
         peak_layout.addWidget(view_tab)
 
         self.fig_inst = self.canvas_inst.figure
-        self.ax_band, self.ax_inst = self.fig_inst.subplots(2, 1)
+        self.ax_band, self.ax_inst = self.fig_inst.subplots(
+            2, 1, height_ratios=[1, 2]
+        )
         self.ax_inst.clear()
         self.ax_inst.invert_xaxis()
         self.ax_band.set_yticks([])
