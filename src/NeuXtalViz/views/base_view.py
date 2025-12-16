@@ -725,6 +725,9 @@ class NeuXtalVizWidget(QWidget):
         bg = pv.global_theme.background
         self.plotter.set_background(bg)
         self.plotter.render()
+        # call twice to update colors
+        self.show_axes()
+        self.show_axes()
 
     def update_labels(self):
         """

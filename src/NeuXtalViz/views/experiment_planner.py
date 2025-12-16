@@ -725,6 +725,9 @@ class ExperimentView(NeuXtalVizWidget):
         self.ax_band, self.ax_inst = self.fig_inst.subplots(2, 1)
         self.ax_inst.clear()
         self.ax_inst.invert_xaxis()
+        self.ax_band.set_yticks([])
+        self.ax_band.spines[["left", "right", "top"]].set_visible(False)
+        self.ax_band.tick_params(axis="y", left=False, labelleft=False)
 
         self.cb_inst = None
         self.cb_inst_alt = None
@@ -1878,13 +1881,15 @@ class ExperimentView(NeuXtalVizWidget):
             self.cb_inst_alt = None
 
         x = self.get_wavelength()
-        dx = np.diff(x) / 20
 
         self.ax_band.clear()
         self.ax_band.minorticks_on()
         self.ax_band.set_xlabel(r"$\lambda$ [Å]")
-        self.ax_band.set_xlim(x[0] - dx[0], x[1] + dx[0])
+        self.ax_band.set_xlim(*x)
         self.ax_band.set_ylim(0, 1)
+        self.ax_band.set_yticks([])
+        self.ax_band.spines[["left", "right", "top"]].set_visible(False)
+        self.ax_band.tick_params(axis="y", left=False, labelleft=False)
 
         self.ax_inst.clear()
         self.ax_inst.invert_xaxis()
@@ -1944,13 +1949,15 @@ class ExperimentView(NeuXtalVizWidget):
             self.cb_inst_alt = None
 
         x = self.get_wavelength()
-        dx = np.diff(x) / 20
 
         self.ax_band.clear()
         self.ax_band.minorticks_on()
         self.ax_band.set_xlabel(r"$\lambda$ [Å]")
-        self.ax_band.set_xlim(x[0] - dx[0], x[1] + dx[0])
+        self.ax_band.set_xlim(*x)
         self.ax_band.set_ylim(0, 1)
+        self.ax_band.set_yticks([])
+        self.ax_band.spines[["left", "right", "top"]].set_visible(False)
+        self.ax_band.tick_params(axis="y", left=False, labelleft=False)
 
         self.ax_inst.clear()
         self.ax_inst.invert_xaxis()
