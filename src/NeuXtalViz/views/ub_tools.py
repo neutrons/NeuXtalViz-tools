@@ -3078,6 +3078,8 @@ class UBView(NeuXtalVizWidget):
         self.canvas_inst.draw_idle()
         self.canvas_inst.flush_events()
 
+        self.ax_inst.format_coord = self.__format_inst_coord
+
     def update_roi_view(self, roi_view):
         horz = roi_view["horz"]
         vert = roi_view["vert"]
@@ -3220,6 +3222,9 @@ class UBView(NeuXtalVizWidget):
 
     def get_instrument_scale(self):
         return self.instrument_scale_combo.currentText().lower()
+
+    def __format_inst_coord(self, x, y):
+        return "γ = {:.1f}°, ν = {:.1f}°".format(x, y)
 
     def __format_hkl_coord(self, x, y):
         x, y, _ = np.dot(self.T_inv, [x, y, 1])
