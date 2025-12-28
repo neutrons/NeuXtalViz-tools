@@ -735,9 +735,14 @@ class ExperimentView(NeuXtalVizWidget):
         self.cb_inst_alt = None
 
         self.fig_laue = self.canvas_laue.figure
-        self.ax_laue = self.fig_laue.subplots(1, 1)
+        self.ax_harm, self.ax_laue = self.fig_laue.subplots(
+            2, 1, height_ratios=[1, 2]
+        )
         self.ax_laue.clear()
         self.ax_laue.invert_xaxis()
+        self.ax_harm.set_yticks([])
+        self.ax_harm.spines[["left", "right", "top"]].set_visible(False)
+        self.ax_harm.tick_params(axis="y", left=False, labelleft=False)
 
         self.cb_laue = None
 
@@ -1884,6 +1889,8 @@ class ExperimentView(NeuXtalVizWidget):
 
         x = self.get_wavelength()
 
+        self.bragg_band = 0
+        self.bragg_band_alt = None
         self.ax_band.clear()
         self.ax_band.minorticks_on()
         self.ax_band.set_xlabel(r"$\lambda$ [Å]")
@@ -1892,6 +1899,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.ax_band.set_yticks([])
         self.ax_band.spines[["left", "right", "top"]].set_visible(False)
         self.ax_band.tick_params(axis="y", left=False, labelleft=False)
+        self.ax_band.format_coord = self.__format_band_coord
 
         self.ax_inst.clear()
         self.ax_inst.invert_xaxis()
@@ -1914,6 +1922,8 @@ class ExperimentView(NeuXtalVizWidget):
 
         self.ax_inst.xaxis.set_major_formatter(fmt_str_form)
         self.ax_inst.yaxis.set_major_formatter(fmt_str_form)
+
+        self.ax_inst.format_coord = self.__format_inst_coord
 
         if len(lamda) > 0:
             self.cb_inst = self.fig_inst.colorbar(
@@ -1952,6 +1962,8 @@ class ExperimentView(NeuXtalVizWidget):
 
         x = self.get_wavelength()
 
+        self.bragg_band = 0
+        self.bragg_band_alt = 0
         self.ax_band.clear()
         self.ax_band.minorticks_on()
         self.ax_band.set_xlabel(r"$\lambda$ [Å]")
@@ -1960,6 +1972,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.ax_band.set_yticks([])
         self.ax_band.spines[["left", "right", "top"]].set_visible(False)
         self.ax_band.tick_params(axis="y", left=False, labelleft=False)
+        self.ax_band.format_coord = self.__format_band_coord
 
         self.ax_inst.clear()
         self.ax_inst.invert_xaxis()
@@ -1986,6 +1999,8 @@ class ExperimentView(NeuXtalVizWidget):
 
         self.ax_inst.xaxis.set_major_formatter(fmt_str_form)
         self.ax_inst.yaxis.set_major_formatter(fmt_str_form)
+
+        self.ax_inst.format_coord = self.__format_inst_coord
 
         if len(lamda_2) > 0:
             self.cb_inst_alt = self.fig_inst.colorbar(
@@ -2159,6 +2174,9 @@ class ExperimentView(NeuXtalVizWidget):
 
         self.harm_ready.emit()
 
+        self.bragg_band = self.__scale_inst(horz, vert)
+        self.bragg_band_alt = self.__scale_inst(horz_alt, vert_alt)
+
         if horz_alt is None and vert_alt is None:
             self.ax_inst.axvline(x=horz, color="k", linestyle="--")
             self.ax_inst.axhline(y=vert, color="k", linestyle="--")
@@ -2229,6 +2247,19 @@ class ExperimentView(NeuXtalVizWidget):
             self.cb_laue.remove()
             self.cb_laue = None
 
+        x = self.get_wavelength()
+
+        self.bragg_harm = 0
+        self.ax_harm.clear()
+        self.ax_harm.minorticks_on()
+        self.ax_harm.set_xlabel(r"$\lambda$ [Å]")
+        self.ax_harm.set_xlim(*x)
+        self.ax_harm.set_ylim(0, 1)
+        self.ax_harm.set_yticks([])
+        self.ax_harm.spines[["left", "right", "top"]].set_visible(False)
+        self.ax_harm.tick_params(axis="y", left=False, labelleft=False)
+        self.ax_harm.format_coord = self.__format_harm_coord
+
         self.ax_laue.clear()
         self.ax_laue.invert_xaxis()
 
@@ -2258,6 +2289,8 @@ class ExperimentView(NeuXtalVizWidget):
         self.ax_laue.xaxis.set_major_formatter(fmt_str_form)
         self.ax_laue.yaxis.set_major_formatter(fmt_str_form)
 
+        self.ax_laue.format_coord = self.__format_inst_coord
+
         if len(lamda) > 0:
             self.cb_laue = self.fig_laue.colorbar(
                 self.im, ax=self.ax_laue, orientation="horizontal"
@@ -2280,12 +2313,22 @@ class ExperimentView(NeuXtalVizWidget):
             horz, vert = event.xdata, event.ydata
             self.sel_ready.emit(horz, vert)
 
-    def update_laue(self, horz, vert):
+    def update_laue(self, horz, vert, lamdas):
         for line in self.ax_laue.lines:
             line.remove()
 
         self.ax_laue.axvline(x=horz, color="k", linestyle="--")
         self.ax_laue.axhline(y=vert, color="k", linestyle="--")
+
+        for line in self.ax_harm.lines:
+            line.remove()
+        for text in self.ax_harm.texts:
+            text.remove()
+
+        self.bragg_harm = self.__scale_inst(horz, vert)
+
+        for lamda in lamdas:
+            self.ax_harm.axvline(x=lamda, color="k", linestyle="--")
 
         self.canvas_laue.draw_idle()
         self.canvas_laue.flush_events()
@@ -2338,11 +2381,6 @@ class ExperimentView(NeuXtalVizWidget):
 
     def use_symmetry_mesh(self):
         return self.mesh_symmetry_box.isChecked()
-
-    def __format_axis_coord(self, x, y):
-        x, y, _ = np.dot(self.T_inv, [x, y, 1])
-        h, k, l = np.dot(self.W, [x, y, self.z])
-        return "hkl = ({:.3f}, {:.3f}, {:.3f})".format(h, k, l)
 
     def update_slice(self, slice_dict):
         x = slice_dict["x"]
@@ -2418,4 +2456,30 @@ class ExperimentView(NeuXtalVizWidget):
         self.canvas_slice.draw_idle()
         self.canvas_slice.flush_events()
 
-        self.ax_slice.format_coord = self.__format_axis_coord
+        self.ax_slice.format_coord = self.__format_hkl_coord
+
+    def __format_hkl_coord(self, x, y):
+        x, y, _ = np.dot(self.T_inv, [x, y, 1])
+        h, k, l = np.dot(self.W, [x, y, self.z])
+        return "hkl = ({:.3f}, {:.3f}, {:.3f})".format(h, k, l)
+
+    def __format_inst_coord(self, x, y):
+        return "γ = {:.1f}°, ν = {:.1f}°".format(x, y)
+
+    def __format_band_coord(self, x, y):
+        wl = "λ = {:.3f} Å, ".format(x)
+        if self.bragg_band_alt is not None:
+            return wl + "d₁ = {:.3f} Å, d₂ = {:.3f} Å".format(
+                self.bragg_band * x, self.bragg_band_alt * x
+            )
+        else:
+            return wl + "d = {:.3f} Å".format(self.bragg_band * x)
+
+    def __format_harm_coord(self, x, y):
+        return "λ = {:.3f} Å, d = {:.3f} Å".format(x, self.bragg_harm * x)
+
+    def __scale_inst(self, horz, vert):
+        if horz is not None or vert is not None:
+            horz = np.deg2rad(horz)
+            vert = np.deg2rad(vert)
+            return 1 / np.sqrt(2 * (1 - np.cos(horz) * np.cos(vert)))

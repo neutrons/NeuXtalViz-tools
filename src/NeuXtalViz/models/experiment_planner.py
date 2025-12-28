@@ -1546,7 +1546,10 @@ class ExperimentModel(NeuXtalVizModel):
             gamma = self.gamma_peaks[i]
             nu = self.nu_peaks[i]
 
-            return gamma, nu, i
+            d2 = (self.gamma_peaks - gamma) ** 2 + (self.nu_peaks - nu) ** 2
+            lamdas = self.lamda_peaks[np.isclose(d2, d2[i])]
+
+            return gamma, nu, lamdas, i
 
     def get_peak_selection(self, gamma, nu):
 
@@ -1558,7 +1561,9 @@ class ExperimentModel(NeuXtalVizModel):
             gamma = self.gamma_peaks[i]
             nu = self.nu_peaks[i]
 
-            return gamma, nu, i
+            lamdas = self.lamda_peaks[np.isclose(d2, d2[i])]
+
+            return gamma, nu, lamdas, i
 
     def to_index(self, Q, Q_max, scale, n):
         idx = np.round((Q + Q_max) * scale).astype(np.int32)

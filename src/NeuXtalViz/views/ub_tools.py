@@ -3221,7 +3221,7 @@ class UBView(NeuXtalVizWidget):
     def get_instrument_scale(self):
         return self.instrument_scale_combo.currentText().lower()
 
-    def __format_axis_coord(self, x, y):
+    def __format_hkl_coord(self, x, y):
         x, y, _ = np.dot(self.T_inv, [x, y, 1])
         h, k, l = np.dot(self.W, [x, y, self.z])
         return "hkl = ({:.3f}, {:.3f}, {:.3f})".format(h, k, l)
@@ -3315,7 +3315,7 @@ class UBView(NeuXtalVizWidget):
         self.canvas_slice.draw_idle()
         self.canvas_slice.flush_events()
 
-        self.ax_slice.format_coord = self.__format_axis_coord
+        self.ax_slice.format_coord = self.__format_hkl_coord
 
     def update_cluster_table(self, peak_info):
         centroids = peak_info["satellites"].round(3).astype(str)

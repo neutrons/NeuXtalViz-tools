@@ -169,7 +169,9 @@ class VolumeSlicerModel(NeuXtalVizModel):
         self.W = np.eye(3)
 
         if ei.run().hasProperty("W_MATRIX"):
-            self.W = ei.run().getLogData("W_MATRIX").value.reshape(3, 3)
+            self.W = np.array(ei.run().getLogData("W_MATRIX").value).reshape(
+                3, 3
+            )
 
     def get_histo_info(self, normal):
         """

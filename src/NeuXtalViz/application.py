@@ -33,10 +33,6 @@ from NeuXtalViz.views.ub_tools import UBView
 from NeuXtalViz.models.ub_tools import UBModel
 from NeuXtalViz.presenters.ub_tools import UB
 
-from NeuXtalViz.views.sample_tools import SampleView
-from NeuXtalViz.models.sample_tools import SampleModel
-from NeuXtalViz.presenters.sample_tools import Sample
-
 from NeuXtalViz.views.volume_slicer import VolumeSlicerView
 from NeuXtalViz.models.volume_slicer import VolumeSlicerModel
 from NeuXtalViz.presenters.volume_slicer import VolumeSlicer
@@ -89,10 +85,6 @@ class NeuXtalViz(QMainWindow):
         cs_action.triggered.connect(lambda: app_stack.setCurrentIndex(3))
         app_menu.addAction(cs_action)
 
-        s_action = QAction("Sample", self)
-        s_action.triggered.connect(lambda: app_stack.setCurrentIndex(4))
-        app_menu.addAction(s_action)
-
         ub_view = UBView(self)
         ub_model = UBModel()
         self.ub = UB(ub_view, ub_model)
@@ -112,11 +104,6 @@ class NeuXtalViz(QMainWindow):
         cs_model = CrystalStructureModel()
         self.cs = CrystalStructure(cs_view, cs_model)
         app_stack.addWidget(cs_view)
-
-        # s_view = SampleView(self)
-        # s_model = SampleModel()
-        # self.s = Sample(s_view, s_model)
-        # app_stack.addWidget(s_view)
 
         layout.addWidget(app_stack)
 
