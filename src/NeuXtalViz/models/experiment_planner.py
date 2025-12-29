@@ -1143,46 +1143,47 @@ class ExperimentModel(NeuXtalVizModel):
 
     def generate_table(self, row):
         if row == -1 and mtd.doesExist("missing"):
-            CloneWorkspace(InputWorkspace="missing", OutputWorkspace="table")
+            ws = "missing"
         else:
+            ws = "table"
             FilterPeaks(
                 InputWorkspace="combined",
                 FilterVariable="RunNumber",
                 FilterValue=str(row),
                 Operator="=",
-                OutputWorkspace="table",
+                OutputWorkspace=ws,
             )
 
         SortPeaksWorkspace(
-            InputWorkspace="table",
+            InputWorkspace=ws,
             ColumnNameToSortBy="DSpacing",
             SortAscending=False,
-            OutputWorkspace="table",
+            OutputWorkspace=ws,
         )
 
         columns = ["l", "k", "h"]
 
         for col in columns:
             SortPeaksWorkspace(
-                InputWorkspace="table",
+                InputWorkspace=ws,
                 ColumnNameToSortBy=col,
                 SortAscending=False,
-                OutputWorkspace="table",
+                OutputWorkspace=ws,
             )
 
         SortPeaksWorkspace(
-            InputWorkspace="table",
+            InputWorkspace=ws,
             ColumnNameToSortBy="DSpacing",
             SortAscending=False,
-            OutputWorkspace="table",
+            OutputWorkspace=ws,
         )
 
-        h = mtd["table"].column("h")
-        k = mtd["table"].column("k")
-        l = mtd["table"].column("l")
+        h = mtd[ws].column("h")
+        k = mtd[ws].column("k")
+        l = mtd[ws].column("l")
 
-        d = mtd["table"].column("DSpacing")
-        lamda = mtd["table"].column("Wavelength")
+        d = mtd[ws].column("DSpacing")
+        lamda = mtd[ws].column("Wavelength")
 
         return np.array([h, k, l, d, lamda]).T.tolist()
 
@@ -1414,38 +1415,14 @@ class ExperimentModel(NeuXtalVizModel):
         if mtd.doesExist("filtered"):
 
             ws = "filtered"
-            if not draw_all and row is not None:
-                if row == -1:
-                    ws = "missing"
-                else:
-                    ws = "individual"
-                    FilterPeaks(
-                        InputWorkspace="filtered",
-                        FilterVariable="RunNumber",
-                        FilterValue=str(row),
-                        Operator="!=",
-                        OutputWorkspace=ws,
-                    )
+            if not draw_all:
+                ws = "table" if row != -1 else "missing"
 
             h = mtd[ws].column("h")
             k = mtd[ws].column("k")
             l = mtd[ws].column("l")
 
             hkls = np.array([h, k, l]).T.astype(int).tolist()
-
-            # hkl_dict = {}
-            # hkl_dict[(0, 0, 0)] = 0
-            # for hkl in hkls:
-            #     if centering_conditions[lattice_centering](*hkl):
-            #         equiv_hkls = pg.getEquivalents(hkl)
-            #         for equiv_hkl in equiv_hkls:
-            #             key = tuple(equiv_hkl)
-            #             no = hkl_dict.get(key)
-            #             if no is None:
-            #                 no = 1
-            #             else:
-            #                 no += 1
-            #             hkl_dict[key] = no
 
             cond = centering_conditions[lattice_centering]
             rep_count = defaultdict(int)

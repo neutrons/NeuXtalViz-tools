@@ -292,7 +292,7 @@ class Experiment(NeuXtalVizPresenter):
             else:
                 progress("Invalid parameters for double peak calculation.", 0)
 
-    def update_peaks(self):
+    def update_peaks(self, visualize=True):
         row = self.view.get_peak_list()
         if row is not None:
             peak_list = self.model.generate_table(row)
@@ -300,8 +300,8 @@ class Experiment(NeuXtalVizPresenter):
             result = self.model.get_laue_info()
             if result is not None:
                 self.view.plot_laue(self.model.gamma, self.model.nu, *result)
-            # if not self.view.draw_all():
-            self.visualize()
+            if visualize:
+                self.visualize()
 
     def lookup_angle(self, gamma, nu):
 
@@ -374,7 +374,7 @@ class Experiment(NeuXtalVizPresenter):
     def delete_angles_complete(self, rows):
         if rows is not None:
             self.view.delete_angles(rows)
-            self.update_peaks()
+            self.update_peaks(False)
 
     def delete_angles_process(self, progress):
 
@@ -409,7 +409,7 @@ class Experiment(NeuXtalVizPresenter):
 
         title = self.view.get_title()
         self.view.add_orientations(title, comment, [update_angles])
-        self.update_peaks()
+        self.update_peaks(False)
 
     def add_orientation_process(self, progress):
         angles = self.view.get_angles()
@@ -444,7 +444,7 @@ class Experiment(NeuXtalVizPresenter):
         title = self.view.get_title()
         if result is not None:
             self.view.add_orientations(title, "Mesh Scan", result)
-            self.update_peaks()
+            self.update_peaks(False)
 
     def mesh_scan_process(self, progress):
         mesh_angles = self.view.get_mesh_angles()
@@ -640,7 +640,7 @@ class Experiment(NeuXtalVizPresenter):
         title = self.view.get_title()
         if result is not None:
             self.view.add_orientations(title, "CrystalPlan", result)
-            self.update_peaks()
+            self.update_peaks(False)
 
     def optimize_coverage_process(self, progress):
         point_group = self.view.get_point_group()
@@ -777,7 +777,7 @@ class Experiment(NeuXtalVizPresenter):
 
     def add_settings_complete(self, result):
         if result is not None:
-            self.update_peaks()
+            self.update_peaks(False)
 
     def add_settings_process(self, progress):
         wavelength = self.view.get_wavelength()
