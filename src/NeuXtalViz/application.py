@@ -69,19 +69,19 @@ class NeuXtalViz(QMainWindow):
 
         app_menu = self.menuBar().addMenu("Applications")
 
-        ub_action = QAction("UB", self)
+        ub_action = QAction("UB Calculator", self)
         ub_action.triggered.connect(lambda: app_stack.setCurrentIndex(0))
         app_menu.addAction(ub_action)
 
-        ep_action = QAction("Planner", self)
+        ep_action = QAction("Exeriment Planner", self)
         ep_action.triggered.connect(lambda: app_stack.setCurrentIndex(1))
         app_menu.addAction(ep_action)
 
-        vs_action = QAction("Volume Slicer", self)
+        vs_action = QAction("Reciprocal Space Volume Slicer", self)
         vs_action.triggered.connect(lambda: app_stack.setCurrentIndex(2))
         app_menu.addAction(vs_action)
 
-        cs_action = QAction("Crystal Structure", self)
+        cs_action = QAction("Structure Factor Calculator", self)
         cs_action.triggered.connect(lambda: app_stack.setCurrentIndex(3))
         app_menu.addAction(cs_action)
 

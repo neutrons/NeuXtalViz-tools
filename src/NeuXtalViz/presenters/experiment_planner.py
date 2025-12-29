@@ -6,6 +6,7 @@ class Experiment(NeuXtalVizPresenter):
         super(Experiment, self).__init__(view, model)
 
         self.view.connect_load_UB(self.load_UB)
+        self.view.connect_reset(self.add_settings)
         self.view.connect_switch_instrument(self.switch_instrument)
         self.view.connect_update_goniometer(self.update_goniometer)
         self.view.connect_switch_crystal(self.switch_crystal)
@@ -792,6 +793,7 @@ class Experiment(NeuXtalVizPresenter):
         progress("Initializing instrument", 5)
 
         self.create_instrument()
+        self.model.clear_combined()
 
         for row in range(rows):
             progress("Calculating settings", 90 // rows * (row + 1) + 5)

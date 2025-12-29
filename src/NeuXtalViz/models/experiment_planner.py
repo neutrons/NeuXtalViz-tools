@@ -293,6 +293,15 @@ class ExperimentModel(NeuXtalVizModel):
             self.nu = np.rad2deg(np.arcsin(y / L2))
             self.gamma = np.rad2deg(np.arctan2(x, z))
 
+    def clear_combined(self):
+
+        CreatePeaksWorkspace(
+            InstrumentWorkspace="instrument",
+            NumberOfPeaks=0,
+            OutputType="Peak",
+            OutputWorkspace="combined",
+        )
+
     def get_calibration_file_path(self, instrument):
         inst = beamlines[instrument]
 
@@ -1072,7 +1081,7 @@ class ExperimentModel(NeuXtalVizModel):
             Axis5=axes[5],
         )
 
-        d_max = 1.1 * np.max([ol.d(1, 0, 0), ol.d(0, 1, 0), ol.d(0, 0, 1)])
+        d_max = float("inf")
 
         ws = "peaks_orientation_{}".format(rows)
 

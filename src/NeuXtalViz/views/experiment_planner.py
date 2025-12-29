@@ -29,7 +29,6 @@ from matplotlib.figure import Figure
 from matplotlib.ticker import (
     FormatStrFormatter,
     PercentFormatter,
-    FuncFormatter,
     MaxNLocator,
 )
 from matplotlib.transforms import Affine2D
@@ -117,6 +116,8 @@ class ExperimentView(NeuXtalVizWidget):
         self.load_UB_button.setToolTip(
             "Load a UB matrix from a file for orientation."
         )
+        self.reset_button = QPushButton("Recalculate", self)
+        self.reset_button.setToolTip("Recalculate the coverage.")
         self.optimize_button = QPushButton("Optimize Coverage", self)
         self.optimize_button.setToolTip(
             "Optimize the coverage of the experiment plan."
@@ -251,6 +252,7 @@ class ExperimentView(NeuXtalVizWidget):
         params_layout.addWidget(d_min_label)
         params_layout.addWidget(self.d_min_line)
         params_layout.addWidget(angstrom_label)
+        params_layout.addWidget(self.reset_button)
 
         details_layout = QGridLayout()
 
@@ -871,6 +873,9 @@ class ExperimentView(NeuXtalVizWidget):
 
     def connect_load_UB(self, load_UB):
         self.load_UB_button.clicked.connect(load_UB)
+
+    def connect_reset(self, reset):
+        self.reset_button.clicked.connect(reset)
 
     def connect_save_CSV(self, save_CSV):
         self.save_plan_button.clicked.connect(save_CSV)
