@@ -1272,14 +1272,13 @@ class ExperimentModel(NeuXtalVizModel):
 
         CloneWorkspace(InputWorkspace="combined", OutputWorkspace="filtered")
 
-        runs = np.unique(mtd["filtered"].column("RunNumber")).tolist()
-        rows = np.arange(len(runs)).tolist()
+        rows = np.arange(len(use)).tolist()
         for row in rows:
             if not use[row]:
                 FilterPeaks(
                     InputWorkspace="filtered",
                     FilterVariable="RunNumber",
-                    FilterValue=str(runs[row]),
+                    FilterValue=str(row),
                     Operator="!=",
                     OutputWorkspace="filtered",
                 )
@@ -1377,7 +1376,7 @@ class ExperimentModel(NeuXtalVizModel):
                     FilterPeaks(
                         InputWorkspace="cumulative",
                         FilterVariable="RunNumber",
-                        FilterValue=str(runs[cumrow]),
+                        FilterValue=str(cumrow),
                         Operator="!=",
                         OutputWorkspace="cumulative",
                     )
@@ -1412,7 +1411,7 @@ class ExperimentModel(NeuXtalVizModel):
             mult_cumasym.append(redundancy)
             refl_cumasym.append(unique)
 
-        x = np.array(runs)[np.array(dowrows)]
+        x = np.array(rows)[np.array(dowrows)] if len(dowrows) > 0 else []
 
         sym = (shel_sym, comp_sym, mult_sym, refl_sym)
         asym = (shel_asym, comp_asym, mult_asym, refl_asym)
@@ -1423,7 +1422,9 @@ class ExperimentModel(NeuXtalVizModel):
 
     def downsample(self, arr, n=14):
         m = len(arr)
-        if m <= n // 2 + 2:
+        if m == 0:
+            return []
+        elif m <= n // 2 + 2:
             return arr[:]
         elif m <= n + 2:
             return [arr[0]] + [val for val in arr[1:-1:2]] + [arr[-1]]
