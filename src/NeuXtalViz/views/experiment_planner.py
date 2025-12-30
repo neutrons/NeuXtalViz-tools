@@ -1698,6 +1698,16 @@ class ExperimentView(NeuXtalVizWidget):
         arrow = pv.Arrow([0, 0, -rz], [0, 0, rz], scale="auto")
         self.plotter.add_mesh(arrow, color="pink", smooth_shading=True)
 
+        self.plotter.add_legend_scale(
+            corner_offset_factor=2,
+            bottom_border_offset=50,
+            top_border_offset=50,
+            left_border_offset=100,
+            right_border_offset=100,
+            legend_visibility=True,
+            xy_label_mode=False,
+        )
+
         self.plotter.enable_depth_peeling()
 
         self.reset_view()
