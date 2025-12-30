@@ -116,8 +116,10 @@ class ExperimentView(NeuXtalVizWidget):
         self.load_UB_button.setToolTip(
             "Load a UB matrix from a file for orientation."
         )
-        self.reset_button = QPushButton("Recalculate", self)
+        self.reset_button = QPushButton("Recalculate Coverage", self)
         self.reset_button.setToolTip("Recalculate the coverage.")
+        self.instrument_button = QPushButton("Show Instrument", self)
+        self.instrument_button.setToolTip("Show instrument.")
         self.optimize_button = QPushButton("Optimize Coverage", self)
         self.optimize_button.setToolTip(
             "Optimize the coverage of the experiment plan."
@@ -252,14 +254,15 @@ class ExperimentView(NeuXtalVizWidget):
         params_layout.addWidget(d_min_label)
         params_layout.addWidget(self.d_min_line)
         params_layout.addWidget(angstrom_label)
-        params_layout.addWidget(self.reset_button)
 
         details_layout = QGridLayout()
 
         details_layout.addLayout(settings_layout, 0, 0)
         details_layout.addLayout(params_layout, 1, 0)
-        details_layout.addWidget(self.load_experiment_button, 0, 1)
-        details_layout.addWidget(self.save_experiment_button, 1, 1)
+        details_layout.addWidget(self.reset_button, 0, 1)
+        details_layout.addWidget(self.instrument_button, 1, 1)
+        details_layout.addWidget(self.load_experiment_button, 0, 2)
+        details_layout.addWidget(self.save_experiment_button, 1, 2)
 
         result_layout = QVBoxLayout()
 
@@ -876,6 +879,9 @@ class ExperimentView(NeuXtalVizWidget):
 
     def connect_reset(self, reset):
         self.reset_button.clicked.connect(reset)
+
+    def connect_show_instrument(self, show):
+        self.instrument_button.clicked.connect(show)
 
     def connect_save_CSV(self, save_CSV):
         self.save_plan_button.clicked.connect(save_CSV)
@@ -1660,8 +1666,21 @@ class ExperimentView(NeuXtalVizWidget):
             self.goniometer_table.setItem(row, 1, self.set_item_value(amin))
             self.goniometer_table.setItem(row, 2, self.set_item_value(amax))
 
+    def add_instrument(self, inst_dict):
+        self.clear_scene()
+
+        points = inst_dict["points"]
+        faces = inst_dict["faces"]
+        mesh = pv.PolyData(points, faces)
+
+        self.plotter.add_mesh(mesh, render_lines_as_tubes=True)
+
+        self.plotter.enable_depth_peeling()
+
+        self.reset_view()
+
     def add_peaks(self, peak_dict):
-        self.plotter.clear_actors()
+        self.clear_scene()
 
         if peak_dict is None:
             self.reset_view()

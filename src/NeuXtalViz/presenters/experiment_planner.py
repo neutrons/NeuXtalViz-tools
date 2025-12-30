@@ -7,6 +7,7 @@ class Experiment(NeuXtalVizPresenter):
 
         self.view.connect_load_UB(self.load_UB)
         self.view.connect_reset(self.add_settings)
+        self.view.connect_show_instrument(self.show_instrument)
         self.view.connect_switch_instrument(self.switch_instrument)
         self.view.connect_update_goniometer(self.update_goniometer)
         self.view.connect_switch_crystal(self.switch_crystal)
@@ -159,6 +160,30 @@ class Experiment(NeuXtalVizPresenter):
     def update_wavelength(self):
         wl_min, _ = self.view.get_wavelength()
         self.view.update_wavelength(wl_min)
+
+    def show_instrument(self):
+        worker = self.view.worker(self.show_instrument_process)
+        worker.connect_result(self.show_instrument_complete)
+        # worker.connect_finished(self.visualize_instrument)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def show_instrument_complete(self, result):
+        return self.view.add_instrument(result)
+
+    def show_instrument_process(self, progress):
+        progress("Initializing instrument", 5)
+
+        self.create_instrument()
+
+        progress("Calculating instrument view.", 5)
+
+        inst_dict = self.model.extract_instrument_view()
+
+        progress("Instrument view calculated!", 0)
+
+        return inst_dict
 
     def create_instrument(self):
         instrument = self.view.get_instrument()

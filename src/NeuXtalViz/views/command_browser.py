@@ -1,6 +1,6 @@
 import sys
 import os
-from PyQt5.QtWidgets import (
+from qtpy.QtWidgets import (
     QApplication,
     QMainWindow,
     QFileDialog,
@@ -12,11 +12,8 @@ from PyQt5.QtWidgets import (
     QLabel,
     QHBoxLayout,
 )
+from qtpy.QtGui import QFont
 import subprocess
-
-import qdarktheme
-
-qdarktheme.enable_hi_dpi()
 
 
 class CommandBrowser(QMainWindow):
@@ -48,6 +45,13 @@ class CommandBrowser(QMainWindow):
         editor_layout = QVBoxLayout()
         self.file_label = QLabel("No file selected")
         self.text_editor = QTextEdit()
+
+        font = QFont("Monospace")
+        font.setStyleHint(QFont.Monospace)
+        font.setFixedPitch(True)
+
+        self.text_editor.setFont(font)
+
         editor_layout.addWidget(self.file_label)
         editor_layout.addWidget(self.text_editor, 4)
 
@@ -79,7 +83,6 @@ class CommandBrowser(QMainWindow):
         discus_action = command_menu.addAction("discus")
         discus_action.triggered.connect(self.switch_discus)
 
-        # Set tool tips for user-friendly guidance
         self.file_list.setToolTip(
             "List of files in the selected directory. Click to edit."
         )
@@ -169,7 +172,6 @@ class CommandBrowser(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    qdarktheme.setup_theme("light")
     editor = CommandBrowser()
     editor.show()
     sys.exit(app.exec_())

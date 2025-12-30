@@ -30,7 +30,7 @@ from mantid.simpleapi import (
     PreprocessDetectorsToMD,
     CreateMDWorkspace,
     BinMD,
-    SmoothNeighbours,
+    GroupDetectors,
     MaskBTP,
     AddSampleLog,
     CreateSampleWorkspace,
@@ -243,16 +243,52 @@ class ExperimentModel(NeuXtalVizModel):
                 InputWorkspace="instrument", OutputWorkspace="detectors"
             )
             mask = np.array(mtd["detectors"].column(7)) != 0
-            det_ID = np.array(mtd["detectors"].column(4))[mask]
-            det_ID = np.insert(det_ID, -1, -1)
+            det_ID = np.array(mtd["detectors"].column(4))
+            bad_ID = np.insert(det_ID[mask], -1, -1)
 
-            c, r = beamlines[instrument]["Grouping"].split("x")
+            c, r = [
+                int(val)
+                for val in beamlines[instrument]["Grouping"].split("x")
+            ]
+            cols, rows = beamlines[instrument]["BankPixels"]
 
-            SmoothNeighbours(
+            det_map = np.asarray(mtd["detectors"].column(5)).reshape(
+                -1, cols, rows
+            )
+
+            nb, nc, nr = det_map.shape
+
+            gc = (np.arange(nc) // c).astype(np.int32)
+            gr = (np.arange(nr) // r).astype(np.int32)
+
+            ngc = (nc + c - 1) // c
+            ngr = (nr + r - 1) // r
+
+            group_id = (
+                (np.arange(nb, dtype=np.int32)[:, None, None] * (ngc * ngr))
+                + (gc[None, :, None] * ngr)
+                + gr[None, None, :]
+            ).ravel()
+
+            det_ids = det_map.ravel()
+
+            order = np.argsort(group_id, kind="stable")
+            g_sorted = group_id[order]
+            d_sorted = det_ids[order]
+
+            starts = np.flatnonzero(np.r_[True, g_sorted[1:] != g_sorted[:-1]])
+            ends = np.r_[starts[1:], g_sorted.size]
+
+            parts = []
+            for s, e in zip(starts, ends):
+                parts.append("+".join(map(str, d_sorted[s:e])))
+
+            detector_list = ",".join(parts)
+
+            GroupDetectors(
                 InputWorkspace="instrument",
+                GroupingPattern=detector_list,
                 OutputWorkspace="instrument",
-                SumPixelsX=c,
-                SumPixelsY=r,
             )
 
             CreatePeaksWorkspace(
@@ -279,19 +315,50 @@ class ExperimentModel(NeuXtalVizModel):
             PreprocessDetectorsToMD(
                 InputWorkspace="instrument", OutputWorkspace="detectors"
             )
+
             mask = np.array(mtd["detectors"].column(7)) == 0
 
-            L2 = np.array(mtd["detectors"].column(1))[mask]
-            tt = np.array(mtd["detectors"].column(2))[mask]
-            az = np.array(mtd["detectors"].column(3))[mask]
+            L2 = np.array(mtd["detectors"].column(1))
+            tt = np.array(mtd["detectors"].column(2))
+            az = np.array(mtd["detectors"].column(3))
 
             x = L2 * np.sin(tt) * np.cos(az)
             y = L2 * np.sin(tt) * np.sin(az)
             z = L2 * np.cos(tt)
 
-            self.det_ID = det_ID.copy()
-            self.nu = np.rad2deg(np.arcsin(y / L2))
-            self.gamma = np.rad2deg(np.arctan2(x, z))
+            self.det_ID = bad_ID.copy()
+            self.nu = np.rad2deg(np.arcsin(y / L2))[mask]
+            self.gamma = np.rad2deg(np.arctan2(x, z))[mask]
+
+            x = x.reshape(-1, cols // c, rows // r)
+            y = y.reshape(-1, cols // c, rows // r)
+            z = z.reshape(-1, cols // c, rows // r)
+            det_ID = det_ID.reshape(-1, cols // c, rows // r)
+
+            self.xc = x[:, [0, 0, -1, -1], [0, -1, -1, 0]]
+            self.yc = y[:, [0, 0, -1, -1], [0, -1, -1, 0]]
+            self.zc = z[:, [0, 0, -1, -1], [0, -1, -1, 0]]
+            self.detc = det_ID[:, 0, 0]
+
+    def extract_instrument_view(self):
+        n = self.xc.shape[0]
+
+        points = np.column_stack(
+            [self.xc.reshape(-1), self.yc.reshape(-1), self.zc.reshape(-1)]
+        )
+
+        faces = np.empty(n * 5, dtype=np.int64)
+        faces[0::5] = 4
+        faces[1::5] = np.arange(0, 4 * n, 4) + 0
+        faces[2::5] = np.arange(0, 4 * n, 4) + 1
+        faces[3::5] = np.arange(0, 4 * n, 4) + 2
+        faces[4::5] = np.arange(0, 4 * n, 4) + 3
+
+        inst_dict = {}
+        inst_dict["points"] = points
+        inst_dict["faces"] = faces
+
+        return inst_dict
 
     def clear_combined(self):
 

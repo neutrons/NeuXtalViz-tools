@@ -230,7 +230,7 @@ class NeuXtalViz(QMainWindow):
 
     def structdiff_GUI(self):
         path = os.path.dirname(__file__)
-        file = os.path.join(path, "NeuXtalViz/views/command_browser.py")
+        file = os.path.join(path, "views/command_browser.py")
         try:
             subprocess.Popen(["python", file])
         except subprocess.CalledProcessError as e:
