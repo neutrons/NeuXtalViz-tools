@@ -330,15 +330,20 @@ class ExperimentModel(NeuXtalVizModel):
             self.nu = np.rad2deg(np.arcsin(y / L2))[mask]
             self.gamma = np.rad2deg(np.arctan2(x, z))[mask]
 
+            det_ID = np.array(mtd["detectors"].column(4))
+            mask = np.array(mtd["detectors"].column(7))
+
             x = x.reshape(-1, cols // c, rows // r)
             y = y.reshape(-1, cols // c, rows // r)
             z = z.reshape(-1, cols // c, rows // r)
             det_ID = det_ID.reshape(-1, cols // c, rows // r)
+            mask = mask.reshape(-1, cols // c, rows // r).sum(axis=(1, 2))
+            mask = mask != cols * rows // (c * r)
 
-            self.xc = x[:, [0, 0, -1, -1], [0, -1, -1, 0]]
-            self.yc = y[:, [0, 0, -1, -1], [0, -1, -1, 0]]
-            self.zc = z[:, [0, 0, -1, -1], [0, -1, -1, 0]]
-            self.detc = det_ID[:, 0, 0]
+            self.xc = x[:, [0, 0, -1, -1], [0, -1, -1, 0]][mask]
+            self.yc = y[:, [0, 0, -1, -1], [0, -1, -1, 0]][mask]
+            self.zc = z[:, [0, 0, -1, -1], [0, -1, -1, 0]][mask]
+            self.detc = det_ID[:, 0, 0][mask]
 
     def extract_instrument_view(self):
         n = self.xc.shape[0]
@@ -357,6 +362,7 @@ class ExperimentModel(NeuXtalVizModel):
         inst_dict = {}
         inst_dict["points"] = points
         inst_dict["faces"] = faces
+        inst_dict["radius"] = np.max(points, axis=0)
 
         return inst_dict
 

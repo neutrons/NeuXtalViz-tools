@@ -1671,9 +1671,32 @@ class ExperimentView(NeuXtalVizWidget):
 
         points = inst_dict["points"]
         faces = inst_dict["faces"]
+        rx, ry, rz = inst_dict["radius"]
+
         mesh = pv.PolyData(points, faces)
 
         self.plotter.add_mesh(mesh, render_lines_as_tubes=True)
+
+        mesh = pv.Line(pointa=(-rx, 0, 0), pointb=(rx, 0, 0), resolution=1)
+
+        self.plotter.add_mesh(
+            mesh, color="k", style="wireframe", render_lines_as_tubes=True
+        )
+
+        mesh = pv.Line(pointa=(0, -ry, 0), pointb=(0, ry, 0), resolution=1)
+
+        self.plotter.add_mesh(
+            mesh, color="k", style="wireframe", render_lines_as_tubes=True
+        )
+
+        mesh = pv.Line(pointa=(0, 0, -rz), pointb=(0, 0, rz), resolution=1)
+
+        self.plotter.add_mesh(
+            mesh, color="k", style="wireframe", render_lines_as_tubes=True
+        )
+
+        arrow = pv.Arrow([0, 0, -rz], [0, 0, rz], scale="auto")
+        self.plotter.add_mesh(arrow, color="pink", smooth_shading=True)
 
         self.plotter.enable_depth_peeling()
 
