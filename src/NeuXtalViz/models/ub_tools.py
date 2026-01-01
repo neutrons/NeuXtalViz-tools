@@ -1,5 +1,6 @@
 import os
 from collections import defaultdict
+from pdb import run
 
 from mantid.simpleapi import (
     SelectCellWithForm,
@@ -72,6 +73,7 @@ from mantid.geometry import (
     ReflectionConditionFilter,
     PointGroupFactory,
     UnitCell,
+    Goniometer,
 )
 
 from mantid.kernel import V3D, FloatTimeSeriesProperty
@@ -264,6 +266,23 @@ class UBModel(NeuXtalVizModel):
         """
 
         return beamlines[instrument]["Wavelength"]
+
+    def get_goniometer_axes(self, instrument):
+        """
+        Get goniometer axis names for a given instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+
+        Returns
+        -------
+        axes : list
+            List of goniometer axis names.
+        """
+
+        return beamlines[instrument]["GoniometerNames"]
 
     def get_raw_file_path(self, instrument):
         """
@@ -688,12 +707,17 @@ class UBModel(NeuXtalVizModel):
 
                 for ws in input_ws_names:
                     r = mtd[ws].getExperimentInfo(0).run()
-                    Rs.append(
-                        [
-                            r.getGoniometer(i).getR()
-                            for i in range(r.getNumGoniometers())
-                        ]
-                    )
+                    R = []
+                    angle = []
+                    run_no = []
+                    n_gon = r.getNumGoniometers()
+                    for i in range(n_gon):
+                        gon = r.getGoniometer(i)
+                        R.append(gon.getR())
+                        conv = gon.getConventionFromMotorAxes()
+                        if conv == "YYY":
+                            conv = "YZY"
+                    Rs.append(R)
 
                 lamda = wavelength[0]
 
@@ -772,7 +796,14 @@ class UBModel(NeuXtalVizModel):
                 az_phi = mtd["detectors"].column("Azimuthal")
 
                 for ws in input_ws_names:
-                    Rs.append(mtd[ws].run().getGoniometer().getR())
+                    r = mtd[ws].run()
+                    n_gon = r.getNumGoniometers()
+                    for i in range(n_gon):
+                        gon = r.getGoniometer(i)
+                        Rs.append(gon.getR())
+                        conv = gon.getConventionFromMotorAxes()
+                        if conv == "YYY":
+                            conv = "YZY"
 
                 counts = [mtd[ws].extractY().copy() for ws in input_ws_names]
 
@@ -882,6 +913,7 @@ class UBModel(NeuXtalVizModel):
             self.two_theta = np.array(two_theta)
             self.lamda = lamda
             self.Rs = Rs
+            self.conv = conv
 
             kf_x = np.sin(two_theta) * np.cos(az_phi)
             kf_y = np.sin(two_theta) * np.sin(az_phi)
@@ -1520,7 +1552,7 @@ class UBModel(NeuXtalVizModel):
         Returns
         -------
         list
-            List of errors in lattice constants [error_a, error_b, error_c, error_alpha, error_beta, error_gamma].
+            List of errors in lattice constants.
         """
 
         if self.has_UB():
@@ -2425,10 +2457,9 @@ class UBModel(NeuXtalVizModel):
         self.sort_peaks_by_hkl(peaks)
 
         for no in range(mtd[peaks].getNumberPeaks() - 1, 0, -1):
-            if (
-                mtd[peaks].getPeak(no).getHKL()
-                - mtd[peaks].getPeak(no - 1).getHKL()
-            ).norm2() == 0:
+            hkl_1 = mtd[peaks].getPeak(no).getHKL()
+            hkl_2 = mtd[peaks].getPeak(no - 1).getHKL()
+            if (hkl_1 - hkl_2).norm2() == 0:
                 DeleteTableRows(TableWorkspace=peaks, Rows=no)
 
     def get_all_goniometer_matrices(self, ws):
@@ -2670,6 +2701,17 @@ class UBModel(NeuXtalVizModel):
 
             peak_info = []
             for i, peak in enumerate(mtd[self.table]):
+                two_theta = peak.getScattering()
+                az_phi = peak.getAzimuthal()
+                kf_x = np.sin(two_theta) * np.cos(az_phi)
+                kf_y = np.sin(two_theta) * np.sin(az_phi)
+                kf_z = np.cos(two_theta)
+                nu = np.arcsin(kf_y)
+                gamma = np.arctan2(kf_x, kf_z)
+                R = peak.getGoniometerMatrix()
+                g = Goniometer()
+                g.setR(R)
+                angs = g.getEulerAngles(self.conv)
                 peak_data = {
                     "hkl": list(peak.getHKL()),
                     "d_spacing": peak.getDSpacing(),
@@ -2680,6 +2722,10 @@ class UBModel(NeuXtalVizModel):
                     "int_hkl": list(peak.getIntHKL()),
                     "int_mnp": list(peak.getIntMNP()),
                     "run_number": peak.getRunNumber(),
+                    "two_theta": np.rad2deg(two_theta),
+                    "gamma": np.rad2deg(gamma),
+                    "nu": np.rad2deg(nu),
+                    "angles": list(angs),
                     "bank": banks[i],
                     "row": peak.getRow(),
                     "col": peak.getCol(),
@@ -2843,6 +2889,11 @@ class UBModel(NeuXtalVizModel):
             phi_12 = uc.recAngle(*hkl_1, *hkl_2)
 
         return d_1, d_2, phi_12
+
+    def calculate_highlight(self, Q1, Q2):
+        q1 = np.array(Q1) / np.linalg.norm(Q1)
+        q2 = np.array(Q2) / np.linalg.norm(Q2)
+        return np.rad2deg(np.arccos(np.dot(q1, q2)))
 
     def cluster_peaks(self, peak_info, eps=0.025, min_samples=15):
         """

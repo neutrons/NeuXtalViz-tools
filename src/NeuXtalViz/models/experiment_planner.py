@@ -163,6 +163,35 @@ class ExperimentModel(NeuXtalVizModel):
         self.comment = ""
         self.hkl = None
         self.hkl_alt = None
+        self.dirname = None
+
+    def get_instrument_directory(self, instrument):
+        """
+        Get the file path for a given instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+
+        Returns
+        -------
+        filepath : str
+            File path to instrument experiment data.
+        """
+
+        inst = beamlines[instrument]
+
+        directory = os.path.join(
+            "/",
+            inst["Facility"],
+            inst["InstrumentName"],
+        )
+
+        return directory if self.dirname is None else self.dirname
+
+    def set_path(self, filename):
+        self.dirname = os.path.dirname(filename)
 
     def initialize_instrument(self, instrument, logs, cal, gon, mask):
         inst = self.get_instrument_name(instrument)

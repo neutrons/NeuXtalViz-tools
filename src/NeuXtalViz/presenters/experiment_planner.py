@@ -86,7 +86,6 @@ class Experiment(NeuXtalVizPresenter):
         inst = self.view.get_instrument()
         path = self.model.get_calibration_file_path(inst)
         filename = self.view.load_mask_dialog(path)
-        print(filename)
 
         if filename:
             self.view.set_mask(filename)
@@ -753,14 +752,19 @@ class Experiment(NeuXtalVizPresenter):
             self.model.save_plan(filename)
 
     def save_experiment(self):
-        filename = self.view.save_experiment_file_dialog()
+        instrument = self.view.get_instrument()
+        path = self.model.get_instrument_directory(instrument)
+        filename = self.view.save_experiment_file_dialog(path)
 
         if filename:
             self.update_plan()
             self.model.save_experiment(filename)
+            self.model.set_path(filename)
 
     def load_experiment(self):
-        filename = self.view.load_experiment_file_dialog()
+        instrument = self.view.get_instrument()
+        path = self.model.get_instrument_directory(instrument)
+        filename = self.view.load_experiment_file_dialog(path)
 
         if filename:
             plan, config, symm = self.model.load_experiment(filename)
@@ -791,6 +795,7 @@ class Experiment(NeuXtalVizPresenter):
             self.view.set_lattice_centering(lc)
             self.view.add_settings(*table)
             self.add_settings()
+            self.model.set_path(filename)
 
     def add_settings(self):
         worker = self.view.worker(self.add_settings_process)

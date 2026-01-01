@@ -33,6 +33,9 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_optimize_UB(self.refine_UB)
         self.view.connect_find_niggli(self.find_niggli)
         self.view.connect_calculate_peaks(self.calculate_peaks)
+        self.view.connect_highlight_1(self.add_highlight_1)
+        self.view.connect_highlight_2(self.add_highlight_2)
+        self.view.connect_calculate_highlight(self.calculate_highlight)
         self.view.connect_cell_row_highligter(self.highlight_cell)
         self.view.connect_peak_row_highligter(self.highlight_peak)
         self.view.connect_select_cell(self.select_cell)
@@ -1069,6 +1072,9 @@ class UB(NeuXtalVizPresenter):
         filepath = self.model.get_raw_file_path(instrument)
         self.view.clear_run_info(filepath)
 
+        goniometer = self.model.get_goniometer_axes(instrument)
+        self.view.set_goniometer_axes(goniometer)
+
     def update_wavelength(self):
         wl_min, wl_max = self.view.get_wavelength()
         self.view.update_wavelength(wl_min)
@@ -1079,6 +1085,26 @@ class UB(NeuXtalVizPresenter):
         if constants is not None:
             d_phi = self.model.calculate_peaks(hkl_1, hkl_2, *constants)
             self.view.set_d_phi(*d_phi)
+
+    def add_highlight_1(self):
+        no = self.view.get_peak()
+        if no is not None:
+            peak = self.model.get_peak(no)
+            if peak is not None:
+                self.view.add_highlight_1(peak)
+
+    def add_highlight_2(self):
+        no = self.view.get_peak()
+        if no is not None:
+            peak = self.model.get_peak(no)
+            if peak is not None:
+                self.view.add_highlight_2(peak)
+
+    def calculate_highlight(self):
+        Qs = self.view.get_highlight()
+        if Qs is not None:
+            phi = self.model.calculate_highlight(*Qs)
+            self.view.set_highlight_phi(phi)
 
     def get_normal(self):
         slice_plane = self.view.get_slice()

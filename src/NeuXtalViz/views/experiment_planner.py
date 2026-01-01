@@ -1007,7 +1007,7 @@ class ExperimentView(NeuXtalVizWidget):
 
         return filename
 
-    def load_experiment_file_dialog(self):
+    def load_experiment_file_dialog(self, path=""):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
@@ -1017,7 +1017,7 @@ class ExperimentView(NeuXtalVizWidget):
         filename, _ = file_dialog.getOpenFileName(
             self,
             "Load experiment file",
-            "",
+            path,
             "Experiment files (*.nxs)",
             options=options,
         )

@@ -1084,6 +1084,8 @@ class UBView(NeuXtalVizWidget):
 
         peak_1_label = QLabel("1:", self)
         peak_2_label = QLabel("2:", self)
+        highlight_1_label = QLabel("1:", self)
+        highlight_2_label = QLabel("2:", self)
 
         notation = QDoubleValidator.StandardNotation
 
@@ -1105,6 +1107,19 @@ class UBView(NeuXtalVizWidget):
         self.k2_line.setValidator(validator)
         self.l2_line.setValidator(validator)
 
+        self.highlight_1_line = QLineEdit()
+        self.highlight_2_line = QLineEdit()
+
+        self.highlight_1_line.setReadOnly(True)
+        self.highlight_2_line.setReadOnly(True)
+
+        self.highlight_1_line.setToolTip(
+            "Index of the first highlighted peak."
+        )
+        self.highlight_2_line.setToolTip(
+            "Index of the second highlighted peak."
+        )
+
         d_label = QLabel("d [Å]", self)
 
         phi_label = QLabel("φ [°]", self)
@@ -1117,9 +1132,25 @@ class UBView(NeuXtalVizWidget):
         self.d2_line.setReadOnly(True)
         self.phi_line.setReadOnly(True)
 
-        self.calculate = QPushButton("Calculate", self)
-        self.calculate.setToolTip(
+        self.highlight_d1_line = QLineEdit()
+        self.highlight_d2_line = QLineEdit()
+        self.highlight_phi_line = QLineEdit()
+
+        self.highlight_d1_line.setReadOnly(True)
+        self.highlight_d2_line.setReadOnly(True)
+        self.highlight_phi_line.setReadOnly(True)
+
+        self.calculate_button = QPushButton("Calculate", self)
+        self.calculate_button.setToolTip(
             "Calculate d-spacings and angle between peaks."
+        )
+
+        self.highlight_1_button = QPushButton("Add Highlighted", self)
+        self.highlight_2_button = QPushButton("Add Highlighted", self)
+
+        self.calculate_highlight_button = QPushButton("Calculate", self)
+        self.calculate_highlight_button.setToolTip(
+            "Calculate the highlighted peaks."
         )
 
         calculator_layout.addWidget(h_label, 0, 1, Qt.AlignCenter)
@@ -1140,7 +1171,26 @@ class UBView(NeuXtalVizWidget):
         calculator_layout.addWidget(self.k2_line, 2, 2)
         calculator_layout.addWidget(self.l2_line, 2, 3)
         calculator_layout.addWidget(self.d2_line, 2, 4)
-        calculator_layout.addWidget(self.calculate, 2, 5)
+        calculator_layout.addWidget(self.calculate_button, 2, 5)
+
+        highlight_1_layout = QHBoxLayout()
+        highlight_2_layout = QHBoxLayout()
+
+        highlight_1_layout.addWidget(self.highlight_1_button)
+        highlight_1_layout.addWidget(self.highlight_1_line)
+
+        highlight_2_layout.addWidget(self.highlight_2_button)
+        highlight_2_layout.addWidget(self.highlight_2_line)
+
+        calculator_layout.addWidget(highlight_1_label, 3, 0)
+        calculator_layout.addLayout(highlight_1_layout, 3, 1, 1, 3)
+        calculator_layout.addWidget(self.highlight_d1_line, 3, 4)
+        calculator_layout.addWidget(self.highlight_phi_line, 3, 5)
+
+        calculator_layout.addWidget(highlight_2_label, 4, 0)
+        calculator_layout.addLayout(highlight_2_layout, 4, 1, 1, 3)
+        calculator_layout.addWidget(self.highlight_d2_line, 4, 4)
+        calculator_layout.addWidget(self.calculate_highlight_button, 4, 5)
 
         stretch = QHeaderView.Stretch
 
@@ -1163,7 +1213,9 @@ class UBView(NeuXtalVizWidget):
 
         d_label = QLabel("d [Å]:", self)
         lambda_label = QLabel("λ [Å]:", self)
-
+        self.gonio_label = QLabel("ω,χ,φ [°]:", self)
+        two_theta_label = QLabel("2θ [°]:", self)
+        horz_vert_label = QLabel("γ,ν [°]:", self)
         run_label = QLabel("Run #", self)
         bank_label = QLabel("Bank #", self)
         row_label = QLabel("Row #", self)
@@ -1171,45 +1223,57 @@ class UBView(NeuXtalVizWidget):
 
         self.d_line = QLineEdit()
         self.lambda_line = QLineEdit()
+        self.gonio_line = QLineEdit()
+        self.two_theta_line = QLineEdit()
+        self.horz_vert_line = QLineEdit()
         self.run_line = QLineEdit()
         self.bank_line = QLineEdit()
         self.row_line = QLineEdit()
         self.col_line = QLineEdit()
 
-        self.d_line.setEnabled(False)
-        self.lambda_line.setEnabled(False)
-        self.run_line.setEnabled(False)
-        self.bank_line.setEnabled(False)
-        self.row_line.setEnabled(False)
-        self.col_line.setEnabled(False)
+        self.d_line.setReadOnly(True)
+        self.lambda_line.setReadOnly(True)
+        self.gonio_line.setReadOnly(True)
+        self.two_theta_line.setReadOnly(True)
+        self.horz_vert_line.setReadOnly(True)
+        self.run_line.setReadOnly(True)
+        self.bank_line.setReadOnly(True)
+        self.row_line.setReadOnly(True)
+        self.col_line.setReadOnly(True)
 
         self.intensity_line = QLineEdit()
         self.sigma_line = QLineEdit()
 
-        self.intensity_line.setEnabled(False)
-        self.sigma_line.setEnabled(False)
+        self.intensity_line.setReadOnly(True)
+        self.sigma_line.setReadOnly(True)
 
         intensity_label = QLabel("I: ", self)
         sigma_label = QLabel("± σ:", self)
 
-        extended_info.addWidget(intensity_label, 0, 0)
-        extended_info.addWidget(self.intensity_line, 0, 1)
-        extended_info.addWidget(sigma_label, 0, 2)
-        extended_info.addWidget(self.sigma_line, 0, 3)
+        extended_info.addWidget(run_label, 0, 0)
+        extended_info.addWidget(self.run_line, 0, 1)
+        extended_info.addWidget(bank_label, 0, 2)
+        extended_info.addWidget(self.bank_line, 0, 3)
+        extended_info.addWidget(row_label, 0, 4)
+        extended_info.addWidget(self.row_line, 0, 5)
+        extended_info.addWidget(col_label, 0, 6)
+        extended_info.addWidget(self.col_line, 0, 7)
 
-        extended_info.addWidget(d_label, 0, 4)
-        extended_info.addWidget(self.d_line, 0, 5)
-        extended_info.addWidget(lambda_label, 0, 6)
-        extended_info.addWidget(self.lambda_line, 0, 7)
+        extended_info.addWidget(intensity_label, 1, 0)
+        extended_info.addWidget(self.intensity_line, 1, 1)
+        extended_info.addWidget(sigma_label, 1, 2)
+        extended_info.addWidget(self.sigma_line, 1, 3)
+        extended_info.addWidget(d_label, 1, 4)
+        extended_info.addWidget(self.d_line, 1, 5)
+        extended_info.addWidget(lambda_label, 1, 6)
+        extended_info.addWidget(self.lambda_line, 1, 7)
 
-        extended_info.addWidget(run_label, 1, 0)
-        extended_info.addWidget(self.run_line, 1, 1)
-        extended_info.addWidget(bank_label, 1, 2)
-        extended_info.addWidget(self.bank_line, 1, 3)
-        extended_info.addWidget(row_label, 1, 4)
-        extended_info.addWidget(self.row_line, 1, 5)
-        extended_info.addWidget(col_label, 1, 6)
-        extended_info.addWidget(self.col_line, 1, 7)
+        extended_info.addWidget(self.gonio_label, 2, 0)
+        extended_info.addWidget(self.gonio_line, 2, 1, 1, 3)
+        extended_info.addWidget(two_theta_label, 2, 4)
+        extended_info.addWidget(self.two_theta_line, 2, 5)
+        extended_info.addWidget(horz_vert_label, 2, 6)
+        extended_info.addWidget(self.horz_vert_line, 2, 7)
 
         hkl_info = QHBoxLayout()
         peak_info = QGridLayout()
@@ -1225,8 +1289,8 @@ class UBView(NeuXtalVizWidget):
         self.index_line = QLineEdit("0")
         self.total_line = QLineEdit("0")
 
-        self.index_line.setEnabled(False)
-        self.total_line.setEnabled(False)
+        self.index_line.setReadOnly(True)
+        self.total_line.setReadOnly(True)
 
         int_h_label = QLabel("h", self)
         int_k_label = QLabel("k", self)
@@ -1883,7 +1947,16 @@ class UBView(NeuXtalVizWidget):
         self.integrate_button.clicked.connect(integrate_peaks)
 
     def connect_calculate_peaks(self, calculate_peaks):
-        self.calculate.clicked.connect(calculate_peaks)
+        self.calculate_button.clicked.connect(calculate_peaks)
+
+    def connect_calculate_highlight(self, calculate_highlight):
+        self.calculate_highlight_button.clicked.connect(calculate_highlight)
+
+    def connect_highlight_1(self, add):
+        self.highlight_1_button.clicked.connect(add)
+
+    def connect_highlight_2(self, add):
+        self.highlight_2_button.clicked.connect(add)
 
     def connect_peak_row_highligter(self, highlight_row):
         self.peaks_table.itemSelectionChanged.connect(highlight_row)
@@ -1929,6 +2002,9 @@ class UBView(NeuXtalVizWidget):
 
     def connect_instrument_scale_combo(self, update_view):
         self.instrument_scale_combo.currentIndexChanged.connect(update_view)
+
+    def set_goniometer_axes(self, names):
+        self.gonio_label.setText("{} [°]:".format(names))
 
     def update_colorbar_min(self):
         min_val = self.min_slider.value()
@@ -2171,8 +2247,6 @@ class UBView(NeuXtalVizWidget):
 
     def clear_run_info(self, filepath):
         self.exp_line.setText("")
-        # self.run_line.setText('')
-        # self.ipts_line.setText('')
         self.cal_line.setText("")
         self.tube_line.setText("")
 
@@ -2184,8 +2258,11 @@ class UBView(NeuXtalVizWidget):
         if "SNS" in filepath:
             self.filter_time_line.setEnabled(True)
             self.filter_time_line.setText("")
+            self.cal_line.setEnabled(True)
+            self.cal_browse_button.setEnabled(True)
             self.tube_line.setEnabled(False)
             self.tube_browse_button.setEnabled(False)
+            self.gon_line.setEnabled(True)
             self.gon_browse_button.setEnabled(True)
             if "CORELLI" in filepath:
                 self.tube_line.setEnabled(True)
@@ -2197,6 +2274,7 @@ class UBView(NeuXtalVizWidget):
             self.cal_browse_button.setEnabled(False)
             self.tube_line.setEnabled(False)
             self.tube_browse_button.setEnabled(False)
+            self.gon_line.setEnabled(False)
             self.gon_browse_button.setEnabled(False)
 
     def get_tube_calibration(self):
@@ -2861,6 +2939,10 @@ class UBView(NeuXtalVizWidget):
         bank = peak["bank"]
         row = peak["row"]
         col = peak["col"]
+        two_theta = peak["two_theta"]
+        gamma = peak["gamma"]
+        nu = peak["nu"]
+        gonio = peak["angles"]
 
         self.set_indices(hkl, int_hkl, int_mnp)
 
@@ -2874,6 +2956,10 @@ class UBView(NeuXtalVizWidget):
         self.bank_line.setText(str(bank))
         self.row_line.setText(str(row))
         self.col_line.setText(str(col))
+
+        self.two_theta_line.setText("{:.2f}".format(two_theta))
+        self.horz_vert_line.setText("({:.1f}, {:.1f})".format(gamma, nu))
+        self.gonio_line.setText("({:.2f}, {:.2f}, {:.2f})".format(*gonio))
 
     def update_table_index(self, ind, hkl):
         rows = self.peaks_table.rowCount()
@@ -2982,6 +3068,31 @@ class UBView(NeuXtalVizWidget):
             self.phi_line.setText("{:.4f}".format(phi_12))
         else:
             self.phi_line.setText("")
+
+    def get_highlight(self):
+        peak_1 = self.highlight_1_line.text().split(",")
+        peak_2 = self.highlight_2_line.text().split(",")
+
+        if len(peak_1) == 3 and len(peak_2) == 3:
+            peak_1 = [float(val) for val in peak_1]
+            peak_2 = [float(val) for val in peak_2]
+
+            return peak_1, peak_2
+
+    def add_highlight_1(self, peak):
+        Q = peak["Q"]
+        d = peak["d_spacing"]
+        self.highlight_1_line.setText("{:.4f}, {:.4f}, {:.4f}".format(*Q))
+        self.highlight_d1_line.setText("{:.4f}".format(d))
+
+    def add_highlight_2(self, peak):
+        Q = peak["Q"]
+        d = peak["d_spacing"]
+        self.highlight_2_line.setText("{:.4f}, {:.4f}, {:.4f}".format(*Q))
+        self.highlight_d2_line.setText("{:.4f}".format(d))
+
+    def set_highlight_phi(self, phi):
+        self.highlight_phi_line.setText("{:.4f}".format(phi))
 
     def get_diffraction(self):
         if self.diffraction_line.hasAcceptableInput():
