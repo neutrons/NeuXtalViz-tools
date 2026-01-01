@@ -337,7 +337,7 @@ class CrystalStructureModel(NeuXtalVizModel):
             params[1:3] = True
             params[4:6] = True
         elif lattice_system == "Hexagonal" or lattice_system == "Tetragonal":
-            params[2] = True
+            params[1] = True
             params[3:6] = True
         elif lattice_system == "Orthorhombic":
             params[3:6] = True

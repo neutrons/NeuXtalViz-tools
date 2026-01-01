@@ -2893,7 +2893,7 @@ class UBModel(NeuXtalVizModel):
     def calculate_highlight(self, Q1, Q2):
         q1 = np.array(Q1) / np.linalg.norm(Q1)
         q2 = np.array(Q2) / np.linalg.norm(Q2)
-        return np.rad2deg(np.arccos(np.dot(q1, q2)))
+        return np.rad2deg(np.arccos(np.clip(np.dot(q1, q2), -1, 1)))
 
     def cluster_peaks(self, peak_info, eps=0.025, min_samples=15):
         """

@@ -1110,8 +1110,8 @@ class UBView(NeuXtalVizWidget):
         self.highlight_1_line = QLineEdit()
         self.highlight_2_line = QLineEdit()
 
-        self.highlight_1_line.setReadOnly(True)
-        self.highlight_2_line.setReadOnly(True)
+        self.highlight_1_line.setEnabled(False)
+        self.highlight_2_line.setEnabled(False)
 
         self.highlight_1_line.setToolTip(
             "Index of the first highlighted peak."
@@ -1173,13 +1173,18 @@ class UBView(NeuXtalVizWidget):
         calculator_layout.addWidget(self.d2_line, 2, 4)
         calculator_layout.addWidget(self.calculate_button, 2, 5)
 
+        Q1_label = QLabel("Q₁xyz [Å⁻¹]", self)
+        Q2_label = QLabel("Q₂xyz [Å⁻¹]", self)
+
         highlight_1_layout = QHBoxLayout()
         highlight_2_layout = QHBoxLayout()
 
         highlight_1_layout.addWidget(self.highlight_1_button)
+        highlight_1_layout.addWidget(Q1_label)
         highlight_1_layout.addWidget(self.highlight_1_line)
 
         highlight_2_layout.addWidget(self.highlight_2_button)
+        highlight_2_layout.addWidget(Q2_label)
         highlight_2_layout.addWidget(self.highlight_2_line)
 
         calculator_layout.addWidget(highlight_1_label, 3, 0)
@@ -2923,9 +2928,11 @@ class UBView(NeuXtalVizWidget):
     def get_peak(self):
         row = self.peaks_table.currentRow()
         if row is not None:
-            peak_no = self.peaks_table.item(row, 7).text()
-            if peak_no.isnumeric():
-                return int(peak_no) - 1
+            peak_no = self.peaks_table.item(row, 7)
+            if peak_no is not None:
+                peak_no = peak_no.text()
+                if peak_no.isnumeric():
+                    return int(peak_no) - 1
 
     def set_peak_info(self, peak):
         hkl = peak["hkl"]
