@@ -67,13 +67,25 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         self.spacing = np.array([dim.getBinWidth() for dim in dims])
 
-        compress = 1 / 32 / self.spacing
-        compress[compress <= 1] = 1
-        compress = compress.round().astype(int)
+        max_dim = 128.0
+        max_spacing = 0.5
 
-        scale = 1 / 4 / self.spacing
-        scale[scale <= 1] = 1
-        scale = scale.round().astype(int)
+        shape = np.array(self.shape, dtype=float)
+
+        base = np.ceil(shape / max_dim).astype(int)
+        base[base < 1] = 1
+
+        with np.errstate(divide="ignore", invalid="ignore"):
+            spacing_limit = np.floor(max_spacing / self.spacing)
+
+        spacing_limit[~np.isfinite(spacing_limit)] = np.inf
+        spacing_limit[spacing_limit < 1] = 1
+        spacing_limit = spacing_limit.astype(int)
+
+        base = np.minimum(base, spacing_limit)
+
+        scale = base.copy()
+        compress = np.maximum(base, np.minimum(spacing_limit, 2 * base))
 
         blocks = [
             (compress[0], scale[1], scale[2]),

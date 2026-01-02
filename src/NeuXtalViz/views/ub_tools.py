@@ -1173,8 +1173,8 @@ class UBView(NeuXtalVizWidget):
         calculator_layout.addWidget(self.d2_line, 2, 4)
         calculator_layout.addWidget(self.calculate_button, 2, 5)
 
-        Q1_label = QLabel("Q₁xyz [Å⁻¹]", self)
-        Q2_label = QLabel("Q₂xyz [Å⁻¹]", self)
+        Q1_label = QLabel("Q₁(x,y,z) [Å⁻¹]:", self)
+        Q2_label = QLabel("Q₂(x,y,z) [Å⁻¹]:", self)
 
         highlight_1_layout = QHBoxLayout()
         highlight_2_layout = QHBoxLayout()

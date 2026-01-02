@@ -24,6 +24,10 @@ import pyvista
 
 pyvista.set_plot_theme("document")
 
+import qdarkstyle
+
+from qdarkstyle.light.palette import LightPalette
+
 
 from NeuXtalViz.views.crystal_structure_tools import CrystalStructureView
 from NeuXtalViz.models.crystal_structure_tools import CrystalStructureModel
@@ -130,12 +134,16 @@ class NeuXtalViz(QMainWindow):
         app_menu.addAction(shelxle_action)
 
         olex2_action = QAction("Olex2", self)
-        olex2_action.triggered.connect(self.olex2_reduction_GUI)
+        olex2_action.triggered.connect(self.olex2_GUI)
         app_menu.addAction(olex2_action)
 
         fullprof_action = QAction("FullProf", self)
-        fullprof_action.triggered.connect(self.fullprof_reduction_GUI)
+        fullprof_action.triggered.connect(self.fullprof_GUI)
         app_menu.addAction(fullprof_action)
+
+        vesta_action = QAction("VESTA", self)
+        vesta_action.triggered.connect(self.vesta_GUI)
+        app_menu.addAction(vesta_action)
 
         app_menu = self.menuBar().addMenu("Interface")
 
@@ -212,7 +220,7 @@ class NeuXtalViz(QMainWindow):
                 self, "Error", f"Failed to execute garnet:\n{e}"
             )
 
-    def olex2_reduction_GUI(self):
+    def olex2_GUI(self):
         try:
             subprocess.Popen(["/SNS/software/scd/olex2/olex2"])
         except subprocess.CalledProcessError as e:
@@ -220,12 +228,20 @@ class NeuXtalViz(QMainWindow):
                 self, "Error", f"Failed to execute olex2:\n{e}"
             )
 
-    def fullprof_reduction_GUI(self):
+    def fullprof_GUI(self):
         try:
             subprocess.Popen(["fullprof"])
         except subprocess.CalledProcessError as e:
             QMessageBox.critical(
                 self, "Error", f"Failed to execute fullprof:\n{e}"
+            )
+
+    def vesta_GUI(self):
+        try:
+            subprocess.Popen(["VESTA"])
+        except subprocess.CalledProcessError as e:
+            QMessageBox.critical(
+                self, "Error", f"Failed to execute VESTA:\n{e}"
             )
 
     def structdiff_GUI(self):
@@ -255,6 +271,7 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 def gui():
     sys.excepthook = handle_exception
     app = QApplication(sys.argv)
+    app.setStyleSheet(qdarkstyle.load_stylesheet(palette=LightPalette))
     window = NeuXtalViz()
     window.show()
     sys.exit(app.exec_())

@@ -16,7 +16,14 @@ from qtpy.QtWidgets import (
     QPlainTextEdit,
 )
 
-from qtpy.QtGui import QDoubleValidator, QFont
+from qtpy.QtGui import (
+    QDoubleValidator,
+    QFont,
+    QIcon,
+    QPixmap,
+    QColor,
+    QPainter,
+)
 from PyQt5.QtCore import Qt, pyqtSignal
 
 import numpy as np
@@ -315,6 +322,9 @@ class NeuXtalVizWidget(QWidget):
         view_tab.addTab(directions_tab, "Direction View")
         view_tab.addTab(manual_tab, "Manual View")
 
+        # Apply colored styling to a/b/c and a*/b*/c* buttons
+        self._init_axis_icons()
+
         return view_tab
 
     def __init_info_tab(self):
@@ -399,6 +409,56 @@ class NeuXtalVizWidget(QWidget):
 
     def append_to_console(self, text):
         self.console.appendPlainText(text)
+
+    def _init_axis_icons(self):
+        """Assign subtle colored borders to axis and Q-direction buttons.
+
+        a / a* = red, b / b* = green, c / c* = blue (with a
+        paraview-specific swap), and Qx/Qy/Qz use softened NeuXtalViz
+        brand colors. Existing button style sheets are preserved and
+        only the border styling is updated.
+        """
+
+        theme = (
+            self.theme_combo.currentText()
+            if hasattr(self, "theme_combo")
+            else "default"
+        )
+
+        # Lattice-axis colors
+        red = "#ff0000"
+        green = "#00ff00"
+        blue = "#0000ff"
+        yellow = "#ffff00"
+
+        a_color = red
+        b_color = yellow if theme == "paraview" else green
+        c_color = green if theme == "paraview" else blue
+
+        def _color_icon(color: str) -> QIcon:
+            """Create a small colored box icon for use inside a button."""
+
+            size = 10
+            pixmap = QPixmap(size, size)
+            pixmap.fill(Qt.transparent)
+
+            painter = QPainter(pixmap)
+            painter.setRenderHint(QPainter.Antialiasing)
+            painter.setBrush(QColor(color))
+            painter.setPen(Qt.NoPen)
+            rect = pixmap.rect().adjusted(1, 1, -1, -1)
+            painter.drawRoundedRect(rect, 2, 2)
+            painter.end()
+
+            return QIcon(pixmap)
+
+        self.a_button.setIcon(_color_icon(a_color))
+        self.b_button.setIcon(_color_icon(b_color))
+        self.c_button.setIcon(_color_icon(c_color))
+
+        self.a_star_button.setIcon(_color_icon(a_color))
+        self.b_star_button.setIcon(_color_icon(b_color))
+        self.c_star_button.setIcon(_color_icon(c_color))
 
     def toggle_console(self, state):
         self.console.setVisible(bool(state))
@@ -728,6 +788,8 @@ class NeuXtalVizWidget(QWidget):
         # call twice to update colors
         self.show_axes()
         self.show_axes()
+        # Refresh axis button colours to match the active theme.
+        self._init_axis_icons()
 
     def update_labels(self):
         """
