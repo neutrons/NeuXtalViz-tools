@@ -1,8 +1,7 @@
 import os
 
-from PyQt5.QtTest import QTest
-from PyQt5.QtCore import Qt
-from qtpy.QtWidgets import QTableWidgetItem
+from qtpy.QtTest import QTest
+from qtpy.QtCore import Qt
 
 from utilities import run_qt_scenario, copy_generated_pngs
 

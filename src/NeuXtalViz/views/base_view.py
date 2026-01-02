@@ -804,7 +804,7 @@ class NeuXtalVizWidget(QWidget):
         # call twice to update colors
         self.show_axes()
         self.show_axes()
-        # Refresh axis button colours to match the active theme.
+        # Refresh axis button colors to match the active theme.
         self._init_axis_icons()
 
     def update_labels(self):

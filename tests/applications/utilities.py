@@ -4,17 +4,24 @@ import threading
 import glob
 import shutil
 
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtTest import QTest
-from PyQt5.QtCore import QTimer, QThread, QThreadPool
+os.environ["QT_API"] = "pyqt5"
+
+from qtpy.QtWidgets import QApplication
+from qtpy.QtTest import QTest
+from qtpy.QtCore import QTimer, QThread, QThreadPool
 
 from NeuXtalViz.application import NeuXtalViz
+
+import qdarkstyle
+
+from qdarkstyle.light.palette import LightPalette
 
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 
 def run_qt_scenario(scenario):
-    app = QApplication.instance() or QApplication(sys.argv)
+    app = QApplication(sys.argv)
+    app.setStyleSheet(qdarkstyle.load_stylesheet(palette=LightPalette))
     app.setQuitOnLastWindowClosed(True)
 
     window = NeuXtalViz()

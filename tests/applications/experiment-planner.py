@@ -1,7 +1,7 @@
 import os
 
-from PyQt5.QtTest import QTest
-from PyQt5.QtCore import Qt
+from qtpy.QtTest import QTest
+from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QTableWidgetItem
 
 from utilities import run_qt_scenario, copy_generated_pngs
@@ -68,7 +68,7 @@ def TOPAZ_Si_plan(app, window):
     ep_view.calculate_single_button.setStyleSheet("background-color: green;")
 
     QTest.mouseClick(ep_view.calculate_single_button, Qt.LeftButton)
-    QTest.qWait(1000 * 30)
+    QTest.qWait(1000 * 40)
 
     app.primaryScreen().grabWindow(window.winId()).save(
         os.path.join(directory, "Si_plan_calculate_peak.png"), "png"
@@ -82,7 +82,7 @@ def TOPAZ_Si_plan(app, window):
     ep_view.add_button.setStyleSheet("background-color: green;")
 
     QTest.mouseClick(ep_view.canvas_inst, Qt.LeftButton)
-    QTest.qWait(1000 * 5)
+    QTest.qWait(1000 * 10)
     QTest.mouseClick(ep_view.add_button, Qt.LeftButton)
     QTest.qWait(1000 * 10)
 

@@ -290,5 +290,5 @@ def CORELLI_Bixbyite_UB(app, window):
 
 
 if __name__ == "__main__":
-    # run_qt_scenario(TOPAZ_Si_UB)
-    run_qt_scenario(CORELLI_Bixbyite_UB)
+    run_qt_scenario(TOPAZ_Si_UB)
+    # run_qt_scenario(CORELLI_Bixbyite_UB)
