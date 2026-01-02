@@ -85,6 +85,8 @@ class ExperimentView(NeuXtalVizWidget):
             "Select the instrument for the experiment."
         )
 
+        self.auto_size_combobox(self.instrument_combo)
+
         self.mode_combo = QComboBox(self)
         self.mode_combo.setToolTip(
             "Select the goniometer mode for the experiment."
@@ -102,6 +104,11 @@ class ExperimentView(NeuXtalVizWidget):
         self.lattice_centering_combo.setToolTip(
             "Select the lattice centering for the sample."
         )
+
+        self.auto_size_combobox(self.mode_combo)
+        self.auto_size_combobox(self.crystal_combo)
+        self.auto_size_combobox(self.point_group_combo)
+        self.auto_size_combobox(self.lattice_centering_combo)
 
         self.crystal_combo.addItem("Triclinic")
         self.crystal_combo.addItem("Monoclinic")
@@ -137,6 +144,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.count_combo.setToolTip(
             "Select the counting method for the experiment."
         )
+        self.auto_size_combobox(self.count_combo)
         self.update_button = QPushButton("Update Highlighted", self)
         self.update_button.setToolTip(
             "Update the selected orientations with the current settings."
@@ -440,6 +448,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.slice_combo.addItem("Axis 2/3")
         self.slice_combo.setCurrentIndex(0)
         self.slice_combo.setToolTip("Select the axes for the slice view.")
+        self.auto_size_combobox(self.slice_combo)
 
         slice_label = QLabel("Slice:", self)
 
@@ -1540,6 +1549,8 @@ class ExperimentView(NeuXtalVizWidget):
             index = self.get_counting_index()
             if index is not None:
                 combobox.setCurrentIndex(index)
+            # Ensure table combobox is wide enough for its options.
+            self.auto_size_combobox(combobox)
             self.plan_table.setCellWidget(row, col, combobox)
             col += 1
 
@@ -1591,6 +1602,8 @@ class ExperimentView(NeuXtalVizWidget):
             if counts[row] in options:
                 index = options.index(counts[row])
                 combobox.setCurrentIndex(index)
+            # Ensure table combobox is wide enough for its options.
+            self.auto_size_combobox(combobox)
             self.plan_table.setCellWidget(row, col, combobox)
             col += 1
 

@@ -33,6 +33,8 @@ from pyvistaqt import QtInteractor
 
 from NeuXtalViz.views.utilities import Worker, ThreadPool
 
+import qtawesome as qta
+
 
 class NeuXtalVizWidget(QWidget):
     """
@@ -56,10 +58,12 @@ class NeuXtalVizWidget(QWidget):
             "Reset the view to the default orientation."
         )
         self.reset_button.clicked.connect(self.reset_view)
+        self.reset_button.setIcon(qta.icon("fa6s.house"))
 
         self.camera_button = QPushButton("Reset Camera", self)
         self.camera_button.setToolTip("Reset the camera position.")
         self.camera_button.clicked.connect(self.reset_camera)
+        self.camera_button.setIcon(qta.icon("fa6s.camera"))
 
         self.recip_box = QCheckBox("Toggle Reciprocal Lattice", self)
         self.recip_box.setChecked(True)
@@ -81,6 +85,7 @@ class NeuXtalVizWidget(QWidget):
         self.save_button.setToolTip(
             "Save a screenshot of the current 3D view."
         )
+        self.save_button.setIcon(qta.icon("fa6s.floppy-disk"))
 
         self.theme_combo = QComboBox(self)
         self.theme_combo.addItem("default")
@@ -89,6 +94,7 @@ class NeuXtalVizWidget(QWidget):
         self.theme_combo.addItem("paraview")
         self.theme_combo.setToolTip("Select theme.")
         self.theme_combo.currentIndexChanged.connect(self.update_theme)
+        self.auto_size_combobox(self.theme_combo)
 
         self.frame = QFrame()
 
@@ -153,6 +159,21 @@ class NeuXtalVizWidget(QWidget):
 
         self.plotter.enable_parallel_projection()
 
+    def auto_size_combobox(self, combo):
+        combo.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+
+        fm = combo.fontMetrics()
+        max_text = ""
+        for i in range(combo.count()):
+            text = combo.itemText(i)
+            if len(text) > len(max_text):
+                max_text = text
+
+        if max_text:
+            text_width = fm.horizontalAdvance(max_text)
+            padding = 60
+            combo.setMinimumWidth(text_width + padding)
+
     def __init_view_tab(self):
         view_tab = QTabWidget()
 
@@ -167,6 +188,8 @@ class NeuXtalVizWidget(QWidget):
         self.viewup_combo.addItem("[uvw]")
         self.viewup_combo.setToolTip("Select axis notation for up direction.")
         self.viewup_combo.currentIndexChanged.connect(self.update_labels)
+        self.auto_size_combobox(self.view_combo)
+        self.auto_size_combobox(self.viewup_combo)
 
         notation = QDoubleValidator.StandardNotation
 
@@ -223,6 +246,9 @@ class NeuXtalVizWidget(QWidget):
             "Set the up direction using the specified axis components."
         )
 
+        self.manual_button.setIcon(qta.icon("fa6s.right-long"))
+        self.manualup_button.setIcon(qta.icon("fa6s.up-long"))
+
         self.px_button = QPushButton("+Qx", self)
         self.px_button.setToolTip("View along the +Qx direction.")
         self.py_button = QPushButton("+Qy", self)
@@ -244,6 +270,14 @@ class NeuXtalVizWidget(QWidget):
         self.mx_button.clicked.connect(self.view_zy)
         self.my_button.clicked.connect(self.view_xz)
         self.mz_button.clicked.connect(self.view_yx)
+
+        self.px_button.setIcon(qta.icon("fa6s.right-long"))
+        self.py_button.setIcon(qta.icon("fa6s.right-long"))
+        self.pz_button.setIcon(qta.icon("fa6s.right-long"))
+
+        self.mx_button.setIcon(qta.icon("fa6s.right-long"))
+        self.my_button.setIcon(qta.icon("fa6s.right-long"))
+        self.mz_button.setIcon(qta.icon("fa6s.right-long"))
 
         self.a_star_button = QPushButton("a*", self)
         self.a_star_button.setToolTip(
@@ -435,33 +469,15 @@ class NeuXtalVizWidget(QWidget):
         b_color = yellow if theme == "paraview" else green
         c_color = green if theme == "paraview" else blue
 
-        def _color_icon(color: str) -> QIcon:
-            """Create a small colored box icon for use inside a button."""
+        # Real-space axes: solid arrows
+        self.a_button.setIcon(qta.icon("fa6s.right-long", color=a_color))
+        self.b_button.setIcon(qta.icon("fa6s.right-long", color=b_color))
+        self.c_button.setIcon(qta.icon("fa6s.right-long", color=c_color))
 
-            size = 10
-            pixmap = QPixmap(size, size)
-            pixmap.fill(Qt.transparent)
-
-            painter = QPainter(pixmap)
-            painter.setRenderHint(QPainter.Antialiasing)
-            painter.setBrush(QColor(color))
-            painter.setPen(Qt.NoPen)
-            rect = pixmap.rect().adjusted(1, 1, -1, -1)
-            painter.drawRoundedRect(rect, 2, 2)
-            painter.end()
-
-            return QIcon(pixmap)
-
-        self.a_button.setIcon(_color_icon(a_color))
-        self.b_button.setIcon(_color_icon(b_color))
-        self.c_button.setIcon(_color_icon(c_color))
-
-        self.a_star_button.setIcon(_color_icon(a_color))
-        self.b_star_button.setIcon(_color_icon(b_color))
-        self.c_star_button.setIcon(_color_icon(c_color))
-
-    def toggle_console(self, state):
-        self.console.setVisible(bool(state))
+        # Reciprocal axes: outlined arrows to distinguish a*/b*/c*
+        self.a_star_button.setIcon(qta.icon("fa6s.right-long", color=a_color))
+        self.b_star_button.setIcon(qta.icon("fa6s.right-long", color=b_color))
+        self.c_star_button.setIcon(qta.icon("fa6s.right-long", color=c_color))
 
     def toggle_console(self, state):
         self.console.setVisible(bool(state))

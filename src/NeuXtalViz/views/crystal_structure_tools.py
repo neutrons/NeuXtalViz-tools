@@ -121,6 +121,10 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.space_group_combo.setEnabled(False)
         self.setting_combo.setEnabled(False)
 
+        self.auto_size_combobox(self.crystal_system_combo)
+        self.auto_size_combobox(self.space_group_combo)
+        self.auto_size_combobox(self.setting_combo)
+
         self.load_CIF_button = QPushButton("Load CIF", self)
         self.save_INS_button = QPushButton("Save INS", self)
 

@@ -373,6 +373,7 @@ class UBView(NeuXtalVizWidget):
         self.instrument_combo.setToolTip(
             "Select the instrument for data conversion."
         )
+        self.auto_size_combobox(self.instrument_combo)
 
         ipts_label = QLabel("IPTS:")
         exp_label = QLabel("Experiment:")
@@ -634,6 +635,7 @@ class UBView(NeuXtalVizWidget):
         self.centering_combo.setToolTip(
             "Select lattice centering for peak prediction."
         )
+        self.auto_size_combobox(self.centering_combo)
 
         min_d_unit_label = QLabel("Å")
 
@@ -937,6 +939,9 @@ class UBView(NeuXtalVizWidget):
         self.symmetry_combo = QComboBox(self)
         self.symmetry_combo.addItem("x,y,z")
         self.symmetry_combo.addItem("-x,-y,-z")
+
+        self.auto_size_combobox(self.lattice_combo)
+        self.auto_size_combobox(self.symmetry_combo)
         self.symmetry_combo.setToolTip(
             "Select symmetry operation for transformation."
         )
@@ -1042,6 +1047,7 @@ class UBView(NeuXtalVizWidget):
         self.optimize_combo.setToolTip(
             "Select refinement constraints or lattice system."
         )
+        self.auto_size_combobox(self.optimize_combo)
 
         refine_tab = QWidget()
         refine_tab_layout = QVBoxLayout()
@@ -1452,6 +1458,7 @@ class UBView(NeuXtalVizWidget):
         self.clim_combo.setToolTip("Select color limit adjustment method.")
 
         self.cbar_combo = QComboBox(self)
+
         self.cbar_combo.addItem("Sequential")
         self.cbar_combo.addItem("Rainbow")
         self.cbar_combo.addItem("Binary")
@@ -1459,6 +1466,8 @@ class UBView(NeuXtalVizWidget):
         self.cbar_combo.addItem("Modified")
         self.cbar_combo.setCurrentIndex(2)
         self.cbar_combo.setToolTip("Select color map for the slice view.")
+        self.auto_size_combobox(self.filter_combo)
+        self.auto_size_combobox(self.comparison_combo)
 
         self.slice_combo = QComboBox(self)
         self.slice_combo.addItem("Axis 1/2")
@@ -1466,6 +1475,10 @@ class UBView(NeuXtalVizWidget):
         self.slice_combo.addItem("Axis 2/3")
         self.slice_combo.setCurrentIndex(0)
         self.slice_combo.setToolTip("Select the axes for the slice view.")
+
+        self.auto_size_combobox(self.clim_combo)
+        self.auto_size_combobox(self.cbar_combo)
+        self.auto_size_combobox(self.slice_combo)
 
         bar_layout = QHBoxLayout()
 
@@ -1514,6 +1527,7 @@ class UBView(NeuXtalVizWidget):
         self.slice_scale_combo.setToolTip(
             "Select the scale for the slice view."
         )
+        self.auto_size_combobox(self.slice_scale_combo)
 
         convert_to_hkl_action_layout = QHBoxLayout()
         convert_to_hkl_action_layout.addWidget(self.convert_to_hkl_button)
@@ -1621,6 +1635,11 @@ class UBView(NeuXtalVizWidget):
         self.instrument_scale_combo.setToolTip(
             "Select the scale for the instrument view."
         )
+
+        self.auto_size_combobox(self.data_combo)
+        self.auto_size_combobox(self.vlim_combo)
+        self.auto_size_combobox(self.vbar_combo)
+        self.auto_size_combobox(self.instrument_scale_combo)
 
         data_layout = QHBoxLayout()
         data_layout.addWidget(self.data_combo)
