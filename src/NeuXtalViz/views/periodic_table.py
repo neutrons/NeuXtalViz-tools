@@ -1,5 +1,6 @@
 import re
 import numpy as np
+import qtawesome as qta
 
 from qtpy.QtWidgets import (
     QWidget,
@@ -125,6 +126,7 @@ class AtomView(QWidget):
         self.isotope_combo = QComboBox(self)
 
         self.select_button = QPushButton("Use Isotope", self)
+        self.select_button.setIcon(qta.icon("fa6s.atom"))
 
         card.addWidget(self.z_label, 0, 0, Qt.AlignCenter)
         card.addWidget(self.isotope_combo, 0, 1, 1, 2)

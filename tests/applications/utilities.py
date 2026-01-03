@@ -1,6 +1,8 @@
+# -------------------------------------------------------------------------- #
+# xvfb-run -s "-screen 0 1920x1080x24" python tests/applications/ub-tools.py #
+# -------------------------------------------------------------------------- #
 import sys
 import os
-import threading
 import glob
 import shutil
 
@@ -53,12 +55,11 @@ def run_qt_scenario(scenario):
     QTimer.singleShot(0, _wrapped)
     rc = app.exec_()
 
-    alive = [
-        t for t in threading.enumerate() if t is not threading.main_thread()
-    ]
-    if alive:
-        os._exit(0)
-
+    # Previously this function forcibly terminated the process with os._exit(0)
+    # if any non-main threads were still alive. That prevented multiple
+    # scenarios from running sequentially (e.g. in ub-tools.py). We now
+    # rely on the explicit QThread and QThreadPool cleanup above and simply
+    # return the Qt exit code so callers can invoke this multiple times.
     return rc
 
 

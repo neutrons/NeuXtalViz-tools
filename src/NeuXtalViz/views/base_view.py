@@ -1,3 +1,5 @@
+import os
+
 from qtpy.QtWidgets import (
     QWidget,
     QFrame,
@@ -19,10 +21,6 @@ from qtpy.QtWidgets import (
 from qtpy.QtGui import (
     QDoubleValidator,
     QFont,
-    QIcon,
-    QPixmap,
-    QColor,
-    QPainter,
 )
 from PyQt5.QtCore import Qt, pyqtSignal
 
@@ -94,7 +92,7 @@ class NeuXtalVizWidget(QWidget):
         self.theme_combo.addItem("paraview")
         self.theme_combo.setToolTip("Select theme.")
         self.theme_combo.currentIndexChanged.connect(self.update_theme)
-        self.auto_size_combobox(self.theme_combo)
+        self.auto_scale_dropdown(self.theme_combo)
 
         self.frame = QFrame()
 
@@ -159,20 +157,51 @@ class NeuXtalVizWidget(QWidget):
 
         self.plotter.enable_parallel_projection()
 
-    def auto_size_combobox(self, combo):
+    def auto_scale_dropdown(self, combo):
+        """Autoscale a combobox width to fit text plus any icons/checks.
+
+        This keeps the drop-down (and closed state) wide enough for the
+        longest item label while leaving extra room for icons or check
+        indicators drawn on the left-hand side.
+        """
+
         combo.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
         fm = combo.fontMetrics()
-        max_text = ""
+        max_width = 0
+
         for i in range(combo.count()):
             text = combo.itemText(i)
-            if len(text) > len(max_text):
-                max_text = text
+            icon = qta.icon("fa6s.minus")
+            if text == "TOPAZ":
+                icon = qta.icon("fa6s.gem")
+            elif text == "CORELLI":
+                icon = qta.icon("fa6s.scissors")
+            elif text == "MANDI":
+                icon = qta.icon("fa6s.dna")
+            elif text == "WAND²":
+                icon = qta.icon("fa6s.wand-magic")
+            elif text == "DEMAND":
+                icon = qta.icon("fa6s.magnet")
+            elif text == "SNAP":
+                icon = qta.icon("fa6s.hammer")
+            combo.setItemIcon(i, icon)
 
-        if max_text:
-            text_width = fm.horizontalAdvance(max_text)
-            padding = 60
-            combo.setMinimumWidth(text_width + padding)
+        for i in range(combo.count()):
+            text = combo.itemText(i)
+            text_width = fm.horizontalAdvance(text)
+
+            icon = combo.itemIcon(i)
+            icon_width = 0
+            if not icon.isNull():
+                size = icon.actualSize(combo.iconSize())
+                icon_width = size.width() + 8  # small gap after icon/check
+
+            max_width = max(max_width, text_width + icon_width)
+
+        if max_width:
+            padding = 40  # extra room for checkmarks and style padding
+            combo.setMinimumWidth(max_width + padding)
 
     def __init_view_tab(self):
         view_tab = QTabWidget()
@@ -188,8 +217,8 @@ class NeuXtalVizWidget(QWidget):
         self.viewup_combo.addItem("[uvw]")
         self.viewup_combo.setToolTip("Select axis notation for up direction.")
         self.viewup_combo.currentIndexChanged.connect(self.update_labels)
-        self.auto_size_combobox(self.view_combo)
-        self.auto_size_combobox(self.viewup_combo)
+        self.auto_scale_dropdown(self.view_combo)
+        self.auto_scale_dropdown(self.viewup_combo)
 
         notation = QDoubleValidator.StandardNotation
 

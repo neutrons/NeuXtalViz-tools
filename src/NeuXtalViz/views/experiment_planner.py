@@ -39,6 +39,8 @@ from mpl_toolkits.axisartist.grid_finder import (
 )
 from NeuXtalViz.views.base_view import NeuXtalVizWidget
 
+import qtawesome as qta
+
 
 class ExperimentView(NeuXtalVizWidget):
     """
@@ -85,7 +87,7 @@ class ExperimentView(NeuXtalVizWidget):
             "Select the instrument for the experiment."
         )
 
-        self.auto_size_combobox(self.instrument_combo)
+        self.auto_scale_dropdown(self.instrument_combo)
 
         self.mode_combo = QComboBox(self)
         self.mode_combo.setToolTip(
@@ -105,10 +107,10 @@ class ExperimentView(NeuXtalVizWidget):
             "Select the lattice centering for the sample."
         )
 
-        self.auto_size_combobox(self.mode_combo)
-        self.auto_size_combobox(self.crystal_combo)
-        self.auto_size_combobox(self.point_group_combo)
-        self.auto_size_combobox(self.lattice_centering_combo)
+        self.auto_scale_dropdown(self.mode_combo)
+        self.auto_scale_dropdown(self.crystal_combo)
+        self.auto_scale_dropdown(self.point_group_combo)
+        self.auto_scale_dropdown(self.lattice_centering_combo)
 
         self.crystal_combo.addItem("Triclinic")
         self.crystal_combo.addItem("Monoclinic")
@@ -118,37 +120,45 @@ class ExperimentView(NeuXtalVizWidget):
         self.crystal_combo.addItem("Trigonal/Hexagonal")
         self.crystal_combo.addItem("Hexagonal")
         self.crystal_combo.addItem("Cubic")
+        self.auto_scale_dropdown(self.crystal_combo)
 
         self.load_UB_button = QPushButton("Load UB", self)
         self.load_UB_button.setToolTip(
             "Load a UB matrix from a file for orientation."
         )
+        self.load_UB_button.setIcon(qta.icon("fa6s.folder-open"))
         self.reset_button = QPushButton("Recalculate Coverage", self)
         self.reset_button.setToolTip("Recalculate the coverage.")
+        self.reset_button.setIcon(qta.icon("fa6s.calculator"))
         self.instrument_button = QPushButton("Show Instrument", self)
         self.instrument_button.setToolTip("Show instrument.")
+        self.instrument_button.setIcon(qta.icon("fa6s.eye"))
         self.optimize_button = QPushButton("Optimize Coverage", self)
         self.optimize_button.setToolTip(
             "Optimize the coverage of the experiment plan."
         )
+        self.optimize_button.setIcon(qta.icon("fa6s.wand-magic-sparkles"))
         self.delete_button = QPushButton("Delete Highlighted", self)
         self.delete_button.setToolTip(
             "Delete the selected orientations from the plan."
         )
+        self.delete_button.setIcon(qta.icon("fa6s.trash"))
         self.highlight_button = QPushButton("Highlight All", self)
         self.highlight_button.setToolTip(
             "Highlight all orientations in the plan table."
         )
+        self.highlight_button.setIcon(qta.icon("fa6s.highlighter"))
 
         self.count_combo = QComboBox(self)
         self.count_combo.setToolTip(
             "Select the counting method for the experiment."
         )
-        self.auto_size_combobox(self.count_combo)
+        self.auto_scale_dropdown(self.count_combo)
         self.update_button = QPushButton("Update Highlighted", self)
         self.update_button.setToolTip(
             "Update the selected orientations with the current settings."
         )
+        self.update_button.setIcon(qta.icon("fa6s.file-pen"))
         self.count_line = QLineEdit("1.0")
         self.count_line.setToolTip(
             "Set the counting value for the experiment (e.g., time or monitor)."
@@ -165,6 +175,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.save_plan_button.setToolTip(
             "Save the current experiment plan as a CSV file."
         )
+        self.save_plan_button.setIcon(qta.icon("fa6s.floppy-disk"))
 
         self.wl_min_line = QLineEdit("0.4")
         self.wl_min_line.setToolTip(
@@ -241,10 +252,12 @@ class ExperimentView(NeuXtalVizWidget):
         self.save_experiment_button.setToolTip(
             "Save the current experiment as a NeXus file."
         )
+        self.save_experiment_button.setIcon(qta.icon("fa6s.floppy-disk"))
         self.load_experiment_button = QPushButton("Load Experiment", self)
         self.load_experiment_button.setToolTip(
             "Load an experiment from a NeXus file."
         )
+        self.load_experiment_button.setIcon(qta.icon("fa6s.folder-open"))
 
         settings_layout = QHBoxLayout()
 
@@ -328,6 +341,11 @@ class ExperimentView(NeuXtalVizWidget):
         )
         self.mask_browse_button = QPushButton("Mask", self)
         self.mask_browse_button.setToolTip("Browse for detector mask file.")
+
+        browse_icon = qta.icon("fa6s.folder-open")
+        self.cal_browse_button.setIcon(browse_icon)
+        self.gon_browse_button.setIcon(browse_icon)
+        self.mask_browse_button.setIcon(browse_icon)
 
         cal_layout.addWidget(self.cal_line, 0, 0)
         cal_layout.addWidget(self.cal_browse_button, 0, 1)
@@ -429,6 +447,7 @@ class ExperimentView(NeuXtalVizWidget):
 
         self.mesh_button = QPushButton("Add Mesh", self)
         self.mesh_button.setToolTip("Add a mesh scan to the experiment plan.")
+        self.mesh_button.setIcon(qta.icon("fa6s.square-plus"))
 
         self.mesh_symmetry_box = QCheckBox("Use Symmetry", self)
         self.mesh_symmetry_box.setToolTip("Apply symmetry to mesh.")
@@ -438,9 +457,11 @@ class ExperimentView(NeuXtalVizWidget):
         self.coverage_mesh_button.setToolTip(
             "Calculate slice from the mesh scan."
         )
+        self.coverage_mesh_button.setIcon(qta.icon("fa6s.calculator"))
 
         self.coverage_plan_button = QPushButton("Calculate Plan", self)
         self.coverage_plan_button.setToolTip("Calculate slice from the plan.")
+        self.coverage_plan_button.setIcon(qta.icon("fa6s.calculator"))
 
         self.slice_combo = QComboBox(self)
         self.slice_combo.addItem("Axis 1/2")
@@ -448,7 +469,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.slice_combo.addItem("Axis 2/3")
         self.slice_combo.setCurrentIndex(0)
         self.slice_combo.setToolTip("Select the axes for the slice view.")
-        self.auto_size_combobox(self.slice_combo)
+        self.auto_scale_dropdown(self.slice_combo)
 
         slice_label = QLabel("Slice:", self)
 
@@ -658,15 +679,18 @@ class ExperimentView(NeuXtalVizWidget):
         self.calculate_single_button.setToolTip(
             "Calculate instrument angles for the first peak."
         )
+        self.calculate_single_button.setIcon(qta.icon("fa6s.calculator"))
         self.calculate_double_button = QPushButton("Simultaneous", self)
         self.calculate_double_button.setToolTip(
             "Calculate instrument angles for both peaks simultaneously."
         )
+        self.calculate_double_button.setIcon(qta.icon("fa6s.calculator"))
 
         self.calculate_single_alt_button = QPushButton("Individual", self)
         self.calculate_single_alt_button.setToolTip(
             "Calculate instrument angles for the second peak."
         )
+        self.calculate_single_alt_button.setIcon(qta.icon("fa6s.calculator"))
 
         self.equivalents_box = QCheckBox("Equivalents", self)
         self.equivalents_box.setToolTip(
@@ -770,6 +794,7 @@ class ExperimentView(NeuXtalVizWidget):
 
         self.add_button = QPushButton("Add Orientation", self)
         self.add_button.setToolTip("Add the current orientation to the plan.")
+        self.add_button.setIcon(qta.icon("fa6s.square-plus"))
 
         self.angles_line = QLineEdit()
         self.angles_line.setToolTip("Goniometer angles for the selected peak.")
@@ -784,6 +809,7 @@ class ExperimentView(NeuXtalVizWidget):
 
         self.angles_combo = QComboBox(self)
         self.angles_combo.setToolTip("Select an orientation from the list.")
+        self.auto_scale_dropdown(self.angles_combo)
 
         orientation_layout.addWidget(settings_label)
         orientation_layout.addWidget(self.angles_combo)
@@ -1075,6 +1101,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.point_group_combo.clear()
         for group in groups:
             self.point_group_combo.addItem(group)
+        self.auto_scale_dropdown(self.point_group_combo)
 
     def get_point_group(self):
         return self.point_group_combo.currentText()
@@ -1090,6 +1117,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.lattice_centering_combo.clear()
         for centering in centerings:
             self.lattice_centering_combo.addItem(centering)
+        self.auto_scale_dropdown(self.lattice_centering_combo)
 
     def get_lattice_centering(self):
         return self.lattice_centering_combo.currentText()
@@ -1115,11 +1143,13 @@ class ExperimentView(NeuXtalVizWidget):
         self.mode_combo.clear()
         for mode in modes:
             self.mode_combo.addItem(mode)
+        self.auto_scale_dropdown(self.mode_combo)
 
     def set_counting_options(self, options):
         self.count_combo.clear()
         for option in options:
             self.count_combo.addItem(option)
+        self.auto_scale_dropdown(self.count_combo)
 
     def get_counting_options(self):
         return [
@@ -1142,6 +1172,7 @@ class ExperimentView(NeuXtalVizWidget):
             self.angles_combo.addItem((str(row + 1)))
         self.angles_combo.setCurrentIndex(self.angles_combo.count() - 1)
         self.angles_combo.blockSignals(False)
+        self.auto_scale_dropdown(self.angles_combo)
 
     def get_peak_list(self):
         val = self.angles_combo.currentText()
@@ -1549,8 +1580,6 @@ class ExperimentView(NeuXtalVizWidget):
             index = self.get_counting_index()
             if index is not None:
                 combobox.setCurrentIndex(index)
-            # Ensure table combobox is wide enough for its options.
-            self.auto_size_combobox(combobox)
             self.plan_table.setCellWidget(row, col, combobox)
             col += 1
 
@@ -1603,7 +1632,7 @@ class ExperimentView(NeuXtalVizWidget):
                 index = options.index(counts[row])
                 combobox.setCurrentIndex(index)
             # Ensure table combobox is wide enough for its options.
-            self.auto_size_combobox(combobox)
+            self.auto_scale_dropdown(combobox)
             self.plan_table.setCellWidget(row, col, combobox)
             col += 1
 

@@ -26,6 +26,8 @@ from NeuXtalViz.config.atoms import colors, radii
 from NeuXtalViz.views.periodic_table import PeriodicTableView
 from NeuXtalViz.views.base_view import NeuXtalVizWidget
 
+import qtawesome as qta
+
 
 class CrystalStructureView(NeuXtalVizWidget):
     """
@@ -121,12 +123,15 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.space_group_combo.setEnabled(False)
         self.setting_combo.setEnabled(False)
 
-        self.auto_size_combobox(self.crystal_system_combo)
-        self.auto_size_combobox(self.space_group_combo)
-        self.auto_size_combobox(self.setting_combo)
+        self.auto_scale_dropdown(self.crystal_system_combo)
+        self.auto_scale_dropdown(self.space_group_combo)
+        self.auto_scale_dropdown(self.setting_combo)
 
         self.load_CIF_button = QPushButton("Load CIF", self)
+        self.load_CIF_button.setIcon(qta.icon("fa6s.folder-open"))
+
         self.save_INS_button = QPushButton("Save INS", self)
+        self.save_INS_button.setIcon(qta.icon("fa6s.floppy-disk"))
 
         crystal_layout.addWidget(self.crystal_system_combo)
         crystal_layout.addWidget(self.space_group_combo)
@@ -156,6 +161,7 @@ class CrystalStructureView(NeuXtalVizWidget):
         scatterer_layout = QHBoxLayout()
 
         self.atm_button = QPushButton("", self)
+        self.atm_button.setIcon(qta.icon("fa6s.atom"))
 
         self.x_line = QLineEdit()
         self.y_line = QLineEdit()
@@ -274,6 +280,7 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.dmin_line.setValidator(validator)
 
         self.calculate_button = QPushButton("Calculate", self)
+        self.calculate_button.setIcon(qta.icon("fa6s.calculator"))
 
         calculate_layout.addWidget(dmin_label)
         calculate_layout.addWidget(self.dmin_line)
@@ -307,6 +314,7 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.l_line.setValidator(validator)
 
         self.individual_button = QPushButton("Calculate", self)
+        self.individual_button.setIcon(qta.icon("fa6s.calculator"))
 
         hkl_label = QLabel("hkl")
 

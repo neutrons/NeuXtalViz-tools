@@ -40,6 +40,8 @@ from mpl_toolkits.axisartist.grid_finder import (
 
 from NeuXtalViz.views.base_view import NeuXtalVizWidget
 
+import qtawesome as qta
+
 cmaps = {
     "Sequential": "viridis",
     "Binary": "binary",
@@ -87,18 +89,24 @@ class UBView(NeuXtalVizWidget):
 
         self.save_q_button = QPushButton("Save Q", self)
         self.save_q_button.setToolTip("Save the Q workspace to a file.")
+        self.save_q_button.setIcon(qta.icon("fa6s.floppy-disk"))
         self.load_q_button = QPushButton("Load Q", self)
         self.load_q_button.setToolTip("Load a Q workspace from a file.")
+        self.load_q_button.setIcon(qta.icon("fa6s.folder-open"))
 
         self.save_peaks_button = QPushButton("Save Peaks", self)
         self.save_peaks_button.setToolTip("Save the peaks table to a file.")
+        self.save_peaks_button.setIcon(qta.icon("fa6s.floppy-disk"))
         self.load_peaks_button = QPushButton("Load Peaks", self)
         self.load_peaks_button.setToolTip("Load a peaks table from a file.")
+        self.load_peaks_button.setIcon(qta.icon("fa6s.folder-open"))
 
         self.save_ub_button = QPushButton("Save UB", self)
         self.save_ub_button.setToolTip("Save the UB matrix to a file.")
+        self.save_ub_button.setIcon(qta.icon("fa6s.floppy-disk"))
         self.load_ub_button = QPushButton("Load UB", self)
         self.load_ub_button.setToolTip("Load a UB matrix from a file.")
+        self.load_ub_button.setIcon(qta.icon("fa6s.folder-open"))
 
         convert_io_layout = QHBoxLayout()
 
@@ -193,6 +201,7 @@ class UBView(NeuXtalVizWidget):
 
         self.set_ub_button = QPushButton("Set", self)
         self.set_ub_button.setToolTip("Set the UB matrix.")
+        self.set_ub_button.setIcon(qta.icon("fa6s.file-pen"))
 
         set_layout = QHBoxLayout()
         set_layout.addWidget(self.set_ub_button)
@@ -373,7 +382,7 @@ class UBView(NeuXtalVizWidget):
         self.instrument_combo.setToolTip(
             "Select the instrument for data conversion."
         )
-        self.auto_size_combobox(self.instrument_combo)
+        self.auto_scale_dropdown(self.instrument_combo)
 
         ipts_label = QLabel("IPTS:")
         exp_label = QLabel("Experiment:")
@@ -429,6 +438,11 @@ class UBView(NeuXtalVizWidget):
         self.tube_browse_button = QPushButton("Tube", self)
         self.gon_browse_button = QPushButton("Goniometer", self)
 
+        browse_icon = qta.icon("fa6s.folder-open")
+        self.cal_browse_button.setIcon(browse_icon)
+        self.tube_browse_button.setIcon(browse_icon)
+        self.gon_browse_button.setIcon(browse_icon)
+
         experiment_params_layout.addWidget(self.instrument_combo)
         experiment_params_layout.addWidget(ipts_label)
         experiment_params_layout.addWidget(self.ipts_line)
@@ -452,6 +466,9 @@ class UBView(NeuXtalVizWidget):
 
         self.convert_to_q_button = QPushButton("Convert", self)
         self.convert_to_q_button.setToolTip("Convert raw data to Q workspace.")
+        self.convert_to_q_button.setIcon(
+            qta.icon("fa6s.arrow-right-arrow-left")
+        )
 
         self.lorentz_box = QCheckBox("Lorentz Correction", self)
         self.lorentz_box.setChecked(True)
@@ -558,6 +575,7 @@ class UBView(NeuXtalVizWidget):
         find_params_layout.addWidget(self.find_edge_line, 2, 1)
 
         self.find_button = QPushButton("Find", self)
+        self.find_button.setIcon(qta.icon("fa6s.magnifying-glass"))
         self.find_button.setToolTip("Find peaks in the Q workspace.")
 
         find_action_layout = QHBoxLayout()
@@ -607,6 +625,7 @@ class UBView(NeuXtalVizWidget):
         self.round_box.setToolTip("Round hkl values to nearest integer.")
 
         self.index_button = QPushButton("Index", self)
+        self.index_button.setIcon(qta.icon("fa6s.list-ol"))
         self.index_button.setToolTip("Index the peaks using the current UB.")
 
         index_action_layout = QHBoxLayout()
@@ -635,7 +654,7 @@ class UBView(NeuXtalVizWidget):
         self.centering_combo.setToolTip(
             "Select lattice centering for peak prediction."
         )
-        self.auto_size_combobox(self.centering_combo)
+        self.auto_scale_dropdown(self.centering_combo)
 
         min_d_unit_label = QLabel("Å")
 
@@ -684,6 +703,7 @@ class UBView(NeuXtalVizWidget):
         predict_params_layout.addWidget(self.predict_sat_box, 2, 2)
 
         self.predict_button = QPushButton("Predict", self)
+        self.predict_button.setIcon(qta.icon("fa6s.bullseye"))
         self.predict_button.setToolTip(
             "Predict peak positions based on UB and centering."
         )
@@ -747,6 +767,7 @@ class UBView(NeuXtalVizWidget):
         integrate_params_layout.addWidget(self.outer_line, 2, 3)
 
         self.integrate_button = QPushButton("Integrate", self)
+        self.integrate_button.setIcon(qta.icon("fa6s.chart-area"))
         self.integrate_button.setToolTip("Integrate peak intensities.")
 
         integrate_action_layout = QHBoxLayout()
@@ -770,6 +791,8 @@ class UBView(NeuXtalVizWidget):
         self.filter_combo.addItem("m^2+n^2+p^2")
         self.filter_combo.addItem("Run #")
 
+        self.auto_scale_dropdown(self.filter_combo)
+
         self.comparison_combo = QComboBox(self)
         self.comparison_combo.addItem(">")
         self.comparison_combo.addItem("<")
@@ -777,6 +800,8 @@ class UBView(NeuXtalVizWidget):
         self.comparison_combo.addItem("<=")
         self.comparison_combo.addItem("=")
         self.comparison_combo.addItem("!=")
+
+        self.auto_scale_dropdown(self.comparison_combo)
 
         notation = QDoubleValidator.StandardNotation
 
@@ -796,6 +821,7 @@ class UBView(NeuXtalVizWidget):
         filter_params_layout.addWidget(self.filter_line)
 
         self.filter_button = QPushButton("Filter", self)
+        self.filter_button.setIcon(qta.icon("fa6s.filter"))
         self.filter_button.setToolTip("Apply filter to peaks table.")
 
         filter_action_layout = QHBoxLayout()
@@ -851,10 +877,13 @@ class UBView(NeuXtalVizWidget):
 
         self.conventional_button = QPushButton("Conventional", self)
         self.conventional_button.setToolTip("Transform to conventional cell.")
+        self.conventional_button.setIcon(qta.icon("fa6s.ruler"))
         self.niggli_button = QPushButton("Primitive", self)
         self.niggli_button.setToolTip("Transform to primitive (Niggli) cell.")
+        self.niggli_button.setIcon(qta.icon("fa6s.bone"))
         self.select_button = QPushButton("Select", self)
         self.select_button.setToolTip("Select the highlighted cell.")
+        self.select_button.setIcon(qta.icon("fa6s.square-check"))
 
         self.form_line = QLineEdit("")
         self.form_line.setReadOnly(True)
@@ -940,8 +969,8 @@ class UBView(NeuXtalVizWidget):
         self.symmetry_combo.addItem("x,y,z")
         self.symmetry_combo.addItem("-x,-y,-z")
 
-        self.auto_size_combobox(self.lattice_combo)
-        self.auto_size_combobox(self.symmetry_combo)
+        self.auto_scale_dropdown(self.lattice_combo)
+        self.auto_scale_dropdown(self.symmetry_combo)
         self.symmetry_combo.setToolTip(
             "Select symmetry operation for transformation."
         )
@@ -1011,6 +1040,7 @@ class UBView(NeuXtalVizWidget):
         transform_matrix_layout.addWidget(self.T33_line, 3, 3)
 
         self.transform_button = QPushButton("Transform", self)
+        self.transform_button.setIcon(qta.icon("fa6s.arrow-right-arrow-left"))
         self.transform_button.setToolTip("Apply the lattice transformation.")
 
         transform_action_layout = QHBoxLayout()
@@ -1047,7 +1077,7 @@ class UBView(NeuXtalVizWidget):
         self.optimize_combo.setToolTip(
             "Select refinement constraints or lattice system."
         )
-        self.auto_size_combobox(self.optimize_combo)
+        self.auto_scale_dropdown(self.optimize_combo)
 
         refine_tab = QWidget()
         refine_tab_layout = QVBoxLayout()
@@ -1058,6 +1088,7 @@ class UBView(NeuXtalVizWidget):
         refine_params_layout.addWidget(self.optimize_combo)
 
         self.refine_button = QPushButton("Refine", self)
+        self.refine_button.setIcon(qta.icon("fa6s.wand-magic-sparkles"))
         self.refine_button.setToolTip("Refine the UB matrix.")
 
         refine_action_layout = QHBoxLayout()
@@ -1150,14 +1181,18 @@ class UBView(NeuXtalVizWidget):
         self.calculate_button.setToolTip(
             "Calculate d-spacings and angle between peaks."
         )
+        self.calculate_button.setIcon(qta.icon("fa6s.calculator"))
 
         self.highlight_1_button = QPushButton("Add Highlighted", self)
+        self.highlight_1_button.setIcon(qta.icon("fa6s.square-plus"))
         self.highlight_2_button = QPushButton("Add Highlighted", self)
+        self.highlight_2_button.setIcon(qta.icon("fa6s.square-plus"))
 
         self.calculate_highlight_button = QPushButton("Calculate", self)
         self.calculate_highlight_button.setToolTip(
             "Calculate the highlighted peaks."
         )
+        self.calculate_highlight_button.setIcon(qta.icon("fa6s.calculator"))
 
         calculator_layout.addWidget(h_label, 0, 1, Qt.AlignCenter)
         calculator_layout.addWidget(k_label, 0, 2, Qt.AlignCenter)
@@ -1449,6 +1484,9 @@ class UBView(NeuXtalVizWidget):
 
         self.convert_to_hkl_button = QPushButton("Convert", self)
         self.convert_to_hkl_button.setToolTip("Convert HKL to Q space.")
+        self.convert_to_hkl_button.setIcon(
+            qta.icon("fa6s.arrow-right-arrow-left")
+        )
 
         self.clim_combo = QComboBox(self)
         self.clim_combo.addItem("Min/Max")
@@ -1466,8 +1504,8 @@ class UBView(NeuXtalVizWidget):
         self.cbar_combo.addItem("Modified")
         self.cbar_combo.setCurrentIndex(2)
         self.cbar_combo.setToolTip("Select color map for the slice view.")
-        self.auto_size_combobox(self.filter_combo)
-        self.auto_size_combobox(self.comparison_combo)
+        self.auto_scale_dropdown(self.filter_combo)
+        self.auto_scale_dropdown(self.comparison_combo)
 
         self.slice_combo = QComboBox(self)
         self.slice_combo.addItem("Axis 1/2")
@@ -1476,9 +1514,9 @@ class UBView(NeuXtalVizWidget):
         self.slice_combo.setCurrentIndex(0)
         self.slice_combo.setToolTip("Select the axes for the slice view.")
 
-        self.auto_size_combobox(self.clim_combo)
-        self.auto_size_combobox(self.cbar_combo)
-        self.auto_size_combobox(self.slice_combo)
+        self.auto_scale_dropdown(self.clim_combo)
+        self.auto_scale_dropdown(self.cbar_combo)
+        self.auto_scale_dropdown(self.slice_combo)
 
         bar_layout = QHBoxLayout()
 
@@ -1527,7 +1565,7 @@ class UBView(NeuXtalVizWidget):
         self.slice_scale_combo.setToolTip(
             "Select the scale for the slice view."
         )
-        self.auto_size_combobox(self.slice_scale_combo)
+        self.auto_scale_dropdown(self.slice_scale_combo)
 
         convert_to_hkl_action_layout = QHBoxLayout()
         convert_to_hkl_action_layout.addWidget(self.convert_to_hkl_button)
@@ -1636,10 +1674,10 @@ class UBView(NeuXtalVizWidget):
             "Select the scale for the instrument view."
         )
 
-        self.auto_size_combobox(self.data_combo)
-        self.auto_size_combobox(self.vlim_combo)
-        self.auto_size_combobox(self.vbar_combo)
-        self.auto_size_combobox(self.instrument_scale_combo)
+        self.auto_scale_dropdown(self.data_combo)
+        self.auto_scale_dropdown(self.vlim_combo)
+        self.auto_scale_dropdown(self.vbar_combo)
+        self.auto_scale_dropdown(self.instrument_scale_combo)
 
         data_layout = QHBoxLayout()
         data_layout.addWidget(self.data_combo)
@@ -1701,6 +1739,7 @@ class UBView(NeuXtalVizWidget):
 
         self.add_peak_button = QPushButton("Add Peak", self)
         self.add_peak_button.setToolTip("Add a peak to the list.")
+        self.add_peak_button.setIcon(qta.icon("fa6s.square-plus"))
 
         self.diffraction_label = QLabel("Axis:", self)
 
@@ -1753,6 +1792,7 @@ class UBView(NeuXtalVizWidget):
 
         self.cluster_button = QPushButton("Cluster", self)
         self.cluster_button.setToolTip("Cluster the selected peaks.")
+        self.cluster_button.setIcon(qta.icon("fa6s.circle-nodes"))
 
         self.param_eps_line = QLineEdit("0.025")
         self.param_min_line = QLineEdit("15")

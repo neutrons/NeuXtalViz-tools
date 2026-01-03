@@ -15,6 +15,9 @@ from qtpy.QtWidgets import (
 from qtpy.QtGui import QFont
 import subprocess
 
+import qtawesome as qta
+import qdarkstyle
+
 
 class CommandBrowser(QMainWindow):
     """
@@ -57,8 +60,11 @@ class CommandBrowser(QMainWindow):
 
         button_layout = QHBoxLayout()
         save_button = QPushButton("Save File")
+        save_button.setIcon(qta.icon("fa6s.floppy-disk"))
         save_button.clicked.connect(self.save_file)
+
         self.run_button = QPushButton("Run Command")
+        self.run_button.setIcon(qta.icon("fa6s.play"))
         self.run_button.clicked.connect(self.run_command)
         button_layout.addWidget(save_button)
         button_layout.addWidget(self.run_button)

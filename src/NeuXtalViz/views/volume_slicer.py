@@ -34,6 +34,8 @@ from mpl_toolkits.axisartist.grid_finder import (
 from NeuXtalViz.views.base_view import NeuXtalVizWidget
 from NeuXtalViz.config import colormap
 
+import qtawesome as qta
+
 colormap.add_modified()
 
 cmaps = {
@@ -98,6 +100,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.vol_scale_combo.setToolTip(
             "Select the scaling for the volume data (Linear or Logarithmic)."
         )
+        self.auto_scale_dropdown(self.vol_scale_combo)
 
         self.opacity_combo = QComboBox(self)
         self.opacity_combo.addItem("Linear")
@@ -107,6 +110,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.opacity_combo.setToolTip(
             "Choose the opacity mapping for the volume rendering."
         )
+        self.auto_scale_dropdown(self.opacity_combo)
 
         self.range_combo = QComboBox(self)
         self.range_combo.addItem("Low->High")
@@ -115,6 +119,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.range_combo.setToolTip(
             "Set the direction of the opacity or color range."
         )
+        self.auto_scale_dropdown(self.range_combo)
 
         self.clim_combo = QComboBox(self)
         self.clim_combo.addItem("Min/Max")
@@ -124,6 +129,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.clim_combo.setToolTip(
             "Choose the method for setting color limits for the slice."
         )
+        self.auto_scale_dropdown(self.clim_combo)
 
         self.vlim_combo = QComboBox(self)
         self.vlim_combo.addItem("Min/Max")
@@ -133,6 +139,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.vlim_combo.setToolTip(
             "Choose the method for setting value limits for the cut."
         )
+        self.auto_scale_dropdown(self.vlim_combo)
 
         self.cbar_combo = QComboBox(self)
         self.cbar_combo.addItem("Sequential")
@@ -143,6 +150,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.cbar_combo.setToolTip(
             "Select the colormap for the slice visualization."
         )
+        self.auto_scale_dropdown(self.cbar_combo)
 
         self.load_NXS_button = QPushButton("Load NXS", self)
         self.load_NXS_button.setToolTip(
@@ -162,6 +170,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.slice_combo.addItem("Axis 2/3")
         self.slice_combo.setCurrentIndex(0)
         self.slice_combo.setToolTip("Select the plane for slicing the volume.")
+        self.auto_scale_dropdown(self.slice_combo)
 
         self.cut_combo = QComboBox(self)
         self.cut_combo.addItem("Axis 1")
@@ -170,6 +179,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.cut_combo.setToolTip(
             "Select the axis for cutting through the slice."
         )
+        self.auto_scale_dropdown(self.cut_combo)
 
         slice_label = QLabel("Slice:", self)
         cut_label = QLabel("Cut:", self)
@@ -204,6 +214,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.slice_scale_combo.setToolTip(
             "Select the scale for the slice plot (Linear or Logarithmic)."
         )
+        self.auto_scale_dropdown(self.slice_scale_combo)
 
         self.cut_scale_combo = QComboBox(self)
         self.cut_scale_combo.addItem("Linear")
@@ -211,6 +222,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.cut_scale_combo.setToolTip(
             "Select the scale for the cut plot (Linear or Logarithmic)."
         )
+        self.auto_scale_dropdown(self.cut_scale_combo)
 
         slider_layout = QVBoxLayout()
         bar_layout = QHBoxLayout()
@@ -272,8 +284,10 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.save_slice_button.setToolTip(
             "Save the current slice as a CSV file."
         )
+        self.save_slice_button.setIcon(qta.icon("fa6s.floppy-disk"))
         self.save_cut_button = QPushButton("Save Cut", self)
         self.save_cut_button.setToolTip("Save the current cut as a CSV file.")
+        self.save_cut_button.setIcon(qta.icon("fa6s.floppy-disk"))
 
         self.toggle_line_box = QCheckBox("Show Line Cut")
         self.toggle_line_box.setChecked(False)
