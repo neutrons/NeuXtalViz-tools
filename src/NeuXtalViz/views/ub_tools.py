@@ -1414,14 +1414,14 @@ class UBView(NeuXtalVizWidget):
         peaks_table_tab.setLayout(peaks_layout)
 
     def verify_tab(self):
-        inspect_verify_tab = QTabWidget()
-        self.tab_widget.addTab(inspect_verify_tab, "Views")
+        self.inspect_verify_tab = QTabWidget()
+        self.tab_widget.addTab(self.inspect_verify_tab, "Views")
 
         inspect_tab = self.__init_inspect_tab()
         verify_tab = self.__init_verify_tab()
 
-        inspect_verify_tab.addTab(inspect_tab, "Slice View")
-        inspect_verify_tab.addTab(verify_tab, "Detector View")
+        self.inspect_verify_tab.addTab(inspect_tab, "Slice View")
+        self.inspect_verify_tab.addTab(verify_tab, "Detector View")
 
     def __init_inspect_tab(self):
         convert_to_hkl_tab = QWidget()

@@ -1,6 +1,4 @@
 import os
-from collections import defaultdict
-from pdb import run
 
 from mantid.simpleapi import (
     SelectCellWithForm,

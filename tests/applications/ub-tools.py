@@ -379,6 +379,35 @@ def CORELLI_Bixbyite_UB(app, window):
     ub_view.cell_table.clearSelection()
     ub_view.select_button.setStyleSheet("")
 
+    ub_view.ub_tab.setCurrentIndex(1)
+
+    ub_view.T11_line.setText("-1")
+    ub_view.T22_line.setText("0")
+    ub_view.T23_line.setText("1")
+    ub_view.T32_line.setText("1")
+    ub_view.T33_line.setText("0")
+
+    ub_view.T11_line.setStyleSheet("background-color: yellow;")
+    ub_view.T22_line.setStyleSheet("background-color: yellow;")
+    ub_view.T23_line.setStyleSheet("background-color: yellow;")
+    ub_view.T32_line.setStyleSheet("background-color: yellow;")
+    ub_view.T33_line.setStyleSheet("background-color: yellow;")
+    ub_view.transform_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.transform_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Bixbyite_UB_transform_cell.png"), "png"
+    )
+
+    ub_view.T11_line.setStyleSheet("")
+    ub_view.T22_line.setStyleSheet("")
+    ub_view.T23_line.setStyleSheet("")
+    ub_view.T32_line.setStyleSheet("")
+    ub_view.T33_line.setStyleSheet("")
+    ub_view.transform_button.setStyleSheet("")
+
     ub_view.ub_tab.setCurrentIndex(2)
 
     index = ub_view.optimize_combo.findText("Cubic")
@@ -645,22 +674,44 @@ def CORELLI_Natrolite_UB(app, window):
     ub_view.cal_line.setStyleSheet("")
     ub_view.convert_to_q_button.setStyleSheet("")
 
-    ub_view.max_peaks_line.setStyleSheet("background-color: yellow;")
-    ub_view.density_threshold_line.setStyleSheet("background-color: yellow;")
-    ub_view.min_distance_line.setStyleSheet("background-color: yellow;")
-    ub_view.find_button.setStyleSheet("background-color: green;")
+    ub_view.tab_widget.setCurrentIndex(2)
+    ub_view.inspect_verify_tab.setCurrentIndex(1)
 
-    QTest.mouseClick(ub_view.find_button, Qt.LeftButton)
+    ub_view.horizontal_line.setStyleSheet("background-color: yellow;")
+    ub_view.vertical_line.setStyleSheet("background-color: yellow;")
+    ub_view.diffraction_line.setStyleSheet("background-color: yellow;")
+    ub_view.add_peak_button.setStyleSheet("background-color: green;")
+
+    ub_view.horizontal_line.setText("-11")
+    ub_view.vertical_line.setText("-12")
+    ub_view.diffraction_line.setText("1.83")
+    ub_presenter.update_roi()
+    ub_presenter.update_scan()
+
+    QTest.mouseClick(ub_view.add_peak_button, Qt.LeftButton)
     QTest.qWait(1000 * 5)
 
     app.primaryScreen().grabWindow(window.winId()).save(
-        os.path.join(directory, "Natrolite_UB_find_peaks.png"), "png"
+        os.path.join(directory, "Natrolite_UB_first_peak.png"), "png"
     )
 
-    ub_view.max_peaks_line.setStyleSheet("")
-    ub_view.density_threshold_line.setStyleSheet("")
-    ub_view.min_distance_line.setStyleSheet("")
-    ub_view.find_button.setStyleSheet("")
+    ub_view.horizontal_line.setText("31")
+    ub_view.vertical_line.setText("-6")
+    ub_view.diffraction_line.setText("1.73")
+    ub_presenter.update_roi()
+    ub_presenter.update_scan()
+
+    QTest.mouseClick(ub_view.add_peak_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Natrolite_UB_second_peak.png"), "png"
+    )
+
+    ub_view.horizontal_line.setStyleSheet("")
+    ub_view.vertical_line.setStyleSheet("")
+    ub_view.diffraction_line.setStyleSheet("")
+    ub_view.add_peak_button.setStyleSheet("")
 
     ub_view.a_line.setText("18.26")
     ub_view.b_line.setText("18.59")
@@ -675,9 +726,14 @@ def CORELLI_Natrolite_UB(app, window):
     ub_view.alpha_line.setStyleSheet("background-color: yellow;")
     ub_view.beta_line.setStyleSheet("background-color: yellow;")
     ub_view.gamma_line.setStyleSheet("background-color: yellow;")
+    ub_view.set_ub_button.setStyleSheet("background-color: green;")
 
-    QTest.mouseClick(ub_view.conventional_button, Qt.LeftButton)
+    QTest.mouseClick(ub_view.set_ub_button, Qt.LeftButton)
     QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Natrolite_UB_set.png"), "png"
+    )
 
     ub_view.a_line.setStyleSheet("")
     ub_view.b_line.setStyleSheet("")
@@ -689,9 +745,102 @@ def CORELLI_Natrolite_UB(app, window):
     ub_view.conventional_button.setStyleSheet("")
     ub_view.refine_button.setStyleSheet("")
 
+    ub_view.tab_widget.setCurrentIndex(1)
+    ub_view.peaks_table.selectRow(0)
+
+    ub_view.h1_line.setText("2")
+    ub_view.k1_line.setText("2")
+    ub_view.l1_line.setText("0")
+
+    ub_view.int_h_line.setText("2")
+    ub_view.int_k_line.setText("2")
+    ub_view.int_l_line.setText("0")
+    ub_presenter.hand_index_integer()
+
+    ub_view.h1_line.setStyleSheet("background-color: yellow;")
+    ub_view.k1_line.setStyleSheet("background-color: yellow;")
+    ub_view.l1_line.setStyleSheet("background-color: yellow;")
+    ub_view.highlight_1_button.setStyleSheet("background-color: green;")
+    ub_view.calculate_button.setStyleSheet("background-color: green;")
+
+    ub_view.int_h_line.setStyleSheet("background-color: yellow;")
+    ub_view.int_k_line.setStyleSheet("background-color: yellow;")
+    ub_view.int_l_line.setStyleSheet("background-color: yellow;")
+
+    QTest.mouseClick(ub_view.highlight_1_button, Qt.LeftButton)
+    QTest.mouseClick(ub_view.calculate_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
     app.primaryScreen().grabWindow(window.winId()).save(
-        os.path.join(directory, "Natrolite_UB_conventional_cell.png"), "png"
+        os.path.join(directory, "Natrolite_UB_index_first_peak.png"), "png"
     )
+
+    ub_view.h1_line.setStyleSheet("")
+    ub_view.k1_line.setStyleSheet("")
+    ub_view.l1_line.setStyleSheet("")
+    ub_view.highlight_1_button.setStyleSheet("")
+    ub_view.calculate_button.setStyleSheet("")
+
+    ub_view.peaks_table.clearSelection()
+    ub_view.peaks_table.selectRow(1)
+
+    ub_view.h2_line.setText("1")
+    ub_view.k2_line.setText("-5")
+    ub_view.l2_line.setText("1")
+
+    ub_view.int_h_line.setText("1")
+    ub_view.int_k_line.setText("-5")
+    ub_view.int_l_line.setText("1")
+    ub_presenter.hand_index_integer()
+
+    ub_view.h2_line.setStyleSheet("background-color: yellow;")
+    ub_view.k2_line.setStyleSheet("background-color: yellow;")
+    ub_view.l2_line.setStyleSheet("background-color: yellow;")
+    ub_view.highlight_2_button.setStyleSheet("background-color: green;")
+    ub_view.calculate_button.setStyleSheet("background-color: green;")
+    ub_view.calculate_highlight_button.setStyleSheet(
+        "background-color: green;"
+    )
+
+    QTest.mouseClick(ub_view.highlight_2_button, Qt.LeftButton)
+    QTest.mouseClick(ub_view.calculate_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Natrolite_UB_index_second_peak.png"), "png"
+    )
+
+    ub_view.h2_line.setStyleSheet("")
+    ub_view.k2_line.setStyleSheet("")
+    ub_view.l2_line.setStyleSheet("")
+    ub_view.highlight_2_button.setStyleSheet("")
+    ub_view.calculate_button.setStyleSheet("")
+    ub_view.calculate_highlight_button.setStyleSheet("")
+
+    ub_view.int_h_line.setStyleSheet("")
+    ub_view.int_k_line.setStyleSheet("")
+    ub_view.int_l_line.setStyleSheet("")
+
+    ub_view.peaks_table.clearSelection()
+
+    ub_view.tab_widget.setCurrentIndex(0)
+    ub_view.ub_tab.setCurrentIndex(2)
+
+    index = ub_view.optimize_combo.findText("Constrained")
+    ub_view.optimize_combo.setCurrentIndex(index)
+
+    ub_view.optimize_combo.setStyleSheet("background-color: yellow;")
+    ub_view.refine_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.refine_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Natrolite_UB_calculate_UB.png"), "png"
+    )
+
+    ub_view.optimize_combo.setStyleSheet("")
+    ub_view.refine_button.setStyleSheet("")
 
     ub_view.peaks_tab.setCurrentIndex(1)
     ub_view.index_button.setStyleSheet("background-color: green;")
@@ -704,26 +853,6 @@ def CORELLI_Natrolite_UB(app, window):
     )
 
     ub_view.index_button.setStyleSheet("")
-
-    ub_view.ub_tab.setCurrentIndex(2)
-
-    index = ub_view.optimize_combo.findText("Orthorhombic")
-    ub_view.optimize_combo.setCurrentIndex(index)
-
-    ub_view.optimize_combo.setStyleSheet("background-color: yellow;")
-    ub_view.conventional_button.setStyleSheet("background-color: green;")
-    ub_view.refine_button.setStyleSheet("background-color: green;")
-
-    QTest.mouseClick(ub_view.refine_button, Qt.LeftButton)
-    QTest.qWait(1000 * 5)
-
-    app.primaryScreen().grabWindow(window.winId()).save(
-        os.path.join(directory, "Natrolite_UB_refine_UB.png"), "png"
-    )
-
-    ub_view.optimize_combo.setStyleSheet("")
-    ub_view.conventional_button.setStyleSheet("")
-    ub_view.refine_button.setStyleSheet("")
 
     ub_view.tab_widget.setCurrentIndex(1)
     ub_view.peaks_table.selectRow(0)
@@ -772,6 +901,6 @@ def CORELLI_Natrolite_UB(app, window):
 if __name__ == "__main__":
     # run_qt_scenario(TOPAZ_Si_UB)
     # run_qt_scenario(TOPAZ_Scolecite_UB)
-    run_qt_scenario(CORELLI_Bixbyite_UB)
-    # run_qt_scenario(CORELLI_Natrolite_UB)
+    # run_qt_scenario(CORELLI_Bixbyite_UB)
+    run_qt_scenario(CORELLI_Natrolite_UB)
     # run_qt_scenario(MANDI_Mesolite_UB)
