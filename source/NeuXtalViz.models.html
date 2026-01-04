@@ -413,7 +413,7 @@ various crystallographic and reciprocal axes and transformations for visualizati
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NeuXtalVizModel</span></span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L46-L300"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NeuXtalVizModel</span></span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L47-L537"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
@@ -436,20 +436,32 @@ various crystallographic and reciprocal axes and transformations for visualizati
 <tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ca_star_axes" title="NeuXtalViz.models.base_model.NeuXtalVizModel.ca_star_axes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_star_axes</span></code></a>()</p></td>
 <td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_oriented_lattice_parameters" title="NeuXtalViz.models.base_model.NeuXtalVizModel.get_oriented_lattice_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_oriented_lattice_parameters</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.calculate_camera_parameters" title="NeuXtalViz.models.base_model.NeuXtalVizModel.calculate_camera_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_camera_parameters</span></code></a>(direction, roll)</p></td>
+<td><p>Calculate roll, elevation, and azimuth from camera direction and roll.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_oriented_lattice_parameters" title="NeuXtalViz.models.base_model.NeuXtalVizModel.get_oriented_lattice_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_oriented_lattice_parameters</span></code></a>()</p></td>
 <td><p>Obtain the oriented lattice parameters.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_transform" title="NeuXtalViz.models.base_model.NeuXtalVizModel.get_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform</span></code></a>([reciprocal])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_transform" title="NeuXtalViz.models.base_model.NeuXtalVizModel.get_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform</span></code></a>([reciprocal])</p></td>
 <td><p>Transformation matrix describing the reciprocal or crystal axes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_vector" title="NeuXtalViz.models.base_model.NeuXtalVizModel.get_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vector</span></code></a>(axes_type, ind)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_vector" title="NeuXtalViz.models.base_model.NeuXtalVizModel.get_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vector</span></code></a>(axes_type, ind)</p></td>
 <td><p>Vector corresponding to a particular crystallographic direction.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.has_UB" title="NeuXtalViz.models.base_model.NeuXtalVizModel.has_UB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_UB</span></code></a>(ws)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.has_UB" title="NeuXtalViz.models.base_model.NeuXtalVizModel.has_UB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_UB</span></code></a>(ws)</p></td>
 <td><p>Check if the oriented lattice exists on a workspace.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.orientation_matrix" title="NeuXtalViz.models.base_model.NeuXtalVizModel.orientation_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation_matrix</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.orientation_matrix" title="NeuXtalViz.models.base_model.NeuXtalVizModel.orientation_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation_matrix</span></code></a>()</p></td>
 <td><p>Return the current UB matrix (orientation matrix).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_azimuth" title="NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_azimuth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_azimuth</span></code></a>(position, focal_point, ...)</p></td>
+<td><p>Rotate the camera left/right about a global up axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_elevation" title="NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_elevation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_elevation</span></code></a>(position, ...)</p></td>
+<td><p>Tilt the camera up/down about its right axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_roll" title="NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_roll"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_roll</span></code></a>(position, focal_point, ...)</p></td>
+<td><p>Apply a roll about the current viewing axis.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.set_UB" title="NeuXtalViz.models.base_model.NeuXtalVizModel.set_UB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_UB</span></code></a>(UB)</p></td>
 <td><p>Update the UB-matrix.</p></td>
@@ -459,7 +471,7 @@ various crystallographic and reciprocal axes and transformations for visualizati
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.ab_axes">
-<span class="sig-name descname"><span class="pre">ab_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L213-L229"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ab_axes" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ab_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L214-L230"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ab_axes" title="Link to this definition">#</a></dt>
 <dd><p><span class="math notranslate nohighlight">\(c^*\)</span>-direction in cartesian coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -475,7 +487,7 @@ various crystallographic and reciprocal axes and transformations for visualizati
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.ab_star_axes">
-<span class="sig-name descname"><span class="pre">ab_star_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L159-L175"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ab_star_axes" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ab_star_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L160-L176"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ab_star_axes" title="Link to this definition">#</a></dt>
 <dd><p><span class="math notranslate nohighlight">\(c\)</span>-direction in cartesian coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -491,7 +503,7 @@ various crystallographic and reciprocal axes and transformations for visualizati
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.bc_axes">
-<span class="sig-name descname"><span class="pre">bc_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L231-L247"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.bc_axes" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">bc_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L232-L248"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.bc_axes" title="Link to this definition">#</a></dt>
 <dd><p><span class="math notranslate nohighlight">\(a^*\)</span>-direction in cartesian coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -507,7 +519,7 @@ various crystallographic and reciprocal axes and transformations for visualizati
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.bc_star_axes">
-<span class="sig-name descname"><span class="pre">bc_star_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L177-L193"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.bc_star_axes" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">bc_star_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L178-L194"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.bc_star_axes" title="Link to this definition">#</a></dt>
 <dd><p><span class="math notranslate nohighlight">\(a\)</span>-direction in cartesian coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -523,7 +535,7 @@ various crystallographic and reciprocal axes and transformations for visualizati
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.ca_axes">
-<span class="sig-name descname"><span class="pre">ca_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L249-L265"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ca_axes" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ca_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L250-L266"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ca_axes" title="Link to this definition">#</a></dt>
 <dd><p><span class="math notranslate nohighlight">\(b^*\)</span>-direction in cartesian coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -539,7 +551,7 @@ various crystallographic and reciprocal axes and transformations for visualizati
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.ca_star_axes">
-<span class="sig-name descname"><span class="pre">ca_star_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L195-L211"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ca_star_axes" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ca_star_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L196-L212"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ca_star_axes" title="Link to this definition">#</a></dt>
 <dd><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -554,8 +566,30 @@ various crystallographic and reciprocal axes and transformations for visualizati
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.calculate_camera_parameters">
+<span class="sig-name descname"><span class="pre">calculate_camera_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roll</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L513-L537"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.calculate_camera_parameters" title="Link to this definition">#</a></dt>
+<dd><p>Calculate roll, elevation, and azimuth from camera direction and roll.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>direction</strong><span class="classifier">array-like, shape (3,)</span></dt><dd><p>Camera viewing direction.</p>
+</dd>
+<dt><strong>roll</strong><span class="classifier">float</span></dt><dd><p>Camera roll angle in degrees.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>roll, elevation, azimuth</strong><span class="classifier">float</span></dt><dd><p>Camera roll, elevation, and azimuth angles in degrees.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.get_oriented_lattice_parameters">
-<span class="sig-name descname"><span class="pre">get_oriented_lattice_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L87-L113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_oriented_lattice_parameters" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_oriented_lattice_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L88-L114"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_oriented_lattice_parameters" title="Link to this definition">#</a></dt>
 <dd><p>Obtain the oriented lattice parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -573,7 +607,7 @@ various crystallographic and reciprocal axes and transformations for visualizati
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.get_transform">
-<span class="sig-name descname"><span class="pre">get_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reciprocal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L128-L157"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_transform" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reciprocal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L129-L158"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_transform" title="Link to this definition">#</a></dt>
 <dd><p>Transformation matrix describing the reciprocal or crystal axes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -594,7 +628,7 @@ Default is True.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.get_vector">
-<span class="sig-name descname"><span class="pre">get_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axes_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L267-L300"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_vector" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axes_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L268-L301"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_vector" title="Link to this definition">#</a></dt>
 <dd><p>Vector corresponding to a particular crystallographic direction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -616,7 +650,7 @@ Default is True.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.has_UB">
-<span class="sig-name descname"><span class="pre">has_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L54-L72"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.has_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">has_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L55-L73"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.has_UB" title="Link to this definition">#</a></dt>
 <dd><p>Check if the oriented lattice exists on a workspace.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -636,7 +670,7 @@ Default is True.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.orientation_matrix">
-<span class="sig-name descname"><span class="pre">orientation_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L115-L126"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.orientation_matrix" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">orientation_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L116-L127"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.orientation_matrix" title="Link to this definition">#</a></dt>
 <dd><p>Return the current UB matrix (orientation matrix).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -649,8 +683,74 @@ Default is True.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_azimuth">
+<span class="sig-name descname"><span class="pre">rotate_camera_azimuth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focal_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_deg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L482-L511"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_azimuth" title="Link to this definition">#</a></dt>
+<dd><p>Rotate the camera left/right about a global up axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>position, focal_point, up</strong><span class="classifier">array-like</span></dt><dd><p>Current camera position, focal point, and up vector.</p>
+</dd>
+<dt><strong>angle_deg</strong><span class="classifier">float</span></dt><dd><p>Azimuth angle in degrees (positive rotates to the right).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>new_position, new_focal_point, new_up</strong><span class="classifier">ndarray</span></dt><dd><p>Updated camera state after applying the azimuth.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_elevation">
+<span class="sig-name descname"><span class="pre">rotate_camera_elevation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focal_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_deg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L451-L480"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_elevation" title="Link to this definition">#</a></dt>
+<dd><p>Tilt the camera up/down about its right axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>position, focal_point, up</strong><span class="classifier">array-like</span></dt><dd><p>Current camera position, focal point, and up vector.</p>
+</dd>
+<dt><strong>angle_deg</strong><span class="classifier">float</span></dt><dd><p>Elevation angle in degrees (positive tilts up).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>new_position, new_focal_point, new_up</strong><span class="classifier">ndarray</span></dt><dd><p>Updated camera state after applying the elevation.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_roll">
+<span class="sig-name descname"><span class="pre">rotate_camera_roll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focal_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_deg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L426-L449"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_roll" title="Link to this definition">#</a></dt>
+<dd><p>Apply a roll about the current viewing axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>position, focal_point, up</strong><span class="classifier">array-like</span></dt><dd><p>Current camera position, focal point, and up vector.</p>
+</dd>
+<dt><strong>angle_deg</strong><span class="classifier">float</span></dt><dd><p>Roll angle in degrees (positive is counter‑clockwise).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>new_position, new_focal_point, new_up</strong><span class="classifier">ndarray</span></dt><dd><p>Updated camera state after applying the roll.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.set_UB">
-<span class="sig-name descname"><span class="pre">set_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">UB</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L74-L85"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.set_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">UB</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L75-L86"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.set_UB" title="Link to this definition">#</a></dt>
 <dd><p>Update the UB-matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -692,20 +792,32 @@ Default is True.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_star_axes</span></code>()</p></td>
 <td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_oriented_lattice_parameters</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_camera_parameters</span></code>(direction, roll)</p></td>
+<td><p>Calculate roll, elevation, and azimuth from camera direction and roll.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_oriented_lattice_parameters</span></code>()</p></td>
 <td><p>Obtain the oriented lattice parameters.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform</span></code>([reciprocal])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform</span></code>([reciprocal])</p></td>
 <td><p>Transformation matrix describing the reciprocal or crystal axes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vector</span></code>(axes_type, ind)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vector</span></code>(axes_type, ind)</p></td>
 <td><p>Vector corresponding to a particular crystallographic direction.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_UB</span></code>(ws)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_UB</span></code>(ws)</p></td>
 <td><p>Check if the oriented lattice exists on a workspace.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation_matrix</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation_matrix</span></code>()</p></td>
 <td><p>Return the current UB matrix (orientation matrix).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_azimuth</span></code>(position, focal_point, ...)</p></td>
+<td><p>Rotate the camera left/right about a global up axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_elevation</span></code>(position, ...)</p></td>
+<td><p>Tilt the camera up/down about its right axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_roll</span></code>(position, focal_point, ...)</p></td>
+<td><p>Apply a roll about the current viewing axis.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_UB</span></code>(UB)</p></td>
 <td><p>Update the UB-matrix.</p></td>
@@ -1024,23 +1136,35 @@ performing peak prediction, and calculating experiment statistics.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_star_axes</span></code>()</p></td>
 <td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.experiment_planner.ExperimentModel.get_instrument_directory" title="NeuXtalViz.models.experiment_planner.ExperimentModel.get_instrument_directory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_instrument_directory</span></code></a>(instrument)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_camera_parameters</span></code>(direction, roll)</p></td>
+<td><p>Calculate roll, elevation, and azimuth from camera direction and roll.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.experiment_planner.ExperimentModel.get_instrument_directory" title="NeuXtalViz.models.experiment_planner.ExperimentModel.get_instrument_directory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_instrument_directory</span></code></a>(instrument)</p></td>
 <td><p>Get the file path for a given instrument.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_oriented_lattice_parameters</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_oriented_lattice_parameters</span></code>()</p></td>
 <td><p>Obtain the oriented lattice parameters.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform</span></code>([reciprocal])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform</span></code>([reciprocal])</p></td>
 <td><p>Transformation matrix describing the reciprocal or crystal axes.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vector</span></code>(axes_type, ind)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vector</span></code>(axes_type, ind)</p></td>
 <td><p>Vector corresponding to a particular crystallographic direction.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.experiment_planner.ExperimentModel.has_UB" title="NeuXtalViz.models.experiment_planner.ExperimentModel.has_UB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_UB</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.experiment_planner.ExperimentModel.has_UB" title="NeuXtalViz.models.experiment_planner.ExperimentModel.has_UB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_UB</span></code></a>()</p></td>
 <td><p>Check if the oriented lattice exists on a workspace.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation_matrix</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation_matrix</span></code>()</p></td>
 <td><p>Return the current UB matrix (orientation matrix).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_azimuth</span></code>(position, focal_point, ...)</p></td>
+<td><p>Rotate the camera left/right about a global up axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_elevation</span></code>(position, ...)</p></td>
+<td><p>Tilt the camera up/down about its right axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_roll</span></code>(position, focal_point, ...)</p></td>
+<td><p>Apply a roll about the current viewing axis.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_UB</span></code>(UB)</p></td>
 <td><p>Update the UB-matrix.</p></td>
@@ -1614,20 +1738,32 @@ performing peak prediction, and calculating experiment statistics.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_star_axes</span></code>()</p></td>
 <td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_oriented_lattice_parameters</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_camera_parameters</span></code>(direction, roll)</p></td>
+<td><p>Calculate roll, elevation, and azimuth from camera direction and roll.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_oriented_lattice_parameters</span></code>()</p></td>
 <td><p>Obtain the oriented lattice parameters.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform</span></code>([reciprocal])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform</span></code>([reciprocal])</p></td>
 <td><p>Transformation matrix describing the reciprocal or crystal axes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vector</span></code>(axes_type, ind)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vector</span></code>(axes_type, ind)</p></td>
 <td><p>Vector corresponding to a particular crystallographic direction.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_UB</span></code>(ws)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_UB</span></code>(ws)</p></td>
 <td><p>Check if the oriented lattice exists on a workspace.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation_matrix</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation_matrix</span></code>()</p></td>
 <td><p>Return the current UB matrix (orientation matrix).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_azimuth</span></code>(position, focal_point, ...)</p></td>
+<td><p>Rotate the camera left/right about a global up axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_elevation</span></code>(position, ...)</p></td>
+<td><p>Tilt the camera up/down about its right axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_roll</span></code>(position, focal_point, ...)</p></td>
+<td><p>Apply a roll about the current viewing axis.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_UB</span></code>(UB)</p></td>
 <td><p>Update the UB-matrix.</p></td>
@@ -1760,215 +1896,227 @@ and modulated structures.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_star_axes</span></code>()</p></td>
 <td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_clim" title="NeuXtalViz.models.ub_tools.UBModel.calculate_clim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_clim</span></code></a>(data[, method])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_camera_parameters</span></code>(direction, roll)</p></td>
+<td><p>Calculate roll, elevation, and azimuth from camera direction and roll.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_clim" title="NeuXtalViz.models.ub_tools.UBModel.calculate_clim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_clim</span></code></a>(data[, method])</p></td>
 <td><p>Calculate the color limits for the given data using the specified method.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_fractional" title="NeuXtalViz.models.ub_tools.UBModel.calculate_fractional"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_fractional</span></code></a>(mod_vec_1, mod_vec_2, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_fractional" title="NeuXtalViz.models.ub_tools.UBModel.calculate_fractional"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_fractional</span></code></a>(mod_vec_1, mod_vec_2, ...)</p></td>
 <td><p>Calculate the fractional coordinates from the given modulation vectors and integer coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_hkl" title="NeuXtalViz.models.ub_tools.UBModel.calculate_hkl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_hkl</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_hkl" title="NeuXtalViz.models.ub_tools.UBModel.calculate_hkl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_hkl</span></code></a>()</p></td>
 <td><p>Calculate hkl values without rounding.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_hkl_position" title="NeuXtalViz.models.ub_tools.UBModel.calculate_hkl_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_hkl_position</span></code></a>(ind, h, k, l)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_hkl_position" title="NeuXtalViz.models.ub_tools.UBModel.calculate_hkl_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_hkl_position</span></code></a>(ind, h, k, l)</p></td>
 <td><p>Calculate the HKL position for a given peak index and Miller indices.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_instrument_view" title="NeuXtalViz.models.ub_tools.UBModel.calculate_instrument_view"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_instrument_view</span></code></a>(ind, d_min, d_max)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_instrument_view" title="NeuXtalViz.models.ub_tools.UBModel.calculate_instrument_view"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_instrument_view</span></code></a>(ind, d_min, d_max)</p></td>
 <td><p>Calculate the instrument view for a given peak index and d-spacing range.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_integer" title="NeuXtalViz.models.ub_tools.UBModel.calculate_integer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_integer</span></code></a>(mod_vec_1, mod_vec_2, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_integer" title="NeuXtalViz.models.ub_tools.UBModel.calculate_integer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_integer</span></code></a>(mod_vec_1, mod_vec_2, ...)</p></td>
 <td><p>Calculate the integer coordinates from the given modulation vectors and HKL coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_peaks" title="NeuXtalViz.models.ub_tools.UBModel.calculate_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_peaks</span></code></a>(hkl_1, hkl_2, a, b, c, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_peaks" title="NeuXtalViz.models.ub_tools.UBModel.calculate_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_peaks</span></code></a>(hkl_1, hkl_2, a, b, c, ...)</p></td>
 <td><p>Calculate d-spacing and angle between two HKL planes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calibrate_data" title="NeuXtalViz.models.ub_tools.UBModel.calibrate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibrate_data</span></code></a>(instrument, det_cal, gon_cal, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.calibrate_data" title="NeuXtalViz.models.ub_tools.UBModel.calibrate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibrate_data</span></code></a>(instrument, det_cal, gon_cal, ...)</p></td>
 <td><p>Calibrate the loaded data using detector, goniometer, and tube calibration files.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.centroid_peaks" title="NeuXtalViz.models.ub_tools.UBModel.centroid_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">centroid_peaks</span></code></a>(peak_radius)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.centroid_peaks" title="NeuXtalViz.models.ub_tools.UBModel.centroid_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">centroid_peaks</span></code></a>(peak_radius)</p></td>
 <td><p>Re-center peak locations using centroid within given radius</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.clear_intensity" title="NeuXtalViz.models.ub_tools.UBModel.clear_intensity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_intensity</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.clear_intensity" title="NeuXtalViz.models.ub_tools.UBModel.clear_intensity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_intensity</span></code></a>()</p></td>
 <td><p>Clear the intensity values of all peaks in the peaks table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.cluster_peaks" title="NeuXtalViz.models.ub_tools.UBModel.cluster_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cluster_peaks</span></code></a>(peak_info[, eps, min_samples])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.cluster_peaks" title="NeuXtalViz.models.ub_tools.UBModel.cluster_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cluster_peaks</span></code></a>(peak_info[, eps, min_samples])</p></td>
 <td><p>Cluster peaks using DBSCAN algorithm.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.convert_data" title="NeuXtalViz.models.ub_tools.UBModel.convert_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_data</span></code></a>(instrument, wavelength, lorentz)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.convert_data" title="NeuXtalViz.models.ub_tools.UBModel.convert_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_data</span></code></a>(instrument, wavelength, lorentz)</p></td>
 <td><p>Convert loaded data to Q-space using Mantid algorithms.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_from_Q" title="NeuXtalViz.models.ub_tools.UBModel.copy_UB_from_Q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_UB_from_Q</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_from_Q" title="NeuXtalViz.models.ub_tools.UBModel.copy_UB_from_Q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_UB_from_Q</span></code></a>()</p></td>
 <td><p>Copy the UB matrix from the Q workspace to the cell workspace.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_from_peaks" title="NeuXtalViz.models.ub_tools.UBModel.copy_UB_from_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_UB_from_peaks</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_from_peaks" title="NeuXtalViz.models.ub_tools.UBModel.copy_UB_from_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_UB_from_peaks</span></code></a>()</p></td>
 <td><p>Copy the UB matrix from the peaks workspace to the cell workspace.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_Q" title="NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_Q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_UB_to_Q</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_Q" title="NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_Q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_UB_to_Q</span></code></a>()</p></td>
 <td><p>Copy the UB matrix from the cell workspace to the Q workspace.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_peaks" title="NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_UB_to_peaks</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_peaks" title="NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_UB_to_peaks</span></code></a>()</p></td>
 <td><p>Copy the UB matrix from the cell workspace to the peaks workspace.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.delete_peaks" title="NeuXtalViz.models.ub_tools.UBModel.delete_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_peaks</span></code></a>(peaks)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.delete_peaks" title="NeuXtalViz.models.ub_tools.UBModel.delete_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_peaks</span></code></a>(peaks)</p></td>
 <td><p>Remove peaks.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.determine_UB_with_lattice_parameters" title="NeuXtalViz.models.ub_tools.UBModel.determine_UB_with_lattice_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">determine_UB_with_lattice_parameters</span></code></a>(a, b, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.determine_UB_with_lattice_parameters" title="NeuXtalViz.models.ub_tools.UBModel.determine_UB_with_lattice_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">determine_UB_with_lattice_parameters</span></code></a>(a, b, ...)</p></td>
 <td><p>Determine UB with prior known lattice parameters.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.determine_UB_with_niggli_cell" title="NeuXtalViz.models.ub_tools.UBModel.determine_UB_with_niggli_cell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">determine_UB_with_niggli_cell</span></code></a>(min_d, max_d)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.determine_UB_with_niggli_cell" title="NeuXtalViz.models.ub_tools.UBModel.determine_UB_with_niggli_cell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">determine_UB_with_niggli_cell</span></code></a>(min_d, max_d)</p></td>
 <td><p>Determine UB with primitive lattice using min/max lattice constant.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.extract_roi" title="NeuXtalViz.models.ub_tools.UBModel.extract_roi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_roi</span></code></a>(horz, vert, horz_roi, vert_roi, val)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.extract_roi" title="NeuXtalViz.models.ub_tools.UBModel.extract_roi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_roi</span></code></a>(horz, vert, horz_roi, vert_roi, val)</p></td>
 <td><p>Extract a region of interest (ROI) from the instrument view.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.filter_peaks" title="NeuXtalViz.models.ub_tools.UBModel.filter_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_peaks</span></code></a>(name, operator, value)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.filter_peaks" title="NeuXtalViz.models.ub_tools.UBModel.filter_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_peaks</span></code></a>(name, operator, value)</p></td>
 <td><p>Filter out peaks based on value and operator.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.find_peaks" title="NeuXtalViz.models.ub_tools.UBModel.find_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_peaks</span></code></a>(min_dist[, density, max_peaks, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.find_peaks" title="NeuXtalViz.models.ub_tools.UBModel.find_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_peaks</span></code></a>(min_dist[, density, max_peaks, ...])</p></td>
 <td><p>Harvest strong peak locations from Q-sample into a peaks table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.generate_lattice_transforms" title="NeuXtalViz.models.ub_tools.UBModel.generate_lattice_transforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_lattice_transforms</span></code></a>(cell)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.generate_lattice_transforms" title="NeuXtalViz.models.ub_tools.UBModel.generate_lattice_transforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_lattice_transforms</span></code></a>(cell)</p></td>
 <td><p>Obtain possible transforms compatabile with a unit cell lattice.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_Q" title="NeuXtalViz.models.ub_tools.UBModel.get_Q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_Q</span></code></a>(d)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_Q" title="NeuXtalViz.models.ub_tools.UBModel.get_Q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_Q</span></code></a>(d)</p></td>
 <td><p>Convert to Q momentum transfer magnitude.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_Q_info" title="NeuXtalViz.models.ub_tools.UBModel.get_Q_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_Q_info</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_Q_info" title="NeuXtalViz.models.ub_tools.UBModel.get_Q_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_Q_info</span></code></a>()</p></td>
 <td><p>Extract Q-space information from the model.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_UB" title="NeuXtalViz.models.ub_tools.UBModel.get_UB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_UB</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_UB" title="NeuXtalViz.models.ub_tools.UBModel.get_UB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_UB</span></code></a>()</p></td>
 <td><p>Retrieve the UB matrix from the oriented lattice.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_all_goniometer_matrices" title="NeuXtalViz.models.ub_tools.UBModel.get_all_goniometer_matrices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_all_goniometer_matrices</span></code></a>(ws)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_all_goniometer_matrices" title="NeuXtalViz.models.ub_tools.UBModel.get_all_goniometer_matrices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_all_goniometer_matrices</span></code></a>(ws)</p></td>
 <td><p>Extract all goniometer matrices.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_calibration_file_path" title="NeuXtalViz.models.ub_tools.UBModel.get_calibration_file_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_calibration_file_path</span></code></a>(instrument)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_calibration_file_path" title="NeuXtalViz.models.ub_tools.UBModel.get_calibration_file_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_calibration_file_path</span></code></a>(instrument)</p></td>
 <td><p>Get the calibration file path for a given instrument.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_cluster_info" title="NeuXtalViz.models.ub_tools.UBModel.get_cluster_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cluster_info</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_cluster_info" title="NeuXtalViz.models.ub_tools.UBModel.get_cluster_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cluster_info</span></code></a>()</p></td>
 <td><p>Get cluster information for peaks based on UB and peak table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_d" title="NeuXtalViz.models.ub_tools.UBModel.get_d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_d</span></code></a>(Q)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_d" title="NeuXtalViz.models.ub_tools.UBModel.get_d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_d</span></code></a>(Q)</p></td>
 <td><p>Convert to d-spacing.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_goniometer_axes" title="NeuXtalViz.models.ub_tools.UBModel.get_goniometer_axes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_goniometer_axes</span></code></a>(instrument)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_goniometer_axes" title="NeuXtalViz.models.ub_tools.UBModel.get_goniometer_axes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_goniometer_axes</span></code></a>(instrument)</p></td>
 <td><p>Get goniometer axis names for a given instrument.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_goniometers" title="NeuXtalViz.models.ub_tools.UBModel.get_goniometers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_goniometers</span></code></a>(instrument)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_goniometers" title="NeuXtalViz.models.ub_tools.UBModel.get_goniometers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_goniometers</span></code></a>(instrument)</p></td>
 <td><p>Get goniometer settings for a given instrument.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_has_Q_vol" title="NeuXtalViz.models.ub_tools.UBModel.get_has_Q_vol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_has_Q_vol</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_has_Q_vol" title="NeuXtalViz.models.ub_tools.UBModel.get_has_Q_vol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_has_Q_vol</span></code></a>()</p></td>
 <td><p>Check if the Q volume data exists.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_instrument_name" title="NeuXtalViz.models.ub_tools.UBModel.get_instrument_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_instrument_name</span></code></a>(instrument)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_instrument_name" title="NeuXtalViz.models.ub_tools.UBModel.get_instrument_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_instrument_name</span></code></a>(instrument)</p></td>
 <td><p>Get the instrument name string for a given instrument identifier.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_lattice_constant_errors" title="NeuXtalViz.models.ub_tools.UBModel.get_lattice_constant_errors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lattice_constant_errors</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_lattice_constant_errors" title="NeuXtalViz.models.ub_tools.UBModel.get_lattice_constant_errors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lattice_constant_errors</span></code></a>()</p></td>
 <td><p>Get the errors in the lattice constants from the oriented lattice.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_lattice_constants" title="NeuXtalViz.models.ub_tools.UBModel.get_lattice_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lattice_constants</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_lattice_constants" title="NeuXtalViz.models.ub_tools.UBModel.get_lattice_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lattice_constants</span></code></a>()</p></td>
 <td><p>Get the lattice constants from the oriented lattice.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_max_d_spacing" title="NeuXtalViz.models.ub_tools.UBModel.get_max_d_spacing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_max_d_spacing</span></code></a>(ws)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_max_d_spacing" title="NeuXtalViz.models.ub_tools.UBModel.get_max_d_spacing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_max_d_spacing</span></code></a>(ws)</p></td>
 <td><p>Obtain the maximum d-spacing from the oriented lattice.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_number_workspaces" title="NeuXtalViz.models.ub_tools.UBModel.get_number_workspaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_number_workspaces</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_number_workspaces" title="NeuXtalViz.models.ub_tools.UBModel.get_number_workspaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_number_workspaces</span></code></a>()</p></td>
 <td><p>Get the number of workspaces in the current Mantid session.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_oriented_lattice_parameters</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_oriented_lattice_parameters</span></code>()</p></td>
 <td><p>Obtain the oriented lattice parameters.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_peak" title="NeuXtalViz.models.ub_tools.UBModel.get_peak"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_peak</span></code></a>(i)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_peak" title="NeuXtalViz.models.ub_tools.UBModel.get_peak"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_peak</span></code></a>(i)</p></td>
 <td><p>Get a specific peak's information by index.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_peak_info" title="NeuXtalViz.models.ub_tools.UBModel.get_peak_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_peak_info</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_peak_info" title="NeuXtalViz.models.ub_tools.UBModel.get_peak_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_peak_info</span></code></a>()</p></td>
 <td><p>Extract detailed information for each peak in the current table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_raw_file_path" title="NeuXtalViz.models.ub_tools.UBModel.get_raw_file_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_raw_file_path</span></code></a>(instrument)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_raw_file_path" title="NeuXtalViz.models.ub_tools.UBModel.get_raw_file_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_raw_file_path</span></code></a>(instrument)</p></td>
 <td><p>Get the raw data file path for a given instrument.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_sample_directions" title="NeuXtalViz.models.ub_tools.UBModel.get_sample_directions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sample_directions</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_sample_directions" title="NeuXtalViz.models.ub_tools.UBModel.get_sample_directions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sample_directions</span></code></a>()</p></td>
 <td><p>Get the sample directions from the UB matrix.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_shared_file_path" title="NeuXtalViz.models.ub_tools.UBModel.get_shared_file_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_shared_file_path</span></code></a>(instrument, ipts)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_shared_file_path" title="NeuXtalViz.models.ub_tools.UBModel.get_shared_file_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_shared_file_path</span></code></a>(instrument, ipts)</p></td>
 <td><p>Get the shared file path for a given instrument and IPTS.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_slice_info" title="NeuXtalViz.models.ub_tools.UBModel.get_slice_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_slice_info</span></code></a>(U, V, W, normal, value, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_slice_info" title="NeuXtalViz.models.ub_tools.UBModel.get_slice_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_slice_info</span></code></a>(U, V, W, normal, value, ...)</p></td>
 <td><p>Get the slicing information for a given normal and value.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform</span></code>([reciprocal])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform</span></code>([reciprocal])</p></td>
 <td><p>Transformation matrix describing the reciprocal or crystal axes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_vanadium_file_path" title="NeuXtalViz.models.ub_tools.UBModel.get_vanadium_file_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vanadium_file_path</span></code></a>(instrument)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_vanadium_file_path" title="NeuXtalViz.models.ub_tools.UBModel.get_vanadium_file_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vanadium_file_path</span></code></a>(instrument)</p></td>
 <td><p>Get the vanadium calibration file path for a given instrument.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vector</span></code>(axes_type, ind)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vector</span></code>(axes_type, ind)</p></td>
 <td><p>Vector corresponding to a particular crystallographic direction.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_wavelength" title="NeuXtalViz.models.ub_tools.UBModel.get_wavelength"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_wavelength</span></code></a>(instrument)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.get_wavelength" title="NeuXtalViz.models.ub_tools.UBModel.get_wavelength"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_wavelength</span></code></a>(instrument)</p></td>
 <td><p>Get the wavelength for a given instrument.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.has_Q" title="NeuXtalViz.models.ub_tools.UBModel.has_Q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_Q</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.has_Q" title="NeuXtalViz.models.ub_tools.UBModel.has_Q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_Q</span></code></a>()</p></td>
 <td><p>Check if the Q workspace exists in Mantid.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.has_UB" title="NeuXtalViz.models.ub_tools.UBModel.has_UB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_UB</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.has_UB" title="NeuXtalViz.models.ub_tools.UBModel.has_UB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_UB</span></code></a>()</p></td>
 <td><p>Check if the UB matrix is defined on the sample.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.has_peaks" title="NeuXtalViz.models.ub_tools.UBModel.has_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_peaks</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.has_peaks" title="NeuXtalViz.models.ub_tools.UBModel.has_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_peaks</span></code></a>()</p></td>
 <td><p>Check if the peaks table exists in Mantid.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.index_peaks" title="NeuXtalViz.models.ub_tools.UBModel.index_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">index_peaks</span></code></a>([tol, sat_tol, mod_vec_1, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.index_peaks" title="NeuXtalViz.models.ub_tools.UBModel.index_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">index_peaks</span></code></a>([tol, sat_tol, mod_vec_1, ...])</p></td>
 <td><p>Index the peaks and calculate the lattice parameter uncertainties.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.integrate_peaks" title="NeuXtalViz.models.ub_tools.UBModel.integrate_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">integrate_peaks</span></code></a>(peak_radius[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.integrate_peaks" title="NeuXtalViz.models.ub_tools.UBModel.integrate_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">integrate_peaks</span></code></a>(peak_radius[, ...])</p></td>
 <td><p>Integrate peaks using spherical or ellipsoidal regions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.is_sliced" title="NeuXtalViz.models.ub_tools.UBModel.is_sliced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_sliced</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.is_sliced" title="NeuXtalViz.models.ub_tools.UBModel.is_sliced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_sliced</span></code></a>()</p></td>
 <td><p>Check if the data has been sliced.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.load_Q" title="NeuXtalViz.models.ub_tools.UBModel.load_Q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_Q</span></code></a>(filename)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.load_Q" title="NeuXtalViz.models.ub_tools.UBModel.load_Q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_Q</span></code></a>(filename)</p></td>
 <td><p>Load Q file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.load_UB" title="NeuXtalViz.models.ub_tools.UBModel.load_UB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_UB</span></code></a>(filename)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.load_UB" title="NeuXtalViz.models.ub_tools.UBModel.load_UB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_UB</span></code></a>(filename)</p></td>
 <td><p>Load UB from file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.load_data" title="NeuXtalViz.models.ub_tools.UBModel.load_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_data</span></code></a>(instrument, IPTS, runs, exp, time_stop)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.load_data" title="NeuXtalViz.models.ub_tools.UBModel.load_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_data</span></code></a>(instrument, IPTS, runs, exp, time_stop)</p></td>
 <td><p>Load experimental data for a given instrument and run parameters.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.load_peaks" title="NeuXtalViz.models.ub_tools.UBModel.load_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_peaks</span></code></a>(filename)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.load_peaks" title="NeuXtalViz.models.ub_tools.UBModel.load_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_peaks</span></code></a>(filename)</p></td>
 <td><p>Load peaks file.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation_matrix</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation_matrix</span></code>()</p></td>
 <td><p>Return the current UB matrix (orientation matrix).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.possible_conventional_cells" title="NeuXtalViz.models.ub_tools.UBModel.possible_conventional_cells"><code class="xref py py-obj docutils literal notranslate"><span class="pre">possible_conventional_cells</span></code></a>([max_error, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.possible_conventional_cells" title="NeuXtalViz.models.ub_tools.UBModel.possible_conventional_cells"><code class="xref py py-obj docutils literal notranslate"><span class="pre">possible_conventional_cells</span></code></a>([max_error, ...])</p></td>
 <td><p>List possible conventional cells.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.predict_modulated_peaks" title="NeuXtalViz.models.ub_tools.UBModel.predict_modulated_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_modulated_peaks</span></code></a>(d_min, lamda_min, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.predict_modulated_peaks" title="NeuXtalViz.models.ub_tools.UBModel.predict_modulated_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_modulated_peaks</span></code></a>(d_min, lamda_min, ...)</p></td>
 <td><p>Predict the modulated peak positions based on main peaks.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.predict_peaks" title="NeuXtalViz.models.ub_tools.UBModel.predict_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_peaks</span></code></a>(centering, d_min, lamda_min, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.predict_peaks" title="NeuXtalViz.models.ub_tools.UBModel.predict_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_peaks</span></code></a>(centering, d_min, lamda_min, ...)</p></td>
 <td><p>Predict peak Q-sample locations with UB and lattice centering.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.predict_satellite_peaks" title="NeuXtalViz.models.ub_tools.UBModel.predict_satellite_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_satellite_peaks</span></code></a>(lamda_min, ...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.predict_satellite_peaks" title="NeuXtalViz.models.ub_tools.UBModel.predict_satellite_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_satellite_peaks</span></code></a>(lamda_min, ...[, ...])</p></td>
 <td><p>Locate satellite peaks from goniometer angles.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.refine_UB_with_constraints" title="NeuXtalViz.models.ub_tools.UBModel.refine_UB_with_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refine_UB_with_constraints</span></code></a>(cell[, tol])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.refine_UB_with_constraints" title="NeuXtalViz.models.ub_tools.UBModel.refine_UB_with_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refine_UB_with_constraints</span></code></a>(cell[, tol])</p></td>
 <td><p>Refine UB with constraints corresponding to lattice system.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.refine_UB_without_constraints" title="NeuXtalViz.models.ub_tools.UBModel.refine_UB_without_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refine_UB_without_constraints</span></code></a>([tol, sat_tol])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.refine_UB_without_constraints" title="NeuXtalViz.models.ub_tools.UBModel.refine_UB_without_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refine_UB_without_constraints</span></code></a>([tol, sat_tol])</p></td>
 <td><p>Refine UB with unconstrained lattice parameters.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.refine_U_only" title="NeuXtalViz.models.ub_tools.UBModel.refine_U_only"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refine_U_only</span></code></a>(a, b, c, alpha, beta, gamma)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.refine_U_only" title="NeuXtalViz.models.ub_tools.UBModel.refine_U_only"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refine_U_only</span></code></a>(a, b, c, alpha, beta, gamma)</p></td>
 <td><p>Refine the U orientation only.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.remove_duplicate_peaks" title="NeuXtalViz.models.ub_tools.UBModel.remove_duplicate_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_duplicate_peaks</span></code></a>(peaks)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.remove_duplicate_peaks" title="NeuXtalViz.models.ub_tools.UBModel.remove_duplicate_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_duplicate_peaks</span></code></a>(peaks)</p></td>
 <td><p>Omit duplicate peaks from different based on indexing.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.renumber_runs_by_index" title="NeuXtalViz.models.ub_tools.UBModel.renumber_runs_by_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">renumber_runs_by_index</span></code></a>(ws, peaks)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.renumber_runs_by_index" title="NeuXtalViz.models.ub_tools.UBModel.renumber_runs_by_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">renumber_runs_by_index</span></code></a>(ws, peaks)</p></td>
 <td><p>Re-label the runs by index based on goniometer setting.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.roi_scan_to_hkl" title="NeuXtalViz.models.ub_tools.UBModel.roi_scan_to_hkl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roi_scan_to_hkl</span></code></a>(ind, val, horz, vert)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.roi_scan_to_hkl" title="NeuXtalViz.models.ub_tools.UBModel.roi_scan_to_hkl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roi_scan_to_hkl</span></code></a>(ind, val, horz, vert)</p></td>
 <td><p>Convert a ROI scan position to HKL coordinates.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_azimuth</span></code>(position, focal_point, ...)</p></td>
+<td><p>Rotate the camera left/right about a global up axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_elevation</span></code>(position, ...)</p></td>
+<td><p>Tilt the camera up/down about its right axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_roll</span></code>(position, focal_point, ...)</p></td>
+<td><p>Apply a roll about the current viewing axis.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.save_Q" title="NeuXtalViz.models.ub_tools.UBModel.save_Q"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_Q</span></code></a>(filename)</p></td>
 <td><p>Save Q file.</p></td>
@@ -3568,50 +3716,62 @@ workspaces.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_star_axes</span></code>()</p></td>
 <td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_clim" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_clim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_clim</span></code></a>(trans[, method])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_camera_parameters</span></code>(direction, roll)</p></td>
+<td><p>Calculate roll, elevation, and azimuth from camera direction and roll.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_clim" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_clim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_clim</span></code></a>(trans[, method])</p></td>
 <td><p>Calculate color limits for visualization based on a method.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_cut_info" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_cut_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cut_info</span></code></a>(axis, value[, thickness])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_cut_info" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_cut_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cut_info</span></code></a>(axis, value[, thickness])</p></td>
 <td><p>Get cut information for a given axis and value.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_histo_info" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_histo_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_histo_info</span></code></a>(normal)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_histo_info" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_histo_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_histo_info</span></code></a>(normal)</p></td>
 <td><p>Get histogram information for a given normal direction.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_normal_plane" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_normal_plane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_normal_plane</span></code></a>(ind)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_normal_plane" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_normal_plane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_normal_plane</span></code></a>(ind)</p></td>
 <td><p>Get the normal vector for a plane given an index vector.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_oriented_lattice_parameters</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_oriented_lattice_parameters</span></code>()</p></td>
 <td><p>Obtain the oriented lattice parameters.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_slice_info</span></code></a>(normal, value[, thickness, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_slice_info</span></code></a>(normal, value[, thickness, ...])</p></td>
 <td><p>Get slice information for a given normal and value.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transform" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform</span></code></a>([reciprocal])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transform" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform</span></code></a>([reciprocal])</p></td>
 <td><p>Get the transformation matrix for the current UB and W matrices.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transforms" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transforms</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transforms" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transforms</span></code></a>()</p></td>
 <td><p>Get projection, transform, and scale matrices for the current UB and W.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vector</span></code>(axes_type, ind)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vector</span></code>(axes_type, ind)</p></td>
 <td><p>Vector corresponding to a particular crystallographic direction.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_UB</span></code>(ws)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_UB</span></code>(ws)</p></td>
 <td><p>Check if the oriented lattice exists on a workspace.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_cut" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_cut</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_cut" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_cut</span></code></a>()</p></td>
 <td><p>Check if a cut workspace exists in Mantid.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_histo_loaded" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_histo_loaded"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_histo_loaded</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_histo_loaded" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_histo_loaded"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_histo_loaded</span></code></a>()</p></td>
 <td><p>Check if a histogram workspace is loaded in Mantid.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_sliced" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_sliced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_sliced</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_sliced" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_sliced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_sliced</span></code></a>()</p></td>
 <td><p>Check if a slice workspace exists in Mantid.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.load_md_histo_workspace" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.load_md_histo_workspace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_md_histo_workspace</span></code></a>(filename)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.load_md_histo_workspace" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.load_md_histo_workspace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_md_histo_workspace</span></code></a>(filename)</p></td>
 <td><p>Load and preprocess a Mantid MD histogram workspace from a file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.orientation_matrix" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.orientation_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation_matrix</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.orientation_matrix" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.orientation_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation_matrix</span></code></a>()</p></td>
 <td><p>Compute the orientation matrix for the current UB and W matrices.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_azimuth</span></code>(position, focal_point, ...)</p></td>
+<td><p>Rotate the camera left/right about a global up axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_elevation</span></code>(position, ...)</p></td>
+<td><p>Tilt the camera up/down about its right axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_roll</span></code>(position, focal_point, ...)</p></td>
+<td><p>Apply a roll about the current viewing axis.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.save_cut" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.save_cut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_cut</span></code></a>(filename)</p></td>
 <td><p>Save the current cut workspace to an ASCII file.</p></td>
@@ -3956,11 +4116,15 @@ workspaces.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.bc_star_axes"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.bc_star_axes()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ca_axes"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.ca_axes()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ca_star_axes"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.ca_star_axes()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.calculate_camera_parameters"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.calculate_camera_parameters()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_oriented_lattice_parameters"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.get_oriented_lattice_parameters()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_transform"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.get_transform()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_vector"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.get_vector()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.has_UB"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.has_UB()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.orientation_matrix"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.orientation_matrix()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_azimuth"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.rotate_camera_azimuth()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_elevation"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.rotate_camera_elevation()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_roll"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.rotate_camera_roll()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.set_UB"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.set_UB()</span></code></a></li>
 </ul>
 </li>
