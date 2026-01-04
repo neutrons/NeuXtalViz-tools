@@ -30,7 +30,7 @@ def TOPAZ_Si_UB(app, window):
     ub_view.convert_to_q_button.setStyleSheet("background-color: green;")
 
     QTest.mouseClick(ub_view.convert_to_q_button, Qt.LeftButton)
-    QTest.qWait(1000 * 60)
+    QTest.qWait(1000 * 80)
 
     app.primaryScreen().grabWindow(window.winId()).save(
         os.path.join(directory, "Si_UB_convert_Q.png"), "png"
@@ -176,7 +176,7 @@ def TOPAZ_Scolecite_UB(app, window):
     ub_view.convert_to_q_button.setStyleSheet("background-color: green;")
 
     QTest.mouseClick(ub_view.convert_to_q_button, Qt.LeftButton)
-    QTest.qWait(1000 * 60)
+    QTest.qWait(1000 * 80)
 
     app.primaryScreen().grabWindow(window.winId()).save(
         os.path.join(directory, "Scolecite_UB_convert_Q.png"), "png"
@@ -319,7 +319,7 @@ def CORELLI_Bixbyite_UB(app, window):
     ub_view.convert_to_q_button.setStyleSheet("background-color: green;")
 
     QTest.mouseClick(ub_view.convert_to_q_button, Qt.LeftButton)
-    QTest.qWait(1000 * 60)
+    QTest.qWait(1000 * 120)
 
     app.primaryScreen().grabWindow(window.winId()).save(
         os.path.join(directory, "Bixbyite_UB_convert_Q.png"), "png"
@@ -468,7 +468,7 @@ def MANDI_Mesolite_UB(app, window):
     ub_view.convert_to_q_button.setStyleSheet("background-color: green;")
 
     QTest.mouseClick(ub_view.convert_to_q_button, Qt.LeftButton)
-    QTest.qWait(1000 * 60)
+    QTest.qWait(1000 * 80)
 
     app.primaryScreen().grabWindow(window.winId()).save(
         os.path.join(directory, "Mesolite_UB_convert_Q.png"), "png"
@@ -772,6 +772,6 @@ def CORELLI_Natrolite_UB(app, window):
 if __name__ == "__main__":
     # run_qt_scenario(TOPAZ_Si_UB)
     # run_qt_scenario(TOPAZ_Scolecite_UB)
-    # run_qt_scenario(CORELLI_Bixbyite_UB)
-    run_qt_scenario(CORELLI_Natrolite_UB)
+    run_qt_scenario(CORELLI_Bixbyite_UB)
+    # run_qt_scenario(CORELLI_Natrolite_UB)
     # run_qt_scenario(MANDI_Mesolite_UB)
