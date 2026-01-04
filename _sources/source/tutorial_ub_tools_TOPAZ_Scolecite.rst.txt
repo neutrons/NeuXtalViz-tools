@@ -1,15 +1,11 @@
-TOPAZ Scolecite UB tools
-========================
+UB Tools with Scolecite Data
+============================
 
-This tutorial demonstrates the UB tools workflow in NeuXtalViz
-for a Scolecite crystal measured on TOPAZ.
-
-The steps below correspond to the automated scenario
-``TOPAZ_Scolecite_UB`` in ``tests/applications/ub-tools.py`` and the
-associated PNG screenshots.
+This tutorial demonstrates how to use the UB tools in *NeuXtalViz* to
+process TOPAZ Scolecite data.
 
 Step 1: Convert to Q
---------------------
+---------------------
 
 In the **Convert to Q** tab:
 

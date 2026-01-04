@@ -1,30 +1,38 @@
-TOPAZ Scolecite Crystal Structure
-=================================
+Crystal Structure with Scolecite Data
+====================================
 
-This tutorial demonstrates how to use the crystal-structure tools in NeuXtalViz
-with a Scolecite CIF measured on TOPAZ.
+This tutorial demonstrates how to use the crystal-structure tools in
+*NeuXtalViz* to work with Scolecite data measured on TOPAZ.
 
-Workflow
---------
+Step 1: Load CIF and view structure
+-----------------------------------
 
-1. Start NeuXtalViz.
-2. Open the *Crystal Structure* tool.
-3. Use the **Load CIF** button to select the Scolecite CIF used for TOPAZ.
-4. Inspect the lattice parameters and atomic positions on the *Structure* tab.
-5. Switch to the *Factors* tab.
-6. Enter a suitable :math:`d_{\min}` value and click **Calculate** to compute :math:`F^2`.
+In the **Crystal Structure** tool:
 
-Automated example
------------------
+- Click **Load CIF**.
+- Select the Scolecite CIF for the TOPAZ dataset.
+- The **Structure** tab shows the lattice parameters, space group
+	information, unit-cell volume, and a table of atomic positions.
+- The 3D view displays the Scolecite framework built from the CIF.
 
-The application script
-``tests/applications/crystal_structure.py``
-contains a scenario called ``TOPAZ_Scolecite_Structure`` which:
+Step 2: Inspect lattice and scatterers
+--------------------------------------
 
-- Activates the crystal-structure tool.
-- Loads the Scolecite CIF from the tests data.
-- Shows the *Structure* tab and takes a screenshot.
-- Switches to the *Factors* tab and calculates :math:`F^2`.
+On the **Structure** tab:
 
-You can run this scenario (for example under ``xvfb-run``) to regenerate the
-screenshots used in the documentation.
+- Verify that the lattice constants and angles are reasonable for
+	Scolecite.
+- Check the chemical formula, Z value, and unit-cell volume.
+- Review the list of scatterers (sites, coordinates, occupancies,
+	and U values) to understand the crystal chemistry.
+
+Step 3: Calculate F² for reflections
+------------------------------------
+
+Switch to the **Factors** tab:
+
+- Enter a minimum d-spacing in the *d(min)* field.
+- Click **Calculate** to compute structure factors and :math:`F^2`
+	values.
+- Use the resulting table of h, k, l, d, and :math:`F^2` to compare
+	against other diffraction software or reference results.

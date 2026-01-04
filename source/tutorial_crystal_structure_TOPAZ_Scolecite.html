@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>TOPAZ Scolecite Crystal Structure &#8212; NeuXtalViz  documentation</title>
+    <title>Crystal Structure with Scolecite Data &#8212; NeuXtalViz  documentation</title>
   
   
   
@@ -307,20 +307,20 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">TOPAZ Tutorials:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Si.html">UB Tools with Silicon Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Scolecite.html">TOPAZ Scolecite UB tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Scolecite.html">UB Tools with Scolecite Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_plan_TOPAZ_Si.html">Experiment Plan with Silicon Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_volume_TOPAZ_Si.html">Volume Slicer with Silicon Data</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">TOPAZ Scolecite Crystal Structure</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Crystal Structure with Scolecite Data</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">CORELLI Tutorials:</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html">UB Tools with Bixbyite Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_crystal_structure_CORELLI_Natrolite.html">CORELLI Natrolite Crystal Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_crystal_structure_CORELLI_Natrolite.html">Crystal Structure with Natrolite Data</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">MANDI Tutorials:</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_MANDI_Mesolite.html">MANDI Mesolite UB tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_crystal_structure_MANDI_Mesolite.html">MANDI Mesolite Crystal Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_MANDI_Mesolite.html">UB Tools with Mesolite Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_crystal_structure_MANDI_Mesolite.html">Crystal Structure with Mesolite Data</a></li>
 </ul>
 </div>
 </nav></div>
@@ -364,7 +364,7 @@
     
     <li class="breadcrumb-item"><a href="NeuXtalViz.tutorials.html" class="nav-link">NeuXtalViz tutorials</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">TOPAZ Scolecite Crystal Structure</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Crystal Structure with Scolecite Data</span></li>
   </ul>
 </nav>
 </div>
@@ -381,34 +381,57 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="topaz-scolecite-crystal-structure">
-<h1>TOPAZ Scolecite Crystal Structure<a class="headerlink" href="#topaz-scolecite-crystal-structure" title="Link to this heading">#</a></h1>
-<p>This tutorial demonstrates how to use the crystal-structure tools in NeuXtalViz
-with a Scolecite CIF measured on TOPAZ.</p>
-<section id="workflow">
-<h2>Workflow<a class="headerlink" href="#workflow" title="Link to this heading">#</a></h2>
-<ol class="arabic simple">
-<li><p>Start NeuXtalViz.</p></li>
-<li><p>Open the <em>Crystal Structure</em> tool.</p></li>
-<li><p>Use the <strong>Load CIF</strong> button to select the Scolecite CIF used for TOPAZ.</p></li>
-<li><p>Inspect the lattice parameters and atomic positions on the <em>Structure</em> tab.</p></li>
-<li><p>Switch to the <em>Factors</em> tab.</p></li>
-<li><p>Enter a suitable <span class="math notranslate nohighlight">\(d_{\min}\)</span> value and click <strong>Calculate</strong> to compute <span class="math notranslate nohighlight">\(F^2\)</span>.</p></li>
-</ol>
-</section>
-<section id="automated-example">
-<h2>Automated example<a class="headerlink" href="#automated-example" title="Link to this heading">#</a></h2>
-<p>The application script
-<code class="docutils literal notranslate"><span class="pre">tests/applications/crystal_structure.py</span></code>
-contains a scenario called <code class="docutils literal notranslate"><span class="pre">TOPAZ_Scolecite_Structure</span></code> which:</p>
+  <section id="crystal-structure-with-scolecite-data">
+<h1>Crystal Structure with Scolecite Data<a class="headerlink" href="#crystal-structure-with-scolecite-data" title="Link to this heading">#</a></h1>
+<p>This tutorial demonstrates how to use the crystal-structure tools in
+<em>NeuXtalViz</em> to work with Scolecite data measured on TOPAZ.</p>
+<section id="step-1-load-cif-and-view-structure">
+<h2>Step 1: Load CIF and view structure<a class="headerlink" href="#step-1-load-cif-and-view-structure" title="Link to this heading">#</a></h2>
+<p>In the <strong>Crystal Structure</strong> tool:</p>
 <ul class="simple">
-<li><p>Activates the crystal-structure tool.</p></li>
-<li><p>Loads the Scolecite CIF from the tests data.</p></li>
-<li><p>Shows the <em>Structure</em> tab and takes a screenshot.</p></li>
-<li><p>Switches to the <em>Factors</em> tab and calculates <span class="math notranslate nohighlight">\(F^2\)</span>.</p></li>
+<li><p>Click <strong>Load CIF</strong>.</p></li>
+<li><p>Select the Scolecite CIF for the TOPAZ dataset.</p></li>
+<li><dl class="simple">
+<dt>The <strong>Structure</strong> tab shows the lattice parameters, space group</dt><dd><p>information, unit-cell volume, and a table of atomic positions.</p>
+</dd>
+</dl>
+</li>
+<li><p>The 3D view displays the Scolecite framework built from the CIF.</p></li>
 </ul>
-<p>You can run this scenario (for example under <code class="docutils literal notranslate"><span class="pre">xvfb-run</span></code>) to regenerate the
-screenshots used in the documentation.</p>
+</section>
+<section id="step-2-inspect-lattice-and-scatterers">
+<h2>Step 2: Inspect lattice and scatterers<a class="headerlink" href="#step-2-inspect-lattice-and-scatterers" title="Link to this heading">#</a></h2>
+<p>On the <strong>Structure</strong> tab:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Verify that the lattice constants and angles are reasonable for</dt><dd><p>Scolecite.</p>
+</dd>
+</dl>
+</li>
+<li><p>Check the chemical formula, Z value, and unit-cell volume.</p></li>
+<li><dl class="simple">
+<dt>Review the list of scatterers (sites, coordinates, occupancies,</dt><dd><p>and U values) to understand the crystal chemistry.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="step-3-calculate-f2-for-reflections">
+<h2>Step 3: Calculate F² for reflections<a class="headerlink" href="#step-3-calculate-f2-for-reflections" title="Link to this heading">#</a></h2>
+<p>Switch to the <strong>Factors</strong> tab:</p>
+<ul class="simple">
+<li><p>Enter a minimum d-spacing in the <em>d(min)</em> field.</p></li>
+<li><dl class="simple">
+<dt>Click <strong>Calculate</strong> to compute structure factors and <span class="math notranslate nohighlight">\(F^2\)</span></dt><dd><p>values.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Use the resulting table of h, k, l, d, and <span class="math notranslate nohighlight">\(F^2\)</span> to compare</dt><dd><p>against other diffraction software or reference results.</p>
+</dd>
+</dl>
+</li>
+</ul>
 </section>
 </section>
 
@@ -459,8 +482,9 @@ screenshots used in the documentation.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow">Workflow</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#automated-example">Automated example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-load-cif-and-view-structure">Step 1: Load CIF and view structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-inspect-lattice-and-scatterers">Step 2: Inspect lattice and scatterers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-calculate-f2-for-reflections">Step 3: Calculate F² for reflections</a></li>
 </ul>
   </nav></div>
 

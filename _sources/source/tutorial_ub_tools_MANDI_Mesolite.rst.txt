@@ -1,15 +1,11 @@
-MANDI Mesolite UB tools
-=======================
+UB Tools with Mesolite Data
+===========================
 
-This tutorial demonstrates the UB tools workflow in NeuXtalViz
-for a Mesolite crystal measured on MANDI.
-
-The steps below correspond to the automated scenario
-``MANDI_Mesolite_UB`` in ``tests/applications/ub-tools.py`` and the
-associated PNG screenshots.
+This tutorial demonstrates how to use the UB tools in *NeuXtalViz* to
+process MANDI Mesolite data.
 
 Step 1: Convert to Q
---------------------
+---------------------
 
 In the **Convert to Q** tab:
 
