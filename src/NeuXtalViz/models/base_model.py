@@ -41,6 +41,7 @@ log_to_python(level="notice")
 log = logging.getLogger("Mantid")
 
 import numpy as np
+import scipy.spatial.transform
 
 
 class NeuXtalVizModel:
@@ -298,3 +299,239 @@ class NeuXtalVizModel:
             vec = np.dot(matrix, ind)
 
             return vec
+
+    # ------------------------------------------------------------------
+    # Camera rotation helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _camera_vectors_from_state(position, focal_point, up):
+        """Compute an orthonormal camera basis from raw position, focal point, and up.
+
+        Parameters
+        ----------
+        position : array-like, shape (3,)
+            Camera position in world coordinates.
+        focal_point : array-like, shape (3,)
+            Camera focal point in world coordinates.
+        up : array-like, shape (3,)
+            Camera up vector in world coordinates.
+
+        Returns
+        -------
+        fp : ndarray, shape (3,)
+            Focal point.
+        d : ndarray, shape (3,)
+            Normalized viewing direction (from position to focal point).
+        up_ortho : ndarray, shape (3,)
+            Normalized up vector orthogonal to d.
+        dist : float
+            Distance from position to focal point.
+        """
+
+        pos = np.array(position, dtype=float)
+        fp = np.array(focal_point, dtype=float)
+        up_vec = np.array(up, dtype=float)
+
+        d = fp - pos
+        if np.linalg.norm(d) == 0.0:
+            d = np.array([0.0, 0.0, 1.0])
+        d = d / np.linalg.norm(d)
+
+        if np.linalg.norm(up_vec) == 0.0:
+            up_vec = np.array([0.0, 1.0, 0.0])
+        # Make up orthogonal to direction
+        up_vec = up_vec - np.dot(up_vec, d) * d
+        if np.linalg.norm(up_vec) == 0.0:
+            up_vec = np.array([0.0, 1.0, 0.0])
+            up_vec = up_vec - np.dot(up_vec, d) * d
+        up_vec = up_vec / np.linalg.norm(up_vec)
+
+        dist = np.linalg.norm(fp - pos)
+        if dist == 0.0:
+            dist = 1.0
+
+        return fp, d, up_vec, dist
+
+    @staticmethod
+    def _rotate_vector(v, axis, angle_deg):
+        """Rotate vector ``v`` around ``axis`` by ``angle_deg`` degrees.
+
+        Uses Rodrigues' rotation formula. Both ``v`` and ``axis`` are treated
+        as 3D vectors.
+        """
+
+        v = np.array(v, dtype=float)
+        axis = np.array(axis, dtype=float)
+
+        if np.linalg.norm(axis) == 0.0:
+            return v
+
+        axis = axis / np.linalg.norm(axis)
+
+        theta = np.deg2rad(angle_deg)
+        k = axis
+
+        return (
+            v * np.cos(theta)
+            + np.cross(k, v) * np.sin(theta)
+            + k * np.dot(k, v) * (1.0 - np.cos(theta))
+        )
+
+    @staticmethod
+    def _state_from_basis(focal_point, direction, up, dist):
+        """Reconstruct camera state from focal point, direction, up, and distance.
+
+        Parameters
+        ----------
+        focal_point : array-like, shape (3,)
+            Camera focal point.
+        direction : array-like, shape (3,)
+            Approximate viewing direction.
+        up : array-like, shape (3,)
+            Approximate up vector.
+        dist : float
+            Distance from camera position to focal point.
+
+        Returns
+        -------
+        position : ndarray, shape (3,)
+            Camera position.
+        fp : ndarray, shape (3,)
+            Focal point (same as input, but as ndarray).
+        up_ortho : ndarray, shape (3,)
+            Normalized, orthogonal up vector.
+        """
+
+        fp = np.array(focal_point, dtype=float)
+        d = np.array(direction, dtype=float)
+        up_vec = np.array(up, dtype=float)
+
+        if np.linalg.norm(d) == 0.0:
+            d = np.array([0.0, 0.0, 1.0])
+        d = d / np.linalg.norm(d)
+
+        if np.linalg.norm(up_vec) == 0.0:
+            up_vec = np.array([0.0, 1.0, 0.0])
+        up_vec = up_vec - np.dot(up_vec, d) * d
+        if np.linalg.norm(up_vec) == 0.0:
+            up_vec = np.array([0.0, 1.0, 0.0])
+            up_vec = up_vec - np.dot(up_vec, d) * d
+        up_vec = up_vec / np.linalg.norm(up_vec)
+
+        position = fp - d * float(dist)
+
+        return position, fp, up_vec
+
+    def rotate_camera_roll(self, position, focal_point, up, angle_deg):
+        """Apply a roll about the current viewing axis.
+
+        Parameters
+        ----------
+        position, focal_point, up : array-like
+            Current camera position, focal point, and up vector.
+        angle_deg : float
+            Roll angle in degrees (positive is counter‑clockwise).
+
+        Returns
+        -------
+        new_position, new_focal_point, new_up : ndarray
+            Updated camera state after applying the roll.
+        """
+
+        fp, d, up_vec, dist = self._camera_vectors_from_state(
+            position, focal_point, up
+        )
+        new_up = self._rotate_vector(up_vec, d, angle_deg)
+        new_position, new_fp, new_up = self._state_from_basis(
+            fp, d, new_up, dist
+        )
+        return new_position, new_fp, new_up
+
+    def rotate_camera_elevation(self, position, focal_point, up, angle_deg):
+        """Tilt the camera up/down about its right axis.
+
+        Parameters
+        ----------
+        position, focal_point, up : array-like
+            Current camera position, focal point, and up vector.
+        angle_deg : float
+            Elevation angle in degrees (positive tilts up).
+
+        Returns
+        -------
+        new_position, new_focal_point, new_up : ndarray
+            Updated camera state after applying the elevation.
+        """
+
+        fp, d, up_vec, dist = self._camera_vectors_from_state(
+            position, focal_point, up
+        )
+
+        right = np.cross(d, up_vec)
+        if np.linalg.norm(right) == 0.0:
+            right = np.array([1.0, 0.0, 0.0])
+
+        new_d = self._rotate_vector(d, right, angle_deg)
+        new_up = self._rotate_vector(up_vec, right, angle_deg)
+        new_position, new_fp, new_up = self._state_from_basis(
+            fp, new_d, new_up, dist
+        )
+        return new_position, new_fp, new_up
+
+    def rotate_camera_azimuth(self, position, focal_point, up, angle_deg):
+        """Rotate the camera left/right about a global up axis.
+
+        Parameters
+        ----------
+        position, focal_point, up : array-like
+            Current camera position, focal point, and up vector.
+        angle_deg : float
+            Azimuth angle in degrees (positive rotates to the right).
+
+        Returns
+        -------
+        new_position, new_focal_point, new_up : ndarray
+            Updated camera state after applying the azimuth.
+        """
+
+        fp, d, up_vec, dist = self._camera_vectors_from_state(
+            position, focal_point, up
+        )
+
+        world_up = np.array([0.0, 1.0, 0.0])
+        if abs(np.dot(world_up, d)) > 0.99:
+            world_up = np.array([0.0, 0.0, 1.0])
+
+        new_d = self._rotate_vector(d, world_up, angle_deg)
+        new_up = self._rotate_vector(up_vec, world_up, angle_deg)
+        new_position, new_fp, new_up = self._state_from_basis(
+            fp, new_d, new_up, dist
+        )
+        return new_position, new_fp, new_up
+
+    def calculate_camera_parameters(self, direction, roll):
+        """Calculate roll, elevation, and azimuth from camera direction and roll.
+
+        Parameters
+        ----------
+        direction : array-like, shape (3,)
+            Camera viewing direction.
+        roll : float
+            Camera roll angle in degrees.
+
+        Returns
+        -------
+        roll, elevation, azimuth : float
+            Camera roll, elevation, and azimuth angles in degrees.
+        """
+
+        direction = np.array(direction, dtype=float)
+        if np.linalg.norm(direction) == 0.0:
+            direction = np.array([0.0, 0.0, 1.0])
+        direction = direction / np.linalg.norm(direction)
+
+        elevation = np.rad2deg(np.arcsin(direction[2]))
+        azimuth = np.rad2deg(np.arctan2(direction[0], direction[1]))
+
+        return roll, elevation, azimuth

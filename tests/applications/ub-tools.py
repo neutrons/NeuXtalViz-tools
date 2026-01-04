@@ -21,6 +21,8 @@ def TOPAZ_Si_UB(app, window):
     ub_view.instrument_combo.setCurrentIndex(index)
     ub_view.ipts_line.setText("36169")
     ub_view.runs_line.setText("54145")
+    ub_view.wl_min_line.setText("0.4")
+    ub_view.wl_max_line.setText("3.5")
 
     ub_view.instrument_combo.setStyleSheet("background-color: yellow;")
     ub_view.ipts_line.setStyleSheet("background-color: yellow;")
@@ -148,6 +150,153 @@ def TOPAZ_Si_UB(app, window):
     copy_generated_pngs(directory)
 
 
+def TOPAZ_Scolecite_UB(app, window):
+    directory = os.path.join(DIRECTORY, "TOPAZ")
+
+    app_stack = window.centralWidget().layout().itemAt(0).widget()
+    app_stack.setCurrentIndex(0)
+
+    ub_presenter = window.ub
+    ub_view = ub_presenter.view
+
+    index = ub_view.instrument_combo.findText("TOPAZ")
+    ub_view.instrument_combo.setCurrentIndex(index)
+    ub_view.ipts_line.setText("31856")
+    ub_view.runs_line.setText("50024")
+    ub_view.wl_min_line.setText("0.4")
+    ub_view.wl_max_line.setText("3.5")
+
+    cal_path = "/SNS/TOPAZ/shared/calibration/2024B/TOPAZ_2024B_AG.DetCal"
+    ub_view.cal_line.setText(cal_path)
+
+    ub_view.instrument_combo.setStyleSheet("background-color: yellow;")
+    ub_view.ipts_line.setStyleSheet("background-color: yellow;")
+    ub_view.runs_line.setStyleSheet("background-color: yellow;")
+    ub_view.cal_line.setStyleSheet("background-color: yellow;")
+    ub_view.convert_to_q_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.convert_to_q_button, Qt.LeftButton)
+    QTest.qWait(1000 * 60)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Scolecite_UB_convert_Q.png"), "png"
+    )
+
+    ub_view.instrument_combo.setStyleSheet("")
+    ub_view.ipts_line.setStyleSheet("")
+    ub_view.runs_line.setStyleSheet("")
+    ub_view.cal_line.setStyleSheet("")
+    ub_view.convert_to_q_button.setStyleSheet("")
+
+    ub_view.max_peaks_line.setStyleSheet("background-color: yellow;")
+    ub_view.density_threshold_line.setStyleSheet("background-color: yellow;")
+    ub_view.min_distance_line.setStyleSheet("background-color: yellow;")
+    ub_view.find_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.find_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Scolecite_UB_find_peaks.png"), "png"
+    )
+
+    ub_view.max_peaks_line.setStyleSheet("")
+    ub_view.density_threshold_line.setStyleSheet("")
+    ub_view.min_distance_line.setStyleSheet("")
+    ub_view.find_button.setStyleSheet("")
+
+    ub_view.calculate_tolerance_line.setStyleSheet("background-color: yellow;")
+    ub_view.min_const_line.setStyleSheet("background-color: yellow;")
+    ub_view.max_const_line.setStyleSheet("background-color: yellow;")
+    ub_view.niggli_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.niggli_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Scolecite_UB_primitive_cell.png"), "png"
+    )
+
+    ub_view.calculate_tolerance_line.setStyleSheet("")
+    ub_view.min_const_line.setStyleSheet("")
+    ub_view.max_const_line.setStyleSheet("")
+    ub_view.niggli_button.setStyleSheet("")
+
+    ub_view.cell_table.selectRow(1)
+    ub_view.select_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.select_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Scolecite_UB_conventional_cell.png"), "png"
+    )
+
+    ub_view.cell_table.clearSelection()
+    ub_view.select_button.setStyleSheet("")
+
+    ub_view.ub_tab.setCurrentIndex(2)
+
+    index = ub_view.optimize_combo.findText("Monoclinic")
+    ub_view.optimize_combo.setCurrentIndex(index)
+
+    ub_view.optimize_combo.setStyleSheet("background-color: yellow;")
+    ub_view.refine_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.refine_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Scolecite_UB_refine_UB.png"), "png"
+    )
+
+    ub_view.optimize_combo.setStyleSheet("")
+    ub_view.refine_button.setStyleSheet("")
+
+    ub_view.tab_widget.setCurrentIndex(1)
+    ub_view.peaks_table.selectRow(0)
+
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Scolecite_UB_view_peak.png"), "png"
+    )
+
+    ub_view.peaks_table.clearSelection()
+
+    ub_view.tab_widget.setCurrentIndex(2)
+
+    ub_view.slice_combo.setStyleSheet("background-color: yellow;")
+    ub_view.slice_line.setStyleSheet("background-color: yellow;")
+    ub_view.convert_to_hkl_button.setStyleSheet("background-color: yellow;")
+
+    QTest.mouseClick(ub_view.convert_to_hkl_button, Qt.LeftButton)
+    QTest.qWait(1000 * 15)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Scolecite_UB_slice_view.png"), "png"
+    )
+
+    ub_view.slice_combo.setStyleSheet("")
+    ub_view.slice_line.setStyleSheet("")
+    ub_view.convert_to_hkl_button.setStyleSheet("")
+
+    ub_view.tab_widget.setCurrentIndex(0)
+
+    ub_view.save_ub_button.setStyleSheet("background-color: yellow;")
+
+    QTest.qWait(1000 * 1)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Scolecite_UB_save_UB.png"), "png"
+    )
+    ub_presenter.model.save_UB(
+        os.path.join("/SNS/TOPAZ/IPTS-31856/shared/nxv/", "Scolecite_UB.mat")
+    )
+
+    copy_generated_pngs(directory)
+
+
 def CORELLI_Bixbyite_UB(app, window):
     directory = os.path.join(DIRECTORY, "CORELLI")
 
@@ -161,6 +310,8 @@ def CORELLI_Bixbyite_UB(app, window):
     ub_view.instrument_combo.setCurrentIndex(index)
     ub_view.ipts_line.setText("36170")
     ub_view.runs_line.setText("37055")
+    ub_view.wl_min_line.setText("0.6")
+    ub_view.wl_max_line.setText("2.5")
 
     ub_view.instrument_combo.setStyleSheet("background-color: yellow;")
     ub_view.ipts_line.setStyleSheet("background-color: yellow;")
@@ -168,7 +319,7 @@ def CORELLI_Bixbyite_UB(app, window):
     ub_view.convert_to_q_button.setStyleSheet("background-color: green;")
 
     QTest.mouseClick(ub_view.convert_to_q_button, Qt.LeftButton)
-    QTest.qWait(1000 * 45)
+    QTest.qWait(1000 * 60)
 
     app.primaryScreen().grabWindow(window.winId()).save(
         os.path.join(directory, "Bixbyite_UB_convert_Q.png"), "png"
@@ -289,6 +440,338 @@ def CORELLI_Bixbyite_UB(app, window):
     copy_generated_pngs(directory)
 
 
+def MANDI_Mesolite_UB(app, window):
+    directory = os.path.join(DIRECTORY, "MANDI")
+
+    app_stack = window.centralWidget().layout().itemAt(0).widget()
+    app_stack.setCurrentIndex(0)
+
+    ub_presenter = window.ub
+    ub_view = ub_presenter.view
+
+    index = ub_view.instrument_combo.findText("MANDI")
+    ub_view.instrument_combo.setCurrentIndex(index)
+    ub_view.ipts_line.setText("8776")
+    ub_view.runs_line.setText("11612")
+    ub_view.convert_min_d_line.setText("1.0")
+    ub_view.wl_min_line.setText("2")
+    ub_view.wl_max_line.setText("4")
+
+    cal_path = "/SNS/MANDI/shared/calibration/2024B/calibration.DetCal"
+    ub_view.cal_line.setText(cal_path)
+
+    ub_view.instrument_combo.setStyleSheet("background-color: yellow;")
+    ub_view.ipts_line.setStyleSheet("background-color: yellow;")
+    ub_view.runs_line.setStyleSheet("background-color: yellow;")
+    ub_view.convert_min_d_line.setStyleSheet("background-color: yellow;")
+    ub_view.cal_line.setStyleSheet("background-color: yellow;")
+    ub_view.convert_to_q_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.convert_to_q_button, Qt.LeftButton)
+    QTest.qWait(1000 * 60)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Mesolite_UB_convert_Q.png"), "png"
+    )
+
+    ub_view.instrument_combo.setStyleSheet("")
+    ub_view.ipts_line.setStyleSheet("")
+    ub_view.runs_line.setStyleSheet("")
+    ub_view.convert_min_d_line.setStyleSheet("")
+    ub_view.cal_line.setStyleSheet("")
+    ub_view.convert_to_q_button.setStyleSheet("")
+
+    ub_view.max_peaks_line.setStyleSheet("background-color: yellow;")
+    ub_view.density_threshold_line.setStyleSheet("background-color: yellow;")
+    ub_view.min_distance_line.setStyleSheet("background-color: yellow;")
+    ub_view.find_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.find_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Mesolite_UB_find_peaks.png"), "png"
+    )
+
+    ub_view.max_peaks_line.setStyleSheet("")
+    ub_view.density_threshold_line.setStyleSheet("")
+    ub_view.min_distance_line.setStyleSheet("")
+    ub_view.find_button.setStyleSheet("")
+
+    ub_view.a_line.setText("18.4")
+    ub_view.b_line.setText("56.6")
+    ub_view.c_line.setText("6.54")
+    ub_view.alpha_line.setText("90")
+    ub_view.beta_line.setText("90")
+    ub_view.gamma_line.setText("90")
+
+    ub_view.a_line.setStyleSheet("background-color: yellow;")
+    ub_view.b_line.setStyleSheet("background-color: yellow;")
+    ub_view.c_line.setStyleSheet("background-color: yellow;")
+    ub_view.alpha_line.setStyleSheet("background-color: yellow;")
+    ub_view.beta_line.setStyleSheet("background-color: yellow;")
+    ub_view.gamma_line.setStyleSheet("background-color: yellow;")
+
+    QTest.mouseClick(ub_view.conventional_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    ub_view.a_line.setStyleSheet("")
+    ub_view.b_line.setStyleSheet("")
+    ub_view.c_line.setStyleSheet("")
+    ub_view.alpha_line.setStyleSheet("")
+    ub_view.beta_line.setStyleSheet("")
+    ub_view.gamma_line.setStyleSheet("")
+    ub_view.optimize_combo.setStyleSheet("")
+    ub_view.conventional_button.setStyleSheet("")
+    ub_view.refine_button.setStyleSheet("")
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Mesolite_UB_conventional_cell.png"), "png"
+    )
+
+    ub_view.peaks_tab.setCurrentIndex(1)
+    ub_view.index_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.index_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Mesolite_UB_index_peaks.png"), "png"
+    )
+
+    ub_view.index_button.setStyleSheet("")
+
+    ub_view.ub_tab.setCurrentIndex(2)
+
+    index = ub_view.optimize_combo.findText("Orthorhombic")
+    ub_view.optimize_combo.setCurrentIndex(index)
+
+    ub_view.optimize_combo.setStyleSheet("background-color: yellow;")
+    ub_view.conventional_button.setStyleSheet("background-color: green;")
+
+    ub_view.refine_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.refine_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Mesolite_UB_refine_UB.png"), "png"
+    )
+
+    ub_view.optimize_combo.setStyleSheet("")
+    ub_view.conventional_button.setStyleSheet("")
+
+    ub_view.refine_button.setStyleSheet("")
+
+    ub_view.tab_widget.setCurrentIndex(1)
+    ub_view.peaks_table.selectRow(0)
+
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Mesolite_UB_view_peak.png"), "png"
+    )
+
+    ub_view.peaks_table.clearSelection()
+
+    ub_view.tab_widget.setCurrentIndex(2)
+
+    ub_view.slice_combo.setStyleSheet("background-color: yellow;")
+    ub_view.slice_line.setStyleSheet("background-color: yellow;")
+    ub_view.convert_to_hkl_button.setStyleSheet("background-color: yellow;")
+
+    QTest.mouseClick(ub_view.convert_to_hkl_button, Qt.LeftButton)
+    QTest.qWait(1000 * 15)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Mesolite_UB_slice_view.png"), "png"
+    )
+
+    ub_view.slice_combo.setStyleSheet("")
+    ub_view.slice_line.setStyleSheet("")
+    ub_view.convert_to_hkl_button.setStyleSheet("")
+
+    ub_view.tab_widget.setCurrentIndex(0)
+
+    ub_view.save_ub_button.setStyleSheet("background-color: yellow;")
+
+    QTest.qWait(1000 * 1)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Mesolite_UB_save_UB.png"), "png"
+    )
+    ub_presenter.model.save_UB(
+        os.path.join("/SNS/MANDI/IPTS-8776/shared/nxv/", "Mesolite_UB.mat")
+    )
+
+    copy_generated_pngs(directory)
+
+
+def CORELLI_Natrolite_UB(app, window):
+    directory = os.path.join(DIRECTORY, "CORELLI")
+
+    app_stack = window.centralWidget().layout().itemAt(0).widget()
+    app_stack.setCurrentIndex(0)
+
+    ub_presenter = window.ub
+    ub_view = ub_presenter.view
+
+    index = ub_view.instrument_combo.findText("CORELLI")
+    ub_view.instrument_combo.setCurrentIndex(index)
+    ub_view.ipts_line.setText("31429")
+    ub_view.runs_line.setText("383673")
+    ub_view.wl_min_line.setText("0.6")
+    ub_view.wl_max_line.setText("2.5")
+
+    cal_path = "/SNS/CORELLI/shared/calibration/2022A/calibration.xml"
+    ub_view.cal_line.setText(cal_path)
+
+    ub_view.instrument_combo.setStyleSheet("background-color: yellow;")
+    ub_view.ipts_line.setStyleSheet("background-color: yellow;")
+    ub_view.runs_line.setStyleSheet("background-color: yellow;")
+    ub_view.cal_line.setStyleSheet("background-color: yellow;")
+    ub_view.convert_to_q_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.convert_to_q_button, Qt.LeftButton)
+    QTest.qWait(1000 * 80)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Natrolite_UB_convert_Q.png"), "png"
+    )
+
+    ub_view.instrument_combo.setStyleSheet("")
+    ub_view.ipts_line.setStyleSheet("")
+    ub_view.runs_line.setStyleSheet("")
+    ub_view.cal_line.setStyleSheet("")
+    ub_view.convert_to_q_button.setStyleSheet("")
+
+    ub_view.max_peaks_line.setStyleSheet("background-color: yellow;")
+    ub_view.density_threshold_line.setStyleSheet("background-color: yellow;")
+    ub_view.min_distance_line.setStyleSheet("background-color: yellow;")
+    ub_view.find_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.find_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Natrolite_UB_find_peaks.png"), "png"
+    )
+
+    ub_view.max_peaks_line.setStyleSheet("")
+    ub_view.density_threshold_line.setStyleSheet("")
+    ub_view.min_distance_line.setStyleSheet("")
+    ub_view.find_button.setStyleSheet("")
+
+    ub_view.a_line.setText("18.26")
+    ub_view.b_line.setText("18.59")
+    ub_view.c_line.setText("6.56")
+    ub_view.alpha_line.setText("90")
+    ub_view.beta_line.setText("90")
+    ub_view.gamma_line.setText("90")
+
+    ub_view.a_line.setStyleSheet("background-color: yellow;")
+    ub_view.b_line.setStyleSheet("background-color: yellow;")
+    ub_view.c_line.setStyleSheet("background-color: yellow;")
+    ub_view.alpha_line.setStyleSheet("background-color: yellow;")
+    ub_view.beta_line.setStyleSheet("background-color: yellow;")
+    ub_view.gamma_line.setStyleSheet("background-color: yellow;")
+
+    QTest.mouseClick(ub_view.conventional_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    ub_view.a_line.setStyleSheet("")
+    ub_view.b_line.setStyleSheet("")
+    ub_view.c_line.setStyleSheet("")
+    ub_view.alpha_line.setStyleSheet("")
+    ub_view.beta_line.setStyleSheet("")
+    ub_view.gamma_line.setStyleSheet("")
+    ub_view.optimize_combo.setStyleSheet("")
+    ub_view.conventional_button.setStyleSheet("")
+    ub_view.refine_button.setStyleSheet("")
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Natrolite_UB_conventional_cell.png"), "png"
+    )
+
+    ub_view.peaks_tab.setCurrentIndex(1)
+    ub_view.index_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.index_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Natrolite_UB_index_peaks.png"), "png"
+    )
+
+    ub_view.index_button.setStyleSheet("")
+
+    ub_view.ub_tab.setCurrentIndex(2)
+
+    index = ub_view.optimize_combo.findText("Orthorhombic")
+    ub_view.optimize_combo.setCurrentIndex(index)
+
+    ub_view.optimize_combo.setStyleSheet("background-color: yellow;")
+    ub_view.conventional_button.setStyleSheet("background-color: green;")
+    ub_view.refine_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.refine_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Natrolite_UB_refine_UB.png"), "png"
+    )
+
+    ub_view.optimize_combo.setStyleSheet("")
+    ub_view.conventional_button.setStyleSheet("")
+    ub_view.refine_button.setStyleSheet("")
+
+    ub_view.tab_widget.setCurrentIndex(1)
+    ub_view.peaks_table.selectRow(0)
+
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Natrolite_UB_view_peak.png"), "png"
+    )
+
+    ub_view.peaks_table.clearSelection()
+
+    ub_view.tab_widget.setCurrentIndex(2)
+
+    ub_view.slice_combo.setStyleSheet("background-color: yellow;")
+    ub_view.slice_line.setStyleSheet("background-color: yellow;")
+    ub_view.convert_to_hkl_button.setStyleSheet("background-color: yellow;")
+
+    QTest.mouseClick(ub_view.convert_to_hkl_button, Qt.LeftButton)
+    QTest.qWait(1000 * 15)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Natrolite_UB_slice_view.png"), "png"
+    )
+
+    ub_view.slice_combo.setStyleSheet("")
+    ub_view.slice_line.setStyleSheet("")
+    ub_view.convert_to_hkl_button.setStyleSheet("")
+
+    ub_view.tab_widget.setCurrentIndex(0)
+
+    ub_view.save_ub_button.setStyleSheet("background-color: yellow;")
+
+    QTest.qWait(1000 * 1)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Natrolite_UB_save_UB.png"), "png"
+    )
+    ub_presenter.model.save_UB(
+        os.path.join("/SNS/CORELLI/IPTS-31429/shared/nxv/", "Natrolite_UB.mat")
+    )
+
+    copy_generated_pngs(directory)
+
+
 if __name__ == "__main__":
-    run_qt_scenario(TOPAZ_Si_UB)
-    run_qt_scenario(CORELLI_Bixbyite_UB)
+    # run_qt_scenario(TOPAZ_Si_UB)
+    # run_qt_scenario(TOPAZ_Scolecite_UB)
+    # run_qt_scenario(CORELLI_Bixbyite_UB)
+    run_qt_scenario(CORELLI_Natrolite_UB)
+    # run_qt_scenario(MANDI_Mesolite_UB)

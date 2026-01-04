@@ -22,7 +22,7 @@ from qtpy.QtGui import (
     QDoubleValidator,
     QFont,
 )
-from PyQt5.QtCore import Qt, pyqtSignal
+from qtpy.QtCore import Qt, Signal
 
 import numpy as np
 import pyvista as pv
@@ -40,7 +40,8 @@ class NeuXtalVizWidget(QWidget):
     and interface for user-facing widgets.
     """
 
-    log_output = pyqtSignal(str)
+    log_output = Signal(str)
+    cam_ready = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -382,8 +383,84 @@ class NeuXtalVizWidget(QWidget):
         directions_tab.setLayout(snap_layout)
         manual_tab.setLayout(values_layout)
 
+        rotate_tab = QWidget()
+        rotate_layout = QGridLayout()
+
+        rotate_label = QLabel("Step [°]", self)
+        self.rotate_step_line = QLineEdit(self)
+        self.rotate_step_line.setText("5.0")
+
+        rotate_validator = QDoubleValidator.StandardNotation
+        rotate_step_validator = QDoubleValidator(
+            -360.0, 360.0, 2, notation=rotate_validator
+        )
+        self.rotate_step_line.setValidator(rotate_step_validator)
+        self.rotate_step_line.setToolTip(
+            "Rotation step in degrees about the current viewing axis."
+        )
+
+        self.rotate_ccw_button = QPushButton("Roll CCW", self)
+        self.rotate_ccw_button.setToolTip(
+            "Roll the view counter‑clockwise about the viewing axis."
+        )
+        self.rotate_ccw_button.setIcon(qta.icon("fa6s.rotate-left"))
+
+        self.rotate_cw_button = QPushButton("Roll CW", self)
+        self.rotate_cw_button.setToolTip(
+            "Roll the view clockwise about the viewing axis."
+        )
+        self.rotate_cw_button.setIcon(qta.icon("fa6s.rotate-right"))
+
+        self.elev_up_button = QPushButton("Elevate Up", self)
+        self.elev_up_button.setToolTip("Tilt the camera up by the step angle.")
+        self.elev_up_button.setIcon(qta.icon("fa6s.arrow-up"))
+
+        self.elev_down_button = QPushButton("Elevate Down", self)
+        self.elev_down_button.setToolTip(
+            "Tilt the camera down by the step angle."
+        )
+        self.elev_down_button.setIcon(qta.icon("fa6s.arrow-down"))
+
+        self.az_left_button = QPushButton("Azimuth Left", self)
+        self.az_left_button.setToolTip(
+            "Rotate the camera left (azimuth) by the step angle."
+        )
+        self.az_left_button.setIcon(qta.icon("fa6s.arrow-left"))
+
+        self.az_right_button = QPushButton("Azimuth Right", self)
+        self.az_right_button.setToolTip(
+            "Rotate the camera right (azimuth) by the step angle."
+        )
+        self.az_right_button.setIcon(qta.icon("fa6s.arrow-right"))
+
+        rotate_layout.addWidget(self.rotate_ccw_button, 0, 0)
+        rotate_layout.addWidget(self.rotate_cw_button, 1, 0)
+        rotate_layout.addWidget(self.elev_up_button, 0, 1)
+        rotate_layout.addWidget(self.elev_down_button, 1, 1)
+        rotate_layout.addWidget(self.az_left_button, 0, 2)
+        rotate_layout.addWidget(self.az_right_button, 1, 2)
+        rotate_layout.addWidget(rotate_label, 0, 3, Qt.AlignCenter)
+        rotate_layout.addWidget(self.rotate_step_line, 1, 3)
+
+        camera_label = QLabel("Camera [°]", self)
+        self.camera_pos_line = QLineEdit(self)
+        self.camera_pos_line.setReadOnly(True)
+        self.camera_pos_line.setToolTip(
+            "Current camera roll, elevation, and azimuth in degrees."
+        )
+
+        rotate_layout.addWidget(camera_label, 0, 4)
+        rotate_layout.addWidget(self.camera_pos_line, 1, 4)
+
+        control_layout = QVBoxLayout()
+        control_layout.addLayout(rotate_layout)
+        control_layout.addStretch(1)
+
+        rotate_tab.setLayout(control_layout)
+
         view_tab.addTab(directions_tab, "Direction View")
         view_tab.addTab(manual_tab, "Manual View")
+        view_tab.addTab(rotate_tab, "Rotate View")
 
         # Apply colored styling to a/b/c and a*/b*/c* buttons
         self._init_axis_icons()
@@ -649,6 +726,24 @@ class NeuXtalVizWidget(QWidget):
         self.b_button.clicked.connect(view_b)
         self.c_button.clicked.connect(view_c)
 
+    def connect_rotate(self, cww, cw):
+        """Connect Roll to presenter handler."""
+
+        self.rotate_ccw_button.clicked.connect(cww)
+        self.rotate_cw_button.clicked.connect(cw)
+
+    def connect_elev(self, up, down):
+        """Connect Elevate to presenter handler."""
+
+        self.elev_up_button.clicked.connect(up)
+        self.elev_down_button.clicked.connect(down)
+
+    def connect_az(self, left, right):
+        """Connect Azimuth to presenter handler."""
+
+        self.az_left_button.clicked.connect(left)
+        self.az_right_button.clicked.connect(right)
+
     def connect_save_screenshot(self, save_screenshot):
         """
         Screenshot connection.
@@ -695,6 +790,7 @@ class NeuXtalVizWidget(QWidget):
         self.plotter.reset_camera()
         self.plotter.view_isometric(negative)
         self.camera_position = self.plotter.camera_position
+        self.cam_ready.emit()
 
     def reset_camera(self):
         """
@@ -703,6 +799,7 @@ class NeuXtalVizWidget(QWidget):
         """
 
         self.plotter.reset_camera()
+        self.cam_ready.emit()
 
     def clear_scene(self):
         self.plotter.clear_plane_widgets()
@@ -716,6 +813,7 @@ class NeuXtalVizWidget(QWidget):
             self.plotter.camera_position = self.camera_position
         else:
             self.reset_view()
+        self.cam_ready.emit()
 
     def save_screenshot(self, filename):
         """
@@ -811,6 +909,8 @@ class NeuXtalVizWidget(QWidget):
         else:
             self.plotter.view_vector(vecs)
 
+        self.cam_ready.emit()
+
     def view_up_vector(self, vec):
         """
         Set the camera according to given vector(s).
@@ -818,11 +918,56 @@ class NeuXtalVizWidget(QWidget):
         Parameters
         ----------
         vec : 3 element 1d array-like
-            Camera up direction and optional upward vector.
+            Camera up direction.
 
         """
 
         self.plotter.set_viewup(vec)
+        self.cam_ready.emit()
+
+    def get_camera_state(self):
+        """Return the current camera position, focal point, and up vectors."""
+
+        cam = self.plotter.camera
+        position = np.array(cam.position, dtype=float)
+        focal_point = np.array(cam.focal_point, dtype=float)
+        up = np.array(cam.up, dtype=float)
+        return position, focal_point, up
+
+    def set_camera_state(self, position, focal_point, up):
+        """Apply a new camera state to the underlying plotter and refresh."""
+
+        cam = self.plotter.camera
+        cam.position = tuple(position)
+        cam.focal_point = tuple(focal_point)
+        cam.up = tuple(up)
+
+        self.plotter.render()
+        self.cam_ready.emit()
+
+    def get_rotate_step(self):
+        """Return the rotation step in degrees from the rotate tab."""
+
+        if self.rotate_step_line.hasAcceptableInput():
+            return float(self.rotate_step_line.text())
+        else:
+            return 5.0
+
+    def connect_camera_ready(self, calculate):
+        self.cam_ready.connect(calculate)
+
+    def get_camera_roll_direction(self):
+        return self.plotter.camera.roll, self.plotter.camera.direction
+
+    def update_camera_display(self, roll, elevation, azimuth):
+        """Update the read-only camera orientation display, if present.
+
+        This shows the camera's roll, elevation, azimuth in degrees.
+        """
+
+        text = "{:.1f},{:.1f},{:.1f}".format(roll, elevation, azimuth)
+
+        self.camera_pos_line.setText(text)
 
     def update_theme(self):
         theme = self.theme_combo.currentText()

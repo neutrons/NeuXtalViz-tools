@@ -2185,7 +2185,7 @@ class UBModel(NeuXtalVizModel):
             FixQAxis=False,
             FixMajorAxisLength=False,
             UseCentroid=True,
-            MaxIterations=3,
+            MaxIterations=1,
             ReplaceIntensity=True,
             IntegrateIfOnEdge=True,
             AdaptiveQBackground=False,

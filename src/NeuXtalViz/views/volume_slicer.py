@@ -156,6 +156,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.load_NXS_button.setToolTip(
             "Load a NeXus (NXS) file for volume slicing."
         )
+        self.load_NXS_button.setIcon(qta.icon("fa6s.folder-open"))
 
         draw_layout.addWidget(self.vol_scale_combo)
         draw_layout.addWidget(self.opacity_combo)

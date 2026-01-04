@@ -44,6 +44,12 @@ class NeuXtalVizPresenter:
         self.view.connect_save_screenshot(self.save_screenshot)
         self.view.connect_reciprocal_real_compass(self.change_lattice)
 
+        self.view.connect_rotate(self.rotate_view_ccw, self.rotate_view_cw)
+        self.view.connect_elev(self.elevate_view_up, self.elevate_view_down)
+        self.view.connect_az(self.azimuth_view_left, self.azimuth_view_right)
+
+        self.view.connect_camera_ready(self.calculate_camera_parameters)
+
     def update_status(self, status):
         """
         Update status information in the view.
@@ -209,3 +215,53 @@ class NeuXtalVizPresenter:
         vecs = self.model.ca_axes()
         if vecs is not None:
             self.view.view_vector(vecs)
+
+    def _apply_camera_rotation(self, rotate_func, angle_deg):
+        """Helper to fetch, rotate, and apply camera state via the model."""
+
+        position, fp, up = self.view.get_camera_state()
+        new_pos, new_fp, new_up = rotate_func(position, fp, up, angle_deg)
+        self.view.set_camera_state(new_pos, new_fp, new_up)
+
+    def rotate_view_ccw(self):
+        """Roll the view counter‑clockwise about the viewing axis."""
+
+        angle = self.view.get_rotate_step()
+        self._apply_camera_rotation(self.model.rotate_camera_roll, angle)
+
+    def rotate_view_cw(self):
+        """Roll the view clockwise about the viewing axis."""
+
+        angle = self.view.get_rotate_step()
+        self._apply_camera_rotation(self.model.rotate_camera_roll, -angle)
+
+    def elevate_view_up(self):
+        """Tilt the camera up by the configured step angle."""
+
+        angle = self.view.get_rotate_step()
+        self._apply_camera_rotation(self.model.rotate_camera_elevation, angle)
+
+    def elevate_view_down(self):
+        """Tilt the camera down by the configured step angle."""
+
+        angle = self.view.get_rotate_step()
+        self._apply_camera_rotation(self.model.rotate_camera_elevation, -angle)
+
+    def azimuth_view_left(self):
+        """Rotate the camera left (azimuth) by the configured step angle."""
+
+        angle = self.view.get_rotate_step()
+        self._apply_camera_rotation(self.model.rotate_camera_azimuth, -angle)
+
+    def azimuth_view_right(self):
+        """Rotate the camera right (azimuth) by the configured step angle."""
+
+        angle = self.view.get_rotate_step()
+        self._apply_camera_rotation(self.model.rotate_camera_azimuth, angle)
+
+    def calculate_camera_parameters(self):
+        roll, dir = self.view.get_camera_roll_direction()
+        roll, elevation, azimuth = self.model.calculate_camera_parameters(
+            dir, roll
+        )
+        self.view.update_camera_display(roll, elevation, azimuth)

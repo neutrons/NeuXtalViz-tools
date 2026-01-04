@@ -594,39 +594,89 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.plotter.clear_actors()
 
         T = np.eye(4)
-
-        geoms, cmap, self.indexing = [], [], {}
+        geoms = []
+        self.indexing = {}
+        # Track original per-block colors so highlight can toggle
+        # between the base color and the highlight color.
+        self._block_colors = {}
 
         sphere = pv.Icosphere(radius=1, nsub=2)
 
-        atm_ind = 0
+        site_info = {}
 
-        for i_atm, atom in enumerate(atom_dict.keys()):
-            color = colors[atom]
-            radius = radii[atom][0]
-
-            coordinates, opacities, indices = atom_dict[atom]
+        for atom, (coordinates, opacities, indices) in atom_dict.items():
+            base_color = colors[atom]
+            base_radius = radii[atom][0]
+            base_rgb = np.array(matplotlib.colors.to_rgb(base_color))
 
             for coord, occ, ind in zip(coordinates, opacities, indices):
-                T[0, 0] = T[1, 1] = T[2, 2] = radius
-                T[:3, 3] = coord
-                atm = sphere.copy().transform(T)
-                atm["scalars"] = np.full(sphere.n_cells, i_atm + 1.0)
-                geoms.append(atm)
-                self.indexing[atm_ind] = ind
-                atm_ind += 1
+                occ = float(occ)
+                key = tuple(round(c, 4) for c in coord)
 
-            cmap.append(color)
+                if key not in site_info:
+                    site_info[key] = {
+                        "coord": np.array(coord, dtype=float),
+                        "rgb_sum": occ * base_rgb,
+                        "radius_sum": occ * base_radius,
+                        "occ_total": occ,
+                        "best_index": ind,
+                        "best_occ": occ,
+                    }
+                else:
+                    info = site_info[key]
+                    info["rgb_sum"] += occ * base_rgb
+                    info["radius_sum"] += occ * base_radius
+                    info["occ_total"] += occ
+                    if occ > info["best_occ"]:
+                        info["best_occ"] = occ
+                        info["best_index"] = ind
 
-        cmap = matplotlib.colors.ListedColormap(cmap)
+        block_keys = []
+        for block_idx, (key, info) in enumerate(site_info.items()):
+            occ_total = info["occ_total"]
+
+            if occ_total <= 0.0:
+                continue
+
+            coord = info["coord"]
+            radius = info["radius_sum"] / occ_total if occ_total > 0 else 0.0
+
+            T[0, 0] = T[1, 1] = T[2, 2] = radius
+            T[:3, 3] = coord
+            atm = sphere.copy().transform(T)
+            geoms.append(atm)
+
+            self.indexing[len(block_keys)] = info["best_index"]
+            block_keys.append(key)
 
         multiblock = pv.MultiBlock(geoms)
 
         _, mapper = self.plotter.add_composite(
-            multiblock, cmap=cmap, smooth_shading=True, show_scalar_bar=False
+            multiblock,
+            smooth_shading=True,
+            show_scalar_bar=False,
         )
 
         self.mapper = mapper
+
+        for i, key in enumerate(block_keys, start=1):
+            info = site_info[key]
+            occ_total = info["occ_total"]
+
+            if occ_total > 0.0:
+                rgb = info["rgb_sum"] / occ_total
+            else:
+                rgb = info["rgb_sum"]
+
+            alpha = max(0.0, min(1.0, occ_total))
+
+            try:
+                self.mapper.block_attr[i].color = tuple(rgb)
+                self.mapper.block_attr[i].opacity = float(alpha)
+                # Cache the original color for this block index.
+                self._block_colors[i] = self.mapper.block_attr[i].color
+            except Exception:
+                continue
 
         self.plotter.enable_block_picking(callback=self.highlight, side="left")
         self.plotter.enable_block_picking(
@@ -636,26 +686,29 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.reset_view()
 
     def highlight(self, index, dataset):
-        color = self.mapper.block_attr[index].color
+        """Toggle highlight color while preserving original atom color."""
+
+        current_color = self.mapper.block_attr[index].color
+        base_color = self._block_colors.get(index, current_color)
 
         self.atm_table.clearSelection()
 
-        if color == "pink":
-            color = None
-        else:
-            color = "pink"
+        if current_color == "pink":
+            # Turn off highlight: restore the original color.
+            self.mapper.block_attr[index].color = base_color
+            return
 
-        self.mapper.block_attr[index].color = color
+        # Turn on highlight: switch to pink and select the row.
+        self.mapper.block_attr[index].color = "pink"
 
         ind = self.indexing[index - 1]
 
-        if color == "pink":
-            selected = self.atm_table.selectedIndexes()
-            if selected:
-                selected_row = selected[0].row()
-                if selected_row == ind:
-                    return
-            self.atm_table.selectRow(ind)
+        selected = self.atm_table.selectedIndexes()
+        if selected:
+            selected_row = selected[0].row()
+            if selected_row == ind:
+                return
+        self.atm_table.selectRow(ind)
 
     def set_factors(self, hkls, ds, F2s):
         self.f2_table.setRowCount(0)

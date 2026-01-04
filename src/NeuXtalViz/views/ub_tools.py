@@ -78,6 +78,8 @@ class UBView(NeuXtalVizWidget):
         self.layout().addWidget(self.tab_widget, stretch=1)
 
         self.last_highlight = None
+        self._highlight_actor = None
+        self._peaks_multiblock = None
         self.x_min, self.x_max = None, None
         self.y_min, self.y_max = None, None
 
@@ -127,14 +129,14 @@ class UBView(NeuXtalVizWidget):
         ub_io_layout.addWidget(self.load_ub_button)
 
         convert_tab = self.__init_convert_tab()
-        peaks_tab = self.__init_peaks_tab()
+        self.peaks_tab = self.__init_peaks_tab()
         self.ub_tab = self.__init_ub_tab()
         values_tab = self.__init_values_tab()
 
         ub_layout.addWidget(convert_tab)
         ub_layout.addLayout(convert_io_layout)
 
-        ub_layout.addWidget(peaks_tab)
+        ub_layout.addWidget(self.peaks_tab)
         ub_layout.addLayout(peaks_io_layout)
 
         ub_layout.addWidget(self.ub_tab)
@@ -2494,6 +2496,10 @@ class UBView(NeuXtalVizWidget):
 
             multiblock = pv.MultiBlock(geoms)
 
+            # Keep a reference so we can look up datasets when
+            # highlighting from the table (not just via picking).
+            self._peaks_multiblock = multiblock
+
             mu = np.nanmean(intensities)
             sigma = np.nanstd(intensities)
 
@@ -2526,40 +2532,91 @@ class UBView(NeuXtalVizWidget):
                 callback=self.highlight, side="right"
             )
 
+            # Reset highlight state for this new scene.
             self.last_highlight = None
+            if self._highlight_actor is not None:
+                self.plotter.remove_actor(self._highlight_actor)
+                self._highlight_actor = None
 
         self.reset_scene()
 
+    def _clear_highlight_actor(self):
+        """Remove any existing highlight actor from the scene."""
+
+        if self._highlight_actor is not None:
+            self.plotter.remove_actor(self._highlight_actor)
+            self._highlight_actor = None
+
+    def _set_highlight_actor(self, center):
+        """Add or move a dedicated highlight marker at the given center."""
+
+        self._clear_highlight_actor()
+
+        sphere = pv.PolyData([center])
+        actor = self.plotter.add_mesh(
+            sphere,
+            color="pink",
+            style="points",
+            point_size=10,
+            render_points_as_spheres=True,
+            show_scalar_bar=False,
+        )
+        self._highlight_actor = actor
+
     def highlight(self, index, dataset):
-        if self.last_highlight is not None:
-            self.mapper.block_attr[self.last_highlight].color = None
-        if self.last_highlight == index:
-            self.last_highlight = None
-            return
+        """Toggle peak highlight in Q-view and sync table selection."""
 
         self.peaks_table.blockSignals(True)
-        self.peaks_table.clearSelection()
 
-        self.mapper.block_attr[index].color = "pink"
+        # Clicking the same peak again clears the highlight
+        if self.last_highlight == index:
+            self._clear_highlight_actor()
+            self.last_highlight = None
+            self.peaks_table.clearSelection()
+            self.peaks_table.blockSignals(False)
+            return
+
         self.last_highlight = index
+
+        # Determine the peak center from the picked dataset
+        if dataset is not None:
+            center = dataset.center
+        elif self._peaks_multiblock is not None and index - 1 < len(
+            self._peaks_multiblock
+        ):
+            center = self._peaks_multiblock[index - 1].center
+        else:
+            center = (0.0, 0.0, 0.0)
+
+        self._set_highlight_actor(center)
+
+        # Update table selection to match this peak
+        self.peaks_table.clearSelection()
 
         ind = self.indexing[index - 1]
 
         rows = self.peaks_table.rowCount()
         for row in range(rows):
-            peak_no = self.peaks_table.item(row, 7).text()
-            if peak_no.isnumeric():
-                if ind == int(peak_no) - 1:
-                    self.peaks_table.selectRow(row)
+            item = self.peaks_table.item(row, 7)
+            if item is None:
+                continue
+            peak_no = item.text()
+            if peak_no.isnumeric() and ind == int(peak_no) - 1:
+                self.peaks_table.selectRow(row)
+                break
 
         self.peaks_table.blockSignals(False)
 
     def highlight_peak(self, index):
-        if self.last_highlight is not None:
-            self.mapper.block_attr[self.last_highlight].color = None
+        """Highlight a peak given its block index (from table/logic)."""
 
-        self.mapper.block_attr[index].color = "pink"
-        self.last_highlight = index
+        dataset = None
+        if self._peaks_multiblock is not None and index - 1 < len(
+            self._peaks_multiblock
+        ):
+            dataset = self._peaks_multiblock[index - 1]
+
+        self.highlight(index, dataset)
 
     def set_sample_directions(self, params):
         v, w, u = params
