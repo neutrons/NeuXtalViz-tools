@@ -21,6 +21,7 @@ from qtpy.QtWidgets import (
 from qtpy.QtGui import (
     QDoubleValidator,
     QFont,
+    QColor,
 )
 from qtpy.QtCore import Qt, Signal
 
@@ -566,10 +567,10 @@ class NeuXtalVizWidget(QWidget):
         )
 
         # Lattice-axis colors
-        red = "#ff0000"
-        green = "#00ff00"
-        blue = "#0000ff"
-        yellow = "#ffff00"
+        red = QColor("red")
+        green = QColor("green")
+        blue = QColor("blue")
+        yellow = QColor("yellow")
 
         a_color = red
         b_color = yellow if theme == "paraview" else green
