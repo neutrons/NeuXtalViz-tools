@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>NeuXtalViz tutorials &#8212; NeuXtalViz  documentation</title>
+    <title>Crystal Structure Tools &#8212; NeuXtalViz  documentation</title>
   
   
   
@@ -42,11 +42,10 @@
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'source/NeuXtalViz.tutorials';</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'source/tutorial_crystal_structure_overview';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="UB Tools with Silicon Data" href="tutorial_ub_tools_TOPAZ_Si.html" />
-    <link rel="prev" title="NeuXtalViz.presenters package" href="NeuXtalViz.presenters.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -138,8 +137,8 @@
 </li>
 
 
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="#">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="NeuXtalViz.tutorials.html">
     NeuXtalViz tutorials
   </a>
 </li>
@@ -220,8 +219,10 @@
       
       
       
+        
+      
       <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
 
   
@@ -243,8 +244,8 @@
 </li>
 
 
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="#">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="NeuXtalViz.tutorials.html">
     NeuXtalViz tutorials
   </a>
 </li>
@@ -294,25 +295,6 @@
     
   </div>
   
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-<nav class="bd-docs-nav bd-links"
-     aria-label="Section Navigation">
-  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">TOPAZ Tutorials:</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Si.html">UB Tools with Silicon Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_plan_TOPAZ_Si.html">Experiment Plan with Silicon Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_volume_TOPAZ_Si.html">Volume Slicer with Silicon Data</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">CORELLI Tutorials:</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html">UB Tools with Bixbyite Data</a></li>
-</ul>
-</div>
-</nav></div>
-    </div>
-  
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
       <div class="sidebar-primary-item">
@@ -348,7 +330,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">NeuXtalViz tutorials</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Crystal Structure Tools</span></li>
   </ul>
 </nav>
 </div>
@@ -365,58 +347,17 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="neuxtalviz-tutorials">
-<h1>NeuXtalViz tutorials<a class="headerlink" href="#neuxtalviz-tutorials" title="Link to this heading">#</a></h1>
-<div class="toctree-wrapper compound">
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">TOPAZ Tutorials:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Si.html">UB Tools with Silicon Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Si.html#step-1-select-instrument-and-data">Step 1: Select Instrument and Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Si.html#step-2-find-peaks">Step 2: Find Peaks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Si.html#step-3-primitive-cell-calculation">Step 3: Primitive Cell Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Si.html#step-4-select-conventional-cell">Step 4: Select Conventional Cell</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Si.html#step-5-refine-ub-matrix">Step 5: Refine UB Matrix</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Si.html#step-6-view-peak">Step 6: View Peak</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Si.html#step-7-slice-view">Step 7: Slice View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Si.html#step-8-save-ub">Step 8: Save UB</a></li>
+  <section id="crystal-structure-tools">
+<h1>Crystal Structure Tools<a class="headerlink" href="#crystal-structure-tools" title="Link to this heading">#</a></h1>
+<p>This page provides a brief overview of the crystal-structure tools in NeuXtalViz.</p>
+<p>The crystal-structure interface allows you to:</p>
+<ul class="simple">
+<li><p>Load a crystal structure from a CIF file.</p></li>
+<li><p>Inspect and edit lattice parameters.</p></li>
+<li><p>View atomic positions in 3D.</p></li>
+<li><p>Calculate structure factors <span class="math notranslate nohighlight">\(F^2\)</span> for a range of reflections.</p></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_plan_TOPAZ_Si.html">Experiment Plan with Silicon Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_plan_TOPAZ_Si.html#step-1-initialize-the-experiment-planner">Step 1: Initialize the Experiment Planner</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_plan_TOPAZ_Si.html#step-2-update-goniometer-angles">Step 2: Update Goniometer Angles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_plan_TOPAZ_Si.html#step-3-calculate-peaks">Step 3: Calculate Peaks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_plan_TOPAZ_Si.html#step-4-add-orientation">Step 4: Add Orientation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_plan_TOPAZ_Si.html#step-5-optimize-coverage">Step 5: Optimize Coverage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_plan_TOPAZ_Si.html#step-6-update-and-review">Step 6: Update and Review</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_plan_TOPAZ_Si.html#step-7-save-and-export">Step 7: Save and Export</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_volume_TOPAZ_Si.html">Volume Slicer with Silicon Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_volume_TOPAZ_Si.html#step-1-load-the-data">Step 1: Load the Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_volume_TOPAZ_Si.html#step-2-create-a-slice">Step 2: Create a Slice</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_volume_TOPAZ_Si.html#step-3-make-a-cut">Step 3: Make a Cut</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_volume_TOPAZ_Si.html#step-4-save-the-results">Step 4: Save the Results</a></li>
-</ul>
-</li>
-</ul>
-</div>
-<div class="toctree-wrapper compound">
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">CORELLI Tutorials:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html">UB Tools with Bixbyite Data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html#step-1-select-instrument-and-data">Step 1: Select Instrument and Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html#step-2-find-peaks">Step 2: Find Peaks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html#step-3-primitive-cell-calculation">Step 3: Primitive Cell Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html#step-4-select-conventional-cell">Step 4: Select Conventional Cell</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html#step-5-transform-ub-hkl">Step 5: Transform UB / hkl</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html#step-6-refine-ub-matrix">Step 6: Refine UB Matrix</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html#step-7-view-peak">Step 7: View Peak</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html#step-8-slice-view">Step 8: Slice View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html#step-9-save-ub">Step 9: Save UB</a></li>
-</ul>
-</li>
-</ul>
-</div>
+<p>For automated examples using Mesolite (MANDI), Natrolite (CORELLI), and Scolecite (TOPAZ), see the dedicated tutorial pages.</p>
 </section>
 
 
@@ -429,24 +370,6 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="NeuXtalViz.presenters.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">NeuXtalViz.presenters package</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="tutorial_ub_tools_TOPAZ_Si.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">UB Tools with Silicon Data</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               

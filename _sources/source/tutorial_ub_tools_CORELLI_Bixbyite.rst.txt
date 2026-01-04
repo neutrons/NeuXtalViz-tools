@@ -52,7 +52,19 @@ Step 4: Select Conventional Cell
 
    Select Conventional Cell.
 
-Step 5: Refine UB Matrix
+Step 5: Transform UB / hkl
+--------------------------
+- Switch to the **Transform UB** tab.
+- Inspect or adjust the transform matrix (e.g. invert h and swap k with l).
+- Click **Transform** to apply the transformation to the UB matrix and associated hkl indices.
+
+.. figure:: Bixbyite_UB_transform_cell.png
+   :width: 100%
+   :align: center
+
+   Transform UB / hkl.
+
+Step 6: Refine UB Matrix
 ------------------------
 - Switch to the UB Refinement tab.
 - Set the cell constraint (e.g., **Cubic**).
@@ -64,7 +76,7 @@ Step 5: Refine UB Matrix
 
    Refine UB Matrix.
 
-Step 6: View Peak
+Step 7: View Peak
 -----------------
 - Switch to the Peaks tab.
 - Select a peak from the table to view its details.
@@ -75,7 +87,7 @@ Step 6: View Peak
 
    View Peak in Peaks Table.
 
-Step 7: Slice View
+Step 8: Slice View
 ------------------
 - Switch to the Slice tab.
 - Adjust slice parameters and click **Convert to HKL** to view the slice in HKL space.
@@ -86,7 +98,7 @@ Step 7: Slice View
 
    Slice View in HKL Space.
 
-Step 8: Save UB
+Step 9: Save UB
 ---------------
 - After refining the UB matrix, click **Save UB** to export the UB matrix and related information.
 
