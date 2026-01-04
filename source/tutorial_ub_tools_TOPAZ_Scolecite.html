@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>CORELLI Natrolite Crystal Structure &#8212; NeuXtalViz  documentation</title>
+    <title>TOPAZ Scolecite UB tools &#8212; NeuXtalViz  documentation</title>
   
   
   
@@ -42,12 +42,11 @@
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'source/tutorial_crystal_structure_CORELLI_Natrolite';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'source/tutorial_ub_tools_TOPAZ_Scolecite';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="MANDI Mesolite UB tools" href="tutorial_ub_tools_MANDI_Mesolite.html" />
-    <link rel="prev" title="UB Tools with Bixbyite Data" href="tutorial_ub_tools_CORELLI_Bixbyite.html" />
+    <link rel="next" title="Experiment Plan with Silicon Data" href="tutorial_plan_TOPAZ_Si.html" />
+    <link rel="prev" title="UB Tools with Silicon Data" href="tutorial_ub_tools_TOPAZ_Si.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -305,17 +304,17 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">TOPAZ Tutorials:</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Si.html">UB Tools with Silicon Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Scolecite.html">TOPAZ Scolecite UB tools</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">TOPAZ Scolecite UB tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_plan_TOPAZ_Si.html">Experiment Plan with Silicon Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_volume_TOPAZ_Si.html">Volume Slicer with Silicon Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_crystal_structure_TOPAZ_Scolecite.html">TOPAZ Scolecite Crystal Structure</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">CORELLI Tutorials:</span></p>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html">UB Tools with Bixbyite Data</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">CORELLI Natrolite Crystal Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_crystal_structure_CORELLI_Natrolite.html">CORELLI Natrolite Crystal Structure</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">MANDI Tutorials:</span></p>
 <ul class="nav bd-sidenav">
@@ -364,7 +363,7 @@
     
     <li class="breadcrumb-item"><a href="NeuXtalViz.tutorials.html" class="nav-link">NeuXtalViz tutorials</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">CORELLI Natrolite Crystal Structure</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">TOPAZ Scolecite UB tools</span></li>
   </ul>
 </nav>
 </div>
@@ -381,34 +380,128 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="corelli-natrolite-crystal-structure">
-<h1>CORELLI Natrolite Crystal Structure<a class="headerlink" href="#corelli-natrolite-crystal-structure" title="Link to this heading">#</a></h1>
-<p>This tutorial demonstrates how to use the crystal-structure tools in NeuXtalViz
-with a Natrolite CIF measured on CORELLI.</p>
-<section id="workflow">
-<h2>Workflow<a class="headerlink" href="#workflow" title="Link to this heading">#</a></h2>
-<ol class="arabic simple">
-<li><p>Start NeuXtalViz.</p></li>
-<li><p>Open the <em>Crystal Structure</em> tool.</p></li>
-<li><p>Use the <strong>Load CIF</strong> button to select the Natrolite CIF used for CORELLI.</p></li>
-<li><p>Inspect the lattice parameters and atomic positions on the <em>Structure</em> tab.</p></li>
-<li><p>Switch to the <em>Factors</em> tab.</p></li>
-<li><p>Enter a suitable <span class="math notranslate nohighlight">\(d_{\min}\)</span> value and click <strong>Calculate</strong> to compute <span class="math notranslate nohighlight">\(F^2\)</span>.</p></li>
-</ol>
-</section>
-<section id="automated-example">
-<h2>Automated example<a class="headerlink" href="#automated-example" title="Link to this heading">#</a></h2>
-<p>The application script
-<code class="docutils literal notranslate"><span class="pre">tests/applications/crystal_structure.py</span></code>
-contains a scenario called <code class="docutils literal notranslate"><span class="pre">CORELLI_Natrolite_Structure</span></code> which:</p>
+  <section id="topaz-scolecite-ub-tools">
+<h1>TOPAZ Scolecite UB tools<a class="headerlink" href="#topaz-scolecite-ub-tools" title="Link to this heading">#</a></h1>
+<p>This tutorial demonstrates the UB tools workflow in NeuXtalViz
+for a Scolecite crystal measured on TOPAZ.</p>
+<p>The steps below correspond to the automated scenario
+<code class="docutils literal notranslate"><span class="pre">TOPAZ_Scolecite_UB</span></code> in <code class="docutils literal notranslate"><span class="pre">tests/applications/ub-tools.py</span></code> and the
+associated PNG screenshots.</p>
+<section id="step-1-convert-to-q">
+<h2>Step 1: Convert to Q<a class="headerlink" href="#step-1-convert-to-q" title="Link to this heading">#</a></h2>
+<p>In the <strong>Convert to Q</strong> tab:</p>
 <ul class="simple">
-<li><p>Activates the crystal-structure tool.</p></li>
-<li><p>Loads the Natrolite CIF from the tests data.</p></li>
-<li><p>Shows the <em>Structure</em> tab and takes a screenshot.</p></li>
-<li><p>Switches to the <em>Factors</em> tab and calculates <span class="math notranslate nohighlight">\(F^2\)</span>.</p></li>
+<li><p>Select the <strong>TOPAZ</strong> instrument.</p></li>
+<li><p>Enter the IPTS and run numbers for the Scolecite dataset.</p></li>
+<li><p>(Optionally) set wavelength and calibration options as needed.</p></li>
+<li><p>Click <strong>Convert to Q</strong> to load the data and build the Q volume.</p></li>
 </ul>
-<p>You can run this scenario (for example under <code class="docutils literal notranslate"><span class="pre">xvfb-run</span></code>) to regenerate the
-screenshots used in the documentation.</p>
+<figure class="align-center" id="id1">
+<img alt="../_images/Scolecite_UB_convert_Q.png" src="../_images/Scolecite_UB_convert_Q.png" />
+<figcaption>
+<p><span class="caption-text">Convert Scolecite data to Q for TOPAZ.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-2-find-peaks">
+<h2>Step 2: Find peaks<a class="headerlink" href="#step-2-find-peaks" title="Link to this heading">#</a></h2>
+<p>Still in the <strong>Convert to Q</strong> tab:</p>
+<ul class="simple">
+<li><p>Adjust the peak-finding parameters (maximum number of peaks,
+density threshold, minimum distance).</p></li>
+<li><p>Click <strong>Find Peaks</strong> to locate Bragg peaks in the Q volume.</p></li>
+</ul>
+<figure class="align-center" id="id2">
+<img alt="../_images/Scolecite_UB_find_peaks.png" src="../_images/Scolecite_UB_find_peaks.png" />
+<figcaption>
+<p><span class="caption-text">Find Bragg peaks in the Scolecite Q volume.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-3-primitive-cell">
+<h2>Step 3: Primitive cell<a class="headerlink" href="#step-3-primitive-cell" title="Link to this heading">#</a></h2>
+<p>In the <strong>UB</strong> tab:</p>
+<ul class="simple">
+<li><p>Set tolerances and cell-parameter bounds for the Niggli reduction.</p></li>
+<li><p>Click <strong>Primitive Cell</strong> (Niggli) to search for a primitive cell
+consistent with the peak list.</p></li>
+</ul>
+<figure class="align-center" id="id3">
+<img alt="../_images/Scolecite_UB_primitive_cell.png" src="../_images/Scolecite_UB_primitive_cell.png" />
+<figcaption>
+<p><span class="caption-text">Primitive cell solutions for Scolecite.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-4-conventional-cell">
+<h2>Step 4: Conventional cell<a class="headerlink" href="#step-4-conventional-cell" title="Link to this heading">#</a></h2>
+<p>From the list of candidate cells:</p>
+<ul class="simple">
+<li><p>Select the row corresponding to the desired conventional cell.</p></li>
+<li><p>Click <strong>Select</strong> to adopt it as the working unit cell.</p></li>
+</ul>
+<figure class="align-center" id="id4">
+<img alt="../_images/Scolecite_UB_conventional_cell.png" src="../_images/Scolecite_UB_conventional_cell.png" />
+<figcaption>
+<p><span class="caption-text">Select a conventional cell for Scolecite on TOPAZ.</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-5-refine-ub-matrix">
+<h2>Step 5: Refine UB matrix<a class="headerlink" href="#step-5-refine-ub-matrix" title="Link to this heading">#</a></h2>
+<p>With the conventional cell selected:</p>
+<ul class="simple">
+<li><p>Choose an optimization mode (for example, Monoclinic).</p></li>
+<li><p>Click <strong>Refine UB</strong> to refine the UB matrix against the peak list.</p></li>
+</ul>
+<figure class="align-center" id="id5">
+<img alt="../_images/Scolecite_UB_refine_UB.png" src="../_images/Scolecite_UB_refine_UB.png" />
+<figcaption>
+<p><span class="caption-text">Refined UB matrix for Scolecite.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-6-view-indexed-peaks">
+<h2>Step 6: View indexed peaks<a class="headerlink" href="#step-6-view-indexed-peaks" title="Link to this heading">#</a></h2>
+<p>In the <strong>Peaks</strong> tab:</p>
+<ul class="simple">
+<li><p>Select a peak in the table to highlight it in the Q-space view.</p></li>
+<li><p>Inspect the indexing and fit quality.</p></li>
+</ul>
+<figure class="align-center" id="id6">
+<img alt="../_images/Scolecite_UB_view_peak.png" src="../_images/Scolecite_UB_view_peak.png" />
+<figcaption>
+<p><span class="caption-text">View and inspect an indexed peak.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-7-hkl-slice-view">
+<h2>Step 7: HKL slice view<a class="headerlink" href="#step-7-hkl-slice-view" title="Link to this heading">#</a></h2>
+<p>In the <strong>Convert to HKL</strong> tab:</p>
+<ul class="simple">
+<li><p>Choose a slice direction and coordinate.</p></li>
+<li><p>Click <strong>Convert to HKL</strong> to generate a reciprocal-space slice.</p></li>
+</ul>
+<figure class="align-center" id="id7">
+<img alt="../_images/Scolecite_UB_slice_view.png" src="../_images/Scolecite_UB_slice_view.png" />
+<figcaption>
+<p><span class="caption-text">HKL slice view for the refined UB.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-8-save-ub">
+<h2>Step 8: Save UB<a class="headerlink" href="#step-8-save-ub" title="Link to this heading">#</a></h2>
+<p>Back in the <strong>Convert to Q</strong> tab:</p>
+<ul class="simple">
+<li><p>Click <strong>Save UB</strong> to write the refined UB matrix to disk for use in
+subsequent analysis.</p></li>
+</ul>
+<figure class="align-center" id="id8">
+<img alt="../_images/Scolecite_UB_save_UB.png" src="../_images/Scolecite_UB_save_UB.png" />
+<figcaption>
+<p><span class="caption-text">Save the refined UB matrix for Scolecite.</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 </section>
 </section>
 
@@ -423,20 +516,20 @@ screenshots used in the documentation.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="tutorial_ub_tools_CORELLI_Bixbyite.html"
+       href="tutorial_ub_tools_TOPAZ_Si.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">UB Tools with Bixbyite Data</p>
+        <p class="prev-next-title">UB Tools with Silicon Data</p>
       </div>
     </a>
     <a class="right-next"
-       href="tutorial_ub_tools_MANDI_Mesolite.html"
+       href="tutorial_plan_TOPAZ_Si.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">MANDI Mesolite UB tools</p>
+        <p class="prev-next-title">Experiment Plan with Silicon Data</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -459,8 +552,14 @@ screenshots used in the documentation.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow">Workflow</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#automated-example">Automated example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-convert-to-q">Step 1: Convert to Q</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-find-peaks">Step 2: Find peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-primitive-cell">Step 3: Primitive cell</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-conventional-cell">Step 4: Conventional cell</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-refine-ub-matrix">Step 5: Refine UB matrix</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-view-indexed-peaks">Step 6: View indexed peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-hkl-slice-view">Step 7: HKL slice view</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-8-save-ub">Step 8: Save UB</a></li>
 </ul>
   </nav></div>
 
