@@ -3,7 +3,7 @@ UB Tools with Natrolite Data
 
 This tutorial demonstrates how to use the UB tools in *NeuXtalViz* to
 process CORELLI Natrolite data (chemical formula
-:math:`Na_2Al_2Si_3O_{10}\cdot 2H_2O`).
+:math:`\mathrm{Na_2Al_2Si_3O_{10}\cdot 2H_2O}`).
 
 Step 1: Convert to Q
 --------------------

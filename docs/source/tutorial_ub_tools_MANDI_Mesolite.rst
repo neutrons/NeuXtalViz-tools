@@ -3,7 +3,7 @@ UB Tools with Mesolite Data
 
 This tutorial demonstrates how to use the UB tools in *NeuXtalViz* to
 process MANDI Mesolite data (chemical formula
-:math:`Na_2Ca_2Al_6Si_9O_{30}\cdot 8H_2O`).
+:math:`\mathrm{Na_2Ca_2Al_6Si_9O_{30}\cdot 8H_2O}`).
 
 Step 1: Convert to Q
 ---------------------
