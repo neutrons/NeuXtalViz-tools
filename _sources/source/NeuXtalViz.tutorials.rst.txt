@@ -16,6 +16,7 @@ NeuXtalViz tutorials
    :caption: CORELLI Tutorials:
 
    tutorial_ub_tools_CORELLI_Bixbyite
+   tutorial_ub_tools_CORELLI_Natrolite
    tutorial_crystal_structure_CORELLI_Natrolite
 
 .. toctree::
