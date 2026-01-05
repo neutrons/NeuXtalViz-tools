@@ -2,7 +2,7 @@ UB Tools with Silicon Data
 ==========================
 
 This tutorial demonstrates how to use the UB tools in *NeuXtalViz* to
-process TOPAZ silicon data (chemical formula :math:`\mathrm{Si_2}`).
+process TOPAZ silicon data (chemical formula :math:`\mathrm{Si}`).
 
 Step 1: Select Instrument and Data
 ----------------------------------
