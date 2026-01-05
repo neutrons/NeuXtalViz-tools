@@ -854,6 +854,11 @@ def CORELLI_Natrolite_UB(app, window):
 
     ub_view.index_button.setStyleSheet("")
 
+    ub_view.peaks_tab.setCurrentIndex(2)
+    ub_view.predict_button.setStyleSheet("background-color: green;")
+
+    # ---
+
     ub_view.tab_widget.setCurrentIndex(1)
     ub_view.peaks_table.selectRow(0)
 
@@ -866,6 +871,7 @@ def CORELLI_Natrolite_UB(app, window):
     ub_view.peaks_table.clearSelection()
 
     ub_view.tab_widget.setCurrentIndex(2)
+    ub_view.inspect_verify_tab.setCurrentIndex(0)
 
     ub_view.slice_combo.setStyleSheet("background-color: yellow;")
     ub_view.slice_line.setStyleSheet("background-color: yellow;")
