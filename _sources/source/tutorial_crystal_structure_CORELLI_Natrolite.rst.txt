@@ -42,7 +42,7 @@ Switch to the **Factors** tab:
 - Use the resulting table of h, k, l, d, and :math:`F^2` to compare
   against other diffraction software or reference results.
 
-.. figure:: Natrolite_structure_f2.png
+.. figure:: Natrolite_structure_F2.png
    :align: center
 
    Calculated structure factors :math:`F^2` for Natrolite (CORELLI).
