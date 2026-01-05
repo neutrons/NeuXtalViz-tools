@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>&lt;no title&gt; &#8212; NeuXtalViz  documentation</title>
+    <title>UB Tools with Natrolite Data &#8212; NeuXtalViz  documentation</title>
   
   
   
@@ -42,6 +42,7 @@
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'source/tutorial_ub_tools_CORELLI_Natrolite';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -312,8 +313,9 @@
 <li class="toctree-l1"><a class="reference internal" href="tutorial_crystal_structure_TOPAZ_Scolecite.html">Crystal Structure with Scolecite Data</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">CORELLI Tutorials:</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html">UB Tools with Bixbyite Data</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">UB Tools with Natrolite Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_crystal_structure_CORELLI_Natrolite.html">Crystal Structure with Natrolite Data</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">MANDI Tutorials:</span></p>
@@ -363,7 +365,7 @@
     
     <li class="breadcrumb-item"><a href="NeuXtalViz.tutorials.html" class="nav-link">NeuXtalViz tutorials</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">&lt;no title&gt;</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">UB Tools with Natrolite Data</span></li>
   </ul>
 </nav>
 </div>
@@ -380,14 +382,290 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This page is a placeholder for the CORELLI Natrolite UB tools
-tutorial. The workflow and figures are still under development.
-Once the example is finalized, this document will be updated to
-match the style and step structure of the existing UB tools
-tutorials.</p>
-</div>
+  <section id="ub-tools-with-natrolite-data">
+<h1>UB Tools with Natrolite Data<a class="headerlink" href="#ub-tools-with-natrolite-data" title="Link to this heading">#</a></h1>
+<p>This tutorial demonstrates how to use the UB tools in <em>NeuXtalViz</em> to
+process CORELLI Natrolite data (chemical formula
+<span class="math notranslate nohighlight">\(Na_2Al_2Si_3O_{10}\cdot 2H_2O\)</span>).</p>
+<section id="step-1-convert-to-q">
+<h2>Step 1: Convert to Q<a class="headerlink" href="#step-1-convert-to-q" title="Link to this heading">#</a></h2>
+<p>In the <strong>Convert to Q</strong> tab:</p>
+<ul class="simple">
+<li><p>Set the instrument to <strong>CORELLI</strong>.</p></li>
+<li><p>Enter the IPTS and run numbers for the Natrolite dataset.</p></li>
+<li><p>Set the wavelength range and select the appropriate calibration file.</p></li>
+<li><p>Click <strong>Convert to Q</strong> to load the data and build the Q volume.</p></li>
+</ul>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../_images/Natrolite_UB_convert_Q.png"><img alt="../_images/Natrolite_UB_convert_Q.png" src="../_images/Natrolite_UB_convert_Q.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Convert Natrolite data to Q for CORELLI.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-2-add-reference-peaks">
+<h2>Step 2: Add reference peaks<a class="headerlink" href="#step-2-add-reference-peaks" title="Link to this heading">#</a></h2>
+<p>In the <strong>Inspect / Verify</strong> tab:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Use the horizontal, vertical, and diffraction controls to define a</dt><dd><p>region of interest in the detector view.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Set the coordinates for the first reference reflection and click</dt><dd><p><strong>Add Peak</strong> to record it.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../_images/Natrolite_UB_first_peak.png"><img alt="../_images/Natrolite_UB_first_peak.png" src="../_images/Natrolite_UB_first_peak.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">First reference peak for Natrolite on CORELLI.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Adjust the ROI and diffraction coordinate for a second reflection</dt><dd><p>and click <strong>Add Peak</strong> again.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../_images/Natrolite_UB_second_peak.png"><img alt="../_images/Natrolite_UB_second_peak.png" src="../_images/Natrolite_UB_second_peak.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Second reference peak for Natrolite on CORELLI.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-3-set-initial-ub-from-unit-cell">
+<h2>Step 3: Set initial UB from unit cell<a class="headerlink" href="#step-3-set-initial-ub-from-unit-cell" title="Link to this heading">#</a></h2>
+<p>Back in the <strong>UB</strong> tools interface:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Enter approximate lattice parameters for Natrolite (a, b, c and</dt><dd><p>angles <span class="math notranslate nohighlight">\(\alpha\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span>, <span class="math notranslate nohighlight">\(\gamma\)</span>).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Click <strong>Set UB</strong> to construct an initial UB matrix from these</dt><dd><p>lattice parameters and the reference peaks.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="../_images/Natrolite_UB_set.png"><img alt="../_images/Natrolite_UB_set.png" src="../_images/Natrolite_UB_set.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Initial UB matrix based on the Natrolite unit cell.</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-4-hand-index-reference-peaks">
+<h2>Step 4: Hand index reference peaks<a class="headerlink" href="#step-4-hand-index-reference-peaks" title="Link to this heading">#</a></h2>
+<p>In the <strong>Peaks</strong> tab:</p>
+<ul class="simple">
+<li><p>Select the first reference peak in the table.</p></li>
+<li><p>Enter its expected (h, k, l) values in the hand-indexing fields.</p></li>
+<li><dl class="simple">
+<dt>Use the helper controls to copy the integer indices and calculate</dt><dd><p>the predicted peak position.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-center" id="id5">
+<a class="reference internal image-reference" href="../_images/Natrolite_UB_index_first_peak.png"><img alt="../_images/Natrolite_UB_index_first_peak.png" src="../_images/Natrolite_UB_index_first_peak.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hand indexing the first Natrolite peak.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Select the second reference peak and repeat the hand-indexing</dt><dd><p>procedure for its (h, k, l) values.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="../_images/Natrolite_UB_index_second_peak.png"><img alt="../_images/Natrolite_UB_index_second_peak.png" src="../_images/Natrolite_UB_index_second_peak.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hand indexing the second Natrolite peak.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-5-refine-ub-matrix-constrained">
+<h2>Step 5: Refine UB matrix (constrained)<a class="headerlink" href="#step-5-refine-ub-matrix-constrained" title="Link to this heading">#</a></h2>
+<p>Back in the <strong>UB</strong> tab:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Choose an optimization mode such as <strong>Constrained</strong> that reflects</dt><dd><p>the expected symmetry.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Click <strong>Refine UB</strong> to refine the UB matrix using the indexed</dt><dd><p>reference peaks.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-center" id="id7">
+<a class="reference internal image-reference" href="../_images/Natrolite_UB_calculate_UB.png"><img alt="../_images/Natrolite_UB_calculate_UB.png" src="../_images/Natrolite_UB_calculate_UB.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Refined UB matrix for Natrolite on CORELLI (constrained).</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-6-index-peaks">
+<h2>Step 6: Index peaks<a class="headerlink" href="#step-6-index-peaks" title="Link to this heading">#</a></h2>
+<p>In the <strong>Peaks</strong> tab:</p>
+<ul class="simple">
+<li><p>Switch to the indexing sub-tab if needed.</p></li>
+<li><dl class="simple">
+<dt>Click <strong>Index Peaks</strong> to apply the refined UB matrix to the peak</dt><dd><p>list and assign Miller indices.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-center" id="id8">
+<a class="reference internal image-reference" href="../_images/Natrolite_UB_index_peaks.png"><img alt="../_images/Natrolite_UB_index_peaks.png" src="../_images/Natrolite_UB_index_peaks.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Automatic indexing of Natrolite peaks.</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-7-predict-integrate-and-filter-peaks">
+<h2>Step 7: Predict, integrate, and filter peaks<a class="headerlink" href="#step-7-predict-integrate-and-filter-peaks" title="Link to this heading">#</a></h2>
+<p>In the <strong>Analyze Peaks</strong> workflow:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Use the <strong>Predict Peaks</strong> controls to propose additional peaks</dt><dd><p>based on the current UB matrix and centering.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-center" id="id9">
+<a class="reference internal image-reference" href="../_images/Natrolite_UB_predict_peaks.png"><img alt="../_images/Natrolite_UB_predict_peaks.png" src="../_images/Natrolite_UB_predict_peaks.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Predicted Natrolite peaks based on the refined UB.</span><a class="headerlink" href="#id9" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Enable adaptive and centroid options as needed and click</dt><dd><p><strong>Integrate Peaks</strong> to integrate the predicted peaks.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-center" id="id10">
+<a class="reference internal image-reference" href="../_images/Natrolite_UB_integrate_peaks.png"><img alt="../_images/Natrolite_UB_integrate_peaks.png" src="../_images/Natrolite_UB_integrate_peaks.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Integrated Natrolite peaks.</span><a class="headerlink" href="#id10" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Apply a filter on peak intensity or signal-to-noise using the</dt><dd><p><strong>Filter Peaks</strong> controls to refine the working peak list.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-center" id="id11">
+<a class="reference internal image-reference" href="../_images/Natrolite_UB_filter_peaks.png"><img alt="../_images/Natrolite_UB_filter_peaks.png" src="../_images/Natrolite_UB_filter_peaks.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Filtered Natrolite peak list.</span><a class="headerlink" href="#id11" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-8-refine-ub-matrix-orthorhombic">
+<h2>Step 8: Refine UB matrix (orthorhombic)<a class="headerlink" href="#step-8-refine-ub-matrix-orthorhombic" title="Link to this heading">#</a></h2>
+<p>Return to the <strong>UB</strong> tab:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Change the optimization mode to <strong>Orthorhombic</strong> (or another</dt><dd><p>appropriate symmetry).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Click <strong>Refine UB</strong> again to update the UB matrix using the</dt><dd><p>filtered, integrated peaks.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-center" id="id12">
+<a class="reference internal image-reference" href="../_images/Si_UB_refine_UB.png"><img alt="../_images/Si_UB_refine_UB.png" src="../_images/Si_UB_refine_UB.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Final UB refinement for Natrolite on CORELLI.</span><a class="headerlink" href="#id12" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-9-view-indexed-peaks">
+<h2>Step 9: View indexed peaks<a class="headerlink" href="#step-9-view-indexed-peaks" title="Link to this heading">#</a></h2>
+<p>In the <strong>Peaks</strong> tab:</p>
+<ul class="simple">
+<li><p>Select a peak from the table to highlight it in the Q-space view.</p></li>
+<li><dl class="simple">
+<dt>Inspect the indexing, Q position, and fit quality for the</dt><dd><p>selected reflection.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-center" id="id13">
+<a class="reference internal image-reference" href="../_images/Natrolite_UB_view_peak.png"><img alt="../_images/Natrolite_UB_view_peak.png" src="../_images/Natrolite_UB_view_peak.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">View and inspect an indexed Natrolite peak.</span><a class="headerlink" href="#id13" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-10-slice-view">
+<h2>Step 10: Slice view<a class="headerlink" href="#step-10-slice-view" title="Link to this heading">#</a></h2>
+<p>In the <strong>Convert to HKL</strong> tab:</p>
+<ul class="simple">
+<li><p>Choose a slice direction and coordinate.</p></li>
+<li><dl class="simple">
+<dt>Click <strong>Convert to HKL</strong> to generate a reciprocal-space slice</dt><dd><p>based on the refined UB matrix.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-center" id="id14">
+<a class="reference internal image-reference" href="../_images/Natrolite_UB_slice_view.png"><img alt="../_images/Natrolite_UB_slice_view.png" src="../_images/Natrolite_UB_slice_view.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">HKL slice view for the refined Natrolite UB.</span><a class="headerlink" href="#id14" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-11-save-ub">
+<h2>Step 11: Save UB<a class="headerlink" href="#step-11-save-ub" title="Link to this heading">#</a></h2>
+<p>Back in the <strong>Convert to Q</strong> tab:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Click <strong>Save UB</strong> to write the refined UB matrix to disk for use in</dt><dd><p>subsequent CORELLI Natrolite analysis.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-center" id="id15">
+<a class="reference internal image-reference" href="../_images/Natrolite_UB_save_UB.png"><img alt="../_images/Natrolite_UB_save_UB.png" src="../_images/Natrolite_UB_save_UB.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Save the refined UB matrix for Natrolite.</span><a class="headerlink" href="#id15" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+</section>
 
 
                 </article>
@@ -435,9 +713,19 @@ tutorials.</p>
     <i class="fa-solid fa-list"></i> On this page
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="simple visible nav section-nav flex-column">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-convert-to-q">Step 1: Convert to Q</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-add-reference-peaks">Step 2: Add reference peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-set-initial-ub-from-unit-cell">Step 3: Set initial UB from unit cell</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-hand-index-reference-peaks">Step 4: Hand index reference peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-refine-ub-matrix-constrained">Step 5: Refine UB matrix (constrained)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-index-peaks">Step 6: Index peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-predict-integrate-and-filter-peaks">Step 7: Predict, integrate, and filter peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-8-refine-ub-matrix-orthorhombic">Step 8: Refine UB matrix (orthorhombic)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-9-view-indexed-peaks">Step 9: View indexed peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-10-slice-view">Step 10: Slice view</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-11-save-ub">Step 11: Save UB</a></li>
 </ul>
-
   </nav></div>
 
 </div></div>
