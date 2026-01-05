@@ -857,7 +857,72 @@ def CORELLI_Natrolite_UB(app, window):
     ub_view.peaks_tab.setCurrentIndex(2)
     ub_view.predict_button.setStyleSheet("background-color: green;")
 
-    # ---
+    index = ub_view.centering_combo.findText("F")
+    ub_view.centering_combo.setCurrentIndex(index)
+    ub_view.centering_combo.setStyleSheet("background-color: yellow;")
+
+    QTest.mouseClick(ub_view.predict_button, Qt.LeftButton)
+    QTest.qWait(1000 * 15)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Natrolite_UB_predict_peaks.png"), "png"
+    )
+
+    ub_view.predict_button.setStyleSheet("")
+    ub_view.centering_combo.setStyleSheet("")
+
+    ub_view.peaks_tab.setCurrentIndex(3)
+    ub_view.integrate_button.setStyleSheet("background-color: green;")
+
+    ub_view.adaptive_box.setChecked(True)
+    ub_view.centroid_box.setChecked(True)
+    ub_view.adaptive_box.setStyleSheet("background-color: yellow;")
+    ub_view.centroid_box.setStyleSheet("background-color: yellow;")
+
+    QTest.mouseClick(ub_view.integrate_button, Qt.LeftButton)
+    QTest.qWait(1000 * 15)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Natrolite_UB_integrate_peaks.png"), "png"
+    )
+
+    ub_view.integrate_button.setStyleSheet("")
+    ub_view.adaptive_box.setStyleSheet("")
+    ub_view.centroid_box.setStyleSheet("")
+
+    ub_view.peaks_tab.setCurrentIndex(4)
+    ub_view.filter_button.setStyleSheet("background-color: green;")
+
+    ub_view.filter_line.setText("20")
+    ub_view.filter_line.setStyleSheet("background-color: yellow;")
+
+    QTest.mouseClick(ub_view.filter_button, Qt.LeftButton)
+    QTest.qWait(1000 * 15)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Natrolite_UB_filter_peaks.png"), "png"
+    )
+
+    ub_view.filter_button.setStyleSheet("")
+    ub_view.filter_line.setStyleSheet("")
+
+    ub_view.ub_tab.setCurrentIndex(2)
+
+    index = ub_view.optimize_combo.findText("Orthorhombic")
+    ub_view.optimize_combo.setCurrentIndex(index)
+
+    ub_view.optimize_combo.setStyleSheet("background-color: yellow;")
+    ub_view.refine_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(ub_view.refine_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Si_UB_refine_UB.png"), "png"
+    )
+
+    ub_view.optimize_combo.setStyleSheet("")
+    ub_view.refine_button.setStyleSheet("")
 
     ub_view.tab_widget.setCurrentIndex(1)
     ub_view.peaks_table.selectRow(0)
