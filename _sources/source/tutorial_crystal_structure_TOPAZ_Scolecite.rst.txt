@@ -2,7 +2,8 @@ Crystal Structure with Scolecite Data
 ====================================
 
 This tutorial demonstrates how to use the crystal-structure tools in
-*NeuXtalViz* to work with Scolecite data measured on TOPAZ.
+*NeuXtalViz* to work with Scolecite data measured on TOPAZ (chemical
+formula :math:`CaAl_2Si_3O_{10}\cdot 3H_2O`).
 
 Step 1: Load CIF and view structure
 -----------------------------------

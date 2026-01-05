@@ -2,7 +2,8 @@ UB Tools with Scolecite Data
 ============================
 
 This tutorial demonstrates how to use the UB tools in *NeuXtalViz* to
-process TOPAZ Scolecite data.
+process TOPAZ Scolecite data (chemical formula
+:math:`CaAl_2Si_3O_{10}\cdot 3H_2O`).
 
 Step 1: Convert to Q
 ---------------------
