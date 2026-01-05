@@ -3,7 +3,7 @@ Crystal Structure with Mesolite Data
 
 This tutorial demonstrates how to use the crystal-structure tools in
 *NeuXtalViz* to work with Mesolite data measured on MANDI (chemical
-formula :math:`Na_2Ca_2Al_6Si_9O_{30}\cdot 8H_2O`).
+formula :math:`\mathrm{Na_2Ca_2Al_6Si_9O_{30}\cdot 8H_2O}`).
 
 Step 1: Load CIF and view structure
 -----------------------------------
