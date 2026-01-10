@@ -97,7 +97,40 @@ def TOPAZ_Scolecite_Structure(app, window):
     )
 
 
+def TOPAZ_Si_Structure(app, window):
+    _load_cif_and_compute_f2(
+        app,
+        window,
+        instrument="TOPAZ",
+        cif_filename=os.path.join("../data", "Si.cif"),
+        screenshot_prefix="Si_structure",
+    )
+
+
+def SNAP_Si_Structure(app, window):
+    _load_cif_and_compute_f2(
+        app,
+        window,
+        instrument="SNAP",
+        cif_filename=os.path.join("../data", "Si.cif"),
+        screenshot_prefix="Si_structure",
+    )
+
+
+def TOPAZ_Bixbyite_Structure(app, window):
+    _load_cif_and_compute_f2(
+        app,
+        window,
+        instrument="TOPAZ",
+        cif_filename=os.path.join("../data", "bixbyite.cif"),
+        screenshot_prefix="Bixbyite_structure",
+    )
+
+
 if __name__ == "__main__":
     # run_qt_scenario(MANDI_Mesolite_Structure)
     # run_qt_scenario(CORELLI_Natrolite_Structure)
-    run_qt_scenario(TOPAZ_Scolecite_Structure)
+    # run_qt_scenario(TOPAZ_Scolecite_Structure)
+    # run_qt_scenario(TOPAZ_Si_Structure)
+    # run_qt_scenario(SNAP_Si_Structure)
+    run_qt_scenario(TOPAZ_Bixbyite_Structure)

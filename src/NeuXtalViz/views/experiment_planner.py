@@ -375,6 +375,43 @@ class ExperimentView(NeuXtalVizWidget):
 
         result_layout.addWidget(self.values_tab)
 
+        self.color_combo = QComboBox(self)
+        self.color_combo.addItem("Sphere")
+        self.color_combo.addItem("Redundancy")
+        self.color_combo.setToolTip(
+            "Select the color scheme for coverage visualization."
+        )
+
+        self.auto_scale_dropdown(self.color_combo)
+
+        self.h_max_line = QLineEdit("")
+        self.k_max_line = QLineEdit("")
+        self.l_max_line = QLineEdit("")
+
+        self.h_max_line.setToolTip("Maximum h index")
+        self.k_max_line.setToolTip("Maximum k index")
+        self.l_max_line.setToolTip("Maximum l index")
+
+        self.h_max_line.setReadOnly(True)
+        self.k_max_line.setReadOnly(True)
+        self.l_max_line.setReadOnly(True)
+
+        data_layout = QHBoxLayout()
+
+        h_max_label = QLabel("h(max):")
+        k_max_label = QLabel("k(max):")
+        l_max_label = QLabel("l(max):")
+
+        data_layout.addWidget(self.color_combo)
+        data_layout.addWidget(h_max_label)
+        data_layout.addWidget(self.h_max_line)
+        data_layout.addWidget(k_max_label)
+        data_layout.addWidget(self.k_max_line)
+        data_layout.addWidget(l_max_label)
+        data_layout.addWidget(self.l_max_line)
+
+        result_layout.addLayout(data_layout)
+
         self.canvas_cov = FigureCanvas(
             Figure(constrained_layout=True, figsize=(6.4, 4.8))
         )
@@ -944,6 +981,20 @@ class ExperimentView(NeuXtalVizWidget):
 
     def connect_peak_row_highlighter(self, highlight_row):
         self.peaks_table.itemSelectionChanged.connect(highlight_row)
+
+    def connect_color_scheme(self, update_color_scheme):
+        self.color_combo.currentIndexChanged.connect(update_color_scheme)
+
+    def connect_hkl_limits(self, update_hkl_limits):
+        self.d_min_line.editingFinished.connect(update_hkl_limits)
+
+    def get_color_scheme(self):
+        return self.color_combo.currentText()
+
+    def set_hkl_limits(self, h_max, k_max, l_max):
+        self.h_max_line.setText(str(h_max))
+        self.k_max_line.setText(str(k_max))
+        self.l_max_line.setText(str(l_max))
 
     def get_detector_calibration(self):
         return self.cal_line.text()

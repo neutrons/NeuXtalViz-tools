@@ -499,9 +499,7 @@ class NeuXtalVizModel:
             position, focal_point, up
         )
 
-        world_up = np.array([0.0, 1.0, 0.0])
-        if abs(np.dot(world_up, d)) > 0.99:
-            world_up = np.array([0.0, 0.0, 1.0])
+        world_up = np.array([0.0, 0.0, 1.0])
 
         new_d = self._rotate_vector(d, world_up, angle_deg)
         new_up = self._rotate_vector(up_vec, world_up, angle_deg)

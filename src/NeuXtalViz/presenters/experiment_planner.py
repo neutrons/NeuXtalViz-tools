@@ -14,6 +14,7 @@ class Experiment(NeuXtalVizPresenter):
         self.view.connect_switch_point_group(self.switch_group)
         self.view.connect_switch_lattice_centering(self.switch_centering)
         self.view.connect_wavelength(self.update_wavelength)
+        self.view.connect_hkl_limits(self.update_hkl_limits)
         self.view.connect_optimize(self.optimize_coverage)
         self.view.connect_mesh(self.mesh_scan)
         self.view.connect_calculate_single(self.calculate_single)
@@ -25,6 +26,7 @@ class Experiment(NeuXtalVizPresenter):
         self.view.connect_save_experiment(self.save_experiment)
         self.view.connect_load_experiment(self.load_experiment)
         self.view.connect_combined(self.visualize)
+        self.view.connect_color_scheme(self.visualize)
         self.view.connect_peak_table(self.update_peaks)
         self.view.connect_load_mask(self.load_mask)
         self.view.connect_load_detector(self.load_detector)
@@ -104,6 +106,8 @@ class Experiment(NeuXtalVizPresenter):
 
             self.view.set_transform(self.model.get_transform())
 
+            self.update_hkl_limits()
+
     def switch_instrument(self):
         """
         Switch instrument and update all related view parameters.
@@ -146,6 +150,12 @@ class Experiment(NeuXtalVizPresenter):
     def switch_centering(self):
         self.visualize()
 
+    def update_hkl_limits(self):
+        d_min = self.view.get_d_min()
+        if d_min is not None and self.model.has_UB():
+            hkl_limits = self.model.calculate_hkl_limits(d_min)
+            self.view.set_hkl_limits(*hkl_limits)
+
     def update_goniometer(self):
         instrument = self.view.get_instrument()
         mode = self.view.get_mode()
@@ -163,7 +173,7 @@ class Experiment(NeuXtalVizPresenter):
     def show_instrument(self):
         worker = self.view.worker(self.show_instrument_process)
         worker.connect_result(self.show_instrument_complete)
-        # worker.connect_finished(self.visualize_instrument)
+        worker.connect_finished(self.update_hkl_limits)
         worker.connect_progress(self.update_processing)
 
         self.view.start_worker_pool(worker)
@@ -613,6 +623,7 @@ class Experiment(NeuXtalVizPresenter):
         d_min = self.view.get_d_min()
         draw_all = self.view.draw_all()
         row = self.view.get_peak_list()
+        color = self.view.get_color_scheme()
 
         if self.draw_idle:
 
@@ -634,7 +645,7 @@ class Experiment(NeuXtalVizPresenter):
                 self.update_processing("Calculating coverage...", 50)
 
                 peak_dict = self.model.get_coverage_info(
-                    point_group, lattice_centering, draw_all, row
+                    point_group, lattice_centering, draw_all, color, row
                 )
 
                 self.update_processing("Coverage calculated...", 80)

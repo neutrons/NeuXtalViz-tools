@@ -256,9 +256,9 @@ class CrystalStructureModel(NeuXtalVizModel):
             n_atm.append(np.sum(ns))
             n_wgt.append(np.sum(np.multiply(ns, occs)))
             if key.isalpha():
-                chemical_formula.append(key + "{}")
+                chemical_formula.append(key + "{:.3g}")
             else:
-                chemical_formula.append("(" + key + ")" + "{}")
+                chemical_formula.append("(" + key + ")" + "{:.3g}")
 
         Z = np.gcd.reduce(n_atm)
         n = np.divide(n_wgt, Z)

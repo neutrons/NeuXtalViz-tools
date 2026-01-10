@@ -50,6 +50,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 from scipy.stats import binned_statistic_2d
 import scipy.linalg
+import matplotlib.pyplot as plt
 
 import skimage
 
@@ -443,6 +444,19 @@ class ExperimentModel(NeuXtalVizModel):
 
     def get_symmetry(self, point_group, centering):
         return str(point_group), str(centering)
+
+    def calculate_hkl_limits(self, d_min):
+        ol = mtd["coverage"].sample().getOrientedLattice()
+
+        astar = ol.astar()
+        bstar = ol.bstar()
+        cstar = ol.cstar()
+
+        h_max = int(round(1 / (d_min * astar)))
+        k_max = int(round(1 / (d_min * bstar)))
+        l_max = int(round(1 / (d_min * cstar)))
+
+        return h_max, k_max, l_max
 
     def create_plan(self, table):
         pv, names, titles, settings, comments, counts, values, use = table
@@ -1506,7 +1520,7 @@ class ExperimentModel(NeuXtalVizModel):
             peak.setRunNumber(new_run)
 
     def get_coverage_info(
-        self, point_group, lattice_centering, draw_all, row=None
+        self, point_group, lattice_centering, draw_all, color, row=None
     ):
         pg = PointGroupFactory.createPointGroup(point_group)
 
@@ -1552,15 +1566,31 @@ class ExperimentModel(NeuXtalVizModel):
             nos = np.array([value for value in hkl_dict.values()])
             hkls = np.array([key for key in hkl_dict.keys()])
 
-            r = np.sqrt(hkls[:, 0] ** 2 + hkls[:, 1] ** 2 + hkls[:, 2] ** 2)
-            theta = np.arccos(hkls[:, 2] / r)
-            phi = np.arctan2(hkls[:, 1], hkls[:, 0])
+            if color == "Sphere":
+                r = np.sqrt(
+                    hkls[:, 0] ** 2 + hkls[:, 1] ** 2 + hkls[:, 2] ** 2
+                )
+                theta = np.arccos(hkls[:, 2] / r)
+                phi = np.arctan2(hkls[:, 1], hkls[:, 0])
 
-            hue = phi * 180 / np.pi + 180
-            saturation = np.ones_like(hue)
-            lightness = theta / np.pi
+                hue = phi * 180 / np.pi + 180
+                saturation = np.ones_like(hue)
+                lightness = theta / np.pi
 
-            rgb = self.hsl_to_rgb(hue, saturation, lightness)
+                rgb = self.hsl_to_rgb(hue, saturation, lightness)
+            elif color == "Redundancy":
+                redundancy_values = nos.astype(float)
+                max_redundancy = (
+                    redundancy_values.max()
+                    if redundancy_values.max() > 0
+                    else 1.0
+                )
+
+                norm_redundancy = redundancy_values / max_redundancy
+
+                cmap = plt.cm.turbo
+                rgb = cmap(norm_redundancy)[:, :3]  # Take RGB, drop alpha
+
             coords = np.einsum("ij,nj->ni", 2 * np.pi * UB, hkls)
 
             coverage_dict["colors"] = (rgb * 255).astype(np.uint8)
