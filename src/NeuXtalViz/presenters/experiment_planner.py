@@ -385,8 +385,8 @@ class Experiment(NeuXtalVizPresenter):
 
         vals = self.model.get_peak_selection(gamma, nu)
         if vals is not None:
-            gamma, nu, lamdas, row = vals
-            self.view.update_laue(gamma, nu, lamdas)
+            gamma, nu, lamdas, hkl, wl, row = vals
+            self.view.update_laue(gamma, nu, lamdas, hkl, wl)
             self.view.highlight_peak(row)
 
     def highlight_peak(self):
@@ -394,8 +394,8 @@ class Experiment(NeuXtalVizPresenter):
 
         vals = self.model.get_peak_index(row)
         if vals is not None:
-            gamma, nu, lamdas, row = vals
-            self.view.update_laue(gamma, nu, lamdas)
+            gamma, nu, lamdas, hkl, wl, row = vals
+            self.view.update_laue(gamma, nu, lamdas, hkl, wl)
 
     def delete_angles(self):
         worker = self.view.worker(self.delete_angles_process)

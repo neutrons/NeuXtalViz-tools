@@ -70,6 +70,15 @@ class ExperimentView(NeuXtalVizWidget):
         self.goniometer_table.itemChanged.connect(self.update_limits)
         self.mesh_table.itemChanged.connect(self.calculate_mesh_step)
 
+        self.hkl = None
+        self.scale = None
+
+        self.hkl_alt = None
+        self.scale_alt = None
+
+        self.hkl_laue = None
+        self.scale_laue = None
+
     def coverage_tab(self):
         cov_tab = QWidget()
         self.tab_widget.addTab(cov_tab, "Coverage")
@@ -2285,6 +2294,10 @@ class ExperimentView(NeuXtalVizWidget):
                     transform=self.ax_band.get_xaxis_transform(),
                     color="k",
                 )
+                self.hkl = hkl
+                self.scale = lamda
+                self.hkl_alt = hkl
+                self.scale_alt = lamda
 
         self.canvas_inst.draw_idle()
         self.canvas_inst.flush_events()
@@ -2303,6 +2316,8 @@ class ExperimentView(NeuXtalVizWidget):
                     transform=self.ax_band.get_xaxis_transform(),
                     color="k",
                 )
+                self.hkl_alt = hkl
+                self.scale_alt = lamda
 
         self.canvas_inst.draw_idle()
         self.canvas_inst.flush_events()
@@ -2463,7 +2478,7 @@ class ExperimentView(NeuXtalVizWidget):
             horz, vert = event.xdata, event.ydata
             self.sel_ready.emit(horz, vert)
 
-    def update_laue(self, horz, vert, lamdas):
+    def update_laue(self, horz, vert, lamdas, hkl, lamda_0):
         for line in self.ax_laue.lines:
             line.remove()
 
@@ -2479,6 +2494,8 @@ class ExperimentView(NeuXtalVizWidget):
 
         for lamda in lamdas:
             self.ax_harm.axvline(x=lamda, color="k", linestyle="--")
+        self.hkl_laue = hkl
+        self.scale_laue = lamda_0
 
         self.canvas_laue.draw_idle()
         self.canvas_laue.flush_events()
@@ -2619,14 +2636,36 @@ class ExperimentView(NeuXtalVizWidget):
     def __format_band_coord(self, x, y):
         wl = "λ = {:.3f} Å, ".format(x)
         if self.bragg_band_alt is not None:
-            return wl + "d₁ = {:.3f} Å, d₂ = {:.3f} Å".format(
-                self.bragg_band * x, self.bragg_band_alt * x
-            )
+            if self.hkl is not None or self.hkl_alt is not None:
+                hkl = self.hkl / x * self.scale
+                hkl_alt = self.hkl_alt / x * self.scale_alt
+                hkl1 = "hkl₁ = ({:.2g} {:.2g} {:.2g}), ".format(*hkl)
+                hkl2 = "hkl₂ = ({:.2g} {:.2g} {:.2g}), ".format(*hkl_alt)
+            else:
+                hkl1 = ""
+                hkl2 = ""
+            d1 = "d₁ = {:.3f} Å, ".format(self.bragg_band * x)
+            d2 = "d₂ = {:.3f} Å".format(self.bragg_band_alt * x)
+            return wl + hkl1 + d1 + hkl2 + d2
         else:
-            return wl + "d = {:.3f} Å".format(self.bragg_band * x)
+            if self.hkl is not None:
+                hkl = self.hkl / x * self.scale
+                hkl = "hkl = ({:.2g} {:.2g} {:.2g}), ".format(*hkl)
+            else:
+                hkl = ""
+            d = "d = {:.3f} Å".format(self.bragg_band * x)
+            return wl + hkl + d
 
     def __format_harm_coord(self, x, y):
-        return "λ = {:.3f} Å, d = {:.3f} Å".format(x, self.bragg_harm * x)
+        wl = "λ = {:.3f} Å, ".format(x)
+        if self.hkl_laue is not None:
+            hkl = self.hkl_laue / x * self.scale_laue
+            hkl = "hkl = ({:.2g} {:.2g} {:.2g}), ".format(*hkl)
+        else:
+            hkl = ""
+        d = "d = {:.3f} Å".format(self.bragg_harm * x)
+
+        return wl + hkl + d
 
     def __scale_inst(self, horz, vert):
         if horz is not None or vert is not None:

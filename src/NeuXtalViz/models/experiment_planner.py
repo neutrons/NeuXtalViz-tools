@@ -1626,10 +1626,12 @@ class ExperimentModel(NeuXtalVizModel):
             gamma_peaks = []
             nu_peaks = []
             d_peaks = []
+            hkl_peaks = []
 
             for peak in mtd["table"]:
                 lamda = peak.getWavelength()
                 Q_lab = peak.getQLabFrame()
+                hkl = peak.getHKL()
 
                 Q = np.linalg.norm(Q_lab)
 
@@ -1646,16 +1648,19 @@ class ExperimentModel(NeuXtalVizModel):
                 gamma_peaks.append(gamma)
                 nu_peaks.append(nu)
                 d_peaks.append(d)
+                hkl_peaks.append(np.array(hkl))
 
             lamda_peaks = np.array(lamda_peaks)
             gamma_peaks = np.array(gamma_peaks)
             nu_peaks = np.array(nu_peaks)
             d_peaks = np.array(d_peaks)
+            hkl_peaks = np.array(hkl_peaks)
 
             self.lamda_peaks = lamda_peaks
             self.gamma_peaks = gamma_peaks
             self.nu_peaks = nu_peaks
             self.d_peaks = d_peaks
+            self.hkl_peaks = hkl_peaks
 
             return gamma_peaks, nu_peaks, lamda_peaks, d_peaks
 
@@ -1668,7 +1673,10 @@ class ExperimentModel(NeuXtalVizModel):
             d2 = (self.gamma_peaks - gamma) ** 2 + (self.nu_peaks - nu) ** 2
             lamdas = self.lamda_peaks[np.isclose(d2, d2[i])]
 
-            return gamma, nu, lamdas, i
+            hkl = self.hkl_peaks[i]
+            wl = self.lamda_peaks[i]
+
+            return gamma, nu, lamdas, hkl, wl, i
 
     def get_peak_selection(self, gamma, nu):
 
@@ -1682,7 +1690,10 @@ class ExperimentModel(NeuXtalVizModel):
 
             lamdas = self.lamda_peaks[np.isclose(d2, d2[i])]
 
-            return gamma, nu, lamdas, i
+            hkl = self.hkl_peaks[i]
+            wl = self.lamda_peaks[i]
+
+            return gamma, nu, lamdas, hkl, wl, i
 
     def to_index(self, Q, Q_max, scale, n):
         idx = np.round((Q + Q_max) * scale).astype(np.int32)
