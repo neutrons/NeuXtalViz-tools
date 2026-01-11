@@ -45,6 +45,8 @@ class Experiment(NeuXtalVizPresenter):
         self.view.connect_update(self.view.update_counting)
         self.view.connect_highlight_angles(self.view.highlight_angles)
         self.view.connect_peak_row_highlighter(self.highlight_peak)
+        self.view.connect_move_up(self.move_orientation_up)
+        self.view.connect_move_down(self.move_orientation_down)
 
         self.draw_idle = True
 
@@ -396,6 +398,22 @@ class Experiment(NeuXtalVizPresenter):
         if vals is not None:
             gamma, nu, lamdas, hkl, wl, row = vals
             self.view.update_laue(gamma, nu, lamdas, hkl, wl)
+
+    def move_orientation_up(self):
+        row = self.view.get_selected_angle()
+        no = self.view.get_number_of_orientations()
+        if row is not None and row > 0:
+            self.model.swap_angles([row, (row - 1) % no])
+            self.view.swap_angles([row, (row - 1) % no])
+            self.update_peaks(True)
+
+    def move_orientation_down(self):
+        row = self.view.get_selected_angle()
+        no = self.view.get_number_of_orientations()
+        if row is not None and row < no - 1:
+            self.model.swap_angles([row, (row + 1) % no])
+            self.view.swap_angles([row, (row + 1) % no])
+            self.update_peaks(True)
 
     def delete_angles(self):
         worker = self.view.worker(self.delete_angles_process)

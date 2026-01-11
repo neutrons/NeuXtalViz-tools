@@ -1505,19 +1505,22 @@ class ExperimentModel(NeuXtalVizModel):
                 OutputWorkspace="combined",
             )
 
-        # SortPeaksWorkspace(
-        #     InputWorkspace="combined",
-        #     ColumnNameToSortBy="RunNumber",
-        #     SortAscending=True,
-        #     OutputWorkspace="combined",
-        # )
-
         runs = mtd["combined"].column(0)
 
         _, new_runs = np.unique(runs, return_index=True)
 
         for new_run, peak in zip(new_runs.tolist(), mtd["combined"]):
             peak.setRunNumber(new_run)
+
+    def swap_angles(self, rows):
+        if rows[0] == rows[1]:
+            return
+        for peak in mtd["combined"]:
+            run = peak.getRunNumber()
+            if run == rows[0]:
+                peak.setRunNumber(rows[1])
+            elif run == rows[1]:
+                peak.setRunNumber(rows[0])
 
     def get_coverage_info(
         self, point_group, lattice_centering, draw_all, color, row=None
@@ -1533,7 +1536,9 @@ class ExperimentModel(NeuXtalVizModel):
 
             ws = "filtered"
             if not draw_all:
-                ws = "table" if row != -1 else "missing"
+                ws = "table"
+            if row == -1:
+                ws = "missing"
 
             h = mtd[ws].column("h")
             k = mtd[ws].column("k")

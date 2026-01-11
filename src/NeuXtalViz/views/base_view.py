@@ -172,9 +172,13 @@ class NeuXtalVizWidget(QWidget):
         fm = combo.fontMetrics()
         max_width = 0
 
+        digit = all(
+            [combo.itemText(i).isdigit() for i in range(combo.count())]
+        )
+
         for i in range(combo.count()):
             text = combo.itemText(i)
-            icon = qta.icon("fa6s.minus")
+            icon = qta.icon("fa6s.hashtag" if digit else "fa6s.minus")
             if text == "TOPAZ":
                 icon = qta.icon("fa6s.gem")
             elif text == "CORELLI":
@@ -197,12 +201,12 @@ class NeuXtalVizWidget(QWidget):
             icon_width = 0
             if not icon.isNull():
                 size = icon.actualSize(combo.iconSize())
-                icon_width = size.width() + 8  # small gap after icon/check
+                icon_width = size.width() + 8
 
             max_width = max(max_width, text_width + icon_width)
 
         if max_width:
-            padding = 40  # extra room for checkmarks and style padding
+            padding = 40
             combo.setMinimumWidth(max_width + padding)
 
     def __init_view_tab(self):

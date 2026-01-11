@@ -1,2 +1,3 @@
 BL12:CS:RunInfo:Title,BL12:Mot:goniokm:omega,BL12:Mot:goniokm:phi,Comment,Wait For,Value
-tetst,46.0,-44.0,(4.0 0.0 0.0),BL12:Det:PCharge:C,1.2999999523162842
+Scan Title,-91.5999984741211,153.39999389648438,CrystalPlan,BL12:Det:PCharge:C,1.0
+Scan Title,132.8000030517578,65.4000015258789,CrystalPlan,BL12:Det:PCharge:C,1.0

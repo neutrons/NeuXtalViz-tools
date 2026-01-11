@@ -175,6 +175,17 @@ class ExperimentView(NeuXtalVizWidget):
         self.title_line = QLineEdit("Scan Title")
         self.title_line.setToolTip("Set the title for the scan or experiment.")
 
+        self.move_up_button = QPushButton("Move Up", self)
+        self.move_up_button.setToolTip(
+            "Move selected orientation up in the plan."
+        )
+        self.move_up_button.setIcon(qta.icon("fa6s.square-caret-up"))
+        self.move_down_button = QPushButton("Move Down", self)
+        self.move_down_button.setToolTip(
+            "Move selected orientation down in the plan."
+        )
+        self.move_down_button.setIcon(qta.icon("fa6s.square-caret-down"))
+
         notation = QDoubleValidator.StandardNotation
         validator = QDoubleValidator(0.001, 10000, 5, notation=notation)
 
@@ -184,7 +195,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.save_plan_button.setToolTip(
             "Save the current experiment plan as a CSV file."
         )
-        self.save_plan_button.setIcon(qta.icon("fa6s.floppy-disk"))
+        self.save_plan_button.setIcon(qta.icon("fa6s.file-csv"))
 
         self.wl_min_line = QLineEdit("0.4")
         self.wl_min_line.setToolTip(
@@ -323,6 +334,8 @@ class ExperimentView(NeuXtalVizWidget):
         save_layout.addWidget(self.delete_button)
         save_layout.addWidget(self.highlight_button)
         save_layout.addWidget(self.update_button)
+        save_layout.addWidget(self.move_up_button)
+        save_layout.addWidget(self.move_down_button)
         save_layout.addStretch(1)
         save_layout.addWidget(self.save_plan_button)
 
@@ -884,7 +897,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.peaks_table.setHorizontalHeaderLabels(header)
         self.peaks_table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.peaks_table.setSelectionBehavior(QTableWidget.SelectRows)
-        self.peaks_table.setSortingEnabled(True)
+        self.peaks_table.setSortingEnabled(False)
 
         peak_layout.addWidget(self.peaks_table)
 
@@ -978,6 +991,12 @@ class ExperimentView(NeuXtalVizWidget):
 
     def connect_update(self, update):
         self.update_button.clicked.connect(update)
+
+    def connect_move_up(self, move_up):
+        self.move_up_button.clicked.connect(move_up)
+
+    def connect_move_down(self, move_down):
+        self.move_down_button.clicked.connect(move_down)
 
     def connect_load_mask(self, load_mask):
         self.mask_browse_button.clicked.connect(load_mask)
@@ -1229,7 +1248,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.angles_combo.clear()
         self.angles_combo.addItem("Missing")
         for row in range(rows):
-            self.angles_combo.addItem((str(row + 1)))
+            self.angles_combo.addItem("#" + (str(row + 1)))
         self.angles_combo.setCurrentIndex(self.angles_combo.count() - 1)
         self.angles_combo.blockSignals(False)
         self.auto_scale_dropdown(self.angles_combo)
@@ -1237,8 +1256,8 @@ class ExperimentView(NeuXtalVizWidget):
     def get_peak_list(self):
         val = self.angles_combo.currentText()
         if val is not None:
-            if val.split(":")[0].isdigit():
-                return int(val.split(":")[0]) - 1
+            if val.split(":")[0].lstrip("#").isdigit():
+                return int(val.split(":")[0].lstrip("#")) - 1
             else:
                 return -1
 
@@ -1462,6 +1481,86 @@ class ExperimentView(NeuXtalVizWidget):
             self.plan_table.removeRow(row)
 
         self.set_peak_list(self.get_number_of_orientations())
+
+        self.plan_table.setSortingEnabled(True)
+        self.plan_table.setUpdatesEnabled(True)
+        self.plan_table.blockSignals(False)
+
+    def get_selected_angle(self):
+        self.plan_table.blockSignals(True)
+        self.plan_table.setUpdatesEnabled(False)
+        self.plan_table.setSortingEnabled(False)
+        rows = list(
+            set(index.row() for index in self.plan_table.selectedIndexes())
+        )
+        if len(rows) == 1:
+            return rows[0]
+        else:
+            self.plan_table.blockSignals(False)
+            self.plan_table.setUpdatesEnabled(True)
+            self.plan_table.setSortingEnabled(True)
+
+    def swap_angles(self, rows):
+        if rows[0] == rows[1]:
+            self.plan_table.setSortingEnabled(True)
+            self.plan_table.setUpdatesEnabled(True)
+            self.plan_table.blockSignals(False)
+            return
+
+        self.plan_table.blockSignals(True)
+        self.plan_table.setUpdatesEnabled(False)
+        self.plan_table.setSortingEnabled(False)
+        self.plan_table.clearSelection()
+
+        cols = self.plan_table.columnCount()
+
+        for c in range(cols):
+            w1 = self.plan_table.cellWidget(rows[0], c)
+            w2 = self.plan_table.cellWidget(rows[1], c)
+
+            if w1 is not None or w2 is not None:
+                if isinstance(w1, QComboBox):
+                    index1 = w1.currentIndex()
+                else:
+                    index1 = None
+                if isinstance(w2, QComboBox):
+                    index2 = w2.currentIndex()
+                else:
+                    index2 = None
+
+                self.plan_table.removeCellWidget(rows[0], c)
+                self.plan_table.removeCellWidget(rows[1], c)
+
+                if w2 is not None and isinstance(w2, QComboBox):
+                    combobox = QComboBox()
+                    for i in range(w2.count()):
+                        combobox.addItem(w2.itemText(i))
+                    if index2 is not None:
+                        combobox.setCurrentIndex(index2)
+                    self.plan_table.setCellWidget(rows[0], c, combobox)
+
+                if w1 is not None and isinstance(w1, QComboBox):
+                    combobox = QComboBox()
+                    for i in range(w1.count()):
+                        combobox.addItem(w1.itemText(i))
+                    if index1 is not None:
+                        combobox.setCurrentIndex(index1)
+                    self.plan_table.setCellWidget(rows[1], c, combobox)
+            else:
+                item1 = self.plan_table.takeItem(rows[0], c)
+                item2 = self.plan_table.takeItem(rows[1], c)
+
+                if item1 is None:
+                    item1 = QTableWidgetItem("")
+                if item2 is None:
+                    item2 = QTableWidgetItem("")
+
+                self.plan_table.setItem(rows[0], c, item2)
+                self.plan_table.setItem(rows[1], c, item1)
+
+        self.plan_table.setCurrentCell(
+            rows[1], self.plan_table.currentColumn()
+        )
 
         self.plan_table.setSortingEnabled(True)
         self.plan_table.setUpdatesEnabled(True)
@@ -1691,8 +1790,7 @@ class ExperimentView(NeuXtalVizWidget):
             if counts[row] in options:
                 index = options.index(counts[row])
                 combobox.setCurrentIndex(index)
-            # Ensure table combobox is wide enough for its options.
-            self.auto_scale_dropdown(combobox)
+
             self.plan_table.setCellWidget(row, col, combobox)
             col += 1
 
@@ -1884,14 +1982,12 @@ class ExperimentView(NeuXtalVizWidget):
     def update_peaks_table(self, peaks):
         self.peaks_table.blockSignals(True)
         self.peaks_table.clearSelection()
-        self.peaks_table.setSortingEnabled(False)
         self.peaks_table.setRowCount(0)
         self.peaks_table.setRowCount(len(peaks))
 
         for row, peak in enumerate(peaks):
             self.set_peak(row, peak)
 
-        self.peaks_table.setSortingEnabled(True)
         self.peaks_table.blockSignals(False)
 
     def set_peak(self, row, peak):
