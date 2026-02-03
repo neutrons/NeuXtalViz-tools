@@ -530,8 +530,10 @@ raises a NotImplementedError.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.views.utilities.ThreadPool">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ThreadPool</span></span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L100-L105"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.ThreadPool" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ThreadPool</span></span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L133-L158"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.ThreadPool" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QThreadPool</span></code></p>
+<p>Thread pool for managing worker threads.</p>
+<p>Tracks active workers and provides functionality to stop all running processes.</p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
@@ -650,76 +652,85 @@ raises a NotImplementedError.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">removeEventFilter</span></code>(self, obj, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">reserveThread</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.views.utilities.ThreadPool.remove_worker" title="NeuXtalViz.views.utilities.ThreadPool.remove_worker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_worker</span></code></a>(worker)</p></td>
+<td><p>Remove worker from active list when finished.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">reserveThread</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sender</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sender</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">senderSignalIndex</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">senderSignalIndex</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">serviceLevel</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">serviceLevel</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setExpiryTimeout</span></code>(self, expiryTimeout, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setExpiryTimeout</span></code>(self, expiryTimeout, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMaxThreadCount</span></code>(self, maxThreadCount, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMaxThreadCount</span></code>(self, maxThreadCount, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setObjectName</span></code>(self, name, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setObjectName</span></code>(self, name, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setParent</span></code>(self, parent, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setParent</span></code>(self, parent, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setProperty</span></code>(self, name, value, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setProperty</span></code>(self, name, value, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setServiceLevel</span></code>(self, serviceLevel, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setServiceLevel</span></code>(self, serviceLevel, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStackSize</span></code>(self, stackSize, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStackSize</span></code>(self, stackSize, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setThreadPriority</span></code>(self, priority, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setThreadPriority</span></code>(self, priority, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">signalsBlocked</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">signalsBlocked</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stackSize</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stackSize</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">start</span></code>(-&gt; None)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">start</span></code>(-&gt; None)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">startOnReservedThread</span></code>(self, runnable, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">startOnReservedThread</span></code>(self, runnable, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">startTimer</span></code>(self, interval, /[, timerType])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">startTimer</span></code>(self, interval, /[, timerType])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">thread</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.views.utilities.ThreadPool.start_worker_pool" title="NeuXtalViz.views.utilities.ThreadPool.start_worker_pool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start_worker_pool</span></code></a>(worker)</p></td>
+<td><p>Start a worker and track it in the active workers list.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.views.utilities.ThreadPool.stop_all_workers" title="NeuXtalViz.views.utilities.ThreadPool.stop_all_workers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop_all_workers</span></code></a>()</p></td>
+<td><p>Stop all active workers by setting their stop events.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">thread</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">threadPriority</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">threadPriority</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">timerEvent</span></code>(self, event, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">timerEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tr</span></code>(self, sourceText, /[, disambiguation, n])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tr</span></code>(self, sourceText, /[, disambiguation, n])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tryStart</span></code>(-&gt; bool)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tryStart</span></code>(-&gt; bool)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tryTake</span></code>(self, runnable, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tryTake</span></code>(self, runnable, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">waitForDone</span></code>(-&gt; bool)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">waitForDone</span></code>(-&gt; bool)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -733,23 +744,58 @@ raises a NotImplementedError.</p>
 <tr class="row-even"><td><p><strong>objectNameChanged</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>start_worker_pool</strong></p></td>
-<td></td>
-</tr>
 </tbody>
 </table>
 </div>
 <dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.views.utilities.ThreadPool.remove_worker">
+<span class="sig-name descname"><span class="pre">remove_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">worker</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L150-L153"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.ThreadPool.remove_worker" title="Link to this definition">#</a></dt>
+<dd><p>Remove worker from active list when finished.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.utilities.ThreadPool.start_worker_pool">
-<span class="sig-name descname"><span class="pre">start_worker_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">worker</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L104-L105"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.ThreadPool.start_worker_pool" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">start_worker_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">worker</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L144-L148"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.ThreadPool.start_worker_pool" title="Link to this definition">#</a></dt>
+<dd><p>Start a worker and track it in the active workers list.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.views.utilities.ThreadPool.stop_all_workers">
+<span class="sig-name descname"><span class="pre">stop_all_workers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L155-L158"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.ThreadPool.stop_all_workers" title="Link to this definition">#</a></dt>
+<dd><p>Stop all active workers by setting their stop events.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.views.utilities.Worker">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L42-L97"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.Worker" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L42-L130"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.Worker" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QRunnable</span></code></p>
+<p>Worker thread for running tasks in the background.</p>
+<p>The worker automatically passes ‘progress’ and ‘stop_event’ to the task function.</p>
+<p>Example task function that can be stopped:</p>
+<blockquote>
+<div><dl>
+<dt>def my_task(progress=None, stop_event=None, <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs):</dt><dd><dl>
+<dt>for i in range(100):</dt><dd><p># Check if stop was requested
+if stop_event and stop_event.is_set():</p>
+<blockquote>
+<div><p>print(“Task stopped by user”)
+return None</p>
+</div></blockquote>
+<p># Do work…
+time.sleep(0.1)</p>
+<p># Report progress
+if progress:</p>
+<blockquote>
+<div><p>progress(f”Processing step {i+1}”, (i+1))</p>
+</div></blockquote>
+</dd>
+</dl>
+<p>return result</p>
+</dd>
+</dl>
+</div></blockquote>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
@@ -759,11 +805,17 @@ raises a NotImplementedError.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create</span></code>(functionToRun, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.views.utilities.Worker.run" title="NeuXtalViz.views.utilities.Worker.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>(self, /)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.views.utilities.Worker.is_stopped" title="NeuXtalViz.views.utilities.Worker.is_stopped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_stopped</span></code></a>()</p></td>
+<td><p>Check if stop has been requested.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.views.utilities.Worker.run" title="NeuXtalViz.views.utilities.Worker.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAutoDelete</span></code>(self, autoDelete, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAutoDelete</span></code>(self, autoDelete, /)</p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.views.utilities.Worker.stop" title="NeuXtalViz.views.utilities.Worker.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>()</p></td>
+<td><p>Request the worker to stop by setting the stop event.</p></td>
 </tr>
 </tbody>
 </table>
@@ -787,28 +839,40 @@ raises a NotImplementedError.</p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.utilities.Worker.connect_finished">
-<span class="sig-name descname"><span class="pre">connect_finished</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L93-L94"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.Worker.connect_finished" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_finished</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L118-L119"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.Worker.connect_finished" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.utilities.Worker.connect_progress">
-<span class="sig-name descname"><span class="pre">connect_progress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L96-L97"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.Worker.connect_progress" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_progress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L121-L122"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.Worker.connect_progress" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.utilities.Worker.connect_result">
-<span class="sig-name descname"><span class="pre">connect_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L90-L91"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.Worker.connect_result" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L115-L116"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.Worker.connect_result" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.utilities.Worker.emit_progress">
-<span class="sig-name descname"><span class="pre">emit_progress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L87-L88"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.Worker.emit_progress" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">emit_progress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L112-L113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.Worker.emit_progress" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.views.utilities.Worker.is_stopped">
+<span class="sig-name descname"><span class="pre">is_stopped</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L128-L130"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.Worker.is_stopped" title="Link to this definition">#</a></dt>
+<dd><p>Check if stop has been requested.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.utilities.Worker.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L54-L85"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.Worker.run" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L79-L110"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.Worker.run" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.views.utilities.Worker.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/utilities.py#L124-L126"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.utilities.Worker.stop" title="Link to this definition">#</a></dt>
+<dd><p>Request the worker to stop by setting the stop event.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1017,7 +1081,9 @@ raises a NotImplementedError.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.views.utilities.ThreadPool"><code class="docutils literal notranslate"><span class="pre">ThreadPool</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.views.utilities.ThreadPool.remove_worker"><code class="docutils literal notranslate"><span class="pre">ThreadPool.remove_worker()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.views.utilities.ThreadPool.start_worker_pool"><code class="docutils literal notranslate"><span class="pre">ThreadPool.start_worker_pool()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.views.utilities.ThreadPool.stop_all_workers"><code class="docutils literal notranslate"><span class="pre">ThreadPool.stop_all_workers()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.views.utilities.Worker"><code class="docutils literal notranslate"><span class="pre">Worker</span></code></a><ul class="nav section-nav flex-column">
@@ -1025,7 +1091,9 @@ raises a NotImplementedError.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.views.utilities.Worker.connect_progress"><code class="docutils literal notranslate"><span class="pre">Worker.connect_progress()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.views.utilities.Worker.connect_result"><code class="docutils literal notranslate"><span class="pre">Worker.connect_result()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.views.utilities.Worker.emit_progress"><code class="docutils literal notranslate"><span class="pre">Worker.emit_progress()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.views.utilities.Worker.is_stopped"><code class="docutils literal notranslate"><span class="pre">Worker.is_stopped()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.views.utilities.Worker.run"><code class="docutils literal notranslate"><span class="pre">Worker.run()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.views.utilities.Worker.stop"><code class="docutils literal notranslate"><span class="pre">Worker.stop()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.views.utilities.WorkerSignals"><code class="docutils literal notranslate"><span class="pre">WorkerSignals</span></code></a></li>

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Crystal Structure with Mesolite Data &#8212; NeuXtalViz  documentation</title>
+    <title>UB Tools with TOPAZ Modulation (MnCoGeAs) &#8212; NeuXtalViz  documentation</title>
   
   
   
@@ -42,11 +42,11 @@
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'source/tutorial_crystal_structure_MANDI_Mesolite';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'source/tutorial_modulation_TOPAZ_MnCoGeAs';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="UB Tools with Mesolite Data" href="tutorial_ub_tools_MANDI_Mesolite.html" />
+    <link rel="next" title="UB Tools with Bixbyite Data" href="tutorial_ub_tools_CORELLI_Bixbyite.html" />
+    <link rel="prev" title="Crystal Structure with Scolecite Data" href="tutorial_crystal_structure_TOPAZ_Scolecite.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -304,13 +304,13 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">TOPAZ Tutorials:</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Si.html">UB Tools with Silicon Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Scolecite.html">UB Tools with Scolecite Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_plan_TOPAZ_Si.html">Experiment Plan with Silicon Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_volume_TOPAZ_Si.html">Volume Slicer with Silicon Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_crystal_structure_TOPAZ_Scolecite.html">Crystal Structure with Scolecite Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_modulation_TOPAZ_MnCoGeAs.html">UB Tools with TOPAZ Modulation (MnCoGeAs)</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">UB Tools with TOPAZ Modulation (MnCoGeAs)</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">CORELLI Tutorials:</span></p>
 <ul class="nav bd-sidenav">
@@ -319,9 +319,9 @@
 <li class="toctree-l1"><a class="reference internal" href="tutorial_crystal_structure_CORELLI_Natrolite.html">Crystal Structure with Natrolite Data</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">MANDI Tutorials:</span></p>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_MANDI_Mesolite.html">UB Tools with Mesolite Data</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Crystal Structure with Mesolite Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_crystal_structure_MANDI_Mesolite.html">Crystal Structure with Mesolite Data</a></li>
 </ul>
 </div>
 </nav></div>
@@ -365,7 +365,7 @@
     
     <li class="breadcrumb-item"><a href="NeuXtalViz.tutorials.html" class="nav-link">NeuXtalViz tutorials</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Crystal Structure with Mesolite Data</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">UB Tools with TOPAZ Modulation (MnCoGeAs)</span></li>
   </ul>
 </nav>
 </div>
@@ -382,55 +382,147 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="crystal-structure-with-mesolite-data">
-<h1>Crystal Structure with Mesolite Data<a class="headerlink" href="#crystal-structure-with-mesolite-data" title="Link to this heading">#</a></h1>
-<p>This tutorial demonstrates how to use the crystal-structure tools in
-<em>NeuXtalViz</em> to work with Mesolite data measured on MANDI (chemical
-formula <span class="math notranslate nohighlight">\(\mathrm{Na_2Ca_2Al_6Si_9O_{30}\cdot 8H_2O}\)</span>).</p>
-<section id="step-1-load-cif-and-view-structure">
-<h2>Step 1: Load CIF and view structure<a class="headerlink" href="#step-1-load-cif-and-view-structure" title="Link to this heading">#</a></h2>
-<p>In the <strong>Crystal Structure</strong> tool:</p>
+  <section id="ub-tools-with-topaz-modulation-mncogeas">
+<h1>UB Tools with TOPAZ Modulation (MnCoGeAs)<a class="headerlink" href="#ub-tools-with-topaz-modulation-mncogeas" title="Link to this heading">#</a></h1>
+<p>This tutorial demonstrates how to use the UB tools in <em>NeuXtalViz</em> to
+run the TOPAZ modulation scenario for the MnCoGeAs example. The
+screenshots were generated by the test script <cite>tests/applications/modulation.py</cite>.</p>
+<p>Note: the scenario script is only used to generate the screenshots; it is
+not required to be run by documentation readers.</p>
+<section id="step-1-convert-to-q">
+<h2>Step 1: Convert to Q<a class="headerlink" href="#step-1-convert-to-q" title="Link to this heading">#</a></h2>
+<p>In the <strong>Convert to Q</strong> tab:</p>
 <ul class="simple">
-<li><p>Click <strong>Load CIF</strong>.</p></li>
-<li><p>Select the Mesolite CIF for the MANDI dataset.</p></li>
-<li><p>The <strong>Structure</strong> tab shows the lattice parameters, space group
-information, unit-cell volume, and a table of atomic positions.</p></li>
-<li><p>The 3D view displays the Mesolite framework built from the CIF.</p></li>
+<li><p>Select the <strong>TOPAZ</strong> instrument.</p></li>
+<li><p>Enter the IPTS and run numbers used by the scenario (see the test script).</p></li>
+<li><p>(Optionally) set wavelength and calibration options as needed.</p></li>
+<li><p>Click <strong>Convert to Q</strong> to load the data and build the Q volume.</p></li>
 </ul>
 <figure class="align-center" id="id1">
-<img alt="../_images/Mesolite_structure_structure.png" src="../_images/Mesolite_structure_structure.png" />
+<img alt="../_images/MnCoGeAs_UB_convert_Q.png" src="../_images/MnCoGeAs_UB_convert_Q.png" />
 <figcaption>
-<p><span class="caption-text">Mesolite crystal structure loaded from CIF (MANDI).</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+<p><span class="caption-text">Convert MnCoGeAs data to Q for TOPAZ.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-2-inspect-lattice-and-scatterers">
-<h2>Step 2: Inspect lattice and scatterers<a class="headerlink" href="#step-2-inspect-lattice-and-scatterers" title="Link to this heading">#</a></h2>
-<p>On the <strong>Structure</strong> tab:</p>
+<section id="step-2-find-peaks">
+<h2>Step 2: Find peaks<a class="headerlink" href="#step-2-find-peaks" title="Link to this heading">#</a></h2>
+<p>Still in the <strong>Convert to Q</strong> tab:</p>
 <ul class="simple">
-<li><p>Verify that the lattice constants and angles are reasonable for
-Mesolite.</p></li>
-<li><p>Check the chemical formula, Z value, and unit-cell volume.</p></li>
-<li><p>Review the list of scatterers (sites, coordinates, occupancies,
-and U values) to understand the crystal chemistry.</p></li>
-</ul>
-</section>
-<section id="step-3-calculate-f2-for-reflections">
-<h2>Step 3: Calculate F² for reflections<a class="headerlink" href="#step-3-calculate-f2-for-reflections" title="Link to this heading">#</a></h2>
-<p>Switch to the <strong>Factors</strong> tab:</p>
-<ul class="simple">
-<li><p>Enter a minimum d-spacing in the <em>d(min)</em> field.</p></li>
-<li><p>Click <strong>Calculate</strong> to compute structure factors and <span class="math notranslate nohighlight">\(F^2\)</span>
-values.</p></li>
-<li><p>Use the resulting table of h, k, l, d, and <span class="math notranslate nohighlight">\(F^2\)</span> to compare
-against other diffraction software or reference results.</p></li>
+<li><p>Adjust the peak-finding parameters (maximum number of peaks,
+density threshold, minimum distance).</p></li>
+<li><p>Click <strong>Find Peaks</strong> to locate Bragg peaks in the Q volume.</p></li>
 </ul>
 <figure class="align-center" id="id2">
-<img alt="../_images/Mesolite_structure_F2.png" src="../_images/Mesolite_structure_F2.png" />
+<img alt="../_images/MnCoGeAs_UB_find_peaks.png" src="../_images/MnCoGeAs_UB_find_peaks.png" />
 <figcaption>
-<p><span class="caption-text">Calculated structure factors <span class="math notranslate nohighlight">\(F^2\)</span> for Mesolite (MANDI).</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+<p><span class="caption-text">Find Bragg peaks in the MnCoGeAs Q volume.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
+</section>
+<section id="step-3-primitive-cell">
+<h2>Step 3: Primitive cell<a class="headerlink" href="#step-3-primitive-cell" title="Link to this heading">#</a></h2>
+<p>In the <strong>UB</strong> tab:</p>
+<ul class="simple">
+<li><p>Set tolerances and cell-parameter bounds for the Niggli reduction.</p></li>
+<li><p>Click <strong>Primitive Cell</strong> (Niggli) to search for a primitive cell
+consistent with the peak list.</p></li>
+</ul>
+<figure class="align-center" id="id3">
+<img alt="../_images/MnCoGeAs_UB_primitive_cell.png" src="../_images/MnCoGeAs_UB_primitive_cell.png" />
+<figcaption>
+<p><span class="caption-text">Primitive cell solutions for MnCoGeAs.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-4-conventional-cell">
+<h2>Step 4: Conventional cell<a class="headerlink" href="#step-4-conventional-cell" title="Link to this heading">#</a></h2>
+<p>From the list of candidate cells:</p>
+<ul class="simple">
+<li><p>Select the row corresponding to the desired conventional cell.</p></li>
+<li><p>Click <strong>Select</strong> to adopt it as the working unit cell.</p></li>
+</ul>
+<figure class="align-center" id="id4">
+<img alt="../_images/MnCoGeAs_UB_conventional_cell.png" src="../_images/MnCoGeAs_UB_conventional_cell.png" />
+<figcaption>
+<p><span class="caption-text">Select a conventional cell for MnCoGeAs on TOPAZ.</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-5-refine-ub-matrix">
+<h2>Step 5: Refine UB matrix<a class="headerlink" href="#step-5-refine-ub-matrix" title="Link to this heading">#</a></h2>
+<p>With the conventional cell selected:</p>
+<ul class="simple">
+<li><p>Choose an optimization mode (for example, Hexagonal).</p></li>
+<li><p>Click <strong>Refine UB</strong> to refine the UB matrix against the peak list.</p></li>
+</ul>
+<figure class="align-center" id="id5">
+<img alt="../_images/MnCoGeAs_UB_refine_UB.png" src="../_images/MnCoGeAs_UB_refine_UB.png" />
+<figcaption>
+<p><span class="caption-text">Refined UB matrix for MnCoGeAs.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-6-view-indexed-peaks">
+<h2>Step 6: View indexed peaks<a class="headerlink" href="#step-6-view-indexed-peaks" title="Link to this heading">#</a></h2>
+<p>In the <strong>Peaks</strong> tab:</p>
+<ul class="simple">
+<li><p>Select a peak in the table to highlight it in the Q-space view.</p></li>
+<li><p>Inspect the indexing and fit quality.</p></li>
+</ul>
+<figure class="align-center" id="id6">
+<img alt="../_images/MnCoGeAs_UB_index_peaks.png" src="../_images/MnCoGeAs_UB_index_peaks.png" />
+<figcaption>
+<p><span class="caption-text">View and inspect an indexed peak.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-7-clustering-view-clusters">
+<h2>Step 7: Clustering / View clusters<a class="headerlink" href="#step-7-clustering-view-clusters" title="Link to this heading">#</a></h2>
+<p>In the clustering view:</p>
+<ul class="simple">
+<li><p>Set clustering parameters (epsilon, minimum points) and click <strong>Cluster</strong>.</p></li>
+<li><p>Inspect clusters to verify grouping of related peaks.</p></li>
+</ul>
+<figure class="align-center" id="id7">
+<img alt="../_images/MnCoGeAs_UB_view_cluster.png" src="../_images/MnCoGeAs_UB_view_cluster.png" />
+<figcaption>
+<p><span class="caption-text">Cluster view for the refined UB.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-8-hkl-slice-view-optional">
+<h2>Step 8: HKL slice view (optional)<a class="headerlink" href="#step-8-hkl-slice-view-optional" title="Link to this heading">#</a></h2>
+<p>The test script contains commented steps to generate HKL slices and save
+additional screenshots. Use the <strong>Convert to HKL</strong> tab to generate
+reciprocal-space slices when needed.</p>
+</section>
+<section id="step-9-save-ub-optional">
+<h2>Step 9: Save UB (optional)<a class="headerlink" href="#step-9-save-ub-optional" title="Link to this heading">#</a></h2>
+<p>The scenario script also includes commented code for saving the UB matrix.
+Use <strong>Save UB</strong> to write the refined UB matrix to disk for subsequent
+analysis.</p>
+</section>
+<section id="where-the-images-come-from">
+<h2>Where the images come from<a class="headerlink" href="#where-the-images-come-from" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The screenshots used in this tutorial are produced by the automated
+scenario script and saved to <cite>tests/applications/TOPAZ</cite> during test runs.</p></li>
+<li><p>If you want these images to be included in the built docs, copy them
+into the docs static image directory used by your Sphinx build.</p></li>
+</ul>
+</section>
+<section id="running-the-scenario-optional">
+<h2>Running the scenario (optional)<a class="headerlink" href="#running-the-scenario-optional" title="Link to this heading">#</a></h2>
+<p>The script that generated the screenshots is included for reference; the
+documentation reader is not expected to run it. If you do want to
+recreate the images locally, run the script (this launches the GUI and
+controls it programmatically):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python tests/applications/modulation.py</span>
+</pre></div>
+</div>
+<p>For more details about the GUI actions and the exact parameter values,
+see <cite>tests/applications/modulation.py</cite>.</p>
 </section>
 </section>
 
@@ -445,13 +537,22 @@ against other diffraction software or reference results.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="tutorial_ub_tools_MANDI_Mesolite.html"
+       href="tutorial_crystal_structure_TOPAZ_Scolecite.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">UB Tools with Mesolite Data</p>
+        <p class="prev-next-title">Crystal Structure with Scolecite Data</p>
       </div>
+    </a>
+    <a class="right-next"
+       href="tutorial_ub_tools_CORELLI_Bixbyite.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">UB Tools with Bixbyite Data</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>
@@ -472,9 +573,17 @@ against other diffraction software or reference results.</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-load-cif-and-view-structure">Step 1: Load CIF and view structure</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-inspect-lattice-and-scatterers">Step 2: Inspect lattice and scatterers</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-calculate-f2-for-reflections">Step 3: Calculate F² for reflections</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-convert-to-q">Step 1: Convert to Q</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-find-peaks">Step 2: Find peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-primitive-cell">Step 3: Primitive cell</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-conventional-cell">Step 4: Conventional cell</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-refine-ub-matrix">Step 5: Refine UB matrix</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-view-indexed-peaks">Step 6: View indexed peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-clustering-view-clusters">Step 7: Clustering / View clusters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-8-hkl-slice-view-optional">Step 8: HKL slice view (optional)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-9-save-ub-optional">Step 9: Save UB (optional)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-the-images-come-from">Where the images come from</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-scenario-optional">Running the scenario (optional)</a></li>
 </ul>
   </nav></div>
 

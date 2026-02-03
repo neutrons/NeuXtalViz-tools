@@ -10,6 +10,7 @@ NeuXtalViz tutorials
    tutorial_plan_TOPAZ_Si
    tutorial_volume_TOPAZ_Si
    tutorial_crystal_structure_TOPAZ_Scolecite
+   tutorial_modulation_TOPAZ_MnCoGeAs
   
 .. toctree::
    :maxdepth: 2
