@@ -115,27 +115,4 @@ Step 9: Save UB (optional)
 
 The scenario script also includes commented code for saving the UB matrix.
 Use **Save UB** to write the refined UB matrix to disk for subsequent
-analysis.
-
-Where the images come from
---------------------------
-
-- The screenshots used in this tutorial are produced by the automated
-  scenario script and saved to `tests/applications/TOPAZ` during test runs.
-- If you want these images to be included in the built docs, copy them
-  into the docs static image directory used by your Sphinx build.
-
-Running the scenario (optional)
--------------------------------
-
-The script that generated the screenshots is included for reference; the
-documentation reader is not expected to run it. If you do want to
-recreate the images locally, run the script (this launches the GUI and
-controls it programmatically):
-
-.. code-block:: console
-
-   python tests/applications/modulation.py
-
-For more details about the GUI actions and the exact parameter values,
-see `tests/applications/modulation.py`.
+analysis. It will contain the modulation information as well.
