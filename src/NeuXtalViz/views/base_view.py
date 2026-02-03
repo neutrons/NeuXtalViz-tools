@@ -133,10 +133,14 @@ class NeuXtalVizWidget(QWidget):
 
         vis_layout.addWidget(info_tab)
 
+        self.stop_button = QPushButton("Stop Process", self)
+        self.stop_button.setToolTip("Stop the current processes.")
+
         self.status_bar = QStatusBar()
         self.status_bar.showMessage("Ready!")
         self.progress_bar = QProgressBar()
         self.status_bar.addPermanentWidget(self.progress_bar)
+        self.status_bar.addPermanentWidget(self.stop_button)
 
         self.console = QPlainTextEdit(readOnly=True)
 
@@ -158,6 +162,36 @@ class NeuXtalVizWidget(QWidget):
         self.threadpool = ThreadPool()
 
         self.plotter.enable_parallel_projection()
+
+    @staticmethod
+    def stop_processing(stop_event):
+        """
+        Check if a stop has been requested.
+
+        Convenience method for worker tasks to check if they should terminate early.
+
+        Parameters
+        ----------
+        stop_event : threading.Event or None
+            The stop event to check.
+
+        Returns
+        -------
+        stop : bool
+            True if stop was requested, False otherwise.
+        """
+        return stop_event is not None and stop_event.is_set()
+
+    def connect_stop(self, stop):
+        """
+        Connect stop button to presenter callback.
+
+        Parameters
+        ----------
+        stop : callable
+            Callback function to handle stop requests.
+        """
+        self.stop_button.clicked.connect(stop)
 
     def auto_scale_dropdown(self, combo):
         """Autoscale a combobox width to fit text plus any icons/checks.
@@ -1128,3 +1162,11 @@ class NeuXtalVizWidget(QWidget):
         """
 
         self.plotter.set_position(pos, reset=True)
+
+    def stop_processes(self):
+        """
+        Stop all running worker processes.
+        """
+        self.threadpool.stop_all_workers()
+        self.append_to_console("Stop requested for all running processes...\n")
+        self.status_bar.showMessage("Stopping processes...")

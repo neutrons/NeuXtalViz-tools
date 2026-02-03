@@ -282,6 +282,23 @@ class UBModel(NeuXtalVizModel):
 
         return beamlines[instrument]["GoniometerNames"]
 
+    def get_default_d_min(self, instrument):
+        """
+        Get the default minimum d-spacing for a given instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+
+        Returns
+        -------
+        d_min : float
+            Minimum d-spacing in angstroms.
+        """
+
+        return beamlines[instrument]["MinD"]
+
     def get_raw_file_path(self, instrument):
         """
         Get the raw data file path for a given instrument.
@@ -627,7 +644,7 @@ class UBModel(NeuXtalVizModel):
                 for workspace in workspaces:
                     run = mtd[workspace].run()
 
-                    params = ["omega-offset", "chi-offset"]
+                    params = ["omega-offset", "chi-offset", "phi-offset"]
 
                     for i, param in enumerate(params):
                         if inst.hasParameter(param):
@@ -1744,9 +1761,9 @@ class UBModel(NeuXtalVizModel):
             beta=beta,
             gamma=gamma,
             Tolerance=tol,
-            NumInitial=150,
-            FixParameters=False,
-            Iterations=1,
+            NumInitial=50,
+            FixParameters=True,
+            Iterations=3,
         )
 
         self.copy_UB_from_peaks()
@@ -2908,7 +2925,7 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        bool
+        success : bool
             True if clustering is successful, False otherwise.
         """
 
@@ -2980,7 +2997,7 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        dict
+        clusters : dict
             Dictionary with cluster coordinates, points, numbers, translation vectors, and transforms.
         """
 

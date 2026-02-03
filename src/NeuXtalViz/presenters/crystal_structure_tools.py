@@ -197,7 +197,10 @@ class CrystalStructure(NeuXtalVizPresenter):
         if result is not None:
             self.view.set_factors(*result)
 
-    def calculate_F2_process(self, progress):
+    def calculate_F2_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
         """
         Worker process for F2 calculation.
 
@@ -213,7 +216,13 @@ class CrystalStructure(NeuXtalVizPresenter):
         if params is not None:
             progress("Processing...", 1)
 
+            if self.stop_processing(stop_event):
+                return None
+
             progress("Calculating factors...", 10)
+
+            if self.stop_processing(stop_event):
+                return None
 
             if d_min is None:
                 d_min = min(params[0:2]) * 0.2
@@ -256,7 +265,10 @@ class CrystalStructure(NeuXtalVizPresenter):
         if result is not None:
             self.view.set_equivalents(*result)
 
-    def calculate_hkl_process(self, progress):
+    def calculate_hkl_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
         """
         Worker process for hkl calculation.
 
@@ -270,7 +282,13 @@ class CrystalStructure(NeuXtalVizPresenter):
         if hkl is not None:
             progress("Processing...", 1)
 
+            if self.stop_processing(stop_event):
+                return None
+
             progress("Calculating equivalents...", 10)
+
+            if self.stop_processing(stop_event):
+                return None
 
             hkls, d, F2 = self.model.calculate_F2(*hkl)
 

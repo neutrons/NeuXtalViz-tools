@@ -121,16 +121,31 @@ class VolumeSlicer(NeuXtalVizPresenter):
     def load_NXS_complete(self, result):
         self.update_oriented_lattice()
 
-    def load_NXS_process(self, progress):
+    def load_NXS_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
         progress("Processing...", 1)
 
+        if self.stop_processing(stop_event):
+            return None
+
         progress("Loading NeXus file...", 10)
+
+        if self.stop_processing(stop_event):
+            return None
 
         self.model.load_md_histo_workspace(self.nxs_file)
 
         progress("Loading NeXus file...", 50)
 
+        if self.stop_processing(stop_event):
+            return None
+
         progress("Loading NeXus file...", 80)
+
+        if self.stop_processing(stop_event):
+            return None
 
         progress("NeXus file loaded!", 100)
 
@@ -207,11 +222,20 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
         self.draw_idle = True
 
-    def redraw_data_process(self, progress):
+    def redraw_data_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
         if self.model.is_histo_loaded():
             progress("Processing...", 1)
 
+            if self.stop_processing(stop_event):
+                return None
+
             progress("Updating volume...", 20)
+
+            if self.stop_processing(stop_event):
+                return None
 
             norm = self.get_normal()
 
@@ -222,6 +246,9 @@ class VolumeSlicer(NeuXtalVizPresenter):
             data = self.model.calculate_clim(data, self.get_clim_method())
 
             progress("Updating volume...", 50)
+
+            if self.stop_processing(stop_event):
+                return None
 
             histo["signal"] = data
 
@@ -256,7 +283,10 @@ class VolumeSlicer(NeuXtalVizPresenter):
             self.view.add_slice(result)
         self.slice_idle = True
 
-    def slice_data_process(self, progress):
+    def slice_data_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
         if self.model.is_histo_loaded():
             norm = self.get_normal()
 
@@ -266,7 +296,13 @@ class VolumeSlicer(NeuXtalVizPresenter):
             if thick is not None and value is not None:
                 progress("Processing...", 1)
 
+                if self.stop_processing(stop_event):
+                    return None
+
                 progress("Updating slice...", 50)
+
+                if self.stop_processing(stop_event):
+                    return None
 
                 slice_histo = self.model.get_slice_info(norm, value, thick)
 
@@ -296,7 +332,10 @@ class VolumeSlicer(NeuXtalVizPresenter):
             self.view.add_cut(result)
         self.cut_idle = True
 
-    def cut_data_process(self, progress):
+    def cut_data_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
         if self.model.is_sliced():
             value = self.view.get_cut_value()
             thick = self.view.get_cut_thickness()
@@ -306,7 +345,13 @@ class VolumeSlicer(NeuXtalVizPresenter):
             if value is not None and thick is not None:
                 progress("Processing...", 1)
 
+                if self.stop_processing(stop_event):
+                    return None
+
                 progress("Updating cut...", 50)
+
+                if self.stop_processing(stop_event):
+                    return None
 
                 progress("Data cut!", 100)
 

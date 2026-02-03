@@ -2424,6 +2424,9 @@ class UBView(NeuXtalVizWidget):
         if self.convert_min_d_line.hasAcceptableInput():
             return float(self.convert_min_d_line.text())
 
+    def set_convert_min_d(self, min_d):
+        self.convert_min_d_line.setText(str(min_d))
+
     def add_Q_viz(self, Q_dict):
         self.clear_scene()
 
@@ -3228,6 +3231,9 @@ class UBView(NeuXtalVizWidget):
         if self.d_min_line.hasAcceptableInput():
             return float(self.d_min_line.text())
 
+    def set_d_min(self, val):
+        self.d_min_line.setText(str(round(val, 1)))
+
     def get_d_max(self):
         text = self.d_max_line.text()
 
@@ -3292,7 +3298,9 @@ class UBView(NeuXtalVizWidget):
             marker="o",
             norm=self.get_instrument_scale(),
             cmap=cmaps[self.get_instrument_colormap()],
-            rasterized=True,
+            linewidths=0,
+            edgecolors="none",
+            antialiased=False,
         )
 
         self.ax_inst.set_aspect(1)

@@ -1,0 +1,186 @@
+
+#======================================================================
+# CRYSTAL DATA
+#----------------------------------------------------------------------
+data_VESTA_phase_1
+
+_chemical_name_common                  'As0.65 Co Ge0.35 Mn'
+_cell_length_a                         6.1691(2)
+_cell_length_b                         6.1691(2)
+_cell_length_c                         3.65770(10)
+_cell_angle_alpha                      90.000000
+_cell_angle_beta                       90.000000
+_cell_angle_gamma                      120.000000
+_cell_volume                           120.554191
+_space_group_name_H-M_alt              'P -6 2 m'
+_space_group_IT_number                 189
+
+loop_
+_space_group_symop_operation_xyz
+   'x, y, z'
+   '-y, x-y, z'
+   '-x+y, -x, z'
+   'x, y, -z'
+   '-y, x-y, -z'
+   '-x+y, -x, -z'
+   'y, x, -z'
+   'x-y, -y, -z'
+   '-x, -x+y, -z'
+   'y, x, z'
+   'x-y, -y, z'
+   '-x, -x+y, z'
+
+loop_
+   _atom_site_label
+   _atom_site_occupancy
+   _atom_site_fract_x
+   _atom_site_fract_y
+   _atom_site_fract_z
+   _atom_site_adp_type
+   _atom_site_U_iso_or_equiv
+   _atom_site_type_symbol
+   Ge1        0.7300  0.000000     0.000000     0.500000    Uani  0.003467 Ge
+   As1        0.2700  0.000000     0.000000     0.500000    Uani  0.003467 As
+   Ge2        0.1600  0.666667     0.333333     0.000000    Uani  0.003091 Ge
+   As2        0.8400  0.666667     0.333333     0.000000    Uani  0.003091 As
+   Co1        1.0     0.25032(14)  0.25032(14)  0.000000    Uani  0.003856 Co
+   Mn2        1.0     0.4156(2)    0.000000     0.500000    Uani  0.004156 Mn
+
+loop_
+   _atom_site_aniso_label
+   _atom_site_aniso_U_11
+   _atom_site_aniso_U_22
+   _atom_site_aniso_U_33
+   _atom_site_aniso_U_12
+   _atom_site_aniso_U_13
+   _atom_site_aniso_U_23
+   Ge1	 0.00340  0.00340  0.00360  0.00170  0.00000  0.00000
+   As1	 0.00340  0.00340  0.00360  0.00170  0.00000  0.00000
+   Ge2	 0.00230  0.00230  0.00470  0.00117  0.00000  0.00000
+   As2	 0.00230  0.00230  0.00470  0.00117  0.00000  0.00000
+   Co1	 0.00280  0.00280  0.00570  0.00120  0.00000  0.00000
+   Mn2	 0.00380  0.00370  0.00500  0.00190  0.00000  0.00000
+
+#======================================================================
+# CRYSTAL DATA
+#----------------------------------------------------------------------
+data_VESTA_phase_2
+
+_chemical_name_common                  'As0.65 Co Ge0.35 Mn'
+_cell_length_a                         6.1882(2)
+_cell_length_b                         6.1882(2)
+_cell_length_c                         3.68000(10)
+_cell_angle_alpha                      90.000000
+_cell_angle_beta                       90.000000
+_cell_angle_gamma                      120.000000
+_cell_volume                           122.041389
+_space_group_name_H-M_alt              'P -6 2 m'
+_space_group_IT_number                 189
+
+loop_
+_space_group_symop_operation_xyz
+   'x, y, z'
+   '-y, x-y, z'
+   '-x+y, -x, z'
+   'x, y, -z'
+   '-y, x-y, -z'
+   '-x+y, -x, -z'
+   'y, x, -z'
+   'x-y, -y, -z'
+   '-x, -x+y, -z'
+   'y, x, z'
+   'x-y, -y, z'
+   '-x, -x+y, z'
+
+loop_
+   _atom_site_label
+   _atom_site_occupancy
+   _atom_site_fract_x
+   _atom_site_fract_y
+   _atom_site_fract_z
+   _atom_site_adp_type
+   _atom_site_U_iso_or_equiv
+   _atom_site_type_symbol
+   Ge1        0.7300  0.000000     0.000000     0.500000    Uani  0.007758 Ge
+   As1        0.2700  0.000000     0.000000     0.500000    Uani  0.007758 As
+   Ge2        0.1600  0.666667     0.333333     0.000000    Uani  0.006571 Ge
+   As2        0.8400  0.666667     0.333333     0.000000    Uani  0.006571 As
+   Co1        1.0     0.24948(16)  0.24948(16)  0.000000    Uani  0.007778 Co
+   Mn2        1.0     0.4159(2)    0.000000     0.500000    Uani  0.008911 Mn
+
+loop_
+   _atom_site_aniso_label
+   _atom_site_aniso_U_11
+   _atom_site_aniso_U_22
+   _atom_site_aniso_U_33
+   _atom_site_aniso_U_12
+   _atom_site_aniso_U_13
+   _atom_site_aniso_U_23
+   Ge1	 0.00860  0.00860  0.00610  0.00432  0.00000  0.00000
+   As1	 0.00860  0.00860  0.00610  0.00432  0.00000  0.00000
+   Ge2	 0.00580  0.00580  0.00810  0.00289  0.00000  0.00000
+   As2	 0.00580  0.00580  0.00810  0.00289  0.00000  0.00000
+   Co1	 0.00590  0.00590  0.01080  0.00240  0.00000  0.00000
+   Mn2	 0.00910  0.00900  0.00860  0.00450  0.00000  0.00000
+
+#======================================================================
+# CRYSTAL DATA
+#----------------------------------------------------------------------
+data_VESTA_phase_3
+
+_chemical_name_common                  'As0.65 Co Ge0.35 Mn'
+_cell_length_a                         6.17610(10)
+_cell_length_b                         6.17610(10)
+_cell_length_c                         3.66840(10)
+_cell_angle_alpha                      90.000000
+_cell_angle_beta                       90.000000
+_cell_angle_gamma                      120.000000
+_cell_volume                           121.181390
+_space_group_name_H-M_alt              'P -6 2 m'
+_space_group_IT_number                 189
+
+loop_
+_space_group_symop_operation_xyz
+   'x, y, z'
+   '-y, x-y, z'
+   '-x+y, -x, z'
+   'x, y, -z'
+   '-y, x-y, -z'
+   '-x+y, -x, -z'
+   'y, x, -z'
+   'x-y, -y, -z'
+   '-x, -x+y, -z'
+   'y, x, z'
+   'x-y, -y, z'
+   '-x, -x+y, z'
+
+loop_
+   _atom_site_label
+   _atom_site_occupancy
+   _atom_site_fract_x
+   _atom_site_fract_y
+   _atom_site_fract_z
+   _atom_site_adp_type
+   _atom_site_U_iso_or_equiv
+   _atom_site_type_symbol
+   Ge1        0.7300  0.000000     0.000000     0.500000    Uani  0.006342 Ge
+   As1        0.2700  0.000000     0.000000     0.500000    Uani  0.006342 As
+   Ge2        0.1600  0.666667     0.333333     0.000000    Uani  0.005562 Ge
+   As2        0.8400  0.666667     0.333333     0.000000    Uani  0.005562 As
+   Co1        1.0     0.25002(16)  0.25002(16)  0.000000    Uani  0.006400 Co
+   Mn2        1.0     0.4161(2)    0.000000     0.500000    Uani  0.006900 Mn
+
+loop_
+   _atom_site_aniso_label
+   _atom_site_aniso_U_11
+   _atom_site_aniso_U_22
+   _atom_site_aniso_U_33
+   _atom_site_aniso_U_12
+   _atom_site_aniso_U_13
+   _atom_site_aniso_U_23
+   Ge1	 0.00780  0.00780  0.00340  0.00388  0.00000  0.00000
+   As1	 0.00780  0.00780  0.00340  0.00388  0.00000  0.00000
+   Ge2	 0.00590  0.00590  0.00490  0.00296  0.00000  0.00000
+   As2	 0.00590  0.00590  0.00490  0.00296  0.00000  0.00000
+   Co1	 0.00600  0.00600  0.00640  0.00240  0.00000  0.00000
+   Mn2	 0.00780  0.00780  0.00510  0.00390  0.00000  0.00000

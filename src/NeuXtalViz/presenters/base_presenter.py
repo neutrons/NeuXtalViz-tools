@@ -32,6 +32,8 @@ class NeuXtalVizPresenter:
         self.view = view
         self.model = model
 
+        self.view.connect_stop(self.stop_workers)
+
         self.view.connect_manual_axis(self.view_manual)
         self.view.connect_manual_up_axis(self.view_up_manual)
 
@@ -109,6 +111,40 @@ class NeuXtalVizPresenter:
 
         self.update_status(status)
         self.update_progress(progress)
+
+    @staticmethod
+    def stop_processing(stop_event):
+        """
+        Check if a stop has been requested.
+
+        Convenience method for worker tasks to check if they should terminate early.
+
+        Parameters
+        ----------
+        stop_event : threading.Event or None
+            The stop event to check.
+
+        Returns
+        -------
+        stop : bool
+            True if stop was requested, False otherwise.
+        """
+        return stop_event is not None and stop_event.is_set()
+
+    def stop_workers(self):
+        """
+        Stop all running workers and update UI.
+        """
+        self.view.stop_processes()
+        self.update_stopped()
+
+    def update_stopped(self):
+        """
+        Indicate that processing was stopped by the user.
+        """
+
+        self.update_status("Stop!")
+        self.update_progress("Stopped.")
 
     def update_oriented_lattice(self):
         """

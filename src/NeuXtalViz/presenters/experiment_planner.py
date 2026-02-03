@@ -183,12 +183,21 @@ class Experiment(NeuXtalVizPresenter):
     def show_instrument_complete(self, result):
         return self.view.add_instrument(result)
 
-    def show_instrument_process(self, progress):
+    def show_instrument_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
         progress("Initializing instrument", 5)
+
+        if self.stop_processing(stop_event):
+            return None
 
         self.create_instrument()
 
         progress("Calculating instrument view.", 5)
+
+        if self.stop_processing(stop_event):
+            return None
 
         inst_dict = self.model.extract_instrument_view()
 
@@ -225,7 +234,10 @@ class Experiment(NeuXtalVizPresenter):
         if result is not None:
             self.view.plot_instrument(self.model.gamma, self.model.nu, *result)
 
-    def calculate_single_process(self, progress):
+    def calculate_single_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
         hkl_1, hkl_2 = self.view.get_input_hkls()
         wavelength = self.view.get_wavelength()
 
@@ -243,11 +255,17 @@ class Experiment(NeuXtalVizPresenter):
         if hkl is not None and self.model.has_UB():
             progress("Initializing instrument", 5)
 
+            if self.stop_processing(stop_event):
+                return None
+
             self.create_instrument()
 
             progress("Instrument initialized! ", 10)
 
             progress("Calculating peak coverage", 15)
+
+            if self.stop_processing(stop_event):
+                return None
 
             gamma, nu, lamda, d = self.model.individual_peak(
                 hkl,
@@ -285,7 +303,10 @@ class Experiment(NeuXtalVizPresenter):
                 self.model.gamma, self.model.nu, *result
             )
 
-    def calculate_double_process(self, progress):
+    def calculate_double_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
         hkl_1, hkl_2 = self.view.get_input_hkls()
         wavelength = self.view.get_wavelength()
 
@@ -301,11 +322,17 @@ class Experiment(NeuXtalVizPresenter):
         if hkl_1 is not None and hkl_2 is not None and self.model.has_UB():
             progress("Initializing instrument", 5)
 
+            if self.stop_processing(stop_event):
+                return None
+
             self.create_instrument()
 
             progress("Instrument initialized! ", 10)
 
             progress("Calculating peaks coverage", 15)
+
+            if self.stop_processing(stop_event):
+                return None
 
             peak_1, peak_2 = self.model.simultaneous_peaks(
                 hkl_1, hkl_2, wavelength, axes, polarities, limits, equiv, pg
@@ -428,7 +455,7 @@ class Experiment(NeuXtalVizPresenter):
             self.view.delete_angles(rows)
             self.update_peaks(False)
 
-    def delete_angles_process(self, progress):
+    def delete_angles_process(self, progress, stop_event=None):
 
         rows = self.view.get_angles_to_delete()
 
@@ -463,7 +490,10 @@ class Experiment(NeuXtalVizPresenter):
         self.view.add_orientations(title, comment, [update_angles])
         self.update_peaks(False)
 
-    def add_orientation_process(self, progress):
+    def add_orientation_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
         angles = self.view.get_angles()
         free_angles = self.view.get_free_angles()
         all_angles = self.view.get_all_angles()
@@ -474,6 +504,9 @@ class Experiment(NeuXtalVizPresenter):
 
         if len(angles) > 0:
             progress("Calculating reflections", 5)
+
+            if self.stop_processing(stop_event):
+                return None
 
             self.model.add_orientation(angles, wavelength, d_min, rows)
 
@@ -498,7 +531,10 @@ class Experiment(NeuXtalVizPresenter):
             self.view.add_orientations(title, "Mesh Scan", result)
             self.update_peaks(False)
 
-    def mesh_scan_process(self, progress):
+    def mesh_scan_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
         mesh_angles = self.view.get_mesh_angles()
         free_angles = self.view.get_free_angles()
         all_angles = self.view.get_all_angles()
@@ -514,10 +550,16 @@ class Experiment(NeuXtalVizPresenter):
 
         progress("Initializing instrument", 5)
 
+        if self.stop_processing(stop_event):
+            return None
+
         self.create_instrument()
 
         if mesh_angles is not None:
             progress("Calculating reflections", 5)
+
+            if self.stop_processing(stop_event):
+                return None
 
             angles = self.model.add_mesh(
                 mesh_angles, wavelength, d_min, rows, free_angles, all_angles
@@ -551,7 +593,10 @@ class Experiment(NeuXtalVizPresenter):
             self.view.update_slice(result)
         self.convert_idle = True
 
-    def convert_to_hkl_process(self, progress):
+    def convert_to_hkl_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
         instrument = self.view.get_instrument()
         mode = self.view.get_mode()
 
@@ -590,11 +635,17 @@ class Experiment(NeuXtalVizPresenter):
 
                     progress("Initializing instrument...", 5)
 
+                    if self.stop_processing(stop_event):
+                        return None
+
                     self.create_instrument()
 
                     self.model.calculate_footprint(wavelength, d_min)
 
                     progress("Calculating footprint...", 50)
+
+                    if self.stop_processing(stop_event):
+                        return None
 
                     result = self.model.calculate_rotations(
                         angles,
@@ -695,7 +746,10 @@ class Experiment(NeuXtalVizPresenter):
             self.view.add_orientations(title, "CrystalPlan", result)
             self.update_peaks(False)
 
-    def optimize_coverage_process(self, progress):
+    def optimize_coverage_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
         point_group = self.view.get_point_group()
         lattice_centering = self.view.get_lattice_centering()
         use = self.view.get_orientations_to_use()
@@ -716,6 +770,9 @@ class Experiment(NeuXtalVizPresenter):
 
         if self.model.has_UB():
             progress("Initializing instrument", 5)
+
+            if self.stop_processing(stop_event):
+                return None
 
             self.create_instrument()
 
@@ -838,7 +895,10 @@ class Experiment(NeuXtalVizPresenter):
         if result is not None:
             self.update_peaks(False)
 
-    def add_settings_process(self, progress):
+    def add_settings_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
         wavelength = self.view.get_wavelength()
         d_min = self.view.get_d_min()
         rows = self.view.get_number_of_orientations()
@@ -851,11 +911,17 @@ class Experiment(NeuXtalVizPresenter):
 
         progress("Initializing instrument", 5)
 
+        if self.stop_processing(stop_event):
+            return None
+
         self.create_instrument()
         self.model.clear_combined()
 
         for row in range(rows):
             progress("Calculating settings", 90 // rows * (row + 1) + 5)
+
+            if self.stop_processing(stop_event):
+                return None
 
             angles = self.view.get_angle_setting(row)
 

@@ -40,6 +40,30 @@ class SignalLogHandler(logging.Handler):
 
 
 class Worker(QRunnable):
+    """
+    Worker thread for running tasks in the background.
+
+    The worker automatically passes 'progress' and 'stop_event' to the task function.
+
+    Example task function that can be stopped:
+
+        def my_task(progress=None, stop_event=None, **kwargs):
+            for i in range(100):
+                # Check if stop was requested
+                if stop_event and stop_event.is_set():
+                    print("Task stopped by user")
+                    return None
+
+                # Do work...
+                time.sleep(0.1)
+
+                # Report progress
+                if progress:
+                    progress(f"Processing step {i+1}", (i+1))
+
+            return result
+    """
+
     def __init__(self, task, *args, **kwargs):
         super().__init__()
 
@@ -50,6 +74,7 @@ class Worker(QRunnable):
 
         self.stop_event = threading.Event()
         self.kwargs["progress"] = self.emit_progress
+        self.kwargs["stop_event"] = self.stop_event
 
     @Slot()
     def run(self):
@@ -96,10 +121,38 @@ class Worker(QRunnable):
     def connect_progress(self, process):
         self.signals.progress.connect(process)
 
+    def stop(self):
+        """Request the worker to stop by setting the stop event."""
+        self.stop_event.set()
+
+    def is_stopped(self):
+        """Check if stop has been requested."""
+        return self.stop_event.is_set()
+
 
 class ThreadPool(QThreadPool):
+    """
+    Thread pool for managing worker threads.
+
+    Tracks active workers and provides functionality to stop all running processes.
+    """
+
     def __init__(self):
         super().__init__()
+        self.active_workers = []
 
     def start_worker_pool(self, worker):
+        """Start a worker and track it in the active workers list."""
+        self.active_workers.append(worker)
+        worker.signals.finished.connect(lambda: self.remove_worker(worker))
         self.start(worker)
+
+    def remove_worker(self, worker):
+        """Remove worker from active list when finished."""
+        if worker in self.active_workers:
+            self.active_workers.remove(worker)
+
+    def stop_all_workers(self):
+        """Stop all active workers by setting their stop events."""
+        for worker in self.active_workers[:]:
+            worker.stop()
