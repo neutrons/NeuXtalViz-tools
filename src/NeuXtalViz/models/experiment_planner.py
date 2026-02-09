@@ -1,4 +1,5 @@
 import os
+import shutil
 
 import csv
 import itertools
@@ -190,6 +191,22 @@ class ExperimentModel(NeuXtalVizModel):
         )
 
         return directory if self.dirname is None else self.dirname
+
+    def copy_to_instrument_pc(self, filename):
+        split = filename.split("/")
+        if len(split) > 4:
+            _, facility, instrument, ipts, *_ = split
+            if (
+                facility == "SNS"
+                and instrument == "TOPAZ"
+                and ipts.startswith("IPTS-")
+            ):
+                output = "/SNS/groups/topaz/CrystalPlan/{}".format(ipts)
+                print("Copying {} to {}".format(filename, output))
+                os.makedirs(output, exist_ok=True)
+                shutil.copy(
+                    filename, os.path.join(output, os.path.basename(filename))
+                )
 
     def set_path(self, filename):
         self.dirname = os.path.dirname(filename)

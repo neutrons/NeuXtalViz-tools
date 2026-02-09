@@ -1087,7 +1087,7 @@ class ExperimentView(NeuXtalVizWidget):
 
         return filename
 
-    def load_UB_file_dialog(self):
+    def load_UB_file_dialog(self, path=""):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
@@ -1095,7 +1095,7 @@ class ExperimentView(NeuXtalVizWidget):
         file_dialog.setFileMode(QFileDialog.AnyFile)
 
         filename, _ = file_dialog.getOpenFileName(
-            self, "Load UB file", "", "UB files (*.mat)", options=options
+            self, "Load UB file", path, "UB files (*.mat)", options=options
         )
 
         return filename
@@ -1327,12 +1327,23 @@ class ExperimentView(NeuXtalVizWidget):
         self.plan_table.setColumnCount(0)
         self.plan_table.setColumnCount(len(free) + 5)
 
-        labels = [title] + free + ["Comment", "Wait For", "Value", "Use"]
+        clean = [item.split(":")[-1] for item in free]
+
+        css = ["Comment", "Wait For", "Value", "Use"]
+
+        labels = [title.split(":")[-1]] + clean + css
+        long_labels = [title] + free + css
 
         resize = QHeaderView.Stretch
 
         self.plan_table.horizontalHeader().setSectionResizeMode(resize)
         self.plan_table.setHorizontalHeaderLabels(labels)
+
+        for col, long_text in enumerate(long_labels):
+            item = self.plan_table.horizontalHeaderItem(col)
+            if item is not None:
+                item.setToolTip(long_text)
+                item.setData(Qt.UserRole, long_text)
 
         self.plan_table.blockSignals(False)
 
@@ -1616,7 +1627,7 @@ class ExperimentView(NeuXtalVizWidget):
         cols = self.plan_table.columnCount() - 5
 
         angles = [
-            self.plan_table.horizontalHeaderItem(i + 1).text()
+            self.plan_table.horizontalHeaderItem(i + 1).data(Qt.UserRole)
             for i in range(cols)
         ]
 

@@ -99,7 +99,9 @@ class Experiment(NeuXtalVizPresenter):
         Load UB matrix from file and update the view and model.
 
         """
-        filename = self.view.load_UB_file_dialog()
+        inst = self.view.get_instrument()
+        path = self.model.get_instrument_directory(inst)
+        filename = self.view.load_UB_file_dialog(path)
 
         if filename:
             self.model.load_UB(filename)
@@ -836,6 +838,7 @@ class Experiment(NeuXtalVizPresenter):
         if filename:
             self.update_plan()
             self.model.save_plan(filename)
+            self.model.copy_to_instrument_pc(filename)
 
     def save_experiment(self):
         instrument = self.view.get_instrument()
