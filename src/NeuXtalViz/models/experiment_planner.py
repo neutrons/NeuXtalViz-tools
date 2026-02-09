@@ -201,7 +201,7 @@ class ExperimentModel(NeuXtalVizModel):
                 and instrument == "TOPAZ"
                 and ipts.startswith("IPTS-")
             ):
-                output = "/SNS/groups/topaz/CrystalPlan/{}".format(ipts)
+                output = "/SNS/groups/bl_12/{}".format(ipts)
                 print("Copying {} to {}".format(filename, output))
                 os.makedirs(output, exist_ok=True)
                 shutil.copy(
