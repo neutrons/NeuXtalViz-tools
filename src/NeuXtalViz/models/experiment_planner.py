@@ -204,9 +204,10 @@ class ExperimentModel(NeuXtalVizModel):
                 output = "/SNS/groups/topaz/bl_12/{}".format(ipts)
                 print("Copying {} to {}".format(filename, output))
                 os.makedirs(output, exist_ok=True)
-                shutil.copy(
-                    filename, os.path.join(output, os.path.basename(filename))
-                )
+                os.chmod(output, 0o777)
+                copy = os.path.join(output, os.path.basename(filename))
+                shutil.copy(filename, copy)
+                os.chmod(copy, 0o777)
 
     def set_path(self, filename):
         self.dirname = os.path.dirname(filename)
