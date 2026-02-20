@@ -1,4 +1,5 @@
 import os
+import glob
 import shutil
 
 import csv
@@ -192,6 +193,35 @@ class ExperimentModel(NeuXtalVizModel):
 
         return directory if self.dirname is None else self.dirname
 
+    def get_autoreduce_instrument(self, instrument):
+        """
+        Get the autoreduce instrument definition file path for a given instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+
+        Returns
+        -------
+        str
+            Instrument definition file path.
+        """
+
+        inst = beamlines[instrument]
+
+        filepath = os.path.join(
+            "/", inst["Facility"], inst["InstrumentName"], "shared/autoreduce/"
+        )
+
+        idf = glob.glob(
+            os.path.join(
+                filepath, f"{inst['InstrumentName']}_Definition_*.xml"
+            )
+        )
+
+        return os.path.join(filepath, idf[0]) if len(idf) > 0 else None
+
     def copy_to_instrument_pc(self, filename):
         split = filename.split("/")
         if len(split) > 4:
@@ -214,10 +244,13 @@ class ExperimentModel(NeuXtalVizModel):
 
     def initialize_instrument(self, instrument, logs, cal, gon, mask):
         inst = self.get_instrument_name(instrument)
+        idf = self.get_autoreduce_instrument(instrument)
 
         if not mtd.doesExist("instrument"):
             LoadEmptyInstrument(
-                InstrumentName=inst, OutputWorkspace="instrument"
+                InstrumentName=inst if idf is None else None,
+                Filename=idf if idf is not None else None,
+                OutputWorkspace="instrument",
             )
 
             CloneWorkspace(
@@ -253,7 +286,7 @@ class ExperimentModel(NeuXtalVizModel):
             if mask != "" and os.path.exists(mask):
                 if not mtd.doesExist("mask"):
                     LoadMask(
-                        Instrument=inst, InputFile=mask, OutputWOrkspace="mask"
+                        Instrument=inst, InputFile=mask, OutputWorkspace="mask"
                     )
                 MaskDetectors(Workspace="instrument", MaskedWorkspace="mask")
 
@@ -263,8 +296,20 @@ class ExperimentModel(NeuXtalVizModel):
                 DetectorWorkspace="instrument",
             )
 
+            c, r = [
+                int(val)
+                for val in beamlines[instrument]["Grouping"].split("x")
+            ]
+
             cols, rows = beamlines[instrument]["BankPixels"]
             mask_cols, mask_rows = beamlines[instrument]["MaskEdges"]
+
+            if idf is not None:
+                cols //= c
+                rows //= r
+                mask_cols //= c
+                mask_rows //= r
+                c, r = 1, 1
 
             MaskBTP(
                 Workspace="instrument",
@@ -292,13 +337,11 @@ class ExperimentModel(NeuXtalVizModel):
             )
             mask = np.array(mtd["detectors"].column(7)) != 0
             det_ID = np.array(mtd["detectors"].column(4))
-            bad_ID = np.insert(det_ID[mask], -1, -1)
-
-            c, r = [
-                int(val)
-                for val in beamlines[instrument]["Grouping"].split("x")
-            ]
-            cols, rows = beamlines[instrument]["BankPixels"]
+            bad_ID = (
+                np.insert(det_ID[mask], -1, -1)
+                if np.sum(mask) != 0
+                else np.array([-1])
+            )
 
             det_map = np.asarray(mtd["detectors"].column(5)).reshape(
                 -1, cols, rows

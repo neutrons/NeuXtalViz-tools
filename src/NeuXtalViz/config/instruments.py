@@ -7,7 +7,7 @@ beamlines = {
         "MinD": 0.7,
         "Grouping": "4x4",
         "BankPixels": [256, 256],
-        "MaskEdges": [24, 24],
+        "MaskEdges": [16, 16],
         "MaskBanks": [],
         "Goniometers": [
             "BL3:Mot:omega,0,1,0,1",
@@ -33,7 +33,7 @@ beamlines = {
         },
         "RawFile": "nexus/SNAP_{}.nxs.h5",
         "Counting": ["BL3:Det:PCharge:C", "seconds"],
-        "Title": "BL3:CS:RunInfo:Title",
+        "Title": "BL3:SMS:RunInfo:RunTitle",
     },
     "CORELLI": {
         "Name": "CORELLI",
@@ -61,7 +61,7 @@ beamlines = {
         "GoniometerNames": "ω,χ,φ",
         "RawFile": "nexus/CORELLI_{}.nxs.h5",
         "Counting": ["BL9:Det:PCharge:C", "seconds"],
-        "Title": "BL9:CS:RunInfo:Title",
+        "Title": "BL9:SMS:RunInfo:RunTitle",
     },
     "TOPAZ": {
         "Name": "TOPAZ",
@@ -71,7 +71,7 @@ beamlines = {
         "MinD": 0.7,
         "Grouping": "4x4",
         "BankPixels": [256, 256],
-        "MaskEdges": [24, 24],
+        "MaskEdges": [16, 16],
         "MaskBanks": [],
         "Goniometers": [
             "BL12:Mot:omega,0,1,0,1",
@@ -93,7 +93,7 @@ beamlines = {
         "GoniometerNames": "ω,χ,φ",
         "RawFile": "nexus/TOPAZ_{}.nxs.h5",
         "Counting": ["BL12:Det:PCharge:C", "seconds"],
-        "Title": "BL12:CS:RunInfo:Title",
+        "Title": "BL12:SMS:RunInfo:RunTitle",
     },
     "MANDI": {
         "Name": "MANDI",
@@ -103,7 +103,7 @@ beamlines = {
         "MinD": 2.0,
         "Grouping": "2x2",
         "BankPixels": [256, 256],
-        "MaskEdges": [32, 32],
+        "MaskEdges": [16, 16],
         "MaskBanks": [],
         "Goniometers": [
             "BL11B:Mot:omega,0,1,0,1",
@@ -120,7 +120,7 @@ beamlines = {
         "GoniometerNames": "ω,χ,φ",
         "RawFile": "nexus/MANDI_{}.nxs.h5",
         "Counting": ["BL11B:Det:PCharge:C", "seconds"],
-        "Title": "BL11B:CS:RunInfo:Title",
+        "Title": "BL11B:SMS:RunInfo:RunTitle",
     },
     "IMAGINE": {
         "Name": "IMAGINE",
@@ -128,7 +128,7 @@ beamlines = {
         "Facility": "HFIR",
         "Wavelength": [2, 4.5],
         "MinD": 2.0,
-        "Grouping": "8x8",
+        "Grouping": "4x4",
         "BankPixels": [512, 512],
         "MaskEdges": [32, 32],
         "MaskBanks": [],
@@ -143,7 +143,7 @@ beamlines = {
         "GoniometerNames": "ω,χ,φ",
         "RawFile": "nexus/CG4D_{}.nxs.h5",
         "Counting": ["seconds"],
-        "Title": "CG4D:CS:RunInfo:Title",
+        "Title": "CG4D:SMS:RunInfo:RunTitle",
     },
     "WAND²": {
         "Name": "WAND",
@@ -153,7 +153,7 @@ beamlines = {
         "MinD": 0.7,
         "Grouping": "4x4",
         "BankPixels": [480, 512],
-        "MaskEdges": [24, 64],
+        "MaskEdges": [24, 32],
         "MaskBanks": [],
         "Goniometers": ["s1,0,1,0,1"],
         "Goniometer": {
@@ -170,7 +170,7 @@ beamlines = {
         "GoniometerNames": "l,u,s1",
         "RawFile": "nexus/HB2C_{}.nxs.h5",
         "Counting": ["seconds"],
-        "Title": "HB2C:CS:RunInfo:Title",
+        "Title": "HB2C:SMS:RunInfo:RunTitle",
     },
     "DEMAND": {
         "Name": "HB3A",
@@ -180,7 +180,7 @@ beamlines = {
         "MinD": 0.7,
         "Grouping": "4x4",
         "BankPixels": [512, 512],
-        "MaskEdges": [64, 64],
+        "MaskEdges": [32, 32],
         "MaskBanks": [],
         "Goniometers": [
             "omega,0,1,0,-1",

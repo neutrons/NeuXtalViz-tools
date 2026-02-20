@@ -599,7 +599,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
             normal=normal,
             origin=origin,
             origin_translation=False,
-            show_scalar_bar=False,
+            show_scalar_bar=True,
             normal_rotation=False,
             cmap=cmap,
             user_matrix=b,
