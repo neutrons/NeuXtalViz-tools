@@ -80,6 +80,7 @@ from sklearn.cluster import DBSCAN
 
 import numpy as np
 import scipy
+import glob
 import json
 
 from NeuXtalViz.models.base_model import NeuXtalVizModel
@@ -324,6 +325,36 @@ class UBModel(NeuXtalVizModel):
             inst["RawFile"],
         )
 
+    def get_lite_file_path(self, instrument):
+        """
+        Get the LITE file path for a given instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+
+        Returns
+        -------
+        filepath : str
+            File path to LITE file.
+        """
+
+        inst = beamlines[instrument]
+
+        raw = inst["RawFile"].replace("nexus", "shared/autoreduce/")
+        fname, *exts = raw.split(os.extsep)
+        ext = ".lite." + ".".join(exts)
+        autoreduce = fname + ext
+
+        return os.path.join(
+            "/",
+            inst["Facility"],
+            inst["InstrumentName"],
+            "IPTS-{}",
+            autoreduce,
+        )
+
     def get_shared_file_path(self, instrument, ipts):
         """
         Get the shared file path for a given instrument and IPTS.
@@ -404,6 +435,35 @@ class UBModel(NeuXtalVizModel):
             "/", inst["Facility"], inst["InstrumentName"], "shared", "Vanadium"
         )
 
+    def get_autoreduce_instrument(self, instrument):
+        """
+        Get the autoreduce instrument definition file path for a given instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+
+        Returns
+        -------
+        str
+            Instrument definition file path.
+        """
+
+        inst = beamlines[instrument]
+
+        filepath = os.path.join(
+            "/", inst["Facility"], inst["InstrumentName"], "shared/autoreduce/"
+        )
+
+        idf = glob.glob(
+            os.path.join(
+                filepath, f"{inst['InstrumentName']}_Definition_*.xml"
+            )
+        )
+
+        return os.path.join(filepath, idf[0]) if len(idf) > 0 else None
+
     def load_data(self, instrument, IPTS, runs, exp, time_stop):
         """
         Load experimental data for a given instrument and run parameters.
@@ -422,112 +482,112 @@ class UBModel(NeuXtalVizModel):
             Time to stop loading data.
         """
 
-        filepath = self.get_raw_file_path(instrument)
+        rawpath = self.get_raw_file_path(instrument)
+        litepath = self.get_lite_file_path(instrument)
 
         inst = beamlines[instrument]
-
         grouping = inst["Grouping"]
+        idf = self.get_autoreduce_instrument(instrument)
+
+        filenames = [rawpath.format(IPTS, run) for run in runs]
+        if np.all([os.path.exists(filename) for filename in filenames]):
+            litefilenames = [litepath.format(IPTS, run) for run in runs]
+            if np.all(
+                [os.path.exists(filename) for filename in litefilenames]
+            ):
+                filenames = litefilenames
+            else:
+                idf = None
+            self.runs = runs
+            filenames = ",".join([filename for filename in filenames])
+        else:
+            return
 
         LoadEmptyInstrument(
-            InstrumentName=inst["Name"],
+            InstrumentName=inst["Name"] if idf is None else None,
+            Filename=idf if idf is not None else None,
             OutputWorkspace="goniometer",
         )
 
         if instrument == "DEMAND":
-            filenames = [filepath.format(IPTS, exp, runs)]
-            if np.all([os.path.exists(filename) for filename in filenames]):
-                self.runs = runs
-                HB3AAdjustSampleNorm(
-                    Filename=filenames,
-                    OutputType="Detector",
-                    NormaliseBy="None",
-                    Grouping=grouping,
-                    OutputWorkspace="data",
-                )
-                group = mtd["data"].isGroup()
-                if not group:
-                    GroupWorkspaces(
-                        InputWorkspaces="data", OutputWorkspace="data"
-                    )
-                return True
+            HB3AAdjustSampleNorm(
+                Filename=filenames,
+                OutputType="Detector",
+                NormaliseBy="None",
+                Grouping=grouping,
+                OutputWorkspace="data",
+            )
+            group = mtd["data"].isGroup()
+            if not group:
+                GroupWorkspaces(InputWorkspaces="data", OutputWorkspace="data")
+            return True
         elif instrument == "WAND²":
-            filenames = [filepath.format(IPTS, run) for run in runs]
-            self.runs = runs
-            if np.all([os.path.exists(filename) for filename in filenames]):
-                filenames = ",".join([filename for filename in filenames])
-                LoadWANDSCD(
-                    Filename=filenames,
-                    Grouping=grouping,
-                    OutputWorkspace="data",
-                )
-                group = mtd["data"].isGroup()
-                if not group:
-                    GroupWorkspaces(
-                        InputWorkspaces="data", OutputWorkspace="data"
-                    )
-                return True
+            LoadWANDSCD(
+                Filename=filenames,
+                Grouping=grouping,
+                OutputWorkspace="data",
+            )
+            group = mtd["data"].isGroup()
+            if not group:
+                GroupWorkspaces(InputWorkspaces="data", OutputWorkspace="data")
+            return True
         else:
-            filenames = [filepath.format(IPTS, run) for run in runs]
-            if np.all([os.path.exists(filename) for filename in filenames]):
-                self.runs = runs
-                filenames = ",".join([filename for filename in filenames])
-                Load(
-                    Filename=filenames,
-                    FilterByTimeStop=time_stop,
-                    NumberOfBins=1,
-                    OutputWorkspace="data",
-                )
-                cols, rows = beamlines[instrument]["BankPixels"]
-                mask_cols, mask_rows = beamlines[instrument]["MaskEdges"]
-                mask_cols //= 4
-                mask_rows //= 4
-                MaskBTP(
-                    Workspace="data",
-                    Instrument=inst["Name"],
-                    Tube="0-{},{}-{}".format(
-                        mask_cols, cols - mask_cols, cols
-                    ),
-                )
-                MaskBTP(
-                    Workspace="data",
-                    Instrument=inst["Name"],
-                    Pixel="0-{},{}-{}".format(
-                        mask_rows, rows - mask_rows, rows
-                    ),
-                )
-                mask_lost = beamlines[instrument].get("MaskLost")
-                if mask_lost is not None:
-                    for btp in mask_lost:
-                        bank, tube, pixel = btp
-                        MaskBTP(
-                            Workspace="data",
-                            Instrument=inst["Name"],
-                            Bank=bank,
-                            Tube=tube,
-                            Pixel=pixel,
-                        )
-                banks = beamlines[instrument]["MaskBanks"]
-                for bank in banks:
+            c, r = [int(val) for val in grouping.split("x")]
+            scale_c = 1 if idf is None else c
+            scale_r = 1 if idf is None else r
+            Load(
+                Filename=filenames,
+                FilterByTimeStop=time_stop,
+                NumberOfBins=1,
+                OutputWorkspace="data",
+            )
+            cols, rows = beamlines[instrument]["BankPixels"]
+            mask_cols, mask_rows = beamlines[instrument]["MaskEdges"]
+            cols //= scale_c
+            rows //= scale_r
+            mask_cols //= scale_c
+            mask_rows //= scale_r
+            MaskBTP(
+                Workspace="data",
+                Instrument=inst["Name"],
+                Tube="0-{},{}-{}".format(mask_cols, cols - mask_cols, cols),
+            )
+            MaskBTP(
+                Workspace="data",
+                Instrument=inst["Name"],
+                Pixel="0-{},{}-{}".format(mask_rows, rows - mask_rows, rows),
+            )
+            mask_lost = beamlines[instrument].get("MaskLost")
+            if mask_lost is not None:
+                for btp in mask_lost:
+                    bank, tube, pixel = btp
+                    tube[0] //= scale_c
+                    tube[1] //= scale_c
+                    pixel[0] //= scale_r
+                    pixel[1] //= scale_r
                     MaskBTP(
                         Workspace="data",
                         Instrument=inst["Name"],
                         Bank=bank,
+                        Tube="{}-{}".format(*tube),
+                        Pixel="{}-{}".format(*pixel),
                     )
-                group = mtd["data"].isGroup()
-                if not group:
-                    GroupWorkspaces(
-                        InputWorkspaces="data", OutputWorkspace="data"
-                    )
-                input_ws = mtd["data"].getNames()[0]
-                PreprocessDetectorsToMD(
-                    InputWorkspace=input_ws, OutputWorkspace="detectors"
+            banks = beamlines[instrument]["MaskBanks"]
+            for bank in banks:
+                MaskBTP(
+                    Workspace="data",
+                    Instrument=inst["Name"],
+                    Bank=bank,
                 )
-                c, r = [
-                    int(val)
-                    for val in beamlines[instrument]["Grouping"].split("x")
-                ]
-                cols, rows = beamlines[instrument]["BankPixels"]
+            group = mtd["data"].isGroup()
+            if not group:
+                GroupWorkspaces(InputWorkspaces="data", OutputWorkspace="data")
+            input_ws = mtd["data"].getNames()[0]
+            PreprocessDetectorsToMD(
+                InputWorkspace=input_ws, OutputWorkspace="detectors"
+            )
 
+            if idf is None:
                 det_map = np.asarray(mtd["detectors"].column(5)).reshape(
                     -1, cols, rows
                 )

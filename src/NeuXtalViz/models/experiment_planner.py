@@ -143,6 +143,8 @@ centering_conditions = {
     "Rrev": lambda h, k, l: (h - k + l) % 3 == 0,
 }
 
+AUTOLITE = "/SNS/software/scd/lite/"
+
 
 class ExperimentModel(NeuXtalVizModel):
     """
@@ -208,16 +210,10 @@ class ExperimentModel(NeuXtalVizModel):
             Instrument definition file path.
         """
 
-        inst = beamlines[instrument]
-
-        filepath = os.path.join(
-            "/", inst["Facility"], inst["InstrumentName"], "shared/autoreduce/"
-        )
+        name = beamlines[instrument]["Name"]
 
         idf = glob.glob(
-            os.path.join(
-                filepath, f"{inst['InstrumentName']}_Definition_*.xml"
-            )
+            os.path.join(AUTOLITE, "{}_Definition*.xml".format(name))
         )
 
         return os.path.join(filepath, idf[0]) if len(idf) > 0 else None
@@ -245,6 +241,7 @@ class ExperimentModel(NeuXtalVizModel):
     def initialize_instrument(self, instrument, logs, cal, gon, mask):
         inst = self.get_instrument_name(instrument)
         idf = self.get_autoreduce_instrument(instrument)
+        beamline = beamlines[instrument]
 
         if not mtd.doesExist("instrument"):
             LoadEmptyInstrument(
@@ -270,7 +267,8 @@ class ExperimentModel(NeuXtalVizModel):
                 LoadInstrument(
                     Workspace="instrument",
                     RewriteSpectraMap=False,
-                    InstrumentName=inst,
+                    InstrumentName=inst if idf is None else None,
+                    Filename=idf if idf is not None else None,
                 )
 
             if cal != "" and os.path.exists(cal):
@@ -296,13 +294,9 @@ class ExperimentModel(NeuXtalVizModel):
                 DetectorWorkspace="instrument",
             )
 
-            c, r = [
-                int(val)
-                for val in beamlines[instrument]["Grouping"].split("x")
-            ]
-
-            cols, rows = beamlines[instrument]["BankPixels"]
-            mask_cols, mask_rows = beamlines[instrument]["MaskEdges"]
+            c, r = [int(val) for val in beamline["Grouping"].split("x")]
+            cols, rows = beamline["BankPixels"]
+            mask_cols, mask_rows = beamline["MaskEdges"]
 
             if idf is not None:
                 cols //= c
@@ -311,26 +305,26 @@ class ExperimentModel(NeuXtalVizModel):
                 mask_rows //= r
                 c, r = 1, 1
 
-            MaskBTP(
-                Workspace="instrument",
-                Instrument=inst,
-                Tube="0-{},{}-{}".format(mask_cols, cols - mask_cols, cols),
-            )
+            # MaskBTP(
+            #     Workspace="instrument",
+            #     Instrument=inst,
+            #     Tube="0-{},{}-{}".format(mask_cols, cols - mask_cols, cols),
+            # )
 
-            MaskBTP(
-                Workspace="instrument",
-                Instrument=inst,
-                Pixel="0-{},{}-{}".format(mask_rows, rows - mask_rows, rows),
-            )
+            # MaskBTP(
+            #     Workspace="instrument",
+            #     Instrument=inst,
+            #     Pixel="0-{},{}-{}".format(mask_rows, rows - mask_rows, rows),
+            # )
 
-            banks = beamlines[instrument]["MaskBanks"]
+            # banks = beamlines[instrument]["MaskBanks"]
 
-            for bank in banks:
-                MaskBTP(
-                    Workspace="instrument",
-                    Instrument=inst,
-                    Bank=bank,
-                )
+            # for bank in banks:
+            #     MaskBTP(
+            #         Workspace="instrument",
+            #         Instrument=inst,
+            #         Bank=bank,
+            # )
 
             PreprocessDetectorsToMD(
                 InputWorkspace="instrument", OutputWorkspace="detectors"
@@ -343,7 +337,7 @@ class ExperimentModel(NeuXtalVizModel):
                 else np.array([-1])
             )
 
-            det_map = np.asarray(mtd["detectors"].column(5)).reshape(
+            det_map = np.asarray(mtd["detectors"].column(5))[~mask].reshape(
                 -1, cols, rows
             )
 

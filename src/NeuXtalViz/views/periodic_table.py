@@ -1,4 +1,3 @@
-import re
 import numpy as np
 import qtawesome as qta
 
@@ -9,11 +8,10 @@ from qtpy.QtWidgets import (
     QLabel,
     QComboBox,
     QHBoxLayout,
-    QVBoxLayout,
     QGridLayout,
 )
 
-from PyQt5.QtCore import Qt, pyqtSignal
+from qtpy.QtCore import Qt, Signal
 
 from NeuXtalViz.config.atoms import indexing, groups, isotopes
 
@@ -40,7 +38,7 @@ class PeriodicTableView(QWidget):
     displaying element properties.
     """
 
-    selection = pyqtSignal(str)
+    selection = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -104,7 +102,7 @@ class PeriodicTableView(QWidget):
 
 
 class AtomView(QWidget):
-    selection = pyqtSignal(str)
+    selection = Signal(str)
 
     def __init__(self):
         super().__init__()

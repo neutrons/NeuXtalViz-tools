@@ -35,7 +35,6 @@ from matplotlib.transforms import Affine2D
 from mpl_toolkits.axisartist import Axes, GridHelperCurveLinear
 from mpl_toolkits.axisartist.grid_finder import (
     ExtremeFinderSimple,
-    MaxNLocator,
 )
 from NeuXtalViz.views.base_view import NeuXtalVizWidget
 
