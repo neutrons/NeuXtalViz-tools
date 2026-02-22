@@ -216,7 +216,7 @@ class ExperimentModel(NeuXtalVizModel):
             os.path.join(AUTOLITE, "{}_Definition*.xml".format(name))
         )
 
-        return os.path.join(filepath, idf[0]) if len(idf) > 0 else None
+        return os.path.join(AUTOLITE, idf[0]) if len(idf) > 0 else None
 
     def copy_to_instrument_pc(self, filename):
         split = filename.split("/")
@@ -324,7 +324,7 @@ class ExperimentModel(NeuXtalVizModel):
             #         Workspace="instrument",
             #         Instrument=inst,
             #         Bank=bank,
-            # )
+            #     )
 
             PreprocessDetectorsToMD(
                 InputWorkspace="instrument", OutputWorkspace="detectors"
@@ -337,7 +337,7 @@ class ExperimentModel(NeuXtalVizModel):
                 else np.array([-1])
             )
 
-            det_map = np.asarray(mtd["detectors"].column(5))[~mask].reshape(
+            det_map = np.asarray(mtd["detectors"].column(5)).reshape(
                 -1, cols, rows
             )
 
@@ -792,7 +792,7 @@ class ExperimentModel(NeuXtalVizModel):
         free = 0
         for limit in limits:
             free += 1 - np.isclose(limit[0], limit[1])
-        step *= free
+        step *= 2**free
 
         angular_coverage = []
         for limit in limits:

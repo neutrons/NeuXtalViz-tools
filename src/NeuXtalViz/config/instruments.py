@@ -132,15 +132,23 @@ beamlines = {
         "BankPixels": [512, 512],
         "MaskEdges": [32, 32],
         "MaskBanks": [],
-        "Goniometers": ["s1,0,1,0,1"],
+        "Goniometers": [
+            "CG4D:Mot:omega,0,1,0,1",
+            "CG4D:Mot:alpha,0,0,1,1",
+            "CG4D:Mot:kappa,0,1,0,1",
+            "CG4D:Mot:beta,0,0,1,1",
+            "CG4D:Mot:phi,0,1,0,1",
+        ],
         "Goniometer": {
             "Goniometer": {
-                "CG4D:Mot:sgl": [1, 0, 0, -1, 0, 0],
-                "CG4D:Mot:sgu": [0, 0, 1, -1, 0, 0],
-                "CG4D:Mot:s1": [0, 1, 0, 1, -180, 180],
+                "CG4D:Mot:omega": [0, 1, 0, 1, -180, 180],
+                "CG4D:Mot:alpha": [0, 0, 1, 1, 45, 45],
+                "CG4D:Mot:kappa": [0, 1, 0, 1, -180, 180],
+                "CG4D:Mot:beta": [0, 0, 1, 1, -45, -45],
+                "CG4D:Mot:phi": [0, 1, 0, 1, -180, 180],
             }
         },
-        "GoniometerNames": "ω,χ,φ",
+        "GoniometerNames": "ω,κ,φ",
         "RawFile": "nexus/CG4D_{}.nxs.h5",
         "Counting": ["seconds"],
         "Title": "CG4D:SMS:RunInfo:RunTitle",

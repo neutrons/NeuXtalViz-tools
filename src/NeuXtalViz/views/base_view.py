@@ -225,6 +225,8 @@ class NeuXtalVizWidget(QWidget):
                 icon = qta.icon("fa6s.magnet")
             elif text == "SNAP":
                 icon = qta.icon("fa6s.weight-scale")
+            elif text == "IMAGINE":
+                icon = qta.icon("fa6s.lightbulb")
             combo.setItemIcon(i, icon)
 
         for i in range(combo.count()):

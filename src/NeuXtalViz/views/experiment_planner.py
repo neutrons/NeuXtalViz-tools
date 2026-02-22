@@ -89,6 +89,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.instrument_combo.addItem("MANDI")
         self.instrument_combo.addItem("CORELLI")
         self.instrument_combo.addItem("SNAP")
+        self.instrument_combo.addItem("IMAGINE")
         self.instrument_combo.addItem("WAND²")
         self.instrument_combo.addItem("DEMAND")
         self.instrument_combo.setToolTip(
