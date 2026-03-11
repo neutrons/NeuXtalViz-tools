@@ -29,12 +29,12 @@ from matplotlib.figure import Figure
 from matplotlib.ticker import (
     FormatStrFormatter,
     PercentFormatter,
-    MaxNLocator,
 )
 from matplotlib.transforms import Affine2D
 from mpl_toolkits.axisartist import Axes, GridHelperCurveLinear
 from mpl_toolkits.axisartist.grid_finder import (
     ExtremeFinderSimple,
+    MaxNLocator,
 )
 from NeuXtalViz.views.base_view import NeuXtalVizWidget
 
@@ -565,7 +565,7 @@ class ExperimentView(NeuXtalVizWidget):
         mesh_layout.addWidget(self.mesh_table)
         mesh_layout.addLayout(control_layout)
 
-        self.canvas_slice = FigureCanvas(Figure(constrained_layout=True))
+        self.canvas_slice = FigureCanvas(Figure(figsize=[12.8, 12.8]))
         self.cb_slice = None
 
         self.fig_slice = self.canvas_slice.figure

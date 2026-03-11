@@ -305,26 +305,26 @@ class ExperimentModel(NeuXtalVizModel):
                 mask_rows //= r
                 c, r = 1, 1
 
-            MaskBTP(
-                Workspace="instrument",
-                Instrument=inst,
-                Tube="0-{},{}-{}".format(mask_cols, cols - mask_cols, cols),
-            )
+            # MaskBTP(
+            #     Workspace="instrument",
+            #     Instrument=inst,
+            #     Tube="0-{},{}-{}".format(mask_cols, cols - mask_cols, cols),
+            # )
 
-            MaskBTP(
-                Workspace="instrument",
-                Instrument=inst,
-                Pixel="0-{},{}-{}".format(mask_rows, rows - mask_rows, rows),
-            )
+            # MaskBTP(
+            #     Workspace="instrument",
+            #     Instrument=inst,
+            #     Pixel="0-{},{}-{}".format(mask_rows, rows - mask_rows, rows),
+            # )
 
-            banks = beamlines[instrument]["MaskBanks"]
+            # banks = beamlines[instrument]["MaskBanks"]
 
-            for bank in banks:
-                MaskBTP(
-                    Workspace="instrument",
-                    Instrument=inst,
-                    Bank=bank,
-                )
+            # for bank in banks:
+            #     MaskBTP(
+            #         Workspace="instrument",
+            #         Instrument=inst,
+            #         Bank=bank,
+            #     )
 
             PreprocessDetectorsToMD(
                 InputWorkspace="instrument", OutputWorkspace="detectors"
