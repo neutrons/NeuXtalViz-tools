@@ -1365,7 +1365,11 @@ class ExperimentView(NeuXtalVizWidget):
                 min_val = float(amin)
                 max_val = float(amax)
                 angle_val = 1.0
-                step = (max_val - min_val) / angle_val
+                step = (
+                    (max_val - min_val) / (angle_val - 1)
+                    if angle_val > 1
+                    else 0.0
+                )
                 step_item = QTableWidgetItem("{:.2f}".format(step))
                 step_item.setFlags(step_item.flags() & ~Qt.ItemIsEditable)
                 self.mesh_table.setItem(row, 4, step_item)
@@ -1422,7 +1426,9 @@ class ExperimentView(NeuXtalVizWidget):
         if angles_val <= 0:
             return
 
-        step = (max_val - min_val) / angles_val
+        step = (
+            (max_val - min_val) / (angles_val - 1) if angles_val > 1 else 0.0
+        )
 
         self.mesh_table.blockSignals(True)
         step_item = QTableWidgetItem("{:.2f}".format(step))
