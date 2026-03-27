@@ -167,7 +167,7 @@ class NeuXtalViz(QMainWindow):
                 "<b>NeuXtalViz</b><br>"
                 "Modern toolkit for single-crystal neutron diffraction analysis and visualization.<br>"
                 "<br>Project webpage: "
-                '<a href="https://zjmorgan.github.io/NeuXtalViz-tools/index.html">https://zjmorgan.github.io/NeuXtalViz-tools/index.html</a>'
+                '<a href="https://neutrons.github.io/NeuXtalViz-tools/index.html">https://neutrons.github.io/NeuXtalViz-tools/index.html</a>'
             ),
         )
 
