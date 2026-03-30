@@ -36,7 +36,7 @@ from mantid.simpleapi import (
     LoadNexus,
     HB3AAdjustSampleNorm,
     LoadWANDSCD,
-    Load,
+    LoadEventNexus,
     MaskBTP,
     Rebin,
     SetGoniometer,
@@ -514,6 +514,8 @@ class UBModel(NeuXtalVizModel):
         grouping = inst["Grouping"]
         idf = self.get_autoreduce_instrument(instrument)
 
+        raw = True
+
         filenames = [rawpath.format(IPTS, run) for run in runs]
         examplefilenames = [examplepath.format(IPTS, run) for run in runs]
         if np.all([os.path.exists(filename) for filename in filenames]):
@@ -522,6 +524,7 @@ class UBModel(NeuXtalVizModel):
                 [os.path.exists(filename) for filename in litefilenames]
             ):
                 filenames = litefilenames
+                raw = False
                 print("Using auto-reduced lite files")
             else:
                 idf = None
@@ -570,12 +573,18 @@ class UBModel(NeuXtalVizModel):
             c, r = [int(val) for val in grouping.split("x")]
             scale_c = 1 if idf is None else c
             scale_r = 1 if idf is None else r
-            Load(
-                Filename=filenames,
-                FilterByTimeStop=time_stop,
-                NumberOfBins=1,
-                OutputWorkspace="data",
-            )
+            if raw:
+                LoadEventNexus(
+                    Filename=filenames,
+                    FilterByTimeStop=time_stop,
+                    NumberOfBins=1,
+                    OutputWorkspace="data",
+                )
+            else:
+                LoadNexus(
+                    Filename=filenames,
+                    OutputWorkspace="data",
+                )
             cols, rows = beamlines[instrument]["BankPixels"]
             mask_cols, mask_rows = beamlines[instrument]["MaskEdges"]
             cols //= scale_c
