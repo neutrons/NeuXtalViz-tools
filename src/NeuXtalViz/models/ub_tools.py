@@ -524,7 +524,6 @@ class UBModel(NeuXtalVizModel):
                 filenames = litefilenames
             else:
                 idf = None
-            self.runs = runs
             filenames = ",".join([filename for filename in filenames])
         elif np.all(
             [os.path.exists(filename) for filename in examplefilenames]
@@ -533,6 +532,8 @@ class UBModel(NeuXtalVizModel):
         else:
             print("Files do not exist")
             return
+
+        self.runs = runs
 
         LoadEmptyInstrument(
             InstrumentName=inst["Name"] if idf is None else None,
