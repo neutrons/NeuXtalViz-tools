@@ -526,7 +526,9 @@ class UBModel(NeuXtalVizModel):
                 idf = None
             self.runs = runs
             filenames = ",".join([filename for filename in filenames])
-        if np.all([os.path.exists(filename) for filename in examplefilenames]):
+        elif np.all(
+            [os.path.exists(filename) for filename in examplefilenames]
+        ):
             filenames = examplefilenames
         else:
             print("Files do not exist")
