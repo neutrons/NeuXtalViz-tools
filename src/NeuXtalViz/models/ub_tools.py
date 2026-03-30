@@ -528,7 +528,6 @@ class UBModel(NeuXtalVizModel):
                 print("Using auto-reduced lite files")
             else:
                 idf = None
-            filenames = ",".join([filename for filename in filenames])
         elif np.all(
             [os.path.exists(filename) for filename in examplefilenames]
         ):
@@ -538,6 +537,8 @@ class UBModel(NeuXtalVizModel):
         else:
             print("Files do not exist")
             return
+
+        filenames = ",".join([filename for filename in filenames])
 
         self.runs = runs
 
@@ -573,16 +574,26 @@ class UBModel(NeuXtalVizModel):
             c, r = [int(val) for val in grouping.split("x")]
             scale_c = 1 if idf is None else c
             scale_r = 1 if idf is None else r
-            if raw:
-                LoadEventNexus(
-                    Filename=filenames,
-                    FilterByTimeStop=time_stop,
-                    NumberOfBins=1,
-                    OutputWorkspace="data",
+            for filename in filenames.split(","):
+                if raw:
+                    LoadEventNexus(
+                        Filename=filename,
+                        FilterByTimeStop=time_stop,
+                        NumberOfBins=1,
+                        OutputWorkspace=filename,
+                    )
+                else:
+                    LoadNexus(
+                        Filename=filename,
+                        OutputWorkspace=filename,
+                    )
+            if len(filenames.split(",")) > 1:
+                GroupWorkspaces(
+                    InputWorkspaces=filenames, OutputWorkspace="data"
                 )
             else:
-                LoadNexus(
-                    Filename=filenames,
+                RenameWorkspace(
+                    InputWorkspace=filenames.split(",")[0],
                     OutputWorkspace="data",
                 )
             cols, rows = beamlines[instrument]["BankPixels"]
