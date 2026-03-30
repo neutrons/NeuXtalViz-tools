@@ -150,8 +150,6 @@ class NeuXtalViz(QMainWindow):
         structdiff_action = QAction("Structure/Diffuse", self)
         structdiff_action.triggered.connect(self.structdiff_GUI)
         app_menu.addAction(structdiff_action)
-
-        # Add About menu
         help_menu = self.menuBar().addMenu("Help")
         about_action = QAction("About NeuXtalViz", self)
         about_action.triggered.connect(self.show_about_dialog)

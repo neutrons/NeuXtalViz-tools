@@ -325,6 +325,30 @@ class UBModel(NeuXtalVizModel):
             inst["RawFile"],
         )
 
+    def get_example_file_path(self, instrument):
+        """
+        Get the example data file path for a given instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+
+        Returns
+        -------
+        filepath : str
+            File path to raw data.
+        """
+
+        inst = beamlines[instrument]
+
+        return os.path.join(
+            "/SNS/EXAMPLES",
+            inst["InstrumentName"],
+            "IPTS-{}",
+            inst["RawFile"],
+        )
+
     def get_lite_file_path(self, instrument):
         """
         Get the LITE file path for a given instrument.
@@ -483,6 +507,7 @@ class UBModel(NeuXtalVizModel):
         """
 
         rawpath = self.get_raw_file_path(instrument)
+        examplepath = self.get_example_file_path(instrument)
         litepath = self.get_lite_file_path(instrument)
 
         inst = beamlines[instrument]
@@ -490,6 +515,7 @@ class UBModel(NeuXtalVizModel):
         idf = self.get_autoreduce_instrument(instrument)
 
         filenames = [rawpath.format(IPTS, run) for run in runs]
+        examplefilenames = [examplepath.format(IPTS, run) for run in runs]
         if np.all([os.path.exists(filename) for filename in filenames]):
             litefilenames = [litepath.format(IPTS, run) for run in runs]
             if np.all(
@@ -500,7 +526,10 @@ class UBModel(NeuXtalVizModel):
                 idf = None
             self.runs = runs
             filenames = ",".join([filename for filename in filenames])
+        if np.all([os.path.exists(filename) for filename in examplefilenames]):
+            filenames = examplefilenames
         else:
+            print("Files do not exist")
             return
 
         LoadEmptyInstrument(
