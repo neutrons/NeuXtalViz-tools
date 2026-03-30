@@ -529,6 +529,7 @@ class UBModel(NeuXtalVizModel):
             [os.path.exists(filename) for filename in examplefilenames]
         ):
             filenames = examplefilenames
+            idf = None
         else:
             print("Files do not exist")
             return
