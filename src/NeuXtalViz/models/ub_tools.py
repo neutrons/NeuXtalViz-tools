@@ -343,7 +343,7 @@ class UBModel(NeuXtalVizModel):
         inst = beamlines[instrument]
 
         return os.path.join(
-            "/SNS/EXAMPLES",
+            "/SNS/EXAMPLES/",
             inst["InstrumentName"],
             "IPTS-{}",
             inst["RawFile"],
@@ -522,6 +522,7 @@ class UBModel(NeuXtalVizModel):
                 [os.path.exists(filename) for filename in litefilenames]
             ):
                 filenames = litefilenames
+                print("Using auto-reduced lite files")
             else:
                 idf = None
             filenames = ",".join([filename for filename in filenames])
@@ -530,6 +531,7 @@ class UBModel(NeuXtalVizModel):
         ):
             filenames = examplefilenames
             idf = None
+            print("Using example files since raw data files do not exist")
         else:
             print("Files do not exist")
             return
