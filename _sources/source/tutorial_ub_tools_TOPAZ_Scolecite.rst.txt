@@ -11,7 +11,7 @@ Step 1: Convert to Q
 In the **Convert to Q** tab:
 
 - Select the **TOPAZ** instrument.
-- Enter the IPTS and run numbers for the Scolecite dataset.
+- Enter the IPTS number and run numbers for the Scolecite dataset (``IPTS``: ``31856``, runs: ``50024``).
 - (Optionally) set wavelength and calibration options as needed.
 - Click **Convert to Q** to load the data and build the Q volume.
 
