@@ -11,7 +11,7 @@ Step 1: Convert to Q
 In the **Convert to Q** tab:
 
 - Select the **MANDI** instrument.
-- Enter the IPTS and run numbers for the Mesolite dataset.
+- Enter the IPTS number and run numbers for the Mesolite dataset (``IPTS``: ``8776``, runs: ``11612``).
 - Set the minimum d-spacing and wavelength range as appropriate.
 - Provide the MANDI calibration file if needed.
 - Click **Convert to Q** to load the data and build the Q volume.

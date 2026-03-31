@@ -11,7 +11,7 @@ Step 1: Convert to Q
 In the **Convert to Q** tab:
 
 - Set the instrument to **CORELLI**.
-- Enter the IPTS and run numbers for the Natrolite dataset.
+- Enter the IPTS number and run numbers for the Natrolite dataset (``IPTS``: ``31429``, runs: ``383673``).
 - Set the wavelength range and select the appropriate calibration file.
 - Click **Convert to Q** to load the data and build the Q volume.
 
