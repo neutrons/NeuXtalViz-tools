@@ -1,0 +1,31 @@
+name: Build for NDIP
+
+on: workflow_dispatch
+
+jobs:
+  publish-to-savannah:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: savannah.ornl.gov/ndip/tool-sources/single-crystal-diffraction/neuxtalviz
+    permissions: write-all
+    steps:
+      - name: Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.NDIP_DOCKER_REGISTRY }}
+          username: ${{ secrets.NDIP_DOCKER_USER }}
+          password: ${{ secrets.NDIP_DOCKER_PASSWORD }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Parse version
+        run: echo "VERSION=$(cat src/NeuXtalViz/_version.py | grep "__version__ =" | head -n 1 | awk '{ print $3 }' | tr -d '"' | cut -f1 -d '+')" >> $GITHUB_ENV
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          file: ndip/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:latest,${{ env.IMAGE_NAME }}:${{ env.VERSION }}
