@@ -518,6 +518,7 @@ class UBModel(NeuXtalVizModel):
 
         filenames = [rawpath.format(IPTS, run) for run in runs]
         examplefilenames = [examplepath.format(IPTS, run) for run in runs]
+        tutorialfilenames = [examplepath.format(12345, run) for run in runs]
         if np.all([os.path.exists(filename) for filename in filenames]):
             litefilenames = [litepath.format(IPTS, run) for run in runs]
             if np.all(
@@ -534,6 +535,12 @@ class UBModel(NeuXtalVizModel):
             filenames = examplefilenames
             idf = None
             print("Using example files since raw data files do not exist")
+        elif np.all(
+            [os.path.exists(filename) for filename in tutorialfilenames]
+        ):
+            filenames = tutorialfilenames
+            idf = None
+            print("Using tutorial files since raw data files do not exist")
         else:
             print("Files do not exist")
             return

@@ -37,3 +37,17 @@ for instrument, files in examples.items():
         print(f"  {path}")
         print(f"  -> {destination}")
         shutil.copy2(path, destination)
+
+        if relative_parts[0] == "nexus":
+            dummy_ipts = os.path.join(
+                "/SNS/EXAMPLES", source_instrument, "IPTS-12345"
+            )
+            os.makedirs(dummy_ipts, exist_ok=True)
+            os.makedirs(os.path.join(dummy_ipts, "nexus"), exist_ok=True)
+            os.makedirs(os.path.join(dummy_ipts, "shared"), exist_ok=True)
+
+            dummy_destination = os.path.join(dummy_ipts, *relative_parts)
+            os.makedirs(os.path.dirname(dummy_destination), exist_ok=True)
+
+            print(f"  -> {dummy_destination}")
+            shutil.copy2(path, dummy_destination)
