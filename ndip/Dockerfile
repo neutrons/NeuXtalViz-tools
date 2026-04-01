@@ -21,12 +21,24 @@ RUN wget -O - https://github.com/novnc/noVNC/archive/v1.4.0.tar.gz | tar -xzv -C
     wget -O - https://github.com/novnc/websockify/archive/v0.11.0.tar.gz | tar -xzv -C /root/ && mv /root/websockify-0.11.0 /root/novnc/utils/websockify && \
     wget https://sourceforge.net/projects/tigervnc/files/stable/1.15.0/ubuntu-24.04LTS/amd64/tigervncserver_1.15.0-1ubuntu1_amd64.deb && dpkg -i ./tigervncserver_1.15.0-1ubuntu1_amd64.deb
 
-# Build NeuXtalViz
-COPY . /opt/NeuXtalViz
-WORKDIR /opt/NeuXtalViz
+# Install Pixi
 RUN curl -fsSL https://pixi.sh/install.sh | sh
 ENV PATH="${HOME}/.pixi/bin:${PATH}"
 ENV UV_COMPILE_BYTECODE=1
+
+# Setup pixi.toml dependency files for /SNS/software scripts
+RUN curl -fsSL -o /usr/local/pixi/scd-reduction-tools/pixi.toml \
+    https://code.ornl.gov/sns-hfir-scse/deployments/pixi-envs/pixi-predeploy/scd-reduction-tools-pixi-deploy/-/raw/main/prod/default/pixi.toml?ref_type=heads
+WORKDIR /usr/local/pixi/scd-reduction-tools
+RUN pixi install
+RUN curl -fsSL -o /usr/local/pixi/scd-reduction-tools_dev/pixi.toml \
+    https://code.ornl.gov/sns-hfir-scse/deployments/pixi-envs/pixi-predeploy/scd-reduction-tools_dev-pixi-deploy/-/raw/main/prod/default/pixi.toml?ref_type=heads
+WORKDIR /usr/local/pixi/scd-reduction-tools_dev
+RUN pixi install
+
+# Build NeuXtalViz
+COPY . /opt/NeuXtalViz
+WORKDIR /opt/NeuXtalViz
 RUN pixi init --import environment.yml
 RUN pixi add pyqt qdarkstyle qtawesome
 RUN pixi install
