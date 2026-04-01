@@ -1,5 +1,7 @@
 FROM ubuntu:noble
 
+ARG GITLAB_TOKEN
+
 ENV HOME /home/novnc_user
 ENV DEBIAN_FRONTEND noninteractive
 ENV LC_ALL C.UTF-8
@@ -27,14 +29,23 @@ ENV PATH="${HOME}/.pixi/bin:${PATH}"
 ENV UV_COMPILE_BYTECODE=1
 
 # Setup pixi.toml dependency files for /SNS/software scripts
-RUN curl -fsSL -o /usr/local/pixi/scd-reduction-tools/pixi.toml \
-    https://code.ornl.gov/sns-hfir-scse/deployments/pixi-envs/pixi-predeploy/scd-reduction-tools-pixi-deploy/-/raw/main/prod/default/pixi.toml?ref_type=heads
+RUN curl -fsSL --create-dirs -o /usr/local/pixi/scd-reduction-tools/pixi.toml \
+    --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+    "https://code.ornl.gov/api/v4/projects/18110/repository/files/prod%2Fdefault%2Fpixi.toml/raw?ref=main"
 WORKDIR /usr/local/pixi/scd-reduction-tools
 RUN pixi install
-RUN curl -fsSL -o /usr/local/pixi/scd-reduction-tools_dev/pixi.toml \
-    https://code.ornl.gov/sns-hfir-scse/deployments/pixi-envs/pixi-predeploy/scd-reduction-tools_dev-pixi-deploy/-/raw/main/prod/default/pixi.toml?ref_type=heads
+RUN curl -fsSL --create-dirs -o /usr/local/pixi/scd-reduction-tools_dev/pixi.toml \
+    --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+    "https://code.ornl.gov/api/v4/projects/18111/repository/files/prod%2Fdefault%2Fpixi.toml/raw?ref=main"
 WORKDIR /usr/local/pixi/scd-reduction-tools_dev
 RUN pixi install
+RUN curl -fsSL --create-dirs -o /usr/local/pixi/shiver/pixi.toml \
+    --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+    "https://code.ornl.gov/api/v4/projects/18123/repository/files/prod%2Fdefault%2Fpixi.toml/raw?ref=main"
+WORKDIR /usr/local/pixi/shiver
+RUN pixi install
+
+# TODO: Install FullProf and VESTA
 
 # Build NeuXtalViz
 COPY . /opt/NeuXtalViz
@@ -59,7 +70,7 @@ COPY ndip/tigervnc.conf $HOME/.config/tigervnc/config
 COPY ndip/user_command.sh $HOME/user_command.sh
 RUN chmod +x $HOME/user_command.sh
 
-RUN chmod -R og+rwX /opt
+RUN chmod -R og+rwX /opt /usr/local/pixi
 
 EXPOSE 8080
 

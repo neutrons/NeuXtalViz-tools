@@ -27,5 +27,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           file: ndip/Dockerfile
+          build-args: |
+            GITLAB_TOKEN=${{ secrets.GITLAB_TOKEN }}
           push: true
           tags: ${{ env.IMAGE_NAME }}:latest,${{ env.IMAGE_NAME }}:${{ env.VERSION }}
