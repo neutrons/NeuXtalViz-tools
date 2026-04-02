@@ -45,7 +45,19 @@ RUN curl -fsSL --create-dirs -o /usr/local/pixi/shiver/pixi.toml \
 WORKDIR /usr/local/pixi/shiver
 RUN pixi install
 
-# TODO: Install FullProf and VESTA
+# Install FullProf
+RUN curl -fsSL --create-dirs -o /opt/fullprof/fullprof.tgz https://www.ill.eu/sites/fullprof/downloads/FullProf_Suite_March2026_Linux64_ifort.tgz
+WORKDIR /opt/fullprof
+RUN tar -xvzf fullprof.tgz
+RUN ln -s /opt/fullprof/fp_studio /opt/fullprof/fullprof
+ENV FULLPROF=/opt/fullprof
+ENV PATH="${FULLPROF}:${PATH}"
+
+# Install VESTA
+RUN curl -fsSL --create-dirs -o /opt/vesta/VESTA.tar.bz2 https://jp-minerals.org/vesta/archives/3.5.8/VESTA-gtk3.tar.bz2
+WORKDIR /opt/vesta
+RUN tar -xvjf VESTA.tar.bz2
+ENV PATH="/opt/vesta/VESTA-gtk3:${PATH}"
 
 # Build NeuXtalViz
 COPY . /opt/NeuXtalViz
