@@ -12,7 +12,8 @@ ENV USER=root
 RUN dpkg --add-architecture i386 && \
     apt-get update && apt-get -y install libegl1 libgl1 libglx-mesa0 libegl-mesa0 libglapi-mesa libosmesa6 libasound2t64 python3 libnss3 pip \
     xvfb x11vnc xdotool wget tar supervisor net-tools openbox tint2 gnupg2 ldap-utils libxcb-xinerama0 '^libxcb.*-dev' libx11-xcb-dev \
-    libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev libsystemd-dev pkg-config xinit libxcvt-dev curl && \
+    libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev libsystemd-dev pkg-config xinit libxcvt-dev \
+    curl libxm4 && \
     apt-get -y full-upgrade && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY ndip/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
