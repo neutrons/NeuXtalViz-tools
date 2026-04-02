@@ -68,7 +68,6 @@ class UBView(NeuXtalVizWidget):
         super().__init__(parent)
 
         self.tab_widget = QTabWidget(self)
-        self.tab_widget.setToolTip("Switch between UB, peaks, and views tabs.")
 
         self.parameters_tab()
         self.table_tab()
@@ -2491,7 +2490,7 @@ class UBView(NeuXtalVizWidget):
 
             geoms, self.indexing = [], {}
             for i, (T, I, ind, no) in enumerate(zip(*params)):
-                ellipsoid = sphere.copy(deep=False).transform(T)
+                ellipsoid = sphere.copy(deep=False).transform(T, inplace=True)
                 color = I if integrate else ind
                 ellipsoid["scalars"] = np.full(sphere.n_cells, color)
                 geoms.append(ellipsoid)

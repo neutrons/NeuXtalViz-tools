@@ -58,7 +58,6 @@ class ExperimentView(NeuXtalVizWidget):
         super().__init__(parent)
 
         self.tab_widget = QTabWidget(self)
-        self.tab_widget.setToolTip("Switch between coverage and peak tabs.")
 
         self.coverage_tab()
         self.peak_tab()
@@ -1912,7 +1911,7 @@ class ExperimentView(NeuXtalVizWidget):
             mesh, color="k", style="wireframe", render_lines_as_tubes=True
         )
 
-        arrow = pv.Arrow([0, 0, -rz], [0, 0, rz], scale="auto")
+        arrow = pv.Arrow(start=[0, 0, -rz], direction=[0, 0, rz], scale="auto")
         self.plotter.add_mesh(arrow, color="pink", smooth_shading=True)
 
         self.plotter.add_legend_scale(

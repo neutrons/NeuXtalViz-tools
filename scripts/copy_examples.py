@@ -9,6 +9,9 @@ examples = {
         "TOPAZ | Si | UB": "/SNS/TOPAZ/IPTS-36169/shared/nxv/Si_UB.mat",
         "TOPAZ | Scolecite | event nexus": "/SNS/TOPAZ/IPTS-31856/nexus/TOPAZ_50024.nxs.h5",
         "TOPAZ | Scolecite | UB": "/SNS/TOPAZ/IPTS-31856/shared/nxv/Scolecite_UB.mat",
+        "TOPAZ | Garnet | event nexus": "/SNS/TOPAZ/IPTS-31189/nexus/TOPAZ_46719.nxs.h5",
+        "TOPAZ | Garnet | experiment plan": "/SNS/TOPAZ/IPTS-31189/shared/nxv/test_yag_copy_to_dasopi.csv",
+        "TOPAZ | MnCoGeAs | event nexus": "/SNS/TOPAZ/IPTS-31189/nexus/TOPAZ_46719.nxs.h5",
     },
     "MANDI": {
         "MANDI | Mesolite | event nexus": "/SNS/MANDI/IPTS-8776/nexus/MANDI_11612.nxs.h5",

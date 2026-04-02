@@ -31,6 +31,10 @@ get_vector(axes_type, ind)
     Vector corresponding to a particular crystallographic direction.
 """
 
+from importlib.resources import files
+from importlib.resources import files
+import os
+
 from mantid.simpleapi import HasUB
 from mantid.geometry import OrientedLattice
 
@@ -51,6 +55,26 @@ class NeuXtalVizModel:
         """
 
         self.UB = None
+
+    def files_exist(self, files):
+        """
+        Check if the specified files exist and are readable.
+
+        Parameters
+        ----------
+        files : list of str
+            List of file paths to check.
+
+        Returns
+        -------
+        exist : bool
+            True if all files exist and are readable, False otherwise.
+
+        """
+
+        return [
+            f for f in files if os.path.isfile(f) and os.access(f, os.R_OK)
+        ]
 
     def has_UB(self, ws):
         """

@@ -526,23 +526,24 @@ class UBModel(NeuXtalVizModel):
             ):
                 filenames = litefilenames
                 raw = False
-                print("Using auto-reduced lite files")
+                message = "Using auto-reduced lite files"
             else:
                 idf = None
+                message = "Using raw files"
         elif np.all(
             [os.path.exists(filename) for filename in examplefilenames]
         ):
             filenames = examplefilenames
             idf = None
-            print("Using example files since raw data files do not exist")
+            message = "Using example files since raw data files do not exist"
         elif np.all(
             [os.path.exists(filename) for filename in tutorialfilenames]
         ):
             filenames = tutorialfilenames
             idf = None
-            print("Using tutorial files since raw data files do not exist")
+            message = "Using tutorial files since raw data files do not exist"
         else:
-            print("Files do not exist")
+            message = "Files do not exist"
             return
 
         filenames = ",".join([filename for filename in filenames])
@@ -693,6 +694,7 @@ class UBModel(NeuXtalVizModel):
                     GroupingPattern=detector_list,
                     OutputWorkspace="data",
                 )
+
                 return True
 
     def calibrate_data(self, instrument, det_cal, gon_cal, tube_cal):

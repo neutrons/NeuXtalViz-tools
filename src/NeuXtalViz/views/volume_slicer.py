@@ -61,9 +61,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
         super().__init__(parent)
 
         self.tab_widget = QTabWidget(self)
-        self.tab_widget.setToolTip(
-            "Switch between different volume slicing tools and views."
-        )
 
         self.slicer_tab()
 
@@ -628,13 +625,31 @@ class VolumeSlicerView(NeuXtalVizWidget):
         actor.SetYAxisRange(limits[1])
         actor.SetZAxisRange(limits[2])
 
-        axis0_args = *limits[0], actor.n_xlabels, actor.x_label_format
-        axis1_args = *limits[1], actor.n_ylabels, actor.y_label_format
-        axis2_args = *limits[2], actor.n_zlabels, actor.z_label_format
+        vmin0, vmax0, n0, fmt0 = (
+            *limits[0],
+            actor.n_xlabels,
+            actor.x_label_format,
+        )
+        vmin1, vmax1, n1, fmt1 = (
+            *limits[1],
+            actor.n_ylabels,
+            actor.y_label_format,
+        )
+        vmin2, vmax2, n2, fmt2 = (
+            *limits[2],
+            actor.n_zlabels,
+            actor.z_label_format,
+        )
 
-        axis0_label = pv.plotting.cube_axes_actor.make_axis_labels(*axis0_args)
-        axis1_label = pv.plotting.cube_axes_actor.make_axis_labels(*axis1_args)
-        axis2_label = pv.plotting.cube_axes_actor.make_axis_labels(*axis2_args)
+        axis0_label = pv.plotting.cube_axes_actor.make_axis_labels(
+            vmin=vmin0, vmax=vmax0, n=n0, fmt=fmt0
+        )
+        axis1_label = pv.plotting.cube_axes_actor.make_axis_labels(
+            vmin=vmin1, vmax=vmax1, n=n1, fmt=fmt1
+        )
+        axis2_label = pv.plotting.cube_axes_actor.make_axis_labels(
+            vmin=vmin2, vmax=vmax2, n=n2, fmt=fmt2
+        )
 
         actor.SetAxisLabels(0, axis0_label)
         actor.SetAxisLabels(1, axis1_label)

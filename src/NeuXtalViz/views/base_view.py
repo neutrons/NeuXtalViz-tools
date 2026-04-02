@@ -829,7 +829,7 @@ class NeuXtalVizWidget(QWidget):
         """
 
         self.plotter.reset_camera()
-        self.plotter.view_isometric(negative)
+        self.plotter.view_isometric(negative=negative)
         self.camera_position = self.plotter.camera_position
         self.cam_ready.emit()
 
