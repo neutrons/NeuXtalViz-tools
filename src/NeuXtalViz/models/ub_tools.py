@@ -146,6 +146,8 @@ class UBModel(NeuXtalVizModel):
         self.peak_info = None
 
         CreateSampleWorkspace(OutputWorkspace="ub_lattice")
+        CreateSampleWorkspace(OutputWorkspace="primitive_cell")
+        CreatePeaksWorkspace(NumberOfPeaks=0, OutputWorkspace="ub_peaks")
 
     def has_Q(self):
         """
@@ -189,7 +191,40 @@ class UBModel(NeuXtalVizModel):
             True if UB matrix is present, False otherwise.
         """
 
-        return HasUB(Workspace=self.cell)
+        if mtd.doesExist(self.cell):
+            return HasUB(Workspace=self.cell)
+        else:
+            return False
+
+    def get_Q_status(self, files=None):
+        if files is not None:
+            exist = self.files_exist(files)
+            if not exist:
+                return 1
+            else:
+                if self.has_Q():
+                    return 3
+                else:
+                    return 2
+        else:
+            return 1
+
+    def get_peaks_status(self):
+        if not self.has_peaks():
+            return 0
+        elif mtd[self.table].getNumberPeaks() == 0:
+            return 0
+        else:
+            for peak in mtd[self.table]:
+                if peak.getHKL().norm2() > 0:
+                    return 2
+            return 1
+
+    def get_UB_status(self):
+        if not self.has_UB():
+            return 0
+        else:
+            return 1
 
     def get_UB(self):
         """
@@ -488,9 +523,9 @@ class UBModel(NeuXtalVizModel):
 
         return os.path.join(filepath, idf[0]) if len(idf) > 0 else None
 
-    def load_data(self, instrument, IPTS, runs, exp, time_stop):
+    def get_files(self, instrument, IPTS, runs, exp):
         """
-        Load experimental data for a given instrument and run parameters.
+        Get the appropriate data files for a given instrument, IPTS, and run numbers.
 
         Parameters
         ----------
@@ -502,8 +537,19 @@ class UBModel(NeuXtalVizModel):
             List of run numbers.
         exp : str
             Experiment identifier.
-        time_stop : float
-            Time to stop loading data.
+
+        Returns
+        -------
+        filenames : list
+            List of file paths to load.
+        idf : str or None
+            Instrument definition file path if using raw files, else None.
+        grouping : str
+            Grouping pattern for the instrument.
+        raw : bool or None
+            True if using raw files, False if using LITE files.
+        message : str
+            Message indicating which files are being used or if files do not exist.
         """
 
         rawpath = self.get_raw_file_path(instrument)
@@ -512,8 +558,8 @@ class UBModel(NeuXtalVizModel):
 
         inst = beamlines[instrument]
         grouping = inst["Grouping"]
-        idf = self.get_autoreduce_instrument(instrument)
 
+        idf = self.get_autoreduce_instrument(instrument)
         raw = True
 
         filenames = [rawpath.format(IPTS, run) for run in runs]
@@ -544,11 +590,42 @@ class UBModel(NeuXtalVizModel):
             message = "Using tutorial files since raw data files do not exist"
         else:
             message = "Files do not exist"
-            return
+            filenames, raw = [], None
+
+        return filenames, idf, grouping, raw, message
+
+    def load_data(self, instrument, IPTS, runs, exp, time_stop):
+        """
+        Load experimental data for a given instrument and run parameters.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+        IPTS : str
+            IPTS number.
+        runs : list
+            List of run numbers.
+        exp : str
+            Experiment identifier.
+        time_stop : float
+            Time to stop loading data.
+        """
+
+        filenames, idf, grouping, raw, message = self.get_files(
+            instrument, IPTS, runs, exp
+        )
+
+        print(message)
+
+        if filenames == []:
+            return False
 
         filenames = ",".join([filename for filename in filenames])
 
         self.runs = runs
+
+        inst = beamlines[instrument]
 
         LoadEmptyInstrument(
             InstrumentName=inst["Name"] if idf is None else None,

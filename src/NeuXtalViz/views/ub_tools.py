@@ -1,3 +1,4 @@
+from cProfile import label
 import re
 
 import numpy as np
@@ -20,6 +21,7 @@ from qtpy.QtWidgets import (
     QGridLayout,
     QTabWidget,
     QFileDialog,
+    QFrame,
 )
 
 from qtpy.QtGui import QDoubleValidator, QIntValidator, QRegExpValidator
@@ -31,7 +33,6 @@ from matplotlib.figure import Figure
 from matplotlib.transforms import Affine2D
 from matplotlib.ticker import FormatStrFormatter
 
-# from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axisartist import Axes, GridHelperCurveLinear
 from mpl_toolkits.axisartist.grid_finder import (
     ExtremeFinderSimple,
@@ -92,7 +93,7 @@ class UBView(NeuXtalVizWidget):
         self.save_q_button.setToolTip("Save the Q workspace to a file.")
         self.save_q_button.setIcon(qta.icon("fa6s.floppy-disk"))
         self.load_q_button = QPushButton("Load Q", self)
-        self.load_q_button.setToolTip("Load a Q workspace from a file.")
+        self.load_q_button.setToolTip("Load a Q-sample workspace from a file.")
         self.load_q_button.setIcon(qta.icon("fa6s.folder-open"))
 
         self.save_peaks_button = QPushButton("Save Peaks", self)
@@ -109,20 +110,43 @@ class UBView(NeuXtalVizWidget):
         self.load_ub_button.setToolTip("Load a UB matrix from a file.")
         self.load_ub_button.setIcon(qta.icon("fa6s.folder-open"))
 
+        self.q_label = QLabel("No Q-sample")
+        self.peaks_label = QLabel("No peaks table")
+        self.ub_label = QLabel("No UB matrix")
+
+        self.q_label.setStyleSheet("color: red;")
+        self.peaks_label.setStyleSheet("color: red;")
+        self.ub_label.setStyleSheet("color: red;")
+
+        convert_frame = QFrame()
+        convert_frame.setFrameShape(QFrame.Shape.HLine)
+        convert_frame.setFrameShadow(QFrame.Shadow.Sunken)
+
+        peaks_frame = QFrame()
+        peaks_frame.setFrameShape(QFrame.Shape.HLine)
+        peaks_frame.setFrameShadow(QFrame.Shadow.Sunken)
+
+        ubS_frame = QFrame()
+        ubS_frame.setFrameShape(QFrame.Shape.HLine)
+        ubS_frame.setFrameShadow(QFrame.Shadow.Sunken)
+
         convert_io_layout = QHBoxLayout()
 
+        convert_io_layout.addWidget(self.q_label)
         convert_io_layout.addStretch(1)
         convert_io_layout.addWidget(self.save_q_button)
         convert_io_layout.addWidget(self.load_q_button)
 
         peaks_io_layout = QHBoxLayout()
 
+        peaks_io_layout.addWidget(self.peaks_label)
         peaks_io_layout.addStretch(1)
         peaks_io_layout.addWidget(self.save_peaks_button)
         peaks_io_layout.addWidget(self.load_peaks_button)
 
         ub_io_layout = QHBoxLayout()
 
+        ub_io_layout.addWidget(self.ub_label)
         ub_io_layout.addStretch(1)
         ub_io_layout.addWidget(self.save_ub_button)
         ub_io_layout.addWidget(self.load_ub_button)
@@ -134,12 +158,15 @@ class UBView(NeuXtalVizWidget):
 
         ub_layout.addWidget(convert_tab)
         ub_layout.addLayout(convert_io_layout)
+        ub_layout.addWidget(convert_frame)
 
         ub_layout.addWidget(self.peaks_tab)
         ub_layout.addLayout(peaks_io_layout)
+        ub_layout.addWidget(peaks_frame)
 
         ub_layout.addWidget(self.ub_tab)
         ub_layout.addLayout(ub_io_layout)
+        ub_layout.addWidget(ubS_frame)
 
         ub_layout.addWidget(values_tab)
 
@@ -2067,6 +2094,39 @@ class UBView(NeuXtalVizWidget):
 
     def connect_instrument_scale_combo(self, update_view):
         self.instrument_scale_combo.currentIndexChanged.connect(update_view)
+
+    def set_Q_status(self, status):
+        if status == 0:
+            self.q_label.setText("No Q-sample")
+            self.q_label.setStyleSheet("color: red;")
+        elif status == 1:
+            self.q_label.setText("Files do not exist")
+            self.q_label.setStyleSheet("color: orange;")
+        elif status == 2:
+            self.q_label.setText("Files exist, calculating...")
+            self.q_label.setStyleSheet("color: blue;")
+        else:
+            self.q_label.setText("Q-sample ready")
+            self.q_label.setStyleSheet("color: green;")
+
+    def set_peaks_status(self, status):
+        if status == 0:
+            self.peaks_label.setText("No peaks table")
+            self.peaks_label.setStyleSheet("color: red;")
+        elif status == 1:
+            self.peaks_label.setText("Peaks not indexed")
+            self.peaks_label.setStyleSheet("color: blue;")
+        elif status == 2:
+            self.peaks_label.setText("Peaks indexed")
+            self.peaks_label.setStyleSheet("color: green;")
+
+    def set_UB_status(self, status):
+        if status == 0:
+            self.ub_label.setText("No UB matrix")
+            self.ub_label.setStyleSheet("color: red;")
+        elif status == 1:
+            self.ub_label.setText("UB matrix available")
+            self.ub_label.setStyleSheet("color: green;")
 
     def set_goniometer_axes(self, names):
         self.gonio_label.setText("{} [°]:".format(names))

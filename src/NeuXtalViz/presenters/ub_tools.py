@@ -177,6 +177,8 @@ class UB(NeuXtalVizPresenter):
             self.view.set_indices(hkl, int_hkl, int_mnp)
 
     def convert_Q(self):
+        self.update_data_status()
+
         worker = self.view.worker(self.convert_Q_process)
         worker.connect_result(self.convert_Q_complete)
         worker.connect_finished(self.visualize)
@@ -465,7 +467,30 @@ class UB(NeuXtalVizPresenter):
             if hkl is not None:
                 self.view.set_check_hkl(*hkl)
 
+    def update_data_status(self):
+        instrument = self.view.get_instrument()
+
+        IPTS = self.view.get_IPTS()
+        runs = self.view.get_runs()
+        exp = self.view.get_experiment()
+
+        validate = [IPTS, runs]
+
+        if instrument == "DEMAND":
+            validate.append(exp)
+
+        files = None
+        if all(elem is not None for elem in validate):
+            files, *_ = self.model.get_files(instrument, IPTS, runs, exp)
+
+        self.view.set_Q_status(self.model.get_Q_status(files))
+        self.view.set_peaks_status(self.model.get_peaks_status())
+        self.view.set_UB_status(self.model.get_UB_status())
+
     def visualize(self):
+
+        self.update_data_status()
+
         Q_hist = self.model.get_Q_info()
 
         if Q_hist is not None and self.volume_idle:
@@ -508,6 +533,8 @@ class UB(NeuXtalVizPresenter):
             self.view.set_sample_directions(params)
 
     def find_peaks(self):
+        self.update_data_status()
+
         worker = self.view.worker(self.find_peaks_process)
         worker.connect_result(self.find_peaks_complete)
         worker.connect_finished(self.visualize)
@@ -560,6 +587,8 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters.", 0)
 
     def find_conventional(self):
+        self.update_data_status()
+
         worker = self.view.worker(self.find_conventional_process)
         worker.connect_result(self.find_conventional_complete)
         worker.connect_finished(self.visualize)
@@ -567,8 +596,8 @@ class UB(NeuXtalVizPresenter):
 
         self.view.start_worker_pool(worker)
 
-    def find_conventional_complete(self, result):
-        pass
+    def find_conventional_complete(self, result=None):
+        self.update_data_status()
 
     def find_conventional_process(self, progress=None, stop_event=None):
         if self.stop_processing(stop_event):
@@ -596,6 +625,8 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters.", 0)
 
     def find_niggli(self):
+        self.update_data_status()
+
         worker = self.view.worker(self.find_niggli_process)
         worker.connect_result(self.find_niggli_complete)
         worker.connect_finished(self.visualize)
