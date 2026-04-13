@@ -66,6 +66,7 @@ WORKDIR /opt/NeuXtalViz
 RUN pixi init --import environment.yml
 RUN pixi add pyqt qdarkstyle qtawesome
 RUN pixi install
+RUN pixi clean cache -y
 SHELL [ "pixi", "run" ]
 
 # Configure openbox to show a custom menu on a noVNC client event.
