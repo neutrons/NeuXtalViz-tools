@@ -1,6 +1,6 @@
 name: Build for NDIP
 
-on: push
+on: workflow_dispatch
 
 jobs:
   publish-to-savannah:
