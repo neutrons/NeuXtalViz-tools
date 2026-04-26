@@ -77,6 +77,7 @@ from mantid.geometry import (
 from mantid.kernel import V3D, FloatTimeSeriesProperty
 
 from sklearn.cluster import DBSCAN
+from scipy.spatial import cKDTree
 
 import numpy as np
 import scipy
@@ -924,8 +925,8 @@ class UBModel(NeuXtalVizModel):
                 for ws in input_ws_names:
                     r = mtd[ws].getExperimentInfo(0).run()
                     R = []
-                    angle = []
-                    run_no = []
+                    # angle = []
+                    # run_no = []
                     n_gon = r.getNumGoniometers()
                     for i in range(n_gon):
                         gon = r.getGoniometer(i)
@@ -959,9 +960,19 @@ class UBModel(NeuXtalVizModel):
                 )
             else:
 
+                PreprocessDetectorsToMD(
+                    InputWorkspace=input_ws, OutputWorkspace="detectors"
+                )
+
+                two_theta = mtd["detectors"].column("TwoTheta")
+                az_phi = mtd["detectors"].column("Azimuthal")
+
                 if min_d is None:
                     k = 2 * np.pi / min(wavelength)
                     Q_max = k * np.sin(0.5 * max(two_theta))
+
+                k = 2 * np.pi / max(wavelength)
+                Q_min = k * np.sin(0.5 * min(two_theta))
 
                 ConvertUnits(
                     InputWorkspace="data",
@@ -971,7 +982,7 @@ class UBModel(NeuXtalVizModel):
 
                 CropWorkspace(
                     InputWorkspace="data",
-                    XMin=0,
+                    XMin=Q_min,
                     XMax=Q_max,
                     OutputWorkspace="data",
                 )
@@ -995,21 +1006,20 @@ class UBModel(NeuXtalVizModel):
                     OutputWorkspace="data",
                 )
 
+                ConvertUnits(
+                    InputWorkspace="data",
+                    Target="dSpacing",
+                    OutputWorkspace="data",
+                )
+
                 Rebin(
                     InputWorkspace="data",
                     OutputWorkspace="data",
-                    Params=[wavelength[0], 0.01, wavelength[1]],
+                    Params=[2 * np.pi / Q_max, -0.01, 2 * np.pi / Q_min],
                 )
 
-                lamda = mtd[input_ws].extractX()[0]
-                lamda = 0.5 * (lamda[1:] + lamda[:-1])
-
-                PreprocessDetectorsToMD(
-                    InputWorkspace=input_ws, OutputWorkspace="detectors"
-                )
-
-                two_theta = mtd["detectors"].column("TwoTheta")
-                az_phi = mtd["detectors"].column("Azimuthal")
+                d = mtd[input_ws].extractX()[0]
+                d = 0.5 * (d[1:] + d[:-1])
 
                 for ws in input_ws_names:
                     r = mtd[ws].run()
@@ -1127,7 +1137,7 @@ class UBModel(NeuXtalVizModel):
             self.counts = counts
 
             self.two_theta = np.array(two_theta)
-            self.lamda = lamda
+            self.scan = lamda if "HFIR" in filepath else d
             self.Rs = Rs
             self.conv = conv
 
@@ -1159,12 +1169,19 @@ class UBModel(NeuXtalVizModel):
 
         R = self.Rs[ind]
 
-        if type(self.lamda) is float:
-            wl = self.lamda
+        if type(self.scan) is float:
+            wl = self.scan
             x = np.rad2deg(np.arccos([0.5 * (np.trace(r) - 1) for r in R]))
             R = R[np.argmin(np.abs(x - val))]
         else:
-            wl = self.lamda[np.argmin(np.abs(self.lamda - val))]
+            d = self.scan[np.argmin(np.abs(self.scan - val))]
+            gamma = np.deg2rad(horz)
+            nu = np.deg2rad(vert)
+            wl = d * np.sqrt(
+                (np.sin(gamma) * np.cos(nu)) ** 2
+                + np.sin(nu) ** 2
+                + (np.cos(gamma) * np.cos(nu) - 1) ** 2
+            )
 
         k = 2 * np.pi / wl
 
@@ -1200,8 +1217,8 @@ class UBModel(NeuXtalVizModel):
 
             R = self.Rs[ind]
 
-            if type(self.lamda) is float:
-                wl = self.lamda
+            if type(self.scan) is float:
+                wl = self.scan
                 Q = np.einsum("kij,j->ki", R, Q)
                 lamda = (
                     4 * np.pi * np.abs(Q[2]) / np.linalg.norm(Q, axis=0) ** 2
@@ -1211,8 +1228,8 @@ class UBModel(NeuXtalVizModel):
                 x = np.rad2deg(np.arccos(0.5 * (np.trace(R) - 1)))
             else:
                 Q = np.einsum("ij,j->i", R, Q)
-                wl = 4 * np.pi * np.abs(Q[2]) / np.linalg.norm(Q) ** 2
-                x = wl
+                d = 2 * np.pi / np.linalg.norm(Q)
+                x = d
 
             az_phi = np.arctan2(Q[1], Q[0])
             two_theta = 2 * np.abs(np.arcsin(Q[2] / np.linalg.norm(Q)))
@@ -1250,12 +1267,19 @@ class UBModel(NeuXtalVizModel):
         if self.has_UB():
             R = self.Rs[ind]
 
-            if type(self.lamda) is float:
-                wl = self.lamda
+            if type(self.scan) is float:
+                wl = self.scan
                 x = np.rad2deg(np.arccos([0.5 * (np.trace(r) - 1) for r in R]))
                 R = R[np.argmin(np.abs(x - val))]
             else:
-                wl = self.lamda[np.argmin(np.abs(self.lamda - val))]
+                d = self.scan[np.argmin(np.abs(self.scan - val))]
+                gamma = np.deg2rad(horz)
+                nu = np.deg2rad(vert)
+                wl = d * np.sqrt(
+                    (np.sin(gamma) * np.cos(nu)) ** 2
+                    + np.sin(nu) ** 2
+                    + (np.cos(gamma) * np.cos(nu) - 1) ** 2
+                )
 
             k = 2 * np.pi / wl
 
@@ -1290,16 +1314,19 @@ class UBModel(NeuXtalVizModel):
 
         R = self.Rs[ind]
 
-        if type(self.lamda) is float:
-            lamda = np.full(len(R), self.lamda)
+        if type(self.scan) is float:
+            lamda = np.full(len(R), self.scan)
+            d_spacing = (
+                0.5 * lamda / np.sin(0.5 * self.two_theta[:, np.newaxis])
+            )
         else:
-            lamda = self.lamda
+            d = self.scan
+            d_spacing = d * np.ones_like(self.two_theta)[:, np.newaxis]
 
         if np.isclose(d_min, d_max) or d_max < d_min:
             d_min, d_max = 0, np.inf
 
-        d = 0.5 * lamda / np.sin(0.5 * self.two_theta[:, np.newaxis])
-        mask = (d > d_min) & (d < d_max)
+        mask = (d_spacing > d_min) & (d_spacing < d_max)
 
         rows, cols = np.nonzero(mask)
 
@@ -1312,13 +1339,45 @@ class UBModel(NeuXtalVizModel):
 
         sort = np.argsort(counts)
 
-        inst_view["d"] = d
+        gamma_arr = self.gamma[uni_rows][sort]
+        nu_arr = self.nu[uni_rows][sort]
+        counts_arr = counts[sort]
+
+        inst_view["d"] = d_spacing
         inst_view["d_min"] = d_min
         inst_view["d_max"] = d_max
-        inst_view["gamma"] = self.gamma[uni_rows][sort]
-        inst_view["nu"] = self.nu[uni_rows][sort]
-        inst_view["counts"] = counts[sort]
+        inst_view["gamma"] = gamma_arr
+        inst_view["nu"] = nu_arr
+        inst_view["counts"] = counts_arr
         inst_view["ind"] = ind
+
+        pts = np.column_stack([gamma_arr, nu_arr])
+        sample = min(len(pts), 10000)
+        idx = np.random.choice(len(pts), sample, replace=False)
+        tree = cKDTree(pts[idx])
+        dists, _ = tree.query(pts[idx], k=2)
+        d = np.median(dists[:, 1])
+
+        if d > 0:
+            xedges = np.arange(gamma_arr.min(), gamma_arr.max() + d, d)
+            yedges = np.arange(nu_arr.min(), nu_arr.max() + d, d)
+            sum_I, xedges, yedges = np.histogram2d(
+                gamma_arr, nu_arr, bins=[xedges, yedges], weights=counts_arr
+            )
+            count_map, _, _ = np.histogram2d(
+                gamma_arr, nu_arr, bins=[xedges, yedges]
+            )
+            img = sum_I / count_map
+            img[count_map == 0] = np.nan
+            img[sum_I == 0] = np.nan
+        else:
+            img = np.full((1, 1), np.nan)
+            xedges = np.array([gamma_arr.min(), gamma_arr.max()])
+            yedges = np.array([nu_arr.min(), nu_arr.max()])
+
+        inst_view["img"] = img
+        inst_view["xedges"] = xedges
+        inst_view["yedges"] = yedges
 
         self.inst_view = inst_view
 
@@ -1366,12 +1425,12 @@ class UBModel(NeuXtalVizModel):
 
         R = self.Rs[ind]
 
-        if type(self.lamda) is float:
+        if type(self.scan) is float:
             x = np.rad2deg(np.arccos([0.5 * (np.trace(r) - 1) for r in R]))
             label = "angle"
         else:
-            x = self.lamda
-            label = "wavelength"
+            x = self.scan
+            label = "d"
 
         mask = (
             (d > d_min)

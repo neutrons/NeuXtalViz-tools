@@ -3338,9 +3338,11 @@ class UBView(NeuXtalVizWidget):
         self.check_l_line.setText(str(round(l, 4)))
 
     def update_instrument_view(self, inst_view):
-        gamma = inst_view["gamma"]
-        nu = inst_view["nu"]
-        counts = inst_view["clip"]
+        img = inst_view["img"]
+        xedges = inst_view["xedges"]
+        yedges = inst_view["yedges"]
+        vmin = inst_view["vmin"]
+        vmax = inst_view["vmax"]
 
         if self.cb_inst is not None:
             self.cb_inst.remove()
@@ -3349,17 +3351,19 @@ class UBView(NeuXtalVizWidget):
         self.ax_inst.clear()
         self.ax_inst.invert_xaxis()
 
-        self.im = self.ax_inst.scatter(
-            gamma,
-            nu,
-            c=counts,
-            s=1,
-            marker="o",
-            norm=self.get_instrument_scale(),
-            cmap=cmaps[self.get_instrument_colormap()],
-            linewidths=0,
-            edgecolors="none",
-            antialiased=False,
+        scale = self.get_instrument_scale()
+        cmap = cmaps[self.get_instrument_colormap()]
+
+        self.im = self.ax_inst.pcolormesh(
+            xedges,
+            yedges,
+            img.T,
+            shading="flat",
+            norm=scale,
+            vmin=vmin,
+            vmax=vmax,
+            cmap=cmap,
+            rasterized=True,
         )
 
         self.ax_inst.set_aspect(1)
@@ -3413,14 +3417,14 @@ class UBView(NeuXtalVizWidget):
 
         self.ax_scan.clear()
 
-        self.ax_scan.errorbar(x, y, yerr=np.sqrt(y), fmt="o", color="C0")
+        self.ax_scan.errorbar(x, y, yerr=np.sqrt(y), fmt=".", color="C0")
         self.ax_scan.plot(x, y, color="C1")
         # self.ax_scan.set_yscale('log')
         self.line_scan = self.ax_scan.axvline(x=val, color="k", linestyle="--")
         self.ax_scan.minorticks_on()
 
-        if label == "wavelength":
-            xlabel = r"$\lambda$ [Å]"
+        if label == "d":
+            xlabel = r"$d$ [Å]"
         else:
             xlabel = r"$\vartheta$ [°]"
 

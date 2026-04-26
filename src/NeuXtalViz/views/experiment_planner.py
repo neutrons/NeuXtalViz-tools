@@ -26,6 +26,7 @@ import pyvista as pv
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
 from matplotlib.figure import Figure
+from matplotlib.colors import ListedColormap
 from matplotlib.ticker import (
     FormatStrFormatter,
     PercentFormatter,
@@ -2149,7 +2150,27 @@ class ExperimentView(NeuXtalVizWidget):
         self.canvas_cum.draw_idle()
         self.canvas_cum.flush_events()
 
-    def plot_instrument(self, gamma_inst, nu_inst, gamma, nu, lamda, d):
+    def _plot_instrument_background(self, inst_background):
+        if inst_background is None:
+            return
+
+        img = inst_background["img"]
+        xedges = inst_background["xedges"]
+        yedges = inst_background["yedges"]
+
+        self.ax_inst.pcolormesh(
+            xedges,
+            yedges,
+            img.T,
+            shading="flat",
+            cmap=ListedColormap(["white", "lightgray"]),
+            vmin=0,
+            vmax=1,
+            rasterized=True,
+            zorder=0,
+        )
+
+    def plot_instrument(self, inst_background, gamma, nu, lamda, d):
         if self.cb_inst is not None:
             self.cb_inst.remove()
             self.cb_inst = None
@@ -2175,9 +2196,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.ax_inst.clear()
         self.ax_inst.invert_xaxis()
 
-        self.ax_inst.scatter(
-            gamma_inst, nu_inst, color="lightgray", marker="o", rasterized=True
-        )
+        self._plot_instrument_background(inst_background)
 
         self.im = self.ax_inst.scatter(
             gamma, nu, c=lamda, marker="o", rasterized=True
@@ -2212,8 +2231,7 @@ class ExperimentView(NeuXtalVizWidget):
 
     def plot_instrument_alternate(
         self,
-        gamma_inst,
-        nu_inst,
+        inst_background,
         gamma_1,
         nu_1,
         lamda_1,
@@ -2248,9 +2266,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.ax_inst.clear()
         self.ax_inst.invert_xaxis()
 
-        self.ax_inst.scatter(
-            gamma_inst, nu_inst, color="lightgray", marker="o", rasterized=True
-        )
+        self._plot_instrument_background(inst_background)
 
         self.im = self.ax_inst.scatter(
             gamma_1, nu_1, c=lamda_1, marker="o", cmap="GnBu", rasterized=True

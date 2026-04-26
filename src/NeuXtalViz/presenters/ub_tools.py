@@ -1,5 +1,7 @@
 from NeuXtalViz.presenters.base_presenter import NeuXtalVizPresenter
 
+import numpy as np
+
 
 class UB(NeuXtalVizPresenter):
     def __init__(self, view, model):
@@ -383,13 +385,15 @@ class UB(NeuXtalVizPresenter):
                 if self.stop_processing(stop_event):
                     return None
 
-                signal = self.model.inst_view["counts"]
+                img = self.model.inst_view["img"]
+                signal = img.ravel()
 
                 clip = self.model.calculate_clim(
                     signal, self.get_vlim_method()
                 )
 
-                self.model.inst_view["clip"] = clip
+                self.model.inst_view["vmin"] = np.nanmin(clip)
+                self.model.inst_view["vmax"] = np.nanmax(clip)
 
                 progress("ROI viewed...", 70)
 

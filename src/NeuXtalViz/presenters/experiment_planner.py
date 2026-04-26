@@ -234,7 +234,8 @@ class Experiment(NeuXtalVizPresenter):
 
     def calculate_single_complete(self, result):
         if result is not None:
-            self.view.plot_instrument(self.model.gamma, self.model.nu, *result)
+            inst_background = self.model.get_instrument_background()
+            self.view.plot_instrument(inst_background, *result)
 
     def calculate_single_process(self, progress, stop_event=None):
         if self.stop_processing(stop_event):
@@ -301,9 +302,8 @@ class Experiment(NeuXtalVizPresenter):
 
     def calculate_double_complete(self, result):
         if result is not None:
-            self.view.plot_instrument_alternate(
-                self.model.gamma, self.model.nu, *result
-            )
+            inst_background = self.model.get_instrument_background()
+            self.view.plot_instrument_alternate(inst_background, *result)
 
     def calculate_double_process(self, progress, stop_event=None):
         if self.stop_processing(stop_event):

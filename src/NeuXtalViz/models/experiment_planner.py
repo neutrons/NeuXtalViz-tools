@@ -49,6 +49,7 @@ from mantid.kernel import V3D
 from mantid.geometry import PointGroupFactory
 
 import numpy as np
+from scipy.spatial import cKDTree
 from scipy.spatial.transform import Rotation
 from scipy.stats import binned_statistic_2d
 import scipy.linalg
@@ -169,6 +170,7 @@ class ExperimentModel(NeuXtalVizModel):
         self.hkl = None
         self.hkl_alt = None
         self.dirname = None
+        self.instrument_background = None
 
     def get_instrument_directory(self, instrument):
         """
@@ -308,6 +310,8 @@ class ExperimentModel(NeuXtalVizModel):
                 mask_rows //= r
                 c, r = 1, 1
 
+            print(idf, cols, rows, mask_cols, mask_rows, c, r)
+
             MaskBTP(
                 Workspace="instrument",
                 Instrument=inst,
@@ -340,44 +344,53 @@ class ExperimentModel(NeuXtalVizModel):
                 else np.array([-1])
             )
 
-            det_map = np.asarray(mtd["detectors"].column(5)).reshape(
-                -1, cols, rows
-            )
+            for bad in bad_ID:
+                print("Masked detector ID: #{}".format(bad))
 
-            nb, nc, nr = det_map.shape
+            if c > 1 and r > 1:
+                det_map = np.asarray(mtd["detectors"].column(5)).reshape(
+                    -1, cols, rows
+                )
 
-            gc = (np.arange(nc) // c).astype(np.int32)
-            gr = (np.arange(nr) // r).astype(np.int32)
+                nb, nc, nr = det_map.shape
 
-            ngc = (nc + c - 1) // c
-            ngr = (nr + r - 1) // r
+                gc = (np.arange(nc) // c).astype(np.int32)
+                gr = (np.arange(nr) // r).astype(np.int32)
 
-            group_id = (
-                (np.arange(nb, dtype=np.int32)[:, None, None] * (ngc * ngr))
-                + (gc[None, :, None] * ngr)
-                + gr[None, None, :]
-            ).ravel()
+                ngc = (nc + c - 1) // c
+                ngr = (nr + r - 1) // r
 
-            det_ids = det_map.ravel()
+                group_id = (
+                    (
+                        np.arange(nb, dtype=np.int32)[:, None, None]
+                        * (ngc * ngr)
+                    )
+                    + (gc[None, :, None] * ngr)
+                    + gr[None, None, :]
+                ).ravel()
 
-            order = np.argsort(group_id, kind="stable")
-            g_sorted = group_id[order]
-            d_sorted = det_ids[order]
+                det_ids = det_map.ravel()
 
-            starts = np.flatnonzero(np.r_[True, g_sorted[1:] != g_sorted[:-1]])
-            ends = np.r_[starts[1:], g_sorted.size]
+                order = np.argsort(group_id, kind="stable")
+                g_sorted = group_id[order]
+                d_sorted = det_ids[order]
 
-            parts = []
-            for s, e in zip(starts, ends):
-                parts.append("+".join(map(str, d_sorted[s:e])))
+                starts = np.flatnonzero(
+                    np.r_[True, g_sorted[1:] != g_sorted[:-1]]
+                )
+                ends = np.r_[starts[1:], g_sorted.size]
 
-            detector_list = ",".join(parts)
+                parts = []
+                for s, e in zip(starts, ends):
+                    parts.append("+".join(map(str, d_sorted[s:e])))
 
-            GroupDetectors(
-                InputWorkspace="instrument",
-                GroupingPattern=detector_list,
-                OutputWorkspace="instrument",
-            )
+                detector_list = ",".join(parts)
+
+                GroupDetectors(
+                    InputWorkspace="instrument",
+                    GroupingPattern=detector_list,
+                    OutputWorkspace="instrument",
+                )
 
             CreatePeaksWorkspace(
                 InstrumentWorkspace="instrument",
@@ -417,6 +430,7 @@ class ExperimentModel(NeuXtalVizModel):
             self.det_ID = bad_ID.copy()
             self.nu = np.rad2deg(np.arcsin(y / L2))[mask]
             self.gamma = np.rad2deg(np.arctan2(x, z))[mask]
+            self.instrument_background = None
 
             det_ID = np.array(mtd["detectors"].column(4))
             mask = np.array(mtd["detectors"].column(7))
@@ -454,6 +468,55 @@ class ExperimentModel(NeuXtalVizModel):
 
         return inst_dict
 
+    def get_instrument_background(self):
+        if self.instrument_background is not None:
+            return self.instrument_background
+
+        gamma = getattr(self, "gamma", np.array([]))
+        nu = getattr(self, "nu", np.array([]))
+
+        if len(gamma) == 0 or len(nu) == 0:
+            self.instrument_background = None
+            return None
+
+        pts = np.column_stack([gamma, nu])
+
+        sample = min(len(pts), 10000)
+        if sample > 1:
+            idx = np.random.choice(len(pts), sample, replace=False)
+            sampled = pts[idx]
+            dists, _ = cKDTree(sampled).query(sampled, k=2)
+            spacing = np.nanmedian(dists[:, 1])
+        else:
+            spacing = np.nan
+
+        if not np.isfinite(spacing) or spacing <= 0:
+            x_span = np.ptp(gamma)
+            y_span = np.ptp(nu)
+            spacing = (
+                max(x_span, y_span) / 200 if max(x_span, y_span) > 0 else 1.0
+            )
+
+        xedges = np.arange(gamma.min(), gamma.max() + spacing, spacing)
+        yedges = np.arange(nu.min(), nu.max() + spacing, spacing)
+
+        if len(xedges) < 2:
+            xedges = np.array([gamma.min() - 0.5, gamma.max() + 0.5])
+        if len(yedges) < 2:
+            yedges = np.array([nu.min() - 0.5, nu.max() + 0.5])
+
+        occupancy, xedges, yedges = np.histogram2d(
+            gamma, nu, bins=[xedges, yedges]
+        )
+
+        self.instrument_background = {
+            "img": (occupancy > 0).astype(float),
+            "xedges": xedges,
+            "yedges": yedges,
+        }
+
+        return self.instrument_background
+
     def clear_combined(self):
 
         CreatePeaksWorkspace(
@@ -484,6 +547,8 @@ class ExperimentModel(NeuXtalVizModel):
     def remove_instrument(self):
         if mtd.doesExist("instrument"):
             DeleteWorkspace(Workspace="instrument")
+
+        self.instrument_background = None
 
         if mtd.doesExist("cobmined"):
             DeleteWorkspace(Workspace="cobmined")
