@@ -1030,7 +1030,7 @@ class UB(NeuXtalVizPresenter):
                 if self.view.get_predict_satellite_peaks():
                     progress("Predicting modulated...", 75)
 
-                    self.model.predict_modulated_peaks(
+                    self.model.predict_satellite_peaks(
                         sat_d_min,
                         lamda_min,
                         lamda_max,

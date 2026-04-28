@@ -2645,11 +2645,26 @@ class UBModel(NeuXtalVizModel):
 
         DeleteWorkspace(Workspace=sat_peaks)
 
+    def set_goniometer(self, peaks, R):
+        """
+        Set the goniometer matrix for a peaks workspace.
+
+        Parameters
+        ----------
+        peaks : str
+            Name of peaks workspace.
+        R : 3x3 array-like
+            Goniometer rotation matrix.
+
+        """
+
+        SetGoniometer(Workspace=peaks, GoniometerMatrix=R.flatten().tolist())
+
     def predict_satellite_peaks(
         self,
+        d_min,
         lamda_min,
         lamda_max,
-        d_min,
         mod_vec_1=[0, 0, 0],
         mod_vec_2=[0, 0, 0],
         mod_vec_3=[0, 0, 0],
