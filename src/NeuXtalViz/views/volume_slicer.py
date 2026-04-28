@@ -8,7 +8,6 @@ from qtpy.QtWidgets import (
     QTabWidget,
     QComboBox,
     QLineEdit,
-    QSlider,
     QFileDialog,
     QCheckBox,
 )
@@ -222,24 +221,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
         )
         self.auto_scale_dropdown(self.cut_scale_combo)
 
-        slider_layout = QVBoxLayout()
-        bar_layout = QHBoxLayout()
-
-        self.min_slider = QSlider(Qt.Vertical)
-        self.max_slider = QSlider(Qt.Vertical)
-        self.min_slider.setRange(0, 100)
-        self.max_slider.setRange(0, 100)
-        self.min_slider.setValue(0)
-        self.max_slider.setValue(100)
-        self.min_slider.setTracking(False)
-        self.max_slider.setTracking(False)
-        self.min_slider.setToolTip(
-            "Adjust the minimum value for the colorbar range."
-        )
-        self.max_slider.setToolTip(
-            "Adjust the maximum value for the colorbar range."
-        )
-
         self.vmin_line = QLineEdit("")
         self.vmax_line = QLineEdit("")
 
@@ -275,9 +256,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
         vmin_label = QLabel("V Min:", self)
         vmax_label = QLabel("V Max:", self)
 
-        bar_layout.addWidget(self.min_slider)
-        bar_layout.addWidget(self.max_slider)
-
         self.save_slice_button = QPushButton("Save Slice", self)
         self.save_slice_button.setToolTip(
             "Save the current slice as a CSV file."
@@ -292,8 +270,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.toggle_line_box.setToolTip(
             "Show or hide the line cut overlay on the slice plot."
         )
-
-        slider_layout.addLayout(bar_layout)
 
         slice_params_layout.addWidget(self.slice_combo)
         slice_params_layout.addWidget(slice_label)
@@ -349,7 +325,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
         fig_1d_layout.addWidget(self.canvas_cut)
 
         image_layout.addLayout(fig_2d_layout)
-        image_layout.addLayout(slider_layout)
 
         line_layout.addLayout(fig_1d_layout)
 
@@ -427,10 +402,10 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.cut_combo.currentIndexChanged.connect(update_cut)
 
     def connect_min_slider(self, update_colorbar):
-        self.min_slider.valueChanged.connect(update_colorbar)
+        pass
 
     def connect_max_slider(self, update_colorbar):
-        self.max_slider.valueChanged.connect(update_colorbar)
+        pass
 
     def connect_vmin_line(self, update_vals):
         self.vmin_line.editingFinished.connect(update_vals)
@@ -464,26 +439,10 @@ class VolumeSlicerView(NeuXtalVizWidget):
         return filename
 
     def update_colorbar_min(self):
-        min_val = self.min_slider.value()
-        max_val = self.max_slider.value()
-
-        if min_val >= max_val:
-            self.min_slider.blockSignals(True)
-            self.min_slider.setValue(max_val - 1)
-            self.min_slider.blockSignals(False)
-
-        self.update_slice_color()
+        pass
 
     def update_colorbar_max(self):
-        min_val = self.min_slider.value()
-        max_val = self.max_slider.value()
-
-        if min_val >= max_val:
-            self.max_slider.blockSignals(True)
-            self.max_slider.setValue(min_val + 1)
-            self.max_slider.blockSignals(False)
-
-        self.update_slice_color()
+        pass
 
     def update_slice_color(self):
         if self.cb is not None:
@@ -507,15 +466,10 @@ class VolumeSlicerView(NeuXtalVizWidget):
             self.canvas_slice.flush_events()
 
     def get_color_bar_values(self):
-        return self.min_slider.value(), self.max_slider.value()
+        return 0, 100
 
     def reset_slider(self):
-        self.min_slider.blockSignals(True)
-        self.max_slider.blockSignals(True)
-        self.min_slider.setValue(0)
-        self.max_slider.setValue(100)
-        self.min_slider.blockSignals(False)
-        self.max_slider.blockSignals(False)
+        pass
 
     def connect_load_NXS(self, load_NXS):
         self.load_NXS_button.clicked.connect(load_NXS)
@@ -702,14 +656,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.xmax_line.blockSignals(True)
         self.ymin_line.blockSignals(True)
         self.ymax_line.blockSignals(True)
-
-        self.max_slider.blockSignals(True)
-        self.max_slider.setValue(100)
-        self.max_slider.blockSignals(False)
-
-        self.min_slider.blockSignals(True)
-        self.min_slider.setValue(0)
-        self.min_slider.blockSignals(False)
 
         cmap = cmaps[self.get_colormap()]
 

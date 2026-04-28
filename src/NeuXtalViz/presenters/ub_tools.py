@@ -59,6 +59,8 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_instrument_scale_combo(self.update_instrument_view)
         self.view.connect_vlim_combo(self.update_instrument_view)
         self.view.connect_vbar_combo(self.update_instrument_view)
+        self.view.connect_inst_vmin_line(self.update_inst_cvals)
+        self.view.connect_inst_vmax_line(self.update_inst_cvals)
 
         self.view.connect_add_peak(self.add_peak)
         self.view.connect_check_hkl(self.calculate_hkl)
@@ -78,9 +80,6 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_integer_n_index(self.hand_index_integer)
         self.view.connect_integer_p_index(self.hand_index_integer)
 
-        self.view.connect_min_slider(self.view.update_colorbar_min)
-        self.view.connect_max_slider(self.view.update_colorbar_max)
-
         self.view.connect_slice_combo(self.reslice)
         self.view.connect_slice_thickness_line(self.reslice)
         self.view.connect_slice_width_line(self.reslice)
@@ -90,11 +89,33 @@ class UB(NeuXtalVizPresenter):
 
         self.view.connect_slice_scale_combo(self.reslice)
         self.view.connect_slice_line(self.reslice)
+        self.view.connect_vmin_line(self.update_cvals)
+        self.view.connect_vmax_line(self.update_cvals)
 
         self.slice_idle = True
         self.volume_idle = True
 
         self.view.connect_cluster(self.cluster)
+
+    def update_cvals(self):
+        vmin = self.view.get_vmin_value()
+        vmax = self.view.get_vmax_value()
+
+        if vmin is not None and vmax is not None:
+            if vmin < vmax:
+                if vmin <= 0 and self.view.get_slice_scale() == "log":
+                    vmin = vmax / 10
+                self.view.update_colorbar_vlims(vmin, vmax)
+
+    def update_inst_cvals(self):
+        vmin = self.view.get_inst_vmin_value()
+        vmax = self.view.get_inst_vmax_value()
+
+        if vmin is not None and vmax is not None:
+            if vmin < vmax:
+                if vmin <= 0 and self.view.get_instrument_scale() == "log":
+                    vmin = vmax / 10
+                self.view.update_instrument_colorbar_vlims(vmin, vmax)
 
     def update_find_spacing(self):
         """
@@ -394,6 +415,18 @@ class UB(NeuXtalVizPresenter):
 
                 self.model.inst_view["vmin"] = np.nanmin(clip)
                 self.model.inst_view["vmax"] = np.nanmax(clip)
+
+                inst_vmin = self.view.get_inst_vmin_value()
+                inst_vmax = self.view.get_inst_vmax_value()
+                if inst_vmin is not None and inst_vmax is not None:
+                    if inst_vmin < inst_vmax:
+                        if (
+                            inst_vmin <= 0
+                            and self.view.get_instrument_scale() == "log"
+                        ):
+                            inst_vmin = inst_vmax / 10
+                        self.model.inst_view["vmin"] = inst_vmin
+                        self.model.inst_view["vmax"] = inst_vmax
 
                 progress("ROI viewed...", 70)
 
@@ -1303,7 +1336,6 @@ class UB(NeuXtalVizPresenter):
 
     def convert_to_hkl_complete(self, result):
         if result is not None:
-            self.view.reset_slider()
             self.view.update_slice(result)
         self.slice_idle = True
 

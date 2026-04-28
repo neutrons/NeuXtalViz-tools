@@ -13,7 +13,6 @@ from qtpy.QtWidgets import (
     QLineEdit,
     QLabel,
     QComboBox,
-    QSlider,
     QPushButton,
     QCheckBox,
     QHBoxLayout,
@@ -1546,23 +1545,6 @@ class UBView(NeuXtalVizWidget):
         self.auto_scale_dropdown(self.cbar_combo)
         self.auto_scale_dropdown(self.slice_combo)
 
-        bar_layout = QHBoxLayout()
-
-        self.min_slider = QSlider(Qt.Vertical)
-        self.max_slider = QSlider(Qt.Vertical)
-
-        self.min_slider.setRange(0, 100)
-        self.max_slider.setRange(0, 100)
-
-        self.min_slider.setValue(0)
-        self.max_slider.setValue(100)
-
-        self.min_slider.setTracking(False)
-        self.max_slider.setTracking(False)
-
-        bar_layout.addWidget(self.min_slider)
-        bar_layout.addWidget(self.max_slider)
-
         slice_label = QLabel("Slice:", self)
 
         self.slice_line = QLineEdit("0.0")
@@ -1595,6 +1577,16 @@ class UBView(NeuXtalVizWidget):
         )
         self.auto_scale_dropdown(self.slice_scale_combo)
 
+        validator = QDoubleValidator(-1e32, 1e32, 6, notation=notation)
+
+        self.vmin_line = QLineEdit("")
+        self.vmax_line = QLineEdit("")
+
+        self.vmin_line.setValidator(validator)
+        self.vmax_line.setValidator(validator)
+        self.vmin_line.setToolTip("Set the minimum value for the colorbar.")
+        self.vmax_line.setToolTip("Set the maximum value for the colorbar.")
+
         convert_to_hkl_action_layout = QHBoxLayout()
         convert_to_hkl_action_layout.addWidget(self.convert_to_hkl_button)
         convert_to_hkl_action_layout.addWidget(self.slice_combo)
@@ -1609,6 +1601,10 @@ class UBView(NeuXtalVizWidget):
         convert_to_hkl_view_layout.addWidget(self.cbar_combo)
         convert_to_hkl_view_layout.addWidget(self.clim_combo)
         convert_to_hkl_view_layout.addWidget(self.slice_scale_combo)
+        convert_to_hkl_view_layout.addWidget(QLabel("V Min:", self))
+        convert_to_hkl_view_layout.addWidget(self.vmin_line)
+        convert_to_hkl_view_layout.addWidget(QLabel("V Max:", self))
+        convert_to_hkl_view_layout.addWidget(self.vmax_line)
 
         convert_to_hkl_tab_layout.addLayout(convert_to_hkl_params_layout)
         convert_to_hkl_tab_layout.addStretch(1)
@@ -1626,15 +1622,10 @@ class UBView(NeuXtalVizWidget):
         self.ax_slice = self.fig_slice.subplots(1, 1)
 
         slice_layout = QVBoxLayout()
-        slider_layout = QHBoxLayout()
-
         slice_layout.addWidget(NavigationToolbar2QT(self.canvas_slice, self))
         slice_layout.addWidget(self.canvas_slice)
 
-        slider_layout.addLayout(slice_layout)
-        slider_layout.addLayout(bar_layout)
-
-        convert_to_hkl_tab_layout.addLayout(slider_layout)
+        convert_to_hkl_tab_layout.addLayout(slice_layout)
         convert_to_hkl_tab_layout.addLayout(convert_to_hkl_view_layout)
 
         convert_to_hkl_tab.setLayout(convert_to_hkl_tab_layout)
@@ -1702,6 +1693,20 @@ class UBView(NeuXtalVizWidget):
             "Select the scale for the instrument view."
         )
 
+        validator = QDoubleValidator(-1e32, 1e32, 6, notation=notation)
+
+        self.inst_vmin_line = QLineEdit("")
+        self.inst_vmax_line = QLineEdit("")
+
+        self.inst_vmin_line.setValidator(validator)
+        self.inst_vmax_line.setValidator(validator)
+        self.inst_vmin_line.setToolTip(
+            "Set the minimum value for the instrument color range."
+        )
+        self.inst_vmax_line.setToolTip(
+            "Set the maximum value for the instrument color range."
+        )
+
         self.auto_scale_dropdown(self.data_combo)
         self.auto_scale_dropdown(self.vlim_combo)
         self.auto_scale_dropdown(self.vbar_combo)
@@ -1717,6 +1722,10 @@ class UBView(NeuXtalVizWidget):
         data_layout.addWidget(self.vlim_combo)
         data_layout.addWidget(self.vbar_combo)
         data_layout.addWidget(self.instrument_scale_combo)
+        data_layout.addWidget(QLabel("V Min:", self))
+        data_layout.addWidget(self.inst_vmin_line)
+        data_layout.addWidget(QLabel("V Max:", self))
+        data_layout.addWidget(self.inst_vmax_line)
 
         vertical_label = QLabel("Vertical Angle:", self)
         horizontal_label = QLabel("Horizontal Angle:", self)
@@ -2059,12 +2068,6 @@ class UBView(NeuXtalVizWidget):
     def connect_select_cell(self, select_cell):
         self.select_button.clicked.connect(select_cell)
 
-    def connect_min_slider(self, update_colorbar):
-        self.min_slider.valueChanged.connect(update_colorbar)
-
-    def connect_max_slider(self, update_colorbar):
-        self.max_slider.valueChanged.connect(update_colorbar)
-
     def connect_clim_combo(self, update_clim):
         self.clim_combo.currentIndexChanged.connect(update_clim)
 
@@ -2083,6 +2086,12 @@ class UBView(NeuXtalVizWidget):
     def connect_slice_scale_combo(self, update_slice):
         self.slice_scale_combo.currentIndexChanged.connect(update_slice)
 
+    def connect_vmin_line(self, update_vals):
+        self.vmin_line.editingFinished.connect(update_vals)
+
+    def connect_vmax_line(self, update_vals):
+        self.vmax_line.editingFinished.connect(update_vals)
+
     def connect_slice_combo(self, update_slice):
         self.slice_combo.currentIndexChanged.connect(update_slice)
 
@@ -2094,6 +2103,12 @@ class UBView(NeuXtalVizWidget):
 
     def connect_instrument_scale_combo(self, update_view):
         self.instrument_scale_combo.currentIndexChanged.connect(update_view)
+
+    def connect_inst_vmin_line(self, update_vals):
+        self.inst_vmin_line.editingFinished.connect(update_vals)
+
+    def connect_inst_vmax_line(self, update_vals):
+        self.inst_vmax_line.editingFinished.connect(update_vals)
 
     def set_Q_status(self, status):
         if status == 0:
@@ -2131,28 +2146,6 @@ class UBView(NeuXtalVizWidget):
     def set_goniometer_axes(self, names):
         self.gonio_label.setText("{} [°]:".format(names))
 
-    def update_colorbar_min(self):
-        min_val = self.min_slider.value()
-        max_val = self.max_slider.value()
-
-        if min_val >= max_val:
-            self.min_slider.blockSignals(True)
-            self.min_slider.setValue(max_val - 1)
-            self.min_slider.blockSignals(False)
-
-        self.update_slice_color()
-
-    def update_colorbar_max(self):
-        min_val = self.min_slider.value()
-        max_val = self.max_slider.value()
-
-        if min_val >= max_val:
-            self.max_slider.blockSignals(True)
-            self.max_slider.setValue(min_val + 1)
-            self.max_slider.blockSignals(False)
-
-        self.update_slice_color()
-
     def update_slice_color(self):
         if self.cb_slice is not None:
             min_slider, max_slider = self.get_color_bar_values()
@@ -2164,8 +2157,8 @@ class UBView(NeuXtalVizWidget):
 
     def update_colorbar_vlims(self, vmin, vmax):
         if self.cb_slice is not None:
-            # self.set_vmin_value(vmin)
-            # self.set_vmax_value(vmax)
+            self.set_vmin_value(vmin)
+            self.set_vmax_value(vmax)
 
             self.im.set_clim(vmin=vmin, vmax=vmax)
             self.cb_slice.update_normal(self.im)
@@ -2174,16 +2167,18 @@ class UBView(NeuXtalVizWidget):
             self.canvas_slice.draw_idle()
             self.canvas_slice.flush_events()
 
-    def get_color_bar_values(self):
-        return self.min_slider.value(), self.max_slider.value()
+    def update_instrument_colorbar_vlims(self, vmin, vmax):
+        if hasattr(self, "im") and self.im is not None:
+            self.set_inst_vmin_value(vmin)
+            self.set_inst_vmax_value(vmax)
 
-    def reset_slider(self):
-        self.min_slider.blockSignals(True)
-        self.max_slider.blockSignals(True)
-        self.min_slider.setValue(0)
-        self.max_slider.setValue(100)
-        self.min_slider.blockSignals(False)
-        self.max_slider.blockSignals(False)
+            self.im.set_clim(vmin=vmin, vmax=vmax)
+
+            self.canvas_inst.draw_idle()
+            self.canvas_inst.flush_events()
+
+    def get_color_bar_values(self):
+        return 0, 100
 
     def load_detector_cal_dialog(self, path=""):
         options = QFileDialog.Options()
@@ -2366,7 +2361,7 @@ class UBView(NeuXtalVizWidget):
         return self.instrument_combo.currentText()
 
     def update_diffraction_label(self, mono):
-        text = "Wavelength:" if not mono else "Angle:"
+        text = "Spacing:" if not mono else "Angle:"
 
         self.diffraction_label.setText(text)
 
@@ -2494,6 +2489,14 @@ class UBView(NeuXtalVizWidget):
         min_lim = Q_dict.get("min_lim")
         max_lim = Q_dict.get("max_lim")
 
+        if (
+            signal is None
+            or spacing is None
+            or min_lim is None
+            or max_lim is None
+        ):
+            return
+
         grid = pv.ImageData(
             spacing=spacing, dimensions=signal.shape, origin=min_lim
         )
@@ -2558,8 +2561,6 @@ class UBView(NeuXtalVizWidget):
 
             multiblock = pv.MultiBlock(geoms)
 
-            # Keep a reference so we can look up datasets when
-            # highlighting from the table (not just via picking).
             self._peaks_multiblock = multiblock
 
             mu = np.nanmean(intensities)
@@ -2594,7 +2595,6 @@ class UBView(NeuXtalVizWidget):
                 callback=self.highlight, side="right"
             )
 
-            # Reset highlight state for this new scene.
             self.last_highlight = None
             if self._highlight_actor is not None:
                 self.plotter.remove_actor(self._highlight_actor)
@@ -3344,6 +3344,13 @@ class UBView(NeuXtalVizWidget):
         vmin = inst_view["vmin"]
         vmax = inst_view["vmax"]
 
+        self.inst_vmin_line.blockSignals(True)
+        self.inst_vmax_line.blockSignals(True)
+        self.set_inst_vmin_value(vmin)
+        self.set_inst_vmax_value(vmax)
+        self.inst_vmin_line.blockSignals(False)
+        self.inst_vmax_line.blockSignals(False)
+
         if self.cb_inst is not None:
             self.cb_inst.remove()
             self.cb_inst = None
@@ -3516,6 +3523,34 @@ class UBView(NeuXtalVizWidget):
     def get_slice_scale(self):
         return self.slice_scale_combo.currentText().lower()
 
+    def get_inst_vmin_value(self):
+        if self.inst_vmin_line.hasAcceptableInput():
+            return float(self.inst_vmin_line.text())
+
+    def get_inst_vmax_value(self):
+        if self.inst_vmax_line.hasAcceptableInput():
+            return float(self.inst_vmax_line.text())
+
+    def set_inst_vmin_value(self, val):
+        self.inst_vmin_line.setText(str(round(val, 5)))
+
+    def set_inst_vmax_value(self, val):
+        self.inst_vmax_line.setText(str(round(val, 5)))
+
+    def get_vmin_value(self):
+        if self.vmin_line.hasAcceptableInput():
+            return float(self.vmin_line.text())
+
+    def get_vmax_value(self):
+        if self.vmax_line.hasAcceptableInput():
+            return float(self.vmax_line.text())
+
+    def set_vmin_value(self, val):
+        self.vmin_line.setText(str(round(val, 5)))
+
+    def set_vmax_value(self, val):
+        self.vmax_line.setText(str(round(val, 5)))
+
     def get_colormap(self):
         return self.cbar_combo.currentText()
 
@@ -3615,6 +3650,13 @@ class UBView(NeuXtalVizWidget):
 
         self.im = im
         self.vmin, self.vmax = self.im.norm.vmin, self.im.norm.vmax
+
+        self.vmin_line.blockSignals(True)
+        self.vmax_line.blockSignals(True)
+        self.set_vmin_value(self.vmin)
+        self.set_vmax_value(self.vmax)
+        self.vmin_line.blockSignals(False)
+        self.vmax_line.blockSignals(False)
 
         self.ax_slice.set_title(title)
         self.ax_slice.grid(True)

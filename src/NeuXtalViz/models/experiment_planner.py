@@ -28,6 +28,7 @@ from mantid.simpleapi import (
     LoadIsawDetCal,
     LoadParameterFile,
     MaskDetectors,
+    MaskDetectorsIf,
     ExtractMonitors,
     PreprocessDetectorsToMD,
     CreateMDWorkspace,
@@ -49,7 +50,6 @@ from mantid.kernel import V3D
 from mantid.geometry import PointGroupFactory
 
 import numpy as np
-from scipy.spatial import cKDTree
 from scipy.spatial.transform import Rotation
 from scipy.stats import binned_statistic_2d
 import scipy.linalg
@@ -248,6 +248,11 @@ class ExperimentModel(NeuXtalVizModel):
         idf = self.get_autoreduce_instrument(instrument)
         beamline = beamlines[instrument]
 
+        self.pixel_size = beamline["PixelSize"]
+        self.grouping_c, self.grouping_r = [
+            int(v) for v in beamline["Grouping"].split("x")
+        ]
+
         if not mtd.doesExist("instrument"):
             LoadEmptyInstrument(
                 InstrumentName=inst if idf is None else None,
@@ -286,13 +291,6 @@ class ExperimentModel(NeuXtalVizModel):
                 if os.path.splitext(gon)[1] == ".xml":
                     LoadParameterFile(Workspace="goniometer", Filename=gon)
 
-            if mask != "" and os.path.exists(mask):
-                if not mtd.doesExist("mask"):
-                    LoadMask(
-                        Instrument=inst, InputFile=mask, OutputWorkspace="mask"
-                    )
-                MaskDetectors(Workspace="instrument", MaskedWorkspace="mask")
-
             ExtractMonitors(
                 InputWorkspace="instrument",
                 MonitorWorkspace="monitors",
@@ -303,6 +301,8 @@ class ExperimentModel(NeuXtalVizModel):
             cols, rows = beamline["BankPixels"]
             mask_cols, mask_rows = beamline["MaskEdges"]
 
+            print(idf)
+
             if idf is not None:
                 cols //= c
                 rows //= r
@@ -310,7 +310,7 @@ class ExperimentModel(NeuXtalVizModel):
                 mask_rows //= r
                 c, r = 1, 1
 
-            print(idf, cols, rows, mask_cols, mask_rows, c, r)
+            print(mask_rows, rows - mask_rows, rows)
 
             MaskBTP(
                 Workspace="instrument",
@@ -333,6 +333,53 @@ class ExperimentModel(NeuXtalVizModel):
                     Bank=bank,
                 )
 
+            if mask != "" and os.path.exists(mask):
+                if not mtd.doesExist("mask"):
+                    LoadMask(
+                        Instrument=inst, InputFile=mask, OutputWorkspace="mask"
+                    )
+                    PreprocessDetectorsToMD(
+                        InputWorkspace="mask", OutputWorkspace="detectors"
+                    )
+                    c, r = [
+                        int(val) for val in beamline["Grouping"].split("x")
+                    ]
+                    cols, rows = beamline["BankPixels"]
+                    if c > 1 or r > 1:
+                        detector_list = self.grouping_list(
+                            "detectors", cols, rows, c, r
+                        )
+
+                        GroupDetectors(
+                            InputWorkspace="mask",
+                            GroupingPattern=detector_list,
+                            OutputWorkspace="mask",
+                        )
+                        ys = mtd["mask"].extractY().copy()
+
+                        CloneWorkspace(
+                            InputWorkspace="instrument", OutputWorkspace="mask"
+                        )
+
+                        for i, y in enumerate(ys):
+                            mtd["mask"].setY(i, y)
+
+                        if idf is not None:
+                            cols //= c
+                            rows //= r
+                            mask_cols //= c
+                            mask_rows //= r
+                            c, r = 1, 1
+
+                        MaskDetectorsIf(
+                            InputWorkspace="mask",
+                            Operator="Greater",
+                            Value=0,
+                            OutputWorkspace="mask",
+                        )
+
+                MaskDetectors(Workspace="instrument", MaskedWorkspace="mask")
+
             PreprocessDetectorsToMD(
                 InputWorkspace="instrument", OutputWorkspace="detectors"
             )
@@ -344,53 +391,13 @@ class ExperimentModel(NeuXtalVizModel):
                 else np.array([-1])
             )
 
-            for bad in bad_ID:
-                print("Masked detector ID: #{}".format(bad))
+            detector_list = self.grouping_list("detectors", cols, rows, c, r)
 
-            if c > 1 and r > 1:
-                det_map = np.asarray(mtd["detectors"].column(5)).reshape(
-                    -1, cols, rows
-                )
-
-                nb, nc, nr = det_map.shape
-
-                gc = (np.arange(nc) // c).astype(np.int32)
-                gr = (np.arange(nr) // r).astype(np.int32)
-
-                ngc = (nc + c - 1) // c
-                ngr = (nr + r - 1) // r
-
-                group_id = (
-                    (
-                        np.arange(nb, dtype=np.int32)[:, None, None]
-                        * (ngc * ngr)
-                    )
-                    + (gc[None, :, None] * ngr)
-                    + gr[None, None, :]
-                ).ravel()
-
-                det_ids = det_map.ravel()
-
-                order = np.argsort(group_id, kind="stable")
-                g_sorted = group_id[order]
-                d_sorted = det_ids[order]
-
-                starts = np.flatnonzero(
-                    np.r_[True, g_sorted[1:] != g_sorted[:-1]]
-                )
-                ends = np.r_[starts[1:], g_sorted.size]
-
-                parts = []
-                for s, e in zip(starts, ends):
-                    parts.append("+".join(map(str, d_sorted[s:e])))
-
-                detector_list = ",".join(parts)
-
-                GroupDetectors(
-                    InputWorkspace="instrument",
-                    GroupingPattern=detector_list,
-                    OutputWorkspace="instrument",
-                )
+            GroupDetectors(
+                InputWorkspace="instrument",
+                GroupingPattern=detector_list,
+                OutputWorkspace="instrument",
+            )
 
             CreatePeaksWorkspace(
                 InstrumentWorkspace="instrument",
@@ -447,6 +454,56 @@ class ExperimentModel(NeuXtalVizModel):
             self.zc = z[:, [0, 0, -1, -1], [0, -1, -1, 0]][mask]
             self.detc = det_ID[:, 0, 0][mask]
 
+    def grouping_list(self, detectors, cols, rows, c, r):
+        """
+        Build a Mantid GroupingPattern string from a detectors table.
+
+        Parameters
+        ----------
+        detectors : str
+            Name of the preprocessed detectors table workspace.
+        cols, rows : int
+            Number of columns and rows per bank (before grouping).
+        c, r : int
+            Grouping factors along columns and rows.
+
+        Returns
+        -------
+        str
+            Comma-separated grouping pattern suitable for GroupDetectors.
+        """
+
+        det_map = np.asarray(mtd[detectors].column(5)).reshape(-1, cols, rows)
+
+        nb, nc, nr = det_map.shape
+
+        gc = (np.arange(nc) // c).astype(np.int32)
+        gr = (np.arange(nr) // r).astype(np.int32)
+
+        ngc = (nc + c - 1) // c
+        ngr = (nr + r - 1) // r
+
+        group_id = (
+            (np.arange(nb, dtype=np.int32)[:, None, None] * (ngc * ngr))
+            + (gc[None, :, None] * ngr)
+            + gr[None, None, :]
+        ).ravel()
+
+        det_ids = det_map.ravel()
+
+        order = np.argsort(group_id, kind="stable")
+        g_sorted = group_id[order]
+        d_sorted = det_ids[order]
+
+        starts = np.flatnonzero(np.r_[True, g_sorted[1:] != g_sorted[:-1]])
+        ends = np.r_[starts[1:], g_sorted.size]
+
+        parts = [
+            "+".join(map(str, d_sorted[s:e])) for s, e in zip(starts, ends)
+        ]
+
+        return ",".join(parts)
+
     def extract_instrument_view(self):
         n = self.xc.shape[0]
 
@@ -479,26 +536,19 @@ class ExperimentModel(NeuXtalVizModel):
             self.instrument_background = None
             return None
 
-        pts = np.column_stack([gamma, nu])
+        dx = self.pixel_size[0] * self.grouping_c
+        dy = self.pixel_size[1] * self.grouping_r
 
-        sample = min(len(pts), 10000)
-        if sample > 1:
-            idx = np.random.choice(len(pts), sample, replace=False)
-            sampled = pts[idx]
-            dists, _ = cKDTree(sampled).query(sampled, k=2)
-            spacing = np.nanmedian(dists[:, 1])
-        else:
-            spacing = np.nan
-
-        if not np.isfinite(spacing) or spacing <= 0:
+        if not np.isfinite(dx) or dx <= 0:
             x_span = np.ptp(gamma)
-            y_span = np.ptp(nu)
-            spacing = (
-                max(x_span, y_span) / 200 if max(x_span, y_span) > 0 else 1.0
-            )
+            dx = x_span / 200 if x_span > 0 else 1.0
 
-        xedges = np.arange(gamma.min(), gamma.max() + spacing, spacing)
-        yedges = np.arange(nu.min(), nu.max() + spacing, spacing)
+        if not np.isfinite(dy) or dy <= 0:
+            y_span = np.ptp(nu)
+            dy = y_span / 200 if y_span > 0 else 1.0
+
+        xedges = np.arange(gamma.min(), gamma.max() + dx, dx)
+        yedges = np.arange(nu.min(), nu.max() + dy, dy)
 
         if len(xedges) < 2:
             xedges = np.array([gamma.min() - 0.5, gamma.max() + 0.5])
@@ -1849,14 +1899,18 @@ class ExperimentModel(NeuXtalVizModel):
             k_max = 2 * np.pi / lamda_min
 
             two_theta = np.array(mtd["detectors"].column("TwoTheta"))
-            azimthal = np.array(mtd["detectors"].column("Azimuthal"))
+            azimuthal = np.array(mtd["detectors"].column("Azimuthal"))
+            mask = np.array(mtd["detectors"].column("detMask")) == 0
+
+            two_theta = two_theta[mask]
+            azimuthal = azimuthal[mask]
 
             Q_max = 2 * np.pi / d_min
 
             hist = np.zeros((n, n, n))
 
-            kx_hat = np.sin(two_theta) * np.cos(azimthal)
-            ky_hat = np.sin(two_theta) * np.sin(azimthal)
+            kx_hat = np.sin(two_theta) * np.cos(azimuthal)
+            ky_hat = np.sin(two_theta) * np.sin(azimuthal)
             kz_hat = np.cos(two_theta) - 1
 
             scale = (n - 1) / (2 * Q_max)

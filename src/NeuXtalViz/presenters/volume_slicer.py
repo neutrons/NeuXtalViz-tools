@@ -16,9 +16,6 @@ class VolumeSlicer(NeuXtalVizPresenter):
         self.view.connect_clim_combo(self.update_slice)
         self.view.connect_cbar_combo(self.update_volume)
 
-        self.view.connect_min_slider(self.view.update_colorbar_min)
-        self.view.connect_max_slider(self.view.update_colorbar_max)
-
         self.view.connect_vlim_combo(self.update_slice)
 
         self.view.connect_slice_scale_combo(self.update_slice)
@@ -279,7 +276,6 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
     def slice_data_complete(self, result):
         if result is not None:
-            self.view.reset_slider()
             self.view.add_slice(result)
         self.slice_idle = True
 

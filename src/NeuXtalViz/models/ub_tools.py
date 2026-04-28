@@ -77,7 +77,6 @@ from mantid.geometry import (
 from mantid.kernel import V3D, FloatTimeSeriesProperty
 
 from sklearn.cluster import DBSCAN
-from scipy.spatial import cKDTree
 
 import numpy as np
 import scipy
@@ -627,6 +626,11 @@ class UBModel(NeuXtalVizModel):
         self.runs = runs
 
         inst = beamlines[instrument]
+
+        self.pixel_size = inst["PixelSize"]
+        self.grouping_c, self.grouping_r = [
+            int(v) for v in inst["Grouping"].split("x")
+        ]
 
         LoadEmptyInstrument(
             InstrumentName=inst["Name"] if idf is None else None,
@@ -1351,16 +1355,32 @@ class UBModel(NeuXtalVizModel):
         inst_view["counts"] = counts_arr
         inst_view["ind"] = ind
 
-        pts = np.column_stack([gamma_arr, nu_arr])
-        sample = min(len(pts), 10000)
-        idx = np.random.choice(len(pts), sample, replace=False)
-        tree = cKDTree(pts[idx])
-        dists, _ = tree.query(pts[idx], k=2)
-        d = np.median(dists[:, 1])
+        if len(gamma_arr) == 0:
+            img = np.full((1, 1), np.nan)
+            xedges = np.array([-0.5, 0.5])
+            yedges = np.array([-0.5, 0.5])
+        else:
+            dx = self.pixel_size[0] * self.grouping_c
+            dy = self.pixel_size[1] * self.grouping_r
 
-        if d > 0:
-            xedges = np.arange(gamma_arr.min(), gamma_arr.max() + d, d)
-            yedges = np.arange(nu_arr.min(), nu_arr.max() + d, d)
+            if not np.isfinite(dx) or dx <= 0:
+                x_span = np.ptp(gamma_arr)
+                dx = x_span / 200 if x_span > 0 else 1.0
+
+            if not np.isfinite(dy) or dy <= 0:
+                y_span = np.ptp(nu_arr)
+                dy = y_span / 200 if y_span > 0 else 1.0
+
+            xedges = np.arange(gamma_arr.min(), gamma_arr.max() + dx, dx)
+            yedges = np.arange(nu_arr.min(), nu_arr.max() + dy, dy)
+
+            if len(xedges) < 2:
+                xedges = np.array(
+                    [gamma_arr.min() - 0.5, gamma_arr.max() + 0.5]
+                )
+            if len(yedges) < 2:
+                yedges = np.array([nu_arr.min() - 0.5, nu_arr.max() + 0.5])
+
             sum_I, xedges, yedges = np.histogram2d(
                 gamma_arr, nu_arr, bins=[xedges, yedges], weights=counts_arr
             )
@@ -1370,10 +1390,6 @@ class UBModel(NeuXtalVizModel):
             img = sum_I / count_map
             img[count_map == 0] = np.nan
             img[sum_I == 0] = np.nan
-        else:
-            img = np.full((1, 1), np.nan)
-            xedges = np.array([gamma_arr.min(), gamma_arr.max()])
-            yedges = np.array([nu_arr.min(), nu_arr.max()])
 
         inst_view["img"] = img
         inst_view["xedges"] = xedges
