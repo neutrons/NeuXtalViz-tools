@@ -489,24 +489,7 @@ class ExperimentView(NeuXtalVizWidget):
         inst_tab = QWidget()
         self.tab_widget.addTab(inst_tab, "Mesh")
 
-        self.mesh_table = QTableWidget()
-        self.mesh_table.setToolTip("Table for mesh scan angles and limits.")
-
-        self.mesh_table.setRowCount(0)
-        self.mesh_table.setColumnCount(5)
-        self.mesh_table.blockSignals(True)
-
-        labels = ["Motor", "Min", "Max", "Angles", "Step"]
-
-        resize = QHeaderView.Stretch
-
-        self.mesh_table.horizontalHeader().setStretchLastSection(True)
-        self.mesh_table.horizontalHeader().setSectionResizeMode(resize)
-        self.mesh_table.setHorizontalHeaderLabels(labels)
-
-        self.mesh_button = QPushButton("Add Mesh", self)
-        self.mesh_button.setToolTip("Add a mesh scan to the experiment plan.")
-        self.mesh_button.setIcon(qta.icon("fa6s.square-plus"))
+        # ── shared slice controls ──────────────────────────────────────────
 
         self.mesh_symmetry_box = QCheckBox("Use Symmetry", self)
         self.mesh_symmetry_box.setToolTip("Apply symmetry to mesh.")
@@ -558,12 +541,146 @@ class ExperimentView(NeuXtalVizWidget):
         control_layout.addWidget(slice_thickness_label)
         control_layout.addWidget(self.slice_thickness_line)
         control_layout.addWidget(self.mesh_symmetry_box)
-        control_layout.addWidget(self.coverage_mesh_button)
-        control_layout.addWidget(self.mesh_button)
 
-        mesh_layout = QVBoxLayout()
-        mesh_layout.addWidget(self.mesh_table)
-        mesh_layout.addLayout(control_layout)
+        self.mesh_definition_tabs = QTabWidget(self)
+
+        angles_tab = QWidget()
+
+        self.mesh_table = QTableWidget()
+        self.mesh_table.setToolTip("Table for mesh scan angles and limits.")
+
+        self.mesh_table.setRowCount(0)
+        self.mesh_table.setColumnCount(5)
+        self.mesh_table.blockSignals(True)
+
+        labels = ["Motor", "Min", "Max", "Angles", "Step"]
+
+        resize = QHeaderView.Stretch
+
+        self.mesh_table.horizontalHeader().setStretchLastSection(True)
+        self.mesh_table.horizontalHeader().setSectionResizeMode(resize)
+        self.mesh_table.setHorizontalHeaderLabels(labels)
+
+        self.mesh_button = QPushButton("Add Mesh", self)
+        self.mesh_button.setToolTip("Add a mesh scan to the experiment plan.")
+        self.mesh_button.setIcon(qta.icon("fa6s.square-plus"))
+
+        angles_btn_layout = QHBoxLayout()
+        angles_btn_layout.addStretch()
+        angles_btn_layout.addWidget(self.coverage_mesh_button)
+        angles_btn_layout.addWidget(self.mesh_button)
+
+        angles_layout = QVBoxLayout()
+        angles_layout.addWidget(self.mesh_table)
+        angles_layout.addLayout(angles_btn_layout)
+        angles_tab.setLayout(angles_layout)
+
+        plane_tab = QWidget()
+
+        notation = QDoubleValidator.StandardNotation
+        validator = QDoubleValidator(-100, 100, 5, notation=notation)
+
+        u_label = QLabel("u:", self)
+        u_label.setToolTip("First in-plane hkl vector.")
+        v_label = QLabel("v:", self)
+        v_label.setToolTip("Second in-plane hkl vector.")
+        h_pl_label = QLabel("h", self)
+        k_pl_label = QLabel("k", self)
+        l_pl_label = QLabel("l", self)
+
+        self.plane_u1_line = QLineEdit("1")
+        self.plane_u2_line = QLineEdit("0")
+        self.plane_u3_line = QLineEdit("0")
+        self.plane_v1_line = QLineEdit("0")
+        self.plane_v2_line = QLineEdit("1")
+        self.plane_v3_line = QLineEdit("0")
+
+        for w in [
+            self.plane_u1_line,
+            self.plane_u2_line,
+            self.plane_u3_line,
+            self.plane_v1_line,
+            self.plane_v2_line,
+            self.plane_v3_line,
+        ]:
+            w.setValidator(validator)
+
+        self.plane_u1_line.setToolTip("h component of the u vector.")
+        self.plane_u2_line.setToolTip("k component of the u vector.")
+        self.plane_u3_line.setToolTip("l component of the u vector.")
+        self.plane_v1_line.setToolTip("h component of the v vector.")
+        self.plane_v2_line.setToolTip("k component of the v vector.")
+        self.plane_v3_line.setToolTip("l component of the v vector.")
+
+        plane_grid = QGridLayout()
+        plane_grid.addWidget(h_pl_label, 0, 1, Qt.AlignCenter)
+        plane_grid.addWidget(k_pl_label, 0, 2, Qt.AlignCenter)
+        plane_grid.addWidget(l_pl_label, 0, 3, Qt.AlignCenter)
+        plane_grid.addWidget(u_label, 1, 0, Qt.AlignCenter)
+        plane_grid.addWidget(v_label, 2, 0, Qt.AlignCenter)
+        plane_grid.addWidget(self.plane_u1_line, 1, 1)
+        plane_grid.addWidget(self.plane_u2_line, 1, 2)
+        plane_grid.addWidget(self.plane_u3_line, 1, 3)
+        plane_grid.addWidget(self.plane_v1_line, 2, 1)
+        plane_grid.addWidget(self.plane_v2_line, 2, 2)
+        plane_grid.addWidget(self.plane_v3_line, 2, 3)
+
+        notation = QDoubleValidator.StandardNotation
+        pos_validator = QDoubleValidator(1.0, 360.0, 2, notation=notation)
+        int_validator = QIntValidator(2, 3600)
+
+        max_angle_label = QLabel("Coverage [°]:", self)
+        max_angle_label.setToolTip(
+            "Total angular range to sweep about the plane normal."
+        )
+        self.plane_max_angle_line = QLineEdit("360")
+        self.plane_max_angle_line.setValidator(pos_validator)
+        self.plane_max_angle_line.setToolTip(
+            "Angular coverage in degrees (1–360)."
+        )
+
+        n_steps_label = QLabel("# Angles:", self)
+        n_steps_label.setToolTip(
+            "Number of orientations to sample across the coverage range."
+        )
+        self.plane_n_steps_line = QLineEdit("60")
+        self.plane_n_steps_line.setValidator(int_validator)
+        self.plane_n_steps_line.setToolTip("Number of orientations to sample.")
+
+        coverage_layout = QHBoxLayout()
+        coverage_layout.addWidget(max_angle_label)
+        coverage_layout.addWidget(self.plane_max_angle_line)
+        coverage_layout.addWidget(n_steps_label)
+        coverage_layout.addWidget(self.plane_n_steps_line)
+
+        self.coverage_plane_button = QPushButton("Calculate Plane", self)
+        self.coverage_plane_button.setToolTip(
+            "Calculate coverage slice for this scattering plane."
+        )
+        self.coverage_plane_button.setIcon(qta.icon("fa6s.calculator"))
+
+        self.plane_button = QPushButton("Add Plane", self)
+        self.plane_button.setToolTip(
+            "Add scattering-plane orientations to the experiment plan."
+        )
+        self.plane_button.setIcon(qta.icon("fa6s.square-plus"))
+
+        plane_btn_layout = QHBoxLayout()
+        plane_btn_layout.addStretch()
+        plane_btn_layout.addWidget(self.coverage_plane_button)
+        plane_btn_layout.addWidget(self.plane_button)
+
+        plane_layout = QVBoxLayout()
+        plane_layout.addLayout(plane_grid)
+        plane_layout.addLayout(coverage_layout)
+        plane_layout.addLayout(plane_btn_layout)
+        plane_layout.addStretch()
+        plane_tab.setLayout(plane_layout)
+
+        self.mesh_definition_tabs.addTab(angles_tab, "Define Angles")
+        self.mesh_definition_tabs.addTab(plane_tab, "Define Plane")
+
+        # ── canvas & projection matrix (shared) ───────────────────────────
 
         self.canvas_slice = FigureCanvas(Figure(figsize=[12.8, 12.8]))
         self.cb_slice = None
@@ -571,13 +688,9 @@ class ExperimentView(NeuXtalVizWidget):
         self.fig_slice = self.canvas_slice.figure
         self.ax_slice = self.fig_slice.subplots(1, 1)
 
-        mesh_layout.addWidget(NavigationToolbar2QT(self.canvas_slice, self))
-        mesh_layout.addWidget(self.canvas_slice)
-
         convert_to_hkl_params_layout = QGridLayout()
 
         notation = QDoubleValidator.StandardNotation
-
         validator = QDoubleValidator(-10, 10, 5, notation=notation)
 
         self.U1_line = QLineEdit("1")
@@ -631,6 +744,13 @@ class ExperimentView(NeuXtalVizWidget):
         convert_to_hkl_params_layout.addWidget(self.V3_line, 2, 3)
         convert_to_hkl_params_layout.addWidget(self.W3_line, 3, 3)
 
+        # ── assemble outer layout ──────────────────────────────────────────
+
+        mesh_layout = QVBoxLayout()
+        mesh_layout.addWidget(self.mesh_definition_tabs)
+        mesh_layout.addLayout(control_layout)
+        mesh_layout.addWidget(NavigationToolbar2QT(self.canvas_slice, self))
+        mesh_layout.addWidget(self.canvas_slice)
         mesh_layout.addLayout(convert_to_hkl_params_layout)
 
         inst_tab.setLayout(mesh_layout)
@@ -969,6 +1089,46 @@ class ExperimentView(NeuXtalVizWidget):
         self.mesh_button.clicked.connect(mesh)
 
     def connect_load_UB(self, load_UB):
+        self.load_UB_button.clicked.connect(load_UB)
+
+    def connect_calculate_plane(self, calculate_plane):
+        self.coverage_plane_button.clicked.connect(calculate_plane)
+
+    def connect_add_plane(self, add_plane):
+        self.plane_button.clicked.connect(add_plane)
+
+    def get_plane_hkl_1(self):
+        try:
+            return [
+                float(self.plane_u1_line.text()),
+                float(self.plane_u2_line.text()),
+                float(self.plane_u3_line.text()),
+            ]
+        except ValueError:
+            return None
+
+    def get_plane_hkl_2(self):
+        try:
+            return [
+                float(self.plane_v1_line.text()),
+                float(self.plane_v2_line.text()),
+                float(self.plane_v3_line.text()),
+            ]
+        except ValueError:
+            return None
+
+    def get_plane_max_angle(self):
+        try:
+            return float(self.plane_max_angle_line.text())
+        except ValueError:
+            return 360.0
+
+    def get_plane_n_steps(self):
+        try:
+            return int(self.plane_n_steps_line.text())
+        except ValueError:
+            return 360
+
         self.load_UB_button.clicked.connect(load_UB)
 
     def connect_reset(self, reset):

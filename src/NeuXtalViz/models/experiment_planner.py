@@ -171,6 +171,7 @@ class ExperimentModel(NeuXtalVizModel):
         self.hkl_alt = None
         self.dirname = None
         self.instrument_background = None
+        self.last_meshmap = None
 
     def get_instrument_directory(self, instrument):
         """
@@ -1343,6 +1344,174 @@ class ExperimentModel(NeuXtalVizModel):
 
         return values
 
+    def calculate_projections(self, hkl_1, hkl_2):
+        """Compute orthonormal u, v, w axes for a scattering plane.
+
+        Parameters
+        ----------
+        hkl_1, hkl_2 : array-like, shape (3,)
+            Two in-plane Miller-index vectors defining the scattering plane.
+
+        Returns
+        -------
+        u, v, w : ndarray, shape (3,)
+            Orthonormal basis: u along hkl_1 in Q-space, w = u × v (normal),
+            v recomputed to ensure right-handed orthonormal frame.
+        """
+        UB = mtd["coverage"].sample().getOrientedLattice().getUB()
+
+        u = np.dot(UB, hkl_1)
+        v = np.dot(UB, hkl_2)
+
+        u /= np.linalg.norm(u)
+        v /= np.linalg.norm(v)
+
+        w = np.cross(u, v)
+        w /= np.linalg.norm(w)
+
+        v = np.cross(w, u)
+
+        return u, v, w
+
+    def select_scan_near_equator(
+        self,
+        Rs,
+        motor_angles,
+        u,
+        v,
+        w,
+        max_deg=360,
+        n_steps=60,
+        n_eq=(0, 1, 0),
+        normal_weight=10.0,
+    ):
+        Rs = np.asarray(Rs, dtype=float)
+        motor_angles = np.asarray(motor_angles)
+
+        n_eq = np.asarray(n_eq, dtype=float)
+        n_eq /= np.linalg.norm(n_eq)
+
+        # --------------------------------------------------
+        Ru_all = np.einsum("rij,j->ri", Rs, u)
+        Rv_all = np.einsum("rij,j->ri", Rs, v)
+
+        du = np.einsum("ri,i->r", Ru_all, n_eq)
+        dv = np.einsum("ri,i->r", Rv_all, n_eq)
+
+        equator_score = du**2 + dv**2
+
+        base_idx = np.argmin(equator_score)
+        R_base = Rs[base_idx]
+
+        scan_angles = np.deg2rad(
+            np.linspace(0.0, max_deg, n_steps, endpoint=False)
+        )
+
+        Rw_scan = Rotation.from_rotvec(
+            scan_angles[:, None] * w[None, :]
+        ).as_matrix()
+
+        R_targets = R_base[None, :, :] @ Rw_scan
+
+        orient_score = -np.einsum("rij,tij->rt", Rs, R_targets)
+
+        equator_penalty = normal_weight * equator_score[None, :]
+
+        total_score = orient_score.T + equator_penalty
+
+        best_idx = np.argmin(total_score, axis=1)
+
+        selected_Rs = Rs[best_idx]
+        selected_angles = motor_angles[best_idx]
+
+        return selected_Rs, selected_angles
+
+    def compute_plane_angles(
+        self,
+        hkl_1,
+        hkl_2,
+        axes,
+        polarities,
+        limits,
+        max_deg=360,
+        n_steps=60,
+        step=1,
+        n_eq=(0, 1, 0),
+    ):
+        """Return the deduplicated motor-angle array for the scattering plane
+        defined by *hkl_1* / *hkl_2* without modifying any workspace.
+
+        Settings are chosen to keep the scattering plane close to the
+        equatorial plane (defined by *n_eq*) while scanning around the
+        plane normal.
+
+        Returns
+        -------
+        unique_angles : list of ndarray, shape (n_axes,)
+            One entry per unique goniometer setting selected.
+        """
+        Rs, motor_angles = self._calculate_matrices(
+            axes, polarities, limits, step
+        )
+
+        u, v, w = self.calculate_projections(hkl_1, hkl_2)
+
+        _, selected_angles = self.select_scan_near_equator(
+            Rs,
+            motor_angles,
+            u,
+            v,
+            w,
+            max_deg=max_deg,
+            n_steps=n_steps,
+            n_eq=n_eq,
+        )
+
+        seen = set()
+        unique_angles = []
+        for ang in selected_angles:
+            key = tuple(np.round(ang).astype(int))
+            if key not in seen:
+                seen.add(key)
+                unique_angles.append(ang)
+
+        return unique_angles
+
+    def add_plane(
+        self,
+        hkl_1,
+        hkl_2,
+        wavelength,
+        d_min,
+        rows,
+        free_angles,
+        all_angles,
+        axes,
+        polarities,
+        limits,
+        max_deg=360,
+        n_steps=360,
+        step=1,
+    ):
+        """Add orientations that keep the scattering plane defined by
+        hkl_1/hkl_2 accessible, spanning *max_deg* in rotation about
+        the plane normal.
+
+        Returns the list of free-angle values (same format as add_mesh).
+        """
+        unique_angles = self.compute_plane_angles(
+            hkl_1, hkl_2, axes, polarities, limits, max_deg, n_steps, step
+        )
+
+        indices = [all_angles.index(free) for free in free_angles]
+
+        values = []
+        for i, angles in enumerate(unique_angles):
+            self.add_orientation(angles, wavelength, d_min, rows + i)
+            values.append(angles[indices])
+
+        return values
+
     def add_orientation(self, angles, wavelength, d_min, rows):
         if np.isclose(wavelength[0], wavelength[1]):
             wavelength = [0.975 * wavelength[0], 1.025 * wavelength[1]]
@@ -2015,6 +2184,8 @@ class ExperimentModel(NeuXtalVizModel):
         if use_symmetry:
             meshmap += "_" + point_group
 
+        self.last_meshmap = meshmap
+
         if not mtd.doesExist(meshmap):
             UB_inv = np.linalg.inv(UB)
 
@@ -2096,6 +2267,28 @@ class ExperimentModel(NeuXtalVizModel):
             )
             mtd[meshmap].setSignalArray(coverage)
 
+        return self._slice_meshmap(
+            meshmap, UB, U, V, W, normal, value, thickness
+        )
+
+    def reslice_last(self, U, V, W, normal, value, thickness):
+        """Re-slice the most-recently computed coverage workspace without
+        rebuilding the footprint or coverage map.
+
+        Returns the same ``slice_dict`` as :meth:`calculate_rotations`, or
+        ``None`` if no coverage workspace is available yet.
+        """
+        if self.last_meshmap is None or not mtd.doesExist(self.last_meshmap):
+            return None
+
+        UB = mtd["coverage"].sample().getOrientedLattice().getUB()
+
+        return self._slice_meshmap(
+            self.last_meshmap, UB, U, V, W, normal, value, thickness
+        )
+
+    def _slice_meshmap(self, meshmap, UB, U, V, W, normal, value, thickness):
+        """Project *meshmap* coverage onto the requested HKL slice plane."""
         (Qx, Qy, Qz), coverage, _ = self.extract_data(meshmap)
 
         n = Qx.shape[0]

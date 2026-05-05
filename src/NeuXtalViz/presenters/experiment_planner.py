@@ -17,6 +17,8 @@ class Experiment(NeuXtalVizPresenter):
         self.view.connect_hkl_limits(self.update_hkl_limits)
         self.view.connect_optimize(self.optimize_coverage)
         self.view.connect_mesh(self.mesh_scan)
+        self.view.connect_calculate_plane(self.calculate_plane)
+        self.view.connect_add_plane(self.plane_scan)
         self.view.connect_calculate_single(self.calculate_single)
         self.view.connect_calculate_double(self.calculate_double)
         self.view.connect_calculate_single_alt(self.calculate_single_alt)
@@ -34,8 +36,9 @@ class Experiment(NeuXtalVizPresenter):
         self.view.connect_convert_mesh_to_hkl(self.convert_mesh_to_hkl)
         self.view.connect_convert_plan_to_hkl(self.convert_plan_to_hkl)
 
-        self.view.connect_slice_combo(self.convert_to_hkl)
-        self.view.connect_slice_thickness_line(self.convert_to_hkl)
+        self.view.connect_slice_combo(self.reslice)
+        self.view.connect_slice_thickness_line(self.reslice)
+        self.view.connect_slice_line(self.reslice)
 
         self.view.connect_roi_ready(self.lookup_angle)
         self.view.connect_selection_ready(self.select_peak)
@@ -57,6 +60,7 @@ class Experiment(NeuXtalVizPresenter):
 
         self.mesh = True
         self.convert_idle = True
+        self.slice_only = False
 
     def load_detector(self):
         """
@@ -574,11 +578,181 @@ class Experiment(NeuXtalVizPresenter):
         else:
             progress("No mesh angles provided for mesh scan.", 0)
 
+    def calculate_plane(self):
+        if self.convert_idle:
+            worker = self.view.worker(self.calculate_plane_process)
+            worker.connect_result(self.convert_to_hkl_complete)
+            worker.connect_progress(self.update_processing)
+
+            self.convert_idle = False
+            self.view.start_worker_pool(worker)
+
+    def calculate_plane_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
+        hkl_1 = self.view.get_plane_hkl_1()
+        hkl_2 = self.view.get_plane_hkl_2()
+
+        if hkl_1 is None or hkl_2 is None:
+            progress("Invalid HKL vectors for plane preview.", 0)
+            return None
+
+        max_deg = self.view.get_plane_max_angle()
+        n_steps = self.view.get_plane_n_steps()
+
+        instrument = self.view.get_instrument()
+        mode = self.view.get_mode()
+        axes, polarities = self.model.get_axes_polarities(instrument, mode)
+        self.model.generate_axes(axes, polarities)
+        limits = self.view.get_goniometer_limits()
+
+        proj = self.view.get_projection_matrix()
+        value = self.view.get_slice_value()
+        thickness = self.view.get_slice_thickness()
+        d_min = self.view.get_d_min()
+        symm = self.view.use_symmetry_mesh()
+        point_group = self.view.get_point_group()
+
+        validate = [proj, value, thickness, d_min]
+        if not all(elem is not None for elem in validate):
+            progress("Invalid parameters.", 0)
+            return None
+
+        U, V, W, invalid = self.model.validate_projection(proj)
+        if invalid:
+            progress("Invalid projections.", 0)
+            return None
+
+        progress("Computing plane orientations...", 5)
+
+        if self.stop_processing(stop_event):
+            return None
+
+        angles = self.model.compute_plane_angles(
+            hkl_1, hkl_2, axes, polarities, limits, max_deg, n_steps
+        )
+
+        if not angles:
+            progress("No plane orientations found.", 0)
+            return None
+
+        progress("Initializing instrument...", 5)
+
+        if self.stop_processing(stop_event):
+            return None
+
+        self.create_instrument()
+        self.model.calculate_footprint(self.view.get_wavelength(), d_min)
+
+        progress("Calculating plane coverage...", 50)
+
+        if self.stop_processing(stop_event):
+            return None
+
+        norm = self.get_normal()
+
+        result = self.model.calculate_rotations(
+            angles,
+            U,
+            V,
+            W,
+            norm,
+            value,
+            thickness,
+            False,
+            point_group,
+            symm,
+        )
+
+        progress("Plane coverage calculated!", 0)
+
+        return result
+
+    def plane_scan(self):
+        worker = self.view.worker(self.plane_scan_process)
+        worker.connect_result(self.plane_scan_complete)
+        worker.connect_finished(self.visualize)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def plane_scan_complete(self, result):
+        title = self.view.get_title()
+        if result is not None:
+            self.view.add_orientations(title, "Plane Scan", result)
+            self.update_peaks(False)
+
+    def plane_scan_process(self, progress, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
+        hkl_1 = self.view.get_plane_hkl_1()
+        hkl_2 = self.view.get_plane_hkl_2()
+
+        if hkl_1 is None or hkl_2 is None:
+            progress("Invalid HKL vectors for plane scan.", 0)
+            return None
+
+        max_deg = self.view.get_plane_max_angle()
+        n_steps = self.view.get_plane_n_steps()
+
+        free_angles = self.view.get_free_angles()
+        all_angles = self.view.get_all_angles()
+
+        wavelength = self.view.get_wavelength()
+        d_min = self.view.get_d_min()
+        rows = self.view.get_number_of_orientations()
+
+        instrument = self.view.get_instrument()
+        mode = self.view.get_mode()
+        axes, polarities = self.model.get_axes_polarities(instrument, mode)
+        self.model.generate_axes(axes, polarities)
+        limits = self.view.get_goniometer_limits()
+
+        progress("Initializing instrument", 5)
+
+        if self.stop_processing(stop_event):
+            return None
+
+        self.create_instrument()
+
+        progress("Calculating plane orientations", 5)
+
+        if self.stop_processing(stop_event):
+            return None
+
+        angles = self.model.add_plane(
+            hkl_1,
+            hkl_2,
+            wavelength,
+            d_min,
+            rows,
+            free_angles,
+            all_angles,
+            axes,
+            polarities,
+            limits,
+            max_deg=max_deg,
+            n_steps=n_steps,
+        )
+
+        progress("Plane orientations calculated!", 0)
+
+        return angles
+
+    def reslice(self):
+        """Re-slice the existing coverage without rebuilding the footprint."""
+        self.slice_only = True
+        self.convert_to_hkl()
+
     def convert_mesh_to_hkl(self):
+        self.slice_only = False
         self.mesh = True
         self.convert_to_hkl()
 
     def convert_plan_to_hkl(self):
+        self.slice_only = False
         self.mesh = False
         self.convert_to_hkl()
 
@@ -625,6 +799,18 @@ class Experiment(NeuXtalVizPresenter):
             if not invalid:
 
                 norm = self.get_normal()
+
+                if self.slice_only:
+                    self.slice_only = False
+                    progress("Recalculating slice...", 5)
+                    result = self.model.reslice_last(
+                        U, V, W, norm, value, thickness
+                    )
+                    if result is None:
+                        progress("No coverage to reslice.", 0)
+                    else:
+                        progress("Slice updated!", 0)
+                    return result
 
                 if self.mesh:
                     angles = self.view.get_mesh_angles()
