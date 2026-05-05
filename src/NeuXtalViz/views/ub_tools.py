@@ -2266,7 +2266,7 @@ class UBView(NeuXtalVizWidget):
             self,
             "Load peaks file",
             path,
-            "Peaks files (*.nxs)",
+            "Peaks files (*.nxs; *.peaks; *.integrate)",
             options=options,
         )
 
@@ -2283,7 +2283,7 @@ class UBView(NeuXtalVizWidget):
             self,
             "Save peaks file",
             path,
-            "Peaks files (*.nxs)",
+            "Peaks files (*.nxs; *.peaks; *.integrate)",
             options=options,
         )
 

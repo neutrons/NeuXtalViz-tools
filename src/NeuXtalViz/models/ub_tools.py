@@ -34,6 +34,8 @@ from mantid.simpleapi import (
     CloneWorkspace,
     SaveNexus,
     LoadNexus,
+    SaveIsawPeaks,
+    LoadIsawPeaks,
     HB3AAdjustSampleNorm,
     LoadWANDSCD,
     LoadEventNexus,
@@ -2871,7 +2873,10 @@ class UBModel(NeuXtalVizModel):
             Name of peaks file with extension .nxs.
         """
 
-        SaveNexus(Filename=filename, InputWorkspace=self.table)
+        if filename.endswith(".nxs"):
+            SaveNexus(Filename=filename, InputWorkspace=self.table)
+        else:
+            SaveIsawPeaks(Filename=filename, InputWorkspace=self.table)
 
     def delete_peaks(self, peaks):
         """
