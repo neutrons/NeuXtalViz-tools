@@ -261,6 +261,8 @@ class ExperimentView(NeuXtalVizWidget):
         self.plan_table.setToolTip(
             "Table of planned orientations and settings."
         )
+        self.plan_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.plan_table.setSelectionMode(QTableWidget.ExtendedSelection)
 
         labels = ["Motor", "Value"]
 
@@ -1643,10 +1645,13 @@ class ExperimentView(NeuXtalVizWidget):
         self.plan_table.blockSignals(True)
         self.plan_table.setUpdatesEnabled(False)
         self.plan_table.setSortingEnabled(False)
-        rows = list(
+        rows = self.get_selected_plan_rows()
+        return rows
+
+    def get_selected_plan_rows(self):
+        return sorted(
             set(index.row() for index in self.plan_table.selectedIndexes())
         )
-        return rows
 
     def delete_angles(self, rows):
         self.plan_table.blockSignals(True)
@@ -1667,9 +1672,7 @@ class ExperimentView(NeuXtalVizWidget):
         self.plan_table.blockSignals(True)
         self.plan_table.setUpdatesEnabled(False)
         self.plan_table.setSortingEnabled(False)
-        rows = list(
-            set(index.row() for index in self.plan_table.selectedIndexes())
-        )
+        rows = self.get_selected_plan_rows()
         if len(rows) == 1:
             return rows[0]
         else:
@@ -1761,7 +1764,7 @@ class ExperimentView(NeuXtalVizWidget):
 
         col = self.plan_table.columnCount() - 3
 
-        rows = set(index.row() for index in self.plan_table.selectedIndexes())
+        rows = self.get_selected_plan_rows()
         for row in rows:
             if title is not None:
                 item = QTableWidgetItem(title)
@@ -1925,7 +1928,9 @@ class ExperimentView(NeuXtalVizWidget):
                 self.plan_table.setItem(row, col, item)
             col += 1
 
-            flags = Qt.ItemIsUserCheckable | Qt.ItemIsEnabled
+            flags = (
+                Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled
+            )
 
             checkbox = QTableWidgetItem("")
             checkbox.setText("")
@@ -1975,7 +1980,9 @@ class ExperimentView(NeuXtalVizWidget):
             self.plan_table.setItem(row, col, item)
             col += 1
 
-            flags = Qt.ItemIsUserCheckable | Qt.ItemIsEnabled
+            flags = (
+                Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled
+            )
 
             checkbox = QTableWidgetItem("")
             checkbox.setText("")
@@ -1997,6 +2004,16 @@ class ExperimentView(NeuXtalVizWidget):
         col = item.column()
 
         if col == self.plan_table.columnCount() - 1:
+            rows = self.get_selected_plan_rows()
+            if item.row() not in rows:
+                rows.append(item.row())
+
+            state = item.checkState()
+            for row in rows:
+                checkbox = self.plan_table.item(row, col)
+                if checkbox is not None:
+                    checkbox.setCheckState(state)
+
             self.viz_ready.emit()
 
         self.plan_table.setUpdatesEnabled(True)

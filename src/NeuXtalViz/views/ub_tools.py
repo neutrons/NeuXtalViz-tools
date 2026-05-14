@@ -63,6 +63,7 @@ class UBView(NeuXtalVizWidget):
     roi_ready = Signal()
     scan_ready = Signal()
     index_ready = Signal()
+    slice_ready = Signal(float, float, float)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -79,6 +80,9 @@ class UBView(NeuXtalVizWidget):
         self.last_highlight = None
         self._highlight_actor = None
         self._peaks_multiblock = None
+        self._inst_click_cid = None
+        self._scan_click_cid = None
+        self._slice_click_cid = None
         self.x_min, self.x_max = None, None
         self.y_min, self.y_max = None, None
 
@@ -230,8 +234,19 @@ class UBView(NeuXtalVizWidget):
         self.set_ub_button.setToolTip("Set the UB matrix.")
         self.set_ub_button.setIcon(qta.icon("fa6s.file-pen"))
 
+        self.set_scattering_plane_ub_button = QPushButton(
+            "Scattering Plane", self
+        )
+        self.set_scattering_plane_ub_button.setToolTip(
+            "Calculate the UB matrix from the scattering plane."
+        )
+        self.set_scattering_plane_ub_button.setIcon(
+            qta.icon("fa6s.paper-plane")
+        )
+
         set_layout = QHBoxLayout()
         set_layout.addWidget(self.set_ub_button)
+        set_layout.addWidget(self.set_scattering_plane_ub_button)
         set_layout.addStretch(1)
 
         notation = QDoubleValidator.StandardNotation
@@ -1221,6 +1236,12 @@ class UBView(NeuXtalVizWidget):
         )
         self.calculate_highlight_button.setIcon(qta.icon("fa6s.calculator"))
 
+        self.delete_peak_button = QPushButton("Delete Highlighted", self)
+        self.delete_peak_button.setToolTip(
+            "Delete the currently highlighted peak from the peaks table."
+        )
+        self.delete_peak_button.setIcon(qta.icon("fa6s.trash"))
+
         calculator_layout.addWidget(h_label, 0, 1, Qt.AlignCenter)
         calculator_layout.addWidget(k_label, 0, 2, Qt.AlignCenter)
         calculator_layout.addWidget(l_label, 0, 3, Qt.AlignCenter)
@@ -1416,6 +1437,10 @@ class UBView(NeuXtalVizWidget):
         hkl_info.addWidget(total_label)
         hkl_info.addWidget(self.total_line)
 
+        peak_actions_layout = QHBoxLayout()
+        peak_actions_layout.addWidget(self.delete_peak_button)
+        peak_actions_layout.addStretch(1)
+
         peak_info.addWidget(int_h_label, 0, 0, Qt.AlignCenter)
         peak_info.addWidget(int_k_label, 0, 1, Qt.AlignCenter)
         peak_info.addWidget(int_l_label, 0, 2, Qt.AlignCenter)
@@ -1432,6 +1457,7 @@ class UBView(NeuXtalVizWidget):
 
         peaks_layout.addLayout(calculator_layout)
         peaks_layout.addWidget(self.peaks_table)
+        peaks_layout.addLayout(peak_actions_layout)
         peaks_layout.addLayout(hkl_info)
         peaks_layout.addLayout(peak_info)
         peaks_layout.addLayout(extended_info)
@@ -1515,6 +1541,11 @@ class UBView(NeuXtalVizWidget):
             qta.icon("fa6s.arrow-right-arrow-left")
         )
 
+        self.slice_add_peak_box = QCheckBox("Add Peak", self)
+        self.slice_add_peak_box.setToolTip(
+            "Enable adding a peak to the peaks workspace when clicking the slice view."
+        )
+
         self.clim_combo = QComboBox(self)
         self.clim_combo.addItem("Min/Max")
         self.clim_combo.addItem("μ±3×σ")
@@ -1589,6 +1620,7 @@ class UBView(NeuXtalVizWidget):
 
         convert_to_hkl_action_layout = QHBoxLayout()
         convert_to_hkl_action_layout.addWidget(self.convert_to_hkl_button)
+        convert_to_hkl_action_layout.addWidget(self.slice_add_peak_box)
         convert_to_hkl_action_layout.addWidget(self.slice_combo)
         convert_to_hkl_action_layout.addWidget(slice_label)
         convert_to_hkl_action_layout.addWidget(self.slice_line)
@@ -1779,18 +1811,23 @@ class UBView(NeuXtalVizWidget):
         self.add_peak_button.setIcon(qta.icon("fa6s.square-plus"))
 
         self.diffraction_label = QLabel("Axis:", self)
+        self.inst_gonio_label = QLabel("ω,χ,φ [°]:", self)
 
         validator = QDoubleValidator(
             -float("inf"), float("inf"), 5, notation=notation
         )
 
         self.diffraction_line = QLineEdit("0")
+        self.inst_gonio_line = QLineEdit()
         self.diffraction_line.setValidator(validator)
         self.diffraction_line.setToolTip("Diffraction angle or wavelength.")
+        self.inst_gonio_line.setReadOnly(True)
 
         peak_layout = QHBoxLayout()
         peak_layout.addWidget(self.diffraction_label)
         peak_layout.addWidget(self.diffraction_line)
+        peak_layout.addWidget(self.inst_gonio_label)
+        peak_layout.addWidget(self.inst_gonio_line)
         peak_layout.addStretch(1)
         peak_layout.addWidget(self.add_peak_button)
 
@@ -1936,6 +1973,9 @@ class UBView(NeuXtalVizWidget):
     def connect_add_peak(self, add_peak):
         self.add_peak_button.clicked.connect(add_peak)
 
+    def connect_delete_peak(self, delete_peak):
+        self.delete_peak_button.clicked.connect(delete_peak)
+
     def connect_check_hkl(self, check_hkl):
         self.check_hkl_button.clicked.connect(check_hkl)
 
@@ -1995,6 +2035,9 @@ class UBView(NeuXtalVizWidget):
 
     def connect_set_UB(self, set_UB):
         self.set_ub_button.clicked.connect(set_UB)
+
+    def connect_set_UB_from_scattering_plane(self, set_UB):
+        self.set_scattering_plane_ub_button.clicked.connect(set_UB)
 
     def connect_convert_HKL(self, convert_HKL):
         self.convert_to_hkl_button.clicked.connect(convert_HKL)
@@ -2143,8 +2186,35 @@ class UBView(NeuXtalVizWidget):
             self.ub_label.setText("UB matrix available")
             self.ub_label.setStyleSheet("color: green;")
 
-    def set_goniometer_axes(self, names):
+    def set_peak_goniometer_axes(self, names):
         self.gonio_label.setText("{} [°]:".format(names))
+
+    def set_instrument_goniometer_axes(self, names):
+        if hasattr(self, "inst_gonio_label"):
+            self.inst_gonio_label.setText("{} [°]:".format(names))
+
+    def set_peak_goniometer_setting(self, angles):
+        if angles is None:
+            self.gonio_line.clear()
+        else:
+            self.gonio_line.setText("({:.2f}, {:.2f}, {:.2f})".format(*angles))
+
+    def set_instrument_goniometer_setting(self, angles):
+        if hasattr(self, "inst_gonio_line"):
+            if angles is None:
+                self.inst_gonio_line.clear()
+            else:
+                self.inst_gonio_line.setText(
+                    "({:.2f}, {:.2f}, {:.2f})".format(*angles)
+                )
+
+    def set_goniometer_axes(self, names):
+        self.set_peak_goniometer_axes(names)
+        self.set_instrument_goniometer_axes(names)
+
+    def set_goniometer_setting(self, angles):
+        self.set_peak_goniometer_setting(angles)
+        self.set_instrument_goniometer_setting(angles)
 
     def update_slice_color(self):
         if self.cb_slice is not None:
@@ -2329,6 +2399,7 @@ class UBView(NeuXtalVizWidget):
             for row in range(len(values)):
                 self.data_combo.addItem("{}: {}".format(row + 1, values[row]))
             self.data_combo.setCurrentIndex(0)
+            self.auto_scale_dropdown(self.data_combo)
 
     def get_data_list(self):
         val = self.data_combo.currentText()
@@ -2680,6 +2751,13 @@ class UBView(NeuXtalVizWidget):
 
         self.highlight(index, dataset)
 
+    def clear_peak_selection(self):
+        self.peaks_table.blockSignals(True)
+        self.peaks_table.clearSelection()
+        self.peaks_table.blockSignals(False)
+        self._clear_highlight_actor()
+        self.last_highlight = None
+
     def set_sample_directions(self, params):
         v, w, u = params
 
@@ -3013,6 +3091,8 @@ class UBView(NeuXtalVizWidget):
         self.peaks_table.blockSignals(True)
         self.peaks_table.setSortingEnabled(False)
         self.peaks_table.clearSelection()
+        self._clear_highlight_actor()
+        self.last_highlight = None
         self.peaks_table.setRowCount(0)
         self.peaks_table.setRowCount(len(peaks))
 
@@ -3144,7 +3224,7 @@ class UBView(NeuXtalVizWidget):
 
         self.two_theta_line.setText("{:.2f}".format(two_theta))
         self.horz_vert_line.setText("({:.1f}, {:.1f})".format(gamma, nu))
-        self.gonio_line.setText("({:.2f}, {:.2f}, {:.2f})".format(*gonio))
+        self.set_peak_goniometer_setting(gonio)
 
     def update_table_index(self, ind, hkl):
         rows = self.peaks_table.rowCount()
@@ -3412,7 +3492,9 @@ class UBView(NeuXtalVizWidget):
 
         self.inst_roi = {"roi": (horz_roi, vert_roi)}
 
-        self.fig_inst.canvas.mpl_connect(
+        if self._inst_click_cid is not None:
+            self.fig_inst.canvas.mpl_disconnect(self._inst_click_cid)
+        self._inst_click_cid = self.fig_inst.canvas.mpl_connect(
             "button_press_event", self.on_press_inst
         )
 
@@ -3440,7 +3522,9 @@ class UBView(NeuXtalVizWidget):
         self.canvas_scan.draw_idle()
         self.canvas_scan.flush_events()
 
-        self.fig_scan.canvas.mpl_connect(
+        if self._scan_click_cid is not None:
+            self.fig_scan.canvas.mpl_disconnect(self._scan_click_cid)
+        self._scan_click_cid = self.fig_scan.canvas.mpl_connect(
             "button_press_event", self.on_press_scan
         )
 
@@ -3502,6 +3586,9 @@ class UBView(NeuXtalVizWidget):
     def connect_scan_ready(self, replot):
         self.scan_ready.connect(replot)
 
+    def connect_slice_ready(self, add_peak):
+        self.slice_ready.connect(add_peak)
+
     def get_slice_value(self):
         if self.slice_line.hasAcceptableInput():
             return float(self.slice_line.text())
@@ -3513,6 +3600,9 @@ class UBView(NeuXtalVizWidget):
     def get_slice_width(self):
         if self.slice_width_line.hasAcceptableInput():
             return float(self.slice_width_line.text())
+
+    def enable_slice_peak_add(self):
+        return self.slice_add_peak_box.isChecked()
 
     def get_clim_clip_type(self):
         return self.clim_combo.currentText()
@@ -3536,6 +3626,10 @@ class UBView(NeuXtalVizWidget):
 
     def set_inst_vmax_value(self, val):
         self.inst_vmax_line.setText(str(round(val, 5)))
+
+    def clear_inst_vlims(self):
+        self.inst_vmin_line.clear()
+        self.inst_vmax_line.clear()
 
     def get_vmin_value(self):
         if self.vmin_line.hasAcceptableInput():
@@ -3668,6 +3762,27 @@ class UBView(NeuXtalVizWidget):
         self.canvas_slice.flush_events()
 
         self.ax_slice.format_coord = self.__format_hkl_coord
+        if self._slice_click_cid is not None:
+            self.fig_slice.canvas.mpl_disconnect(self._slice_click_cid)
+        self._slice_click_cid = self.fig_slice.canvas.mpl_connect(
+            "button_press_event", self.on_press_slice
+        )
+
+    def on_press_slice(self, event):
+        if (
+            event.inaxes == self.ax_slice
+            and self.fig_slice.canvas.toolbar.mode == ""
+        ):
+            if event.xdata is None or event.ydata is None:
+                return
+
+            x, y, _ = np.dot(self.T_inv, [event.xdata, event.ydata, 1])
+            h, k, l = np.dot(self.W, [x, y, self.z])
+
+            self.set_check_hkl(h, k, l)
+
+            if self.enable_slice_peak_add():
+                self.slice_ready.emit(h, k, l)
 
     def update_cluster_table(self, peak_info):
         centroids = peak_info["satellites"].round(3).astype(str)

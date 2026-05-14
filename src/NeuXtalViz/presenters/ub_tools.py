@@ -38,17 +38,21 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_highlight_1(self.add_highlight_1)
         self.view.connect_highlight_2(self.add_highlight_2)
         self.view.connect_calculate_highlight(self.calculate_highlight)
+        self.view.connect_delete_peak(self.delete_peak)
         self.view.connect_cell_row_highligter(self.highlight_cell)
         self.view.connect_peak_row_highligter(self.highlight_peak)
         self.view.connect_select_cell(self.select_cell)
         self.view.connect_set_UB(self.set_UB)
+        self.view.connect_set_UB_from_scattering_plane(
+            self.set_UB_from_scattering_plane
+        )
 
         self.switch_instrument()
         self.lattice_transform()
 
         self.view.connect_convert_to_hkl(self.convert_to_hkl)
 
-        self.view.connect_data_combo(self.update_instrument_view)
+        self.view.connect_data_combo(self.update_instrument_view_autoscaled)
         self.view.connect_diffraction(self.update_roi)
         self.view.connect_d_min(self.update_instrument_view)
         self.view.connect_d_max(self.update_instrument_view)
@@ -57,12 +61,13 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_horizontal_roi(self.update_roi)
         self.view.connect_vertical_roi(self.update_roi)
         self.view.connect_instrument_scale_combo(self.update_instrument_view)
-        self.view.connect_vlim_combo(self.update_instrument_view)
+        self.view.connect_vlim_combo(self.update_instrument_view_autoscaled)
         self.view.connect_vbar_combo(self.update_instrument_view)
         self.view.connect_inst_vmin_line(self.update_inst_cvals)
         self.view.connect_inst_vmax_line(self.update_inst_cvals)
 
         self.view.connect_add_peak(self.add_peak)
+        self.view.connect_slice_ready(self.add_slice_peak)
         self.view.connect_check_hkl(self.calculate_hkl)
 
         self.view.connect_roi_ready(self.update_scan)
@@ -116,6 +121,15 @@ class UB(NeuXtalVizPresenter):
                 if vmin <= 0 and self.view.get_instrument_scale() == "log":
                     vmin = vmax / 10
                 self.view.update_instrument_colorbar_vlims(vmin, vmax)
+
+    def update_instrument_view_autoscaled(self):
+        self.view.inst_vmin_line.blockSignals(True)
+        self.view.inst_vmax_line.blockSignals(True)
+        self.view.clear_inst_vlims()
+        self.view.inst_vmin_line.blockSignals(False)
+        self.view.inst_vmax_line.blockSignals(False)
+
+        self.update_instrument_view()
 
     def update_find_spacing(self):
         """
@@ -328,6 +342,26 @@ class UB(NeuXtalVizPresenter):
                         "Invalid parameters for add_peak.", 0
                     )
 
+    def add_slice_peak(self, h, k, l):
+        if self.model.has_Q() and self.model.has_UB():
+            ind = self.view.get_data_list()
+
+            if ind is not None:
+                self.model.add_peak_from_hkl(ind, [h, k, l])
+                self.visualize()
+            else:
+                self.update_processing("Invalid data list index.", 0)
+
+    def delete_peak(self):
+        no = self.view.get_peak()
+
+        if self.model.has_peaks() and no is not None:
+            self.model.delete_peak(no)
+            self.view.clear_peak_selection()
+            self.visualize()
+        else:
+            self.update_processing("No highlighted peak selected.", 0)
+
     def calculate_hkl(self):
         if self.model.has_Q():
             ind = self.view.get_data_list()
@@ -367,8 +401,14 @@ class UB(NeuXtalVizPresenter):
             self.view.update_instrument_view(result[0])
             self.view.update_roi_view(result[1])
             self.view.update_scan_view(result[1])
+            self.update_run_goniometer()
 
             self.update_check_hkl()
+
+    def update_run_goniometer(self):
+        ind = self.view.get_data_list()
+        angles = self.model.get_run_goniometer(ind)
+        self.view.set_instrument_goniometer_setting(angles)
 
     def update_instrument_view_process(self, progress=None, stop_event=None):
         if self.stop_processing(stop_event):
@@ -741,6 +781,55 @@ class UB(NeuXtalVizPresenter):
 
         if constants is not None and directions is not None:
             self.model.set_manual_UB(constants, directions)
+
+    def set_UB_from_scattering_plane(self):
+        self.update_data_status()
+
+        worker = self.view.worker(self.set_UB_from_scattering_plane_process)
+        worker.connect_result(self.set_UB_from_scattering_plane_complete)
+        worker.connect_finished(self.visualize)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def set_UB_from_scattering_plane_complete(self, result=None):
+        self.update_data_status()
+
+    def set_UB_from_scattering_plane_process(
+        self, progress=None, stop_event=None
+    ):
+        if self.stop_processing(stop_event):
+            return None
+
+        constants = self.view.get_lattice_constants()
+        directions = self.view.get_sample_directions()
+
+        if constants is None or directions is None:
+            progress("Invalid parameters.", 0)
+            return None
+
+        if self.stop_processing(stop_event):
+            return None
+
+        progress("Processing...", 1)
+
+        if self.stop_processing(stop_event):
+            return None
+
+        progress("Finding UB from scattering plane...", 10)
+
+        try:
+            self.model.find_UB_from_scattering_plane(constants, directions)
+        except Exception as exc:
+            progress(str(exc), 0)
+            return None
+
+        if self.stop_processing(stop_event):
+            return None
+
+        progress("UB found from scattering plane!", 100)
+
+        return True
 
     def select_cell(self):
         worker = self.view.worker(self.select_cell_process)
@@ -1246,7 +1335,10 @@ class UB(NeuXtalVizPresenter):
         self.view.clear_run_info(filepath)
 
         goniometer = self.model.get_goniometer_axes(instrument)
-        self.view.set_goniometer_axes(goniometer)
+        self.view.set_peak_goniometer_axes(goniometer)
+        self.view.set_instrument_goniometer_axes(goniometer)
+        self.view.set_peak_goniometer_setting(None)
+        self.view.set_instrument_goniometer_setting(None)
 
         d_min = self.model.get_default_d_min(instrument)
         self.view.set_convert_min_d(d_min)

@@ -9,6 +9,7 @@ from mantid.simpleapi import (
     FindUBUsingFFT,
     FindUBUsingLatticeParameters,
     FindUBUsingIndexedPeaks,
+    FindUBFromScatteringPlane,
     OptimizeLatticeForCellType,
     CalculateUMatrix,
     HasUB,
@@ -626,6 +627,7 @@ class UBModel(NeuXtalVizModel):
         filenames = ",".join([filename for filename in filenames])
 
         self.runs = runs
+        self.instrument = instrument
 
         inst = beamlines[instrument]
 
@@ -673,6 +675,7 @@ class UBModel(NeuXtalVizModel):
                         FilterByTimeStop=time_stop,
                         NumberOfBins=1,
                         OutputWorkspace=filename,
+                        LoadNexusInstrumentXML=False,
                     )
                 else:
                     LoadNexus(
@@ -1157,6 +1160,41 @@ class UBModel(NeuXtalVizModel):
     def is_mono(self, wavelength):
         return np.isclose(wavelength[0], wavelength[1])
 
+    def get_run_goniometer(self, ind):
+        """Return goniometer Euler angles for the selected run."""
+
+        if not self.has_Q() or ind is None:
+            return None
+
+        wavelength = getattr(self, "wavelength", None)
+        if wavelength is None:
+            return None
+
+        if ind < 0 or ind >= len(self.Rs):
+            return None
+
+        R = self.Rs[ind]
+
+        if np.ndim(R) == 3:
+            if type(self.scan) is float:
+                val = (
+                    self.roi_view["val"] if hasattr(self, "roi_view") else None
+                )
+                if val is None:
+                    R = R[0]
+                else:
+                    x = np.rad2deg(
+                        np.arccos([0.5 * (np.trace(r) - 1) for r in R])
+                    )
+                    R = R[np.argmin(np.abs(x - val))]
+            else:
+                R = R[0]
+
+        goniometer = Goniometer()
+        goniometer.setR(R)
+
+        return list(goniometer.getEulerAngles(self.conv))
+
     def add_peak(self, ind, val, horz, vert):
         """
         Add a peak to the peaks table.
@@ -1199,6 +1237,44 @@ class UBModel(NeuXtalVizModel):
         peak = mtd["ub_peaks"].createPeak([Qx, Qy, Qz])
         peak.setRunNumber(self.runs[ind])
         mtd["ub_peaks"].addPeak(peak)
+
+    def add_peak_from_hkl(self, ind, hkl):
+        """Add a peak to the peaks workspace using HKL coordinates."""
+
+        if self.has_UB() and self.has_peaks():
+            UB = self.get_UB()
+            Q = 2 * np.pi * np.dot(UB, hkl)
+            int_hkl = np.round(hkl).astype(int)
+
+            for run_index, Rs in enumerate(self.Rs):
+                matrices = Rs if np.ndim(Rs) == 3 else [Rs]
+
+                for R in matrices:
+                    mtd[self.table].run().getGoniometer().setR(R)
+
+                    Q_lab = np.dot(R, Q)
+                    lamda = -4 * np.pi * Q_lab[2] / np.dot(Q_lab, Q_lab)
+
+                    if lamda <= 0:
+                        continue
+
+                    peak = mtd[self.table].createPeak(Q_lab.tolist())
+
+                    peak.setRunNumber(self.runs[run_index])
+                    peak.setHKL(*hkl)
+                    peak.setIntHKL(
+                        V3D(*np.array(int_hkl).astype(float).tolist())
+                    )
+                    peak.setIntMNP(V3D(0.0, 0.0, 0.0))
+
+                    mtd[self.table].addPeak(peak)
+                    return
+
+    def delete_peak(self, no):
+        """Delete a single peak row from the current peaks workspace."""
+
+        if self.has_peaks() and 0 <= no < mtd[self.table].getNumberPeaks():
+            DeleteTableRows(TableWorkspace=self.table, Rows=no)
 
     def calculate_hkl_position(self, ind, h, k, l):
         """
@@ -2039,8 +2115,8 @@ class UBModel(NeuXtalVizModel):
             beta=beta,
             gamma=gamma,
             Tolerance=tol,
-            NumInitial=50,
-            FixParameters=True,
+            NumInitial=100,
+            FixParameters=False,
             Iterations=3,
         )
 
@@ -2251,7 +2327,7 @@ class UBModel(NeuXtalVizModel):
             PeaksWorkspace=self.table,
             Tolerance=tol,
             HKLTransform=hkl_trans,
-            FindError=mtd[self.table].getNumberPeaks() > 3,
+            FindError=False,
         )
 
         self.copy_UB_from_peaks()
@@ -2318,6 +2394,44 @@ class UBModel(NeuXtalVizModel):
                     v=[v1, v2, v3],
                 )
 
+        self.update_UB()
+
+    def find_UB_from_scattering_plane(self, constants, directions):
+        """Calculate the UB matrix from a scattering plane and one peak."""
+
+        if not self.has_peaks() or mtd[self.table].getNumberPeaks() == 0:
+            print("No peaks available for scattering-plane UB.")
+            return
+
+        a, b, c, alpha, beta, gamma = constants
+        u1, u2, u3, v1, v2, v3 = directions
+
+        u = np.array([u1, u2, u3], dtype=float)
+        v = np.array([v1, v2, v3], dtype=float)
+
+        if np.isclose(np.linalg.norm(u), 0) or np.isclose(
+            np.linalg.norm(v), 0
+        ):
+            print("Scattering plane vectors u and v must be non-zero.")
+            return
+
+        if np.isclose(np.linalg.norm(np.cross(u, v)), 0):
+            print("Scattering plane vectors u and v must not be parallel.")
+            return
+
+        FindUBFromScatteringPlane(
+            PeaksWorkspace=self.table,
+            Vector1=u.tolist(),
+            Vector2=v.tolist(),
+            a=a,
+            b=b,
+            c=c,
+            alpha=alpha,
+            beta=beta,
+            gamma=gamma,
+        )
+
+        self.copy_UB_from_peaks()
         self.update_UB()
 
     def index_peaks(
