@@ -1140,7 +1140,7 @@ class UBModel(NeuXtalVizModel):
 
             self.signal = np.round(
                 255 * (signal - smin) / (smax - smin)
-            ).astype(np.uint8)
+            ).astype(np.float32)
 
             self.wavelength = wavelength
             self.counts = counts
@@ -1213,25 +1213,23 @@ class UBModel(NeuXtalVizModel):
 
         R = self.Rs[ind]
 
+        gamma = np.deg2rad(horz)
+        nu = np.deg2rad(vert)
+
         if type(self.scan) is float:
             wl = self.scan
             x = np.rad2deg(np.arccos([0.5 * (np.trace(r) - 1) for r in R]))
             R = R[np.argmin(np.abs(x - val))]
         else:
-            d = self.scan[np.argmin(np.abs(self.scan - val))]
-            gamma = np.deg2rad(horz)
-            nu = np.deg2rad(vert)
-            wl = d * np.sqrt(
-                (np.sin(gamma) * np.cos(nu)) ** 2
-                + np.sin(nu) ** 2
-                + (np.cos(gamma) * np.cos(nu) - 1) ** 2
-            )
+            d = val
+            two_theta = np.arccos(np.clip(np.cos(gamma) * np.cos(nu), -1, 1))
+            wl = 2 * d * np.sin(0.5 * two_theta)
 
         k = 2 * np.pi / wl
 
-        Qx = k * np.cos(np.deg2rad(vert)) * np.sin(np.deg2rad(horz))
-        Qy = k * np.sin(np.deg2rad(vert))
-        Qz = k * (np.cos(np.deg2rad(vert)) * np.cos(np.deg2rad(horz)) - 1)
+        Qx = k * np.cos(nu) * np.sin(gamma)
+        Qy = k * np.sin(nu)
+        Qz = k * (np.cos(nu) * np.cos(gamma) - 1)
 
         mtd["ub_peaks"].run().getGoniometer().setR(R)
         peak = mtd["ub_peaks"].createPeak([Qx, Qy, Qz])
@@ -1349,25 +1347,25 @@ class UBModel(NeuXtalVizModel):
         if self.has_UB():
             R = self.Rs[ind]
 
+            gamma = np.deg2rad(horz)
+            nu = np.deg2rad(vert)
+
             if type(self.scan) is float:
                 wl = self.scan
                 x = np.rad2deg(np.arccos([0.5 * (np.trace(r) - 1) for r in R]))
                 R = R[np.argmin(np.abs(x - val))]
             else:
-                d = self.scan[np.argmin(np.abs(self.scan - val))]
-                gamma = np.deg2rad(horz)
-                nu = np.deg2rad(vert)
-                wl = d * np.sqrt(
-                    (np.sin(gamma) * np.cos(nu)) ** 2
-                    + np.sin(nu) ** 2
-                    + (np.cos(gamma) * np.cos(nu) - 1) ** 2
+                d = val
+                two_theta = np.arccos(
+                    np.clip(np.cos(gamma) * np.cos(nu), -1, 1)
                 )
+                wl = 2 * d * np.sin(0.5 * two_theta)
 
             k = 2 * np.pi / wl
 
-            Qx = k * np.cos(np.deg2rad(vert)) * np.sin(np.deg2rad(horz))
-            Qy = k * np.sin(np.deg2rad(vert))
-            Qz = k * (np.cos(np.deg2rad(vert)) * np.cos(np.deg2rad(horz)) - 1)
+            Qx = k * np.cos(nu) * np.sin(gamma)
+            Qy = k * np.sin(nu)
+            Qz = k * (np.cos(nu) * np.cos(gamma) - 1)
 
             UB = self.get_UB()
 
@@ -1936,7 +1934,10 @@ class UBModel(NeuXtalVizModel):
                 ol.errorgamma(),
             )
 
-            return np.array(params).round(8).tolist()
+            params = np.array(params)
+            params[~np.isfinite(params)] = 0.0
+
+            return params.round(8).tolist()
 
     def simplify_vector(self, vec):
         """
@@ -2419,8 +2420,25 @@ class UBModel(NeuXtalVizModel):
             print("Scattering plane vectors u and v must not be parallel.")
             return
 
+        FilterPeaks(
+            InputWorkspace=self.table,
+            OutputWorkspace="tmp",
+            FilterVariable="h^2+k^2+l^2",
+            FilterValue=0,
+            Operator=">",
+            Criterion="!=",
+            BankName="None",
+        )
+
+        if mtd["tmp"].getNumberPeaks() == 0:
+            print(
+                "No valid peaks available after filtering for scattering-plane UB."
+            )
+            mtd.remove("tmp")
+            return
+
         FindUBFromScatteringPlane(
-            PeaksWorkspace=self.table,
+            PeaksWorkspace="tmp",
             Vector1=u.tolist(),
             Vector2=v.tolist(),
             a=a,
@@ -2430,6 +2448,17 @@ class UBModel(NeuXtalVizModel):
             beta=beta,
             gamma=gamma,
         )
+
+        CopySample(
+            InputWorkspace="tmp",
+            OutputWorkspace=self.table,
+            CopyName=False,
+            CopyMaterial=False,
+            CopyEnvironment=False,
+            CopyShape=False,
+        )
+
+        mtd.remove("tmp")
 
         self.copy_UB_from_peaks()
         self.update_UB()
@@ -3358,7 +3387,7 @@ class UBModel(NeuXtalVizModel):
 
         success = False
 
-        if centroids.shape[0] >= 0 and len(centroids.shape) == 2:
+        if centroids.shape[0] > 0 and len(centroids.shape) == 2:
             null = np.argmin(np.linalg.norm(centroids, axis=1))
 
             mask = np.ones_like(centroids[:, 0], dtype=bool)
@@ -3369,21 +3398,25 @@ class UBModel(NeuXtalVizModel):
             satellites = centroids[mask]
             nuclear = centroids[null]
 
+            clusters = labels.copy()
+            clusters[labels == null] = 0
+
+            peak_info["clusters"] = clusters
+            peak_info["nuclear"] = nuclear
+            peak_info["satellites"] = np.empty((0, 3))
+
+            success = True
+
             dist = scipy.spatial.distance_matrix(satellites, -satellites)
 
             n = dist.shape[0]
 
             if n > 2:
-                success = True
-
                 indices = np.column_stack(
                     [np.arange(n), np.argmin(dist, axis=0)]
                 )
                 indices = np.sort(indices, axis=1)
                 indices = np.unique(indices, axis=0)
-
-                clusters = labels.copy()
-                clusters[labels == null] = 0
 
                 mod = 1
                 satellites = []
