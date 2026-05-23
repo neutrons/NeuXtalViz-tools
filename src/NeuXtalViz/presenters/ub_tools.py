@@ -21,6 +21,7 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_browse_tube(self.load_tube_calibration)
 
         self.view.connect_convert_Q(self.convert_Q)
+        self.view.connect_reload_convert_Q(self.convert_Q_reload)
         self.view.connect_find_peaks(self.find_peaks)
         self.view.connect_find_spacing(self.update_find_spacing)
         self.view.connect_find_distance(self.update_find_distance)
@@ -28,6 +29,7 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_predict_peaks(self.predict_peaks)
         self.view.connect_integrate_peaks(self.integrate_peaks)
         self.view.connect_filter_peaks(self.filter_peaks)
+        self.view.connect_undo_filter_peaks(self.undo_filter_peaks)
         self.view.connect_find_conventional(self.find_conventional)
         self.view.connect_lattice_transform(self.lattice_transform)
         self.view.connect_symmetry_transform(self.symmetry_transform)
@@ -52,7 +54,7 @@ class UB(NeuXtalVizPresenter):
 
         self.view.connect_convert_to_hkl(self.convert_to_hkl)
 
-        self.view.connect_data_combo(self.update_instrument_view_autoscaled)
+        self.view.connect_data_combo(self.handle_data_combo_change)
         self.view.connect_diffraction(self.update_roi)
         self.view.connect_d_min(self.update_instrument_view)
         self.view.connect_d_max(self.update_instrument_view)
@@ -60,9 +62,11 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_vertical(self.update_roi)
         self.view.connect_horizontal_roi(self.update_roi)
         self.view.connect_vertical_roi(self.update_roi)
-        self.view.connect_instrument_scale_combo(self.update_instrument_view)
+        self.view.connect_instrument_scale_combo(
+            self.update_instrument_display
+        )
         self.view.connect_vlim_combo(self.update_instrument_view_autoscaled)
-        self.view.connect_vbar_combo(self.update_instrument_view)
+        self.view.connect_vbar_combo(self.update_instrument_display)
         self.view.connect_inst_vmin_line(self.update_inst_cvals)
         self.view.connect_inst_vmax_line(self.update_inst_cvals)
 
@@ -89,18 +93,56 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_slice_thickness_line(self.reslice)
         self.view.connect_slice_width_line(self.reslice)
 
-        self.view.connect_clim_combo(self.reslice)
-        self.view.connect_cbar_combo(self.reslice)
+        self.view.connect_clim_combo(self.update_slice_display)
+        self.view.connect_cbar_combo(self.update_slice_display)
 
-        self.view.connect_slice_scale_combo(self.reslice)
+        self.view.connect_slice_scale_combo(self.update_slice_display)
+        self.view.connect_slice_auto_limits(self.update_slice_display)
         self.view.connect_slice_line(self.reslice)
         self.view.connect_vmin_line(self.update_cvals)
         self.view.connect_vmax_line(self.update_cvals)
+        self.view.connect_instrument_auto_limits(
+            self.update_instrument_display
+        )
 
         self.slice_idle = True
         self.volume_idle = True
+        self.slice_signal_cache = None
+        self.inst_signal_cache = None
 
         self.view.connect_cluster(self.cluster)
+
+    def _calculate_display_limits(self, data, method, scale):
+        clip = self.model.calculate_clim(np.array(data, copy=True), method)
+
+        vmin = np.nanmin(clip)
+        vmax = np.nanmax(clip)
+
+        if scale == "log" and (not np.isfinite(vmin) or vmin <= 0):
+            signal = np.asarray(data)
+            positive = signal[np.isfinite(signal) & (signal > 0)]
+            if positive.size > 0:
+                vmin = np.nanmin(positive)
+
+        if np.isclose(vmin, vmax) or not np.isfinite([vmin, vmax]).all():
+            return (0.1, 1) if scale == "log" else (0, 1)
+
+        return vmin, vmax
+
+    def _resolve_display_limits(
+        self, data, method, scale, auto_limits, current_vmin, current_vmax
+    ):
+        if (
+            not auto_limits
+            and current_vmin is not None
+            and current_vmax is not None
+            and current_vmin < current_vmax
+        ):
+            if current_vmin <= 0 and scale == "log":
+                current_vmin = current_vmax / 10
+            return current_vmin, current_vmax
+
+        return self._calculate_display_limits(data, method, scale)
 
     def update_cvals(self):
         vmin = self.view.get_vmin_value()
@@ -123,13 +165,68 @@ class UB(NeuXtalVizPresenter):
                 self.view.update_instrument_colorbar_vlims(vmin, vmax)
 
     def update_instrument_view_autoscaled(self):
-        self.view.inst_vmin_line.blockSignals(True)
-        self.view.inst_vmax_line.blockSignals(True)
-        self.view.clear_inst_vlims()
-        self.view.inst_vmin_line.blockSignals(False)
-        self.view.inst_vmax_line.blockSignals(False)
+        if self.view.get_instrument_auto_limits():
+            self.view.inst_vmin_line.blockSignals(True)
+            self.view.inst_vmax_line.blockSignals(True)
+            self.view.clear_inst_vlims()
+            self.view.inst_vmin_line.blockSignals(False)
+            self.view.inst_vmax_line.blockSignals(False)
 
-        self.update_instrument_view()
+        if self.inst_signal_cache is not None:
+            self.update_instrument_display()
+        else:
+            self.update_instrument_view()
+
+    def handle_data_combo_change(self):
+        self.inst_signal_cache = None
+        self.update_instrument_view_autoscaled()
+
+    def update_instrument_clim(self):
+        self.update_instrument_display()
+
+    def update_instrument_display(self):
+        if self.inst_signal_cache is None:
+            self.update_instrument_view()
+            return
+
+        vmin, vmax = self._resolve_display_limits(
+            self.inst_signal_cache,
+            self.get_vlim_method(),
+            self.view.get_instrument_scale(),
+            self.view.get_instrument_auto_limits(),
+            self.view.get_inst_vmin_value(),
+            self.view.get_inst_vmax_value(),
+        )
+
+        self.view.update_instrument_display(
+            self.view.get_instrument_colormap(),
+            self.view.get_instrument_scale(),
+            vmin,
+            vmax,
+        )
+
+    def update_slice_clim(self):
+        self.update_slice_display()
+
+    def update_slice_display(self):
+        if self.slice_signal_cache is None:
+            self.reslice()
+            return
+
+        vmin, vmax = self._resolve_display_limits(
+            self.slice_signal_cache,
+            self.get_clim_method(),
+            self.view.get_slice_scale(),
+            self.view.get_slice_auto_limits(),
+            self.view.get_vmin_value(),
+            self.view.get_vmax_value(),
+        )
+        self.view.update_slice_display(
+            self.view.get_colormap(),
+            self.view.get_slice_scale(),
+            vmin,
+            vmax,
+        )
 
     def update_find_spacing(self):
         """
@@ -213,23 +310,36 @@ class UB(NeuXtalVizPresenter):
 
             self.view.set_indices(hkl, int_hkl, int_mnp)
 
-    def convert_Q(self):
+    def convert_Q(self, force_reload=False):
         self.update_data_status()
 
-        worker = self.view.worker(self.convert_Q_process)
+        def process(progress=None, stop_event=None):
+            return self.convert_Q_process(
+                progress=progress,
+                stop_event=stop_event,
+                force_reload=force_reload,
+            )
+
+        worker = self.view.worker(process)
         worker.connect_result(self.convert_Q_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
 
         self.view.start_worker_pool(worker)
 
+    def convert_Q_reload(self):
+        self.convert_Q(force_reload=True)
+
     def convert_Q_complete(self, result):
         if result is not None:
-            self.view.update_diffraction_label(result)
+            self.view.set_data_list(result["runs"])
+            self.view.update_diffraction_label(result["mono"])
 
             self.update_instrument_view()
 
-    def convert_Q_process(self, progress=None, stop_event=None):
+    def convert_Q_process(
+        self, progress=None, stop_event=None, force_reload=False
+    ):
         if self.stop_processing(stop_event):
             return None
 
@@ -267,15 +377,15 @@ class UB(NeuXtalVizPresenter):
                 runs,
                 exp,
                 time_stop,
+                force_reload=force_reload,
             )
 
             if self.stop_processing(stop_event):
                 return None
 
-            if data_load is None:
+            if not data_load:
                 progress("Files do not exist.", 0)
-
-            self.view.set_data_list(self.model.get_number_workspaces())
+                return None
 
             progress("Data loaded...", 40)
 
@@ -293,7 +403,13 @@ class UB(NeuXtalVizPresenter):
 
             progress("Data converting...", 70)
 
-            self.model.convert_data(instrument, wavelength, lorentz, d_min)
+            self.model.convert_data(
+                instrument,
+                wavelength,
+                lorentz,
+                d_min,
+                force_reload=force_reload,
+            )
 
             if self.stop_processing(stop_event):
                 return None
@@ -302,7 +418,10 @@ class UB(NeuXtalVizPresenter):
 
             progress("Data converted!", 0)
 
-            return mono
+            return {
+                "mono": mono,
+                "runs": self.model.get_number_workspaces(),
+            }
 
         else:
             if instrument is None:
@@ -353,14 +472,14 @@ class UB(NeuXtalVizPresenter):
                 self.update_processing("Invalid data list index.", 0)
 
     def delete_peak(self):
-        no = self.view.get_peak()
+        peaks = self.view.get_peaks()
 
-        if self.model.has_peaks() and no is not None:
-            self.model.delete_peak(no)
+        if self.model.has_peaks() and len(peaks) > 0:
+            self.model.delete_peak_rows(peaks)
             self.view.clear_peak_selection()
             self.visualize()
         else:
-            self.update_processing("No highlighted peak selected.", 0)
+            self.update_processing("No highlighted peaks selected.", 0)
 
     def calculate_hkl(self):
         if self.model.has_Q():
@@ -398,6 +517,7 @@ class UB(NeuXtalVizPresenter):
 
     def update_instrument_view_complete(self, result):
         if result is not None:
+            self.inst_signal_cache = np.array(result[0]["img"], copy=True)
             self.view.update_instrument_view(result[0])
             self.view.update_roi_view(result[1])
             self.view.update_scan_view(result[1])
@@ -449,24 +569,16 @@ class UB(NeuXtalVizPresenter):
                 img = self.model.inst_view["img"]
                 signal = img.ravel()
 
-                clip = self.model.calculate_clim(
-                    signal, self.get_vlim_method()
+                self.model.inst_view["vmin"], self.model.inst_view["vmax"] = (
+                    self._resolve_display_limits(
+                        signal,
+                        self.get_vlim_method(),
+                        self.view.get_instrument_scale(),
+                        self.view.get_instrument_auto_limits(),
+                        self.view.get_inst_vmin_value(),
+                        self.view.get_inst_vmax_value(),
+                    )
                 )
-
-                self.model.inst_view["vmin"] = np.nanmin(clip)
-                self.model.inst_view["vmax"] = np.nanmax(clip)
-
-                inst_vmin = self.view.get_inst_vmin_value()
-                inst_vmax = self.view.get_inst_vmax_value()
-                if inst_vmin is not None and inst_vmax is not None:
-                    if inst_vmin < inst_vmax:
-                        if (
-                            inst_vmin <= 0
-                            and self.view.get_instrument_scale() == "log"
-                        ):
-                            inst_vmin = inst_vmax / 10
-                        self.model.inst_view["vmin"] = inst_vmin
-                        self.model.inst_view["vmax"] = inst_vmax
 
                 progress("ROI viewed...", 70)
 
@@ -563,6 +675,7 @@ class UB(NeuXtalVizPresenter):
         self.view.set_Q_status(self.model.get_Q_status(files))
         self.view.set_peaks_status(self.model.get_peaks_status())
         self.view.set_UB_status(self.model.get_UB_status())
+        self.view.set_undo_filter_enabled(self.model.can_undo_filter_peaks())
 
     def visualize(self):
 
@@ -631,11 +744,16 @@ class UB(NeuXtalVizPresenter):
             d_max = self.view.get_find_peaks_spacing()
             params = self.view.get_find_peaks_parameters()
             edge = self.view.get_find_peaks_edge()
+            peak_width = self.view.get_peak_width()
             no_al = self.view.get_avoid_aluminum()
             no_cu = self.view.get_avoid_copper()
             no_fe = self.view.get_avoid_iron()
 
-            if Q_min is not None and params is not None:
+            if (
+                Q_min is not None
+                and params is not None
+                and peak_width is not None
+            ):
                 progress("Processing...", 1)
 
                 if self.stop_processing(stop_event):
@@ -650,11 +768,17 @@ class UB(NeuXtalVizPresenter):
                     return None
 
                 if no_al and d_min < d_max:
-                    self.model.avoid_aluminum_contamination(d_min, d_max)
+                    self.model.avoid_aluminum_contamination(
+                        d_min, d_max, peak_width
+                    )
                 if no_cu and d_min < d_max:
-                    self.model.avoid_copper_contamination(d_min, d_max)
+                    self.model.avoid_copper_contamination(
+                        d_min, d_max, peak_width
+                    )
                 if no_fe and d_min < d_max:
-                    self.model.avoid_iron_contamination(d_min, d_max)
+                    self.model.avoid_iron_contamination(
+                        d_min, d_max, peak_width
+                    )
 
                 progress("Peaks found...", 90)
 
@@ -872,13 +996,15 @@ class UB(NeuXtalVizPresenter):
         self.view.set_cell_form(form)
 
     def highlight_peak(self):
-        no = self.view.get_peak()
-        if no is not None:
-            peak = self.model.get_peak(no)
+        peaks = self.view.get_peaks()
+        if len(peaks) > 0:
+            peak = self.model.get_peak(peaks[0])
             if peak is not None:
                 self.view.set_peak_info(peak)
-                self.view.highlight_peak(no + 1)
+                self.view.highlight_peaks([no + 1 for no in peaks])
                 self.view.set_position(peak["Q"])
+        else:
+            self.view.highlight_peaks([])
 
     def lattice_transform(self):
         cell = self.view.get_lattice_transform()
@@ -1218,6 +1344,7 @@ class UB(NeuXtalVizPresenter):
 
             progress("Filtering peaks...", 50)
 
+            self.model.snapshot_filter_peaks()
             self.model.filter_peaks(name, operator, value)
 
             progress("Peaks filtered...", 99)
@@ -1226,6 +1353,37 @@ class UB(NeuXtalVizPresenter):
 
         else:
             progress("Invalid parameters.", 0)
+
+    def undo_filter_peaks(self):
+        worker = self.view.worker(self.undo_filter_peaks_process)
+        worker.connect_result(self.undo_filter_peaks_complete)
+        worker.connect_finished(self.visualize)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def undo_filter_peaks_complete(self, result):
+        self.model.copy_UB_from_peaks()
+
+    def undo_filter_peaks_process(self, progress=None, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
+        if self.model.can_undo_filter_peaks():
+            progress("Processing...", 1)
+
+            if self.stop_processing(stop_event):
+                return None
+
+            progress("Restoring peaks...", 50)
+
+            self.model.undo_filter_peaks()
+
+            progress("Peaks restored...", 99)
+
+            progress("Peaks restored!", 100)
+        else:
+            progress("No filtered peaks backup available.", 0)
 
     def load_detector_calibration(self):
         inst = self.view.get_instrument()
@@ -1428,6 +1586,7 @@ class UB(NeuXtalVizPresenter):
 
     def convert_to_hkl_complete(self, result):
         if result is not None:
+            self.slice_signal_cache = np.array(result["signal"], copy=True)
             self.view.update_slice(result)
         self.slice_idle = True
 
@@ -1466,11 +1625,16 @@ class UB(NeuXtalVizPresenter):
                 if slice_histo is not None:
                     signal = slice_histo["signal"]
 
-                    clip = self.model.calculate_clim(
-                        signal, self.get_clim_method()
+                    slice_histo["vmin"], slice_histo["vmax"] = (
+                        self._resolve_display_limits(
+                            signal,
+                            self.get_clim_method(),
+                            self.view.get_slice_scale(),
+                            self.view.get_slice_auto_limits(),
+                            self.view.get_vmin_value(),
+                            self.view.get_vmax_value(),
+                        )
                     )
-
-                    slice_histo["clip"] = clip
 
                     progress("Slice drawn!", 100)
 

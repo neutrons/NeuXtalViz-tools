@@ -1,5 +1,7 @@
 from NeuXtalViz.presenters.base_presenter import NeuXtalVizPresenter
 
+import numpy as np
+
 
 class VolumeSlicer(NeuXtalVizPresenter):
     def __init__(self, view, model):
@@ -16,9 +18,10 @@ class VolumeSlicer(NeuXtalVizPresenter):
         self.view.connect_clim_combo(self.update_slice)
         self.view.connect_cbar_combo(self.update_volume)
 
-        self.view.connect_vlim_combo(self.update_slice)
+        self.view.connect_vlim_combo(self.update_slice_clim)
 
-        self.view.connect_slice_scale_combo(self.update_slice)
+        self.view.connect_slice_scale_combo(self.update_slice_display)
+        self.view.connect_auto_limits(self.update_slice_display)
         self.view.connect_cut_scale_combo(self.update_cut)
 
         self.view.connect_slice_line(self.update_slice_value)
@@ -46,6 +49,39 @@ class VolumeSlicer(NeuXtalVizPresenter):
         self.draw_idle = True
         self.slice_idle = True
         self.cut_idle = True
+        self.slice_signal_cache = None
+
+    def _calculate_display_limits(self, data, method, scale):
+        clip = self.model.calculate_clim(np.array(data, copy=True), method)
+
+        vmin = np.nanmin(clip)
+        vmax = np.nanmax(clip)
+
+        if scale == "log" and (not np.isfinite(vmin) or vmin <= 0):
+            signal = np.asarray(data)
+            positive = signal[np.isfinite(signal) & (signal > 0)]
+            if positive.size > 0:
+                vmin = np.nanmin(positive)
+
+        if np.isclose(vmin, vmax) or not np.isfinite([vmin, vmax]).all():
+            return (0.1, 1) if scale == "log" else (0, 1)
+
+        return vmin, vmax
+
+    def _resolve_display_limits(
+        self, data, method, scale, auto_limits, current_vmin, current_vmax
+    ):
+        if (
+            not auto_limits
+            and current_vmin is not None
+            and current_vmax is not None
+            and current_vmin < current_vmax
+        ):
+            if current_vmin <= 0 and scale == "log":
+                current_vmin = current_vmax / 10
+            return current_vmin, current_vmax
+
+        return self._calculate_display_limits(data, method, scale)
 
     def update_lims(self):
         """
@@ -98,6 +134,29 @@ class VolumeSlicer(NeuXtalVizPresenter):
     def update_slice(self):
         if self.model.is_histo_loaded():
             self.slice_data()
+
+    def update_slice_clim(self):
+        self.update_slice_display()
+
+    def update_slice_display(self):
+        if self.slice_signal_cache is None:
+            self.update_slice()
+            return
+
+        vmin, vmax = self._resolve_display_limits(
+            self.slice_signal_cache,
+            self.get_vlim_method(),
+            self.view.get_slice_scale(),
+            self.view.get_auto_limits(),
+            self.view.get_vmin_value(),
+            self.view.get_vmax_value(),
+        )
+        self.view.update_slice_display(
+            self.view.get_colormap(),
+            self.view.get_slice_scale(),
+            vmin,
+            vmax,
+        )
 
     def update_cut(self):
         if self.model.is_histo_loaded():
@@ -276,6 +335,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
     def slice_data_complete(self, result):
         if result is not None:
+            self.slice_signal_cache = result["signal"].copy()
             self.view.add_slice(result)
         self.slice_idle = True
 
@@ -304,9 +364,16 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
                 data = slice_histo["signal"]
 
-                data = self.model.calculate_clim(data, self.get_vlim_method())
-
-                slice_histo["signal"] = data
+                vmin, vmax = self._resolve_display_limits(
+                    data,
+                    self.get_vlim_method(),
+                    self.view.get_slice_scale(),
+                    self.view.get_auto_limits(),
+                    self.view.get_vmin_value(),
+                    self.view.get_vmax_value(),
+                )
+                slice_histo["vmin"] = vmin
+                slice_histo["vmax"] = vmax
 
                 progress("Data sliced!", 100)
 

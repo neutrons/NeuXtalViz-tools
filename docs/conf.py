@@ -71,7 +71,7 @@ html_theme_options = {
     "icon_links": [
         {
             "name": "GitHub",
-            "url": "https://github.com/zjmorgan/NeuXtalViz-tools",
+            "url": "https://github.com/neutrons/NeuXtalViz-tools",
             "icon": "fab fa-github-square",
             "type": "fontawesome",
         },
@@ -110,7 +110,7 @@ add_module_names = False
 
 def linkcode_resolve(domain, info):
     baseurl = (
-        "https://github.com/zjmorgan/NeuXtalViz-tools/blob/main/src/{}.py"
+        "https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/{}.py"
     )
     if "py" not in domain:
         return None

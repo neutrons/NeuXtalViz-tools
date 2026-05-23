@@ -85,6 +85,7 @@ import numpy as np
 import scipy
 import glob
 import json
+import re
 
 from NeuXtalViz.models.base_model import NeuXtalVizModel
 from NeuXtalViz.config.instruments import beamlines
@@ -143,10 +144,19 @@ class UBModel(NeuXtalVizModel):
 
         self.Q = None
         self.table = "ub_peaks"
+        self.filter_table_backup = self.table + "_filter_backup"
         self.cell = "ub_lattice"
         self.primitive_cell = "primitive_cell"
 
         self.peak_info = None
+        self.loaded_data_key = None
+        self.loaded_data_workspaces = {}
+        self.loaded_md_key = None
+        self.loaded_md_workspaces = {}
+        self.loaded_convert_metadata = {}
+        self.requested_filenames = []
+        self.detector_grouping_key = None
+        self.detector_grouping_pattern = None
 
         CreateSampleWorkspace(OutputWorkspace="ub_lattice")
         CreateSampleWorkspace(OutputWorkspace="primitive_cell")
@@ -183,6 +193,35 @@ class UBModel(NeuXtalVizModel):
             return True
         else:
             return False
+
+    def can_undo_filter_peaks(self):
+        return mtd.doesExist(self.filter_table_backup)
+
+    def clear_filter_peaks_backup(self):
+        if self.can_undo_filter_peaks():
+            DeleteWorkspace(Workspace=self.filter_table_backup)
+
+    def snapshot_filter_peaks(self):
+        if not self.has_peaks():
+            return
+
+        self.clear_filter_peaks_backup()
+        CloneWorkspace(
+            InputWorkspace=self.table,
+            OutputWorkspace=self.filter_table_backup,
+        )
+
+    def undo_filter_peaks(self):
+        if not self.can_undo_filter_peaks():
+            return
+
+        if self.has_peaks():
+            DeleteWorkspace(Workspace=self.table)
+
+        RenameWorkspace(
+            InputWorkspace=self.filter_table_backup,
+            OutputWorkspace=self.table,
+        )
 
     def has_UB(self):
         """
@@ -597,7 +636,326 @@ class UBModel(NeuXtalVizModel):
 
         return filenames, idf, grouping, raw, message
 
-    def load_data(self, instrument, IPTS, runs, exp, time_stop):
+    def _can_cache_loaded_data(self, instrument):
+        if instrument in ["DEMAND", "WAND²"]:
+            return False
+
+        return "HFIR" not in self.get_raw_file_path(instrument)
+
+    def _loaded_data_cache_key(
+        self, instrument, IPTS, exp, time_stop, idf, grouping, raw
+    ):
+        return (
+            instrument,
+            str(IPTS),
+            exp,
+            time_stop if raw else None,
+            idf,
+            grouping,
+            raw,
+        )
+
+    def _loaded_md_cache_key(self, instrument, wavelength, lorentz, min_d):
+        return (
+            instrument,
+            tuple(wavelength),
+            lorentz,
+            min_d,
+            self.loaded_data_key,
+        )
+
+    def _delete_loaded_file_workspaces(self, filenames):
+        for filename in filenames:
+            workspace = self._loaded_workspace_name(filename)
+            if mtd.doesExist(workspace):
+                DeleteWorkspace(Workspace=workspace)
+
+    def _loaded_workspace_name(self, filename):
+        workspace = os.path.basename(filename)
+        workspace = re.sub(r"[^0-9A-Za-z]+", "_", workspace).strip("_")
+        return f"loaded_{workspace}"
+
+    def _loaded_md_workspace_name(self, filename):
+        workspace = os.path.basename(filename)
+        workspace = re.sub(r"[^0-9A-Za-z]+", "_", workspace).strip("_")
+        return f"md_{workspace}"
+
+    def _clear_converted_data_cache(self):
+        cached_workspaces = set(self.loaded_md_workspaces.values())
+        for workspace in cached_workspaces:
+            if mtd.doesExist(workspace):
+                DeleteWorkspace(Workspace=workspace)
+
+        self.loaded_md_key = None
+        self.loaded_md_workspaces = {}
+        self.loaded_convert_metadata = {}
+
+        for workspace in ["md", "Q3D"]:
+            if mtd.doesExist(workspace):
+                DeleteWorkspace(Workspace=workspace)
+
+    def _clear_loaded_data_cache(self):
+        self._clear_converted_data_cache()
+
+        cached_workspaces = set(self.loaded_data_workspaces.values())
+        for workspace in cached_workspaces:
+            if mtd.doesExist(workspace):
+                DeleteWorkspace(Workspace=workspace)
+
+        self.loaded_data_key = None
+        self.loaded_data_workspaces = {}
+        self.requested_filenames = []
+        self.detector_grouping_key = None
+        self.detector_grouping_pattern = None
+
+        for workspace in ["data", "detectors"]:
+            if mtd.doesExist(workspace):
+                DeleteWorkspace(Workspace=workspace)
+
+    def _drop_unrequested_workspaces(self, requested_filenames):
+        requested = set(requested_filenames)
+
+        stale_filenames = [
+            filename
+            for filename in self.loaded_data_workspaces
+            if filename not in requested
+        ]
+
+        for filename in stale_filenames:
+            raw_workspace = self.loaded_data_workspaces.pop(filename, None)
+            if raw_workspace is not None and mtd.doesExist(raw_workspace):
+                DeleteWorkspace(Workspace=raw_workspace)
+
+            md_workspace = self.loaded_md_workspaces.pop(filename, None)
+            if md_workspace is not None and mtd.doesExist(md_workspace):
+                DeleteWorkspace(Workspace=md_workspace)
+
+            self.loaded_convert_metadata.pop(filename, None)
+
+    def _group_data_workspaces(self, filenames):
+        workspaces = [
+            self.loaded_data_workspaces[filename]
+            for filename in filenames
+            if filename in self.loaded_data_workspaces
+            and mtd.doesExist(self.loaded_data_workspaces[filename])
+        ]
+
+        if mtd.doesExist("data"):
+            DeleteWorkspace(Workspace="data")
+
+        if len(workspaces) == 0:
+            return
+
+        CloneWorkspace(
+            InputWorkspace=workspaces[0],
+            OutputWorkspace="data",
+        )
+
+    def _get_requested_loaded_workspaces(self):
+        return [
+            self.loaded_data_workspaces[filename]
+            for filename in self.requested_filenames
+            if filename in self.loaded_data_workspaces
+            and mtd.doesExist(self.loaded_data_workspaces[filename])
+        ]
+
+    def _get_detector_grouping_pattern(
+        self, workspace, instrument, grouping, cols, rows, c, r
+    ):
+        key = (instrument, grouping, cols, rows, c, r)
+
+        if (
+            self.detector_grouping_key == key
+            and self.detector_grouping_pattern is not None
+        ):
+            return self.detector_grouping_pattern
+
+        if workspace is None or not mtd.doesExist(workspace):
+            return None
+
+        PreprocessDetectorsToMD(
+            InputWorkspace=workspace, OutputWorkspace="detectors"
+        )
+
+        det_map = np.asarray(mtd["detectors"].column(5)).reshape(
+            -1, cols, rows
+        )
+
+        nb, nc, nr = det_map.shape
+
+        gc = (np.arange(nc) // c).astype(np.int32)
+        gr = (np.arange(nr) // r).astype(np.int32)
+
+        ngc = (nc + c - 1) // c
+        ngr = (nr + r - 1) // r
+
+        group_id = (
+            (np.arange(nb, dtype=np.int32)[:, None, None] * (ngc * ngr))
+            + (gc[None, :, None] * ngr)
+            + gr[None, None, :]
+        ).ravel()
+
+        det_ids = det_map.ravel()
+
+        order = np.argsort(group_id, kind="stable")
+        g_sorted = group_id[order]
+        d_sorted = det_ids[order]
+
+        starts = np.flatnonzero(np.r_[True, g_sorted[1:] != g_sorted[:-1]])
+        ends = np.r_[starts[1:], g_sorted.size]
+
+        parts = []
+        for start, end in zip(starts, ends):
+            parts.append("+".join(map(str, d_sorted[start:end])))
+
+        self.detector_grouping_key = key
+        self.detector_grouping_pattern = ",".join(parts)
+
+        return self.detector_grouping_pattern
+
+    def _prepare_white_beam_workspace(
+        self, workspace, instrument, inst, scale_c, scale_r, idf, grouping
+    ):
+        cols, rows = beamlines[instrument]["BankPixels"]
+        mask_cols, mask_rows = beamlines[instrument]["MaskEdges"]
+        cols //= scale_c
+        rows //= scale_r
+        mask_cols //= scale_c
+        mask_rows //= scale_r
+
+        MaskBTP(
+            Workspace=workspace,
+            Instrument=inst["Name"],
+            Tube="0-{},{}-{}".format(mask_cols, cols - mask_cols, cols),
+        )
+        MaskBTP(
+            Workspace=workspace,
+            Instrument=inst["Name"],
+            Pixel="0-{},{}-{}".format(mask_rows, rows - mask_rows, rows),
+        )
+
+        mask_lost = beamlines[instrument].get("MaskLost")
+        if mask_lost is not None:
+            for btp in mask_lost:
+                bank, tube, pixel = btp
+                tube = list(tube)
+                pixel = list(pixel)
+                tube[0] //= scale_c
+                tube[1] //= scale_c
+                pixel[0] //= scale_r
+                pixel[1] //= scale_r
+                MaskBTP(
+                    Workspace=workspace,
+                    Instrument=inst["Name"],
+                    Bank=bank,
+                    Tube="{}-{}".format(*tube),
+                    Pixel="{}-{}".format(*pixel),
+                )
+
+        for bank in beamlines[instrument]["MaskBanks"]:
+            MaskBTP(
+                Workspace=workspace,
+                Instrument=inst["Name"],
+                Bank=bank,
+            )
+
+        if idf is None:
+            c, r = [int(val) for val in grouping.split("x")]
+            detector_list = self._get_detector_grouping_pattern(
+                workspace, instrument, grouping, cols, rows, c, r
+            )
+            if detector_list is not None:
+                GroupDetectors(
+                    InputWorkspace=workspace,
+                    GroupingPattern=detector_list,
+                    OutputWorkspace=workspace,
+                )
+
+    def _convert_white_beam_run(
+        self, raw_workspace, md_workspace, wavelength, lorentz, q_min, q_max
+    ):
+        temp_workspace = str(raw_workspace) + "_convert"
+
+        if mtd.doesExist(temp_workspace):
+            DeleteWorkspace(Workspace=temp_workspace)
+
+        CloneWorkspace(
+            InputWorkspace=raw_workspace, OutputWorkspace=temp_workspace
+        )
+
+        ConvertUnits(
+            InputWorkspace=temp_workspace,
+            Target="MomentumTransfer",
+            OutputWorkspace=temp_workspace,
+        )
+
+        CropWorkspace(
+            InputWorkspace=temp_workspace,
+            XMin=q_min,
+            XMax=q_max,
+            OutputWorkspace=temp_workspace,
+        )
+
+        ConvertUnits(
+            InputWorkspace=temp_workspace,
+            Target="Wavelength",
+            OutputWorkspace=temp_workspace,
+        )
+
+        CropWorkspace(
+            InputWorkspace=temp_workspace,
+            XMin=wavelength[0],
+            XMax=wavelength[1],
+            OutputWorkspace=temp_workspace,
+        )
+
+        CompressEvents(
+            InputWorkspace=temp_workspace,
+            Tolerance=1e-4,
+            OutputWorkspace=temp_workspace,
+        )
+
+        ConvertUnits(
+            InputWorkspace=temp_workspace,
+            Target="dSpacing",
+            OutputWorkspace=temp_workspace,
+        )
+
+        Rebin(
+            InputWorkspace=temp_workspace,
+            OutputWorkspace=temp_workspace,
+            Params=[2 * np.pi / q_max, -0.01, 2 * np.pi / q_min],
+        )
+
+        d_spacing = mtd[temp_workspace].extractX()[0]
+        d_spacing = 0.5 * (d_spacing[1:] + d_spacing[:-1])
+        counts = mtd[temp_workspace].extractY().copy()
+
+        PreprocessDetectorsToMD(
+            InputWorkspace=temp_workspace,
+            OutputWorkspace="detectors",
+        )
+
+        two_theta = np.array(mtd["detectors"].column("TwoTheta"))
+        az_phi = np.array(mtd["detectors"].column("Azimuthal"))
+
+        ConvertToMD(
+            InputWorkspace=temp_workspace,
+            QDimensions="Q3D",
+            dEAnalysisMode="Elastic",
+            Q3DFrames="Q_sample",
+            LorentzCorrection=lorentz,
+            MinValues=[-q_max, -q_max, -q_max],
+            MaxValues=[+q_max, +q_max, +q_max],
+            PreprocDetectorsWS="detectors",
+            OutputWorkspace=md_workspace,
+        )
+
+        return d_spacing, counts, two_theta, az_phi
+
+    def load_data(
+        self, instrument, IPTS, runs, exp, time_stop, force_reload=False
+    ):
         """
         Load experimental data for a given instrument and run parameters.
 
@@ -613,6 +971,8 @@ class UBModel(NeuXtalVizModel):
             Experiment identifier.
         time_stop : float
             Time to stop loading data.
+        force_reload : bool, optional
+            Force reloading already cached workspaces instead of reusing them.
         """
 
         filenames, idf, grouping, raw, message = self.get_files(
@@ -624,7 +984,7 @@ class UBModel(NeuXtalVizModel):
         if filenames == []:
             return False
 
-        filenames = ",".join([filename for filename in filenames])
+        requested_filenames = [filename for filename in filenames]
 
         self.runs = runs
         self.instrument = instrument
@@ -636,11 +996,25 @@ class UBModel(NeuXtalVizModel):
             int(v) for v in inst["Grouping"].split("x")
         ]
 
+        cache_enabled = self._can_cache_loaded_data(instrument)
+        cache_key = self._loaded_data_cache_key(
+            instrument, IPTS, exp, time_stop, idf, grouping, raw
+        )
+
+        if force_reload or self.loaded_data_key != cache_key:
+            self._clear_loaded_data_cache()
+        else:
+            self._drop_unrequested_workspaces(requested_filenames)
+
+        self.requested_filenames = requested_filenames
+
         LoadEmptyInstrument(
             InstrumentName=inst["Name"] if idf is None else None,
             Filename=idf if idf is not None else None,
             OutputWorkspace="goniometer",
         )
+
+        filenames = ",".join(requested_filenames)
 
         if instrument == "DEMAND":
             HB3AAdjustSampleNorm(
@@ -668,121 +1042,84 @@ class UBModel(NeuXtalVizModel):
             c, r = [int(val) for val in grouping.split("x")]
             scale_c = 1 if idf is None else c
             scale_r = 1 if idf is None else r
-            for filename in filenames.split(","):
-                if raw:
-                    LoadEventNexus(
-                        Filename=filename,
-                        FilterByTimeStop=time_stop,
-                        NumberOfBins=1,
-                        OutputWorkspace=filename,
-                        LoadNexusInstrumentXML=False,
+
+            if cache_enabled:
+                missing_filenames = [
+                    filename
+                    for filename in requested_filenames
+                    if filename not in self.loaded_data_workspaces
+                    or not mtd.doesExist(self.loaded_data_workspaces[filename])
+                ]
+
+                for filename in missing_filenames:
+                    workspace = self._loaded_workspace_name(filename)
+
+                    if raw:
+                        LoadEventNexus(
+                            Filename=filename,
+                            FilterByTimeStop=time_stop,
+                            NumberOfBins=1,
+                            OutputWorkspace=workspace,
+                            LoadNexusInstrumentXML=False,
+                        )
+                    else:
+                        LoadNexus(
+                            Filename=filename,
+                            OutputWorkspace=workspace,
+                        )
+
+                    self._prepare_white_beam_workspace(
+                        workspace,
+                        instrument,
+                        inst,
+                        scale_c,
+                        scale_r,
+                        idf,
+                        grouping,
                     )
-                else:
-                    LoadNexus(
-                        Filename=filename,
-                        OutputWorkspace=filename,
-                    )
-            if len(filenames.split(",")) > 1:
-                GroupWorkspaces(
-                    InputWorkspaces=filenames, OutputWorkspace="data"
-                )
+
+                    self.loaded_data_workspaces[filename] = workspace
+
+                self.loaded_data_key = cache_key
+                self._group_data_workspaces(requested_filenames)
             else:
-                RenameWorkspace(
-                    InputWorkspace=filenames.split(",")[0],
-                    OutputWorkspace="data",
-                )
-            cols, rows = beamlines[instrument]["BankPixels"]
-            mask_cols, mask_rows = beamlines[instrument]["MaskEdges"]
-            cols //= scale_c
-            rows //= scale_r
-            mask_cols //= scale_c
-            mask_rows //= scale_r
-            MaskBTP(
-                Workspace="data",
-                Instrument=inst["Name"],
-                Tube="0-{},{}-{}".format(mask_cols, cols - mask_cols, cols),
-            )
-            MaskBTP(
-                Workspace="data",
-                Instrument=inst["Name"],
-                Pixel="0-{},{}-{}".format(mask_rows, rows - mask_rows, rows),
-            )
-            mask_lost = beamlines[instrument].get("MaskLost")
-            if mask_lost is not None:
-                for btp in mask_lost:
-                    bank, tube, pixel = btp
-                    tube[0] //= scale_c
-                    tube[1] //= scale_c
-                    pixel[0] //= scale_r
-                    pixel[1] //= scale_r
-                    MaskBTP(
-                        Workspace="data",
-                        Instrument=inst["Name"],
-                        Bank=bank,
-                        Tube="{}-{}".format(*tube),
-                        Pixel="{}-{}".format(*pixel),
+                self.loaded_data_workspaces = {}
+                for filename in requested_filenames:
+                    workspace = self._loaded_workspace_name(filename)
+
+                    if raw:
+                        LoadEventNexus(
+                            Filename=filename,
+                            FilterByTimeStop=time_stop,
+                            NumberOfBins=1,
+                            OutputWorkspace=workspace,
+                            LoadNexusInstrumentXML=False,
+                        )
+                    else:
+                        LoadNexus(
+                            Filename=filename,
+                            OutputWorkspace=workspace,
+                        )
+
+                    self._prepare_white_beam_workspace(
+                        workspace,
+                        instrument,
+                        inst,
+                        scale_c,
+                        scale_r,
+                        idf,
+                        grouping,
                     )
-            banks = beamlines[instrument]["MaskBanks"]
-            for bank in banks:
-                MaskBTP(
-                    Workspace="data",
-                    Instrument=inst["Name"],
-                    Bank=bank,
-                )
-            group = mtd["data"].isGroup()
-            if not group:
-                GroupWorkspaces(InputWorkspaces="data", OutputWorkspace="data")
-            input_ws = mtd["data"].getNames()[0]
-            PreprocessDetectorsToMD(
-                InputWorkspace=input_ws, OutputWorkspace="detectors"
-            )
 
-            if idf is None:
-                det_map = np.asarray(mtd["detectors"].column(5)).reshape(
-                    -1, cols, rows
-                )
+                    self.loaded_data_workspaces[filename] = workspace
 
-                nb, nc, nr = det_map.shape
+                self.loaded_data_key = cache_key
+                self._group_data_workspaces(requested_filenames)
 
-                gc = (np.arange(nc) // c).astype(np.int32)
-                gr = (np.arange(nr) // r).astype(np.int32)
+            if not mtd.doesExist("data"):
+                return False
 
-                ngc = (nc + c - 1) // c
-                ngr = (nr + r - 1) // r
-
-                group_id = (
-                    (
-                        np.arange(nb, dtype=np.int32)[:, None, None]
-                        * (ngc * ngr)
-                    )
-                    + (gc[None, :, None] * ngr)
-                    + gr[None, None, :]
-                ).ravel()
-
-                det_ids = det_map.ravel()
-
-                order = np.argsort(group_id, kind="stable")
-                g_sorted = group_id[order]
-                d_sorted = det_ids[order]
-
-                starts = np.flatnonzero(
-                    np.r_[True, g_sorted[1:] != g_sorted[:-1]]
-                )
-                ends = np.r_[starts[1:], g_sorted.size]
-
-                parts = []
-                for s, e in zip(starts, ends):
-                    parts.append("+".join(map(str, d_sorted[s:e])))
-
-                detector_list = ",".join(parts)
-
-                GroupDetectors(
-                    InputWorkspace="data",
-                    GroupingPattern=detector_list,
-                    OutputWorkspace="data",
-                )
-
-                return True
+            return True
 
     def calibrate_data(self, instrument, det_cal, gon_cal, tube_cal):
         """
@@ -808,49 +1145,52 @@ class UBModel(NeuXtalVizModel):
             while len(goniometers) < 6:
                 goniometers.append(None)
 
-            SetGoniometer(
-                Workspace="data",
-                Axis0=goniometers[0],
-                Axis1=goniometers[1],
-                Axis2=goniometers[2],
-                Average=False if "HFIR" in filepath else True,
-            )
+            white_beam_workspaces = self._get_requested_loaded_workspaces()
+            if "HFIR" in filepath or len(white_beam_workspaces) == 0:
+                workspaces = (
+                    list(mtd["data"].getNames())
+                    if mtd["data"].isGroup()
+                    else ["data"]
+                )
+            else:
+                workspaces = white_beam_workspaces
+
+            for workspace in workspaces:
+                SetGoniometer(
+                    Workspace=workspace,
+                    Axis0=goniometers[0],
+                    Axis1=goniometers[1],
+                    Axis2=goniometers[2],
+                    Average=False if "HFIR" in filepath else True,
+                )
 
             if tube_cal != "" and os.path.exists(tube_cal):
                 LoadNexus(Filename=tube_cal, OutputWorkspace="tube_table")
-                ApplyCalibration(
-                    Workspace="data", CalibrationTable="tube_table"
-                )
+                for workspace in workspaces:
+                    ApplyCalibration(
+                        Workspace=workspace, CalibrationTable="tube_table"
+                    )
 
             if det_cal != "" and os.path.exists(det_cal):
                 if os.path.splitext(det_cal)[1] == ".xml":
-                    LoadParameterFile(Workspace="data", Filename=det_cal)
+                    for workspace in workspaces:
+                        LoadParameterFile(
+                            Workspace=workspace, Filename=det_cal
+                        )
                 else:
-                    ws = mtd["data"]
-                    group = ws.isGroup()
-                    if group:
-                        for input_ws in ws.getNames():
-                            LoadIsawDetCal(
-                                InputWorkspace=input_ws, Filename=det_cal
-                            )
-                    else:
-                        LoadIsawDetCal(InputWorkspace="data", Filename=det_cal)
+                    for workspace in workspaces:
+                        LoadIsawDetCal(
+                            InputWorkspace=workspace, Filename=det_cal
+                        )
 
             if (
                 gon_cal != ""
                 and os.path.exists(gon_cal)
                 and os.path.splitext(gon_cal)[1] == ".xml"
             ):
-
                 LoadParameterFile(Workspace="goniometer", Filename=gon_cal)
 
                 inst = mtd["goniometer"].getInstrument()
-
-                workspaces = (
-                    list(mtd["data"].getNames())
-                    if mtd["data"].isGroup()
-                    else ["data"]
-                )
 
                 for workspace in workspaces:
                     run = mtd[workspace].run()
@@ -898,7 +1238,9 @@ class UBModel(NeuXtalVizModel):
         if mtd.doesExist("data"):
             return self.runs
 
-    def convert_data(self, instrument, wavelength, lorentz, min_d=None):
+    def convert_data(
+        self, instrument, wavelength, lorentz, min_d=None, force_reload=False
+    ):
         """
         Convert loaded data to Q-space using Mantid algorithms.
 
@@ -912,6 +1254,8 @@ class UBModel(NeuXtalVizModel):
             Whether to apply Lorentz correction.
         min_d : float, optional
             Minimum d-spacing. Default is None.
+        force_reload : bool, optional
+            Force reconversion of cached MD workspaces.
         """
 
         filepath = self.get_raw_file_path(instrument)
@@ -920,7 +1264,11 @@ class UBModel(NeuXtalVizModel):
             Q_max = 2 * np.pi / min_d
 
         if mtd.doesExist("data"):
-            input_ws_names = mtd["data"].getNames()
+            input_ws_names = (
+                list(mtd["data"].getNames())
+                if mtd["data"].isGroup()
+                else ["data"]
+            )
             input_ws = input_ws_names[0]
 
             Rs = []
@@ -934,8 +1282,6 @@ class UBModel(NeuXtalVizModel):
                 for ws in input_ws_names:
                     r = mtd[ws].getExperimentInfo(0).run()
                     R = []
-                    # angle = []
-                    # run_no = []
                     n_gon = r.getNumGoniometers()
                     for i in range(n_gon):
                         gon = r.getGoniometer(i)
@@ -967,10 +1313,27 @@ class UBModel(NeuXtalVizModel):
                     MaxRecursionDepth=5,
                     OutputWorkspace="md",
                 )
+
+                input_ws_names = mtd["md"].getNames()
+                input_ws = input_ws_names[0]
+
+                if len(input_ws_names) > 1:
+                    MergeMD(InputWorkspaces="md", OutputWorkspace="md")
+
+                else:
+                    UnGroupWorkspace(InputWorkspace="md")
+
+                    RenameWorkspace(
+                        InputWorkspace=input_ws, OutputWorkspace="md"
+                    )
             else:
+                raw_workspaces = self._get_requested_loaded_workspaces()
+                if len(raw_workspaces) == 0:
+                    raw_workspaces = input_ws_names
 
                 PreprocessDetectorsToMD(
-                    InputWorkspace=input_ws, OutputWorkspace="detectors"
+                    InputWorkspace=raw_workspaces[0],
+                    OutputWorkspace="detectors",
                 )
 
                 two_theta = mtd["detectors"].column("TwoTheta")
@@ -983,91 +1346,108 @@ class UBModel(NeuXtalVizModel):
                 k = 2 * np.pi / max(wavelength)
                 Q_min = k * np.sin(0.5 * min(two_theta))
 
-                ConvertUnits(
-                    InputWorkspace="data",
-                    Target="MomentumTransfer",
-                    OutputWorkspace="data",
+                convert_key = self._loaded_md_cache_key(
+                    instrument, wavelength, lorentz, min_d
                 )
 
-                CropWorkspace(
-                    InputWorkspace="data",
-                    XMin=Q_min,
-                    XMax=Q_max,
-                    OutputWorkspace="data",
-                )
+                if force_reload or self.loaded_md_key != convert_key:
+                    self._clear_converted_data_cache()
 
-                ConvertUnits(
-                    InputWorkspace="data",
-                    Target="Wavelength",
-                    OutputWorkspace="data",
-                )
+                d = None
+                conv = None
+                counts = []
+                Rs = []
+                two_theta = None
+                az_phi = None
 
-                CropWorkspace(
-                    InputWorkspace="data",
-                    XMin=wavelength[0],
-                    XMax=wavelength[1],
-                    OutputWorkspace="data",
-                )
+                for filename in self.requested_filenames:
+                    raw_workspace = self.loaded_data_workspaces.get(filename)
+                    if raw_workspace is None or not mtd.doesExist(
+                        raw_workspace
+                    ):
+                        continue
 
-                CompressEvents(
-                    InputWorkspace="data",
-                    Tolerance=1e-4,
-                    OutputWorkspace="data",
-                )
+                    metadata = self.loaded_convert_metadata.get(filename)
+                    md_workspace = self.loaded_md_workspaces.get(filename)
 
-                ConvertUnits(
-                    InputWorkspace="data",
-                    Target="dSpacing",
-                    OutputWorkspace="data",
-                )
+                    if (
+                        metadata is None
+                        or md_workspace is None
+                        or not mtd.doesExist(md_workspace)
+                    ):
+                        md_workspace = self._loaded_md_workspace_name(filename)
+                        if mtd.doesExist(md_workspace):
+                            DeleteWorkspace(Workspace=md_workspace)
 
-                Rebin(
-                    InputWorkspace="data",
-                    OutputWorkspace="data",
-                    Params=[2 * np.pi / Q_max, -0.01, 2 * np.pi / Q_min],
-                )
+                        d, vals, two_theta, az_phi = (
+                            self._convert_white_beam_run(
+                                raw_workspace,
+                                md_workspace,
+                                wavelength,
+                                lorentz,
+                                Q_min,
+                                Q_max,
+                            )
+                        )
 
-                d = mtd[input_ws].extractX()[0]
-                d = 0.5 * (d[1:] + d[:-1])
-
-                for ws in input_ws_names:
-                    r = mtd[ws].run()
-                    n_gon = r.getNumGoniometers()
-                    for i in range(n_gon):
-                        gon = r.getGoniometer(i)
-                        Rs.append(gon.getR())
+                        run = mtd[raw_workspace].run()
+                        gon = run.getGoniometer(0)
+                        R = gon.getR()
                         conv = gon.getConventionFromMotorAxes()
                         if conv == "YYY":
                             conv = "YZY"
 
-                counts = [mtd[ws].extractY().copy() for ws in input_ws_names]
+                        self.loaded_convert_metadata[filename] = (
+                            d,
+                            vals,
+                            two_theta,
+                            az_phi,
+                            R,
+                            conv,
+                        )
+                        self.loaded_md_workspaces[filename] = md_workspace
 
-                ConvertToMD(
-                    InputWorkspace="data",
-                    QDimensions="Q3D",
-                    dEAnalysisMode="Elastic",
-                    Q3DFrames="Q_sample",
-                    LorentzCorrection=lorentz,
-                    MinValues=[-Q_max, -Q_max, -Q_max],
-                    MaxValues=[+Q_max, +Q_max, +Q_max],
-                    PreprocDetectorsWS="detectors",
-                    OutputWorkspace="md",
-                )
+                    d, vals, two_theta, az_phi, R, conv = (
+                        self.loaded_convert_metadata[filename]
+                    )
 
-            input_ws_names = mtd["md"].getNames()
-            input_ws = input_ws_names[0]
+                    Rs.append(R)
+                    counts.append(vals)
 
-            if len(input_ws_names) > 1:
-                MergeMD(InputWorkspaces="md", OutputWorkspace="md")
+                self.loaded_md_key = convert_key
 
-            else:
-                UnGroupWorkspace(InputWorkspace="md")
+                md_workspaces = [
+                    self.loaded_md_workspaces[filename]
+                    for filename in self.requested_filenames
+                    if filename in self.loaded_md_workspaces
+                    and mtd.doesExist(self.loaded_md_workspaces[filename])
+                ]
 
-                RenameWorkspace(InputWorkspace=input_ws, OutputWorkspace="md")
+                if len(md_workspaces) == 0:
+                    return
+
+                if len(md_workspaces) == 1:
+                    if mtd.doesExist("md"):
+                        DeleteWorkspace(Workspace="md")
+                    CloneWorkspace(
+                        InputWorkspace=md_workspaces[0], OutputWorkspace="md"
+                    )
+                else:
+                    if mtd.doesExist("md"):
+                        DeleteWorkspace(Workspace="md")
+                    MergeMD(
+                        InputWorkspaces=",".join(md_workspaces),
+                        OutputWorkspace="md",
+                    )
+
+                lamda = None
 
             self.Q_max_cut = Q_max
 
             self.Q = "md"
+
+            if mtd.doesExist("Q3D"):
+                DeleteWorkspace(Workspace="Q3D")
 
             BinMD(
                 InputWorkspace=self.Q,
@@ -1274,6 +1654,18 @@ class UBModel(NeuXtalVizModel):
         if self.has_peaks() and 0 <= no < mtd[self.table].getNumberPeaks():
             DeleteTableRows(TableWorkspace=self.table, Rows=no)
 
+    def delete_peak_rows(self, numbers):
+        """Delete multiple peak rows from the current peaks workspace."""
+
+        if not self.has_peaks():
+            return
+
+        row_count = mtd[self.table].getNumberPeaks()
+        valid_rows = [no for no in numbers if 0 <= no < row_count]
+
+        for no in sorted(set(valid_rows), reverse=True):
+            DeleteTableRows(TableWorkspace=self.table, Rows=no)
+
     def calculate_hkl_position(self, ind, h, k, l):
         """
         Calculate the HKL position for a given peak index and Miller indices.
@@ -1386,7 +1778,7 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        dict
+        inst_view : dict
             Instrument view data including d, gamma, nu, and counts.
         """
 
@@ -1394,14 +1786,16 @@ class UBModel(NeuXtalVizModel):
 
         R = self.Rs[ind]
 
+        two_theta = self.two_theta
+        gamma = self.gamma
+        nu = self.nu
+
         if type(self.scan) is float:
             lamda = np.full(len(R), self.scan)
-            d_spacing = (
-                0.5 * lamda / np.sin(0.5 * self.two_theta[:, np.newaxis])
-            )
+            d_spacing = 0.5 * lamda / np.sin(0.5 * two_theta[:, np.newaxis])
         else:
             d = self.scan
-            d_spacing = d * np.ones_like(self.two_theta)[:, np.newaxis]
+            d_spacing = d * np.ones_like(two_theta)[:, np.newaxis]
 
         if np.isclose(d_min, d_max) or d_max < d_min:
             d_min, d_max = 0, np.inf
@@ -1419,8 +1813,8 @@ class UBModel(NeuXtalVizModel):
 
         sort = np.argsort(counts)
 
-        gamma_arr = self.gamma[uni_rows][sort]
-        nu_arr = self.nu[uni_rows][sort]
+        gamma_arr = gamma[uni_rows][sort]
+        nu_arr = nu[uni_rows][sort]
         counts_arr = counts[sort]
 
         inst_view["d"] = d_spacing
@@ -1516,6 +1910,8 @@ class UBModel(NeuXtalVizModel):
             val = (nu.max() + nu.min()) / 2
 
         R = self.Rs[ind]
+        gamma = self.gamma
+        nu = self.nu
 
         if type(self.scan) is float:
             x = np.rad2deg(np.arccos([0.5 * (np.trace(r) - 1) for r in R]))
@@ -1527,15 +1923,15 @@ class UBModel(NeuXtalVizModel):
         mask = (
             (d > d_min)
             & (d < d_max)
-            & (self.gamma[:, np.newaxis] > horz - horz_roi)
-            & (self.gamma[:, np.newaxis] < horz + horz_roi)
-            & (self.nu[:, np.newaxis] > vert - vert_roi)
-            & (self.nu[:, np.newaxis] < vert + vert_roi)
+            & (gamma[:, np.newaxis] > horz - horz_roi)
+            & (gamma[:, np.newaxis] < horz + horz_roi)
+            & (nu[:, np.newaxis] > vert - vert_roi)
+            & (nu[:, np.newaxis] < vert + vert_roi)
         )
 
         rows, cols = np.nonzero(mask)
 
-        vals = self.counts[ind]
+        vals = self.counts[ind].copy()
 
         uni_cols, inv_ind = np.unique(cols, return_inverse=True)
 
@@ -1807,7 +2203,7 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        bool
+        has_Q_vol : bool
             True if Q volume data exists, False otherwise.
         """
 
@@ -1819,7 +2215,7 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        dict
+        Q_info : dict
             Dictionary containing Q-space signal, min/max limits, spacing, and optionally x, y, z coordinates.
         """
 
@@ -1901,7 +2297,7 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        list
+        params : list
             List of lattice constants [a, b, c, alpha, beta, gamma].
         """
 
@@ -1918,7 +2314,7 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        list
+        errors : list
             List of errors in lattice constants.
         """
 
@@ -1950,7 +2346,7 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        np.ndarray
+        int_vec : np.ndarray
             Simplified integer vector.
         """
 
@@ -1968,7 +2364,7 @@ class UBModel(NeuXtalVizModel):
 
         Returns
         -------
-        list
+        directions : list
             List of simplified sample direction vectors.
         """
 

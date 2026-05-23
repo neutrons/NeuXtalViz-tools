@@ -18,6 +18,7 @@ from PyQt5.QtCore import pyqtSignal
 
 import numpy as np
 import pyvista as pv
+from matplotlib import colors as mcolors
 
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
@@ -70,6 +71,9 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self._cx = None
         self._sx = None
         self._sy = None
+        self.slice_im = None
+        self.xlim = None
+        self.ylim = None
 
     def slicer_tab(self):
         slice_tab = QWidget()
@@ -223,6 +227,11 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         self.vmin_line = QLineEdit("")
         self.vmax_line = QLineEdit("")
+        self.auto_limits_box = QCheckBox("Auto Limits")
+        self.auto_limits_box.setChecked(True)
+        self.auto_limits_box.setToolTip(
+            "Automatically reset slice limits on redraw. Uncheck to reuse the current limits."
+        )
 
         self.xmin_line = QLineEdit("")
         self.xmax_line = QLineEdit("")
@@ -276,6 +285,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         slice_params_layout.addWidget(self.slice_line)
         slice_params_layout.addWidget(slice_thickness_label)
         slice_params_layout.addWidget(self.slice_thickness_line)
+        slice_params_layout.addWidget(self.toggle_line_box)
         slice_params_layout.addStretch(1)
         slice_params_layout.addWidget(self.slice_scale_combo)
         slice_params_layout.addWidget(self.save_slice_button)
@@ -289,7 +299,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         view_params_layout.addWidget(ymax_label, 0, 2)
         view_params_layout.addWidget(self.ymax_line, 0, 3)
 
-        view_params_layout.addWidget(self.toggle_line_box, 1, 4)
+        view_params_layout.addWidget(self.auto_limits_box, 1, 4)
         view_params_layout.addWidget(self.vlim_combo, 0, 4)
         view_params_layout.addWidget(vmin_label, 1, 5)
         view_params_layout.addWidget(self.vmin_line, 1, 6)
@@ -413,6 +423,9 @@ class VolumeSlicerView(NeuXtalVizWidget):
     def connect_vmax_line(self, update_vals):
         self.vmax_line.editingFinished.connect(update_vals)
 
+    def connect_auto_limits(self, update_limits):
+        self.auto_limits_box.toggled.connect(update_limits)
+
     def connect_xmin_line(self, update_vals):
         self.xmin_line.editingFinished.connect(update_vals)
 
@@ -454,16 +467,42 @@ class VolumeSlicerView(NeuXtalVizWidget):
             self.update_colorbar_vlims(vmin, vmax)
 
     def update_colorbar_vlims(self, vmin, vmax):
-        if self.cb is not None:
+        if self.cb is not None and self.slice_im is not None:
             self.set_vmin_value(vmin)
             self.set_vmax_value(vmax)
 
-            self.im.set_clim(vmin=vmin, vmax=vmax)
-            self.cb.update_normal(self.im)
+            self.slice_im.set_clim(vmin=vmin, vmax=vmax)
+            self.cb.update_normal(self.slice_im)
             self.cb.minorticks_on()
 
             self.canvas_slice.draw_idle()
             self.canvas_slice.flush_events()
+
+    def _create_norm(self, scale, vmin, vmax):
+        scale = scale.lower()
+
+        if scale == "log":
+            vmin = max(vmin, np.finfo(float).tiny)
+            return mcolors.LogNorm(vmin=vmin, vmax=vmax)
+
+        return mcolors.Normalize(vmin=vmin, vmax=vmax)
+
+    def update_slice_display(self, cmap_key, scale, vmin, vmax):
+        if self.slice_im is None:
+            return
+
+        self.set_vmin_value(vmin)
+        self.set_vmax_value(vmax)
+
+        self.slice_im.set_cmap(cmaps[cmap_key])
+        self.slice_im.set_norm(self._create_norm(scale, vmin, vmax))
+
+        if self.cb is not None:
+            self.cb.update_normal(self.slice_im)
+            self.cb.minorticks_on()
+
+        self.canvas_slice.draw_idle()
+        self.canvas_slice.flush_events()
 
     def get_color_bar_values(self):
         return 0, 100
@@ -718,14 +757,16 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         trans = transform + self.ax_slice.transData
 
-        im = self.ax_slice.pcolormesh(
+        self.slice_im = self.ax_slice.pcolormesh(
             x,
             y,
             signal,
-            norm=scale,
+            norm=self._create_norm(
+                scale,
+                slice_dict.get("vmin", vmin),
+                slice_dict.get("vmax", vmax),
+            ),
             cmap=cmap,
-            vmin=vmin,
-            vmax=vmax,
             shading="flat",
             transform=trans,
             rasterized=True,
@@ -736,12 +777,11 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.ax_slice.set_xlabel(labels[0])
         self.ax_slice.set_ylabel(labels[1])
 
-        self.im = im
-        self.vmin, self.vmax = self.im.norm.vmin, self.im.norm.vmax
+        self.vmin, self.vmax = self.slice_im.norm.vmin, self.slice_im.norm.vmax
 
         self.ax_slice.set_title(title)
 
-        self.cb = self.fig_slice.colorbar(self.im, ax=self.ax_slice)
+        self.cb = self.fig_slice.colorbar(self.slice_im, ax=self.ax_slice)
         self.cb.minorticks_on()
 
         self.canvas_slice.draw_idle()
@@ -749,8 +789,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         self.ax_slice.format_coord = self.__format_axis_coord
 
-        self.im = im
-        self.vmin, self.vmax = self.im.norm.vmin, self.im.norm.vmax
+        self.vmin, self.vmax = self.slice_im.norm.vmin, self.slice_im.norm.vmax
 
         self.set_vmin_value(self.vmin)
         self.set_vmax_value(self.vmax)
@@ -800,6 +839,9 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.canvas_slice.flush_events()
 
     def add_cut(self, cut_dict):
+        if self.xlim is None or self.ylim is None or self.slice_im is None:
+            return
+
         if self._cx is not None:
             self.ax_cut.callbacks.disconnect(self._cx)
         if self._sx is not None:
@@ -1018,6 +1060,9 @@ class VolumeSlicerView(NeuXtalVizWidget):
     def get_vmax_value(self):
         if self.vmax_line.hasAcceptableInput():
             return float(self.vmax_line.text())
+
+    def get_auto_limits(self):
+        return self.auto_limits_box.isChecked()
 
     def set_vmin_value(self, val):
         self.vmin_line.setText(str(round(val, 5)))
