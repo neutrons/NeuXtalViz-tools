@@ -26,17 +26,17 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
     <script src="_static/documentation_options.js?v=5929fcd5"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
@@ -176,11 +176,18 @@
       
         <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
       
         <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -193,8 +200,7 @@
           
           
           
-          <a href="https://github.com/zjmorgan/NeuXtalViz-tools" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/neutrons/NeuXtalViz-tools" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
       
@@ -274,11 +280,18 @@
         
           <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
         
           <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -291,8 +304,7 @@
           
           
           
-          <a href="https://github.com/zjmorgan/NeuXtalViz-tools" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/neutrons/NeuXtalViz-tools" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
         
@@ -535,6 +547,8 @@
 </li>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.calibrate_data">calibrate_data() (UBModel method)</a>
 </li>
+      <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.can_undo_filter_peaks">can_undo_filter_peaks() (UBModel method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.centroid_peaks">centroid_peaks() (UBModel method)</a>
@@ -542,6 +556,8 @@
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.change_lattice">change_lattice() (NeuXtalVizPresenter method)</a>
 </li>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.experiment_planner.ExperimentModel.clear_combined">clear_combined() (ExperimentModel method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.clear_filter_peaks_backup">clear_filter_peaks_backup() (UBModel method)</a>
 </li>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.clear_intensity">clear_intensity() (UBModel method)</a>
 </li>
@@ -576,6 +592,8 @@
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.convert_Q_complete">convert_Q_complete() (UB method)</a>
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.convert_Q_process">convert_Q_process() (UB method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.convert_Q_reload">convert_Q_reload() (UB method)</a>
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.convert_to_hkl">convert_to_hkl() (Experiment method)</a>
 
@@ -653,6 +671,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.delete_peak_rows">delete_peak_rows() (UBModel method)</a>
+</li>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.delete_peaks">delete_peaks() (UBModel method)</a>
 </li>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.determine_UB_with_lattice_parameters">determine_UB_with_lattice_parameters() (UBModel method)</a>
@@ -1002,6 +1022,8 @@
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.hand_index_fractional">hand_index_fractional() (UB method)</a>
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.hand_index_integer">hand_index_integer() (UB method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.handle_data_combo_change">handle_data_combo_change() (UB method)</a>
 </li>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.has_crystal_structure">has_crystal_structure() (CrystalStructureModel method)</a>
 </li>
@@ -1652,6 +1674,8 @@
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data_process">slice_data_process() (VolumeSlicer method)</a>
 </li>
+      <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.snapshot_filter_peaks">snapshot_filter_peaks() (UBModel method)</a>
+</li>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.sort_peaks_by_d">sort_peaks_by_d() (UBModel method)</a>
 </li>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.sort_peaks_by_hkl">sort_peaks_by_hkl() (UBModel method)</a>
@@ -1712,6 +1736,16 @@
 </li>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel">UBModel (class in NeuXtalViz.models.ub_tools)</a>
 </li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.undo_filter_peaks">undo_filter_peaks() (UB method)</a>
+
+      <ul>
+        <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.undo_filter_peaks">(UBModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.undo_filter_peaks_complete">undo_filter_peaks_complete() (UB method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.undo_filter_peaks_process">undo_filter_peaks_process() (UB method)</a>
+</li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.update_atoms">update_atoms() (CrystalStructure method)</a>
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_check_hkl">update_check_hkl() (UB method)</a>
@@ -1742,6 +1776,10 @@
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_inst_cvals">update_inst_cvals() (UB method)</a>
 </li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_instrument_clim">update_instrument_clim() (UB method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_instrument_display">update_instrument_display() (UB method)</a>
+</li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_instrument_view">update_instrument_view() (UB method)</a>
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_instrument_view_autoscaled">update_instrument_view_autoscaled() (UB method)</a>
@@ -1754,10 +1792,10 @@
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_lattice_info">update_lattice_info() (UB method)</a>
 </li>
-      <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.update_lattice_parameters">update_lattice_parameters() (CrystalStructureModel method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.update_lattice_parameters">update_lattice_parameters() (CrystalStructureModel method)</a>
+</li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_lims">update_lims() (VolumeSlicer method)</a>
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.update_oriented_lattice">update_oriented_lattice() (NeuXtalVizPresenter method)</a>
@@ -1794,6 +1832,18 @@
       </ul></li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice">update_slice() (VolumeSlicer method)</a>
 </li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_slice_clim">update_slice_clim() (UB method)</a>
+
+      <ul>
+        <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_clim">(VolumeSlicer method)</a>
+</li>
+      </ul></li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_slice_display">update_slice_display() (UB method)</a>
+
+      <ul>
+        <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_display">(VolumeSlicer method)</a>
+</li>
+      </ul></li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_value">update_slice_value() (VolumeSlicer method)</a>
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.update_status">update_status() (NeuXtalVizPresenter method)</a>
@@ -1896,8 +1946,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1921,7 +1971,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.18.0.
 </p></div>
       
     </div>
