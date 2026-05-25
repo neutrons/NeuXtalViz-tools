@@ -3027,6 +3027,7 @@ class UBView(NeuXtalVizWidget):
         self.symmetry_combo.clear()
         for symbol in symbols:
             self.symmetry_combo.addItem(symbol)
+        self.auto_scale_dropdown(self.symmetry_combo)
 
     def get_transform_matrix(self):
         params = (
