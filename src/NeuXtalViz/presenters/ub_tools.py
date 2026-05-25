@@ -111,6 +111,12 @@ class UB(NeuXtalVizPresenter):
         self.inst_signal_cache = None
 
         self.view.connect_cluster(self.cluster)
+        self.view.connect_calculate_alignment(self.calculate_alignment)
+
+    def refresh_peak_views(self):
+        peaks = self.model.get_peak_info() if self.model.has_peaks() else []
+        self.view.update_peaks_table(peaks)
+        self.view.update_alignment_runs(peaks)
 
     def _calculate_display_limits(self, data, method, scale):
         clip = self.model.calculate_clim(np.array(data, copy=True), method)
@@ -702,9 +708,9 @@ class UB(NeuXtalVizPresenter):
                 self.update_lattice_info()
 
             if self.model.has_peaks():
-                peaks = self.model.get_peak_info()
-
-                self.view.update_peaks_table(peaks)
+                self.refresh_peak_views()
+            else:
+                self.refresh_peak_views()
 
             self.update_complete("Data visualized!")
 
@@ -1447,6 +1453,7 @@ class UB(NeuXtalVizPresenter):
 
         if filename:
             self.model.load_peaks(filename)
+            self.refresh_peak_views()
 
     def save_peaks(self):
         inst = self.view.get_instrument()
@@ -1659,6 +1666,42 @@ class UB(NeuXtalVizPresenter):
             self.view.add_cluster_peaks(result)
             self.view.update_cluster_table(result)
             self.update_processing("Peaks added!", 0)
+
+    def calculate_alignment(self):
+        worker = self.view.worker(self.calculate_alignment_process)
+        worker.connect_result(self.calculate_alignment_complete)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def calculate_alignment_complete(self, result):
+        if result is not None:
+            self.update_processing("Rendering alignment.", 75)
+            self.view.add_alignment_peaks(result)
+            self.update_processing("Alignment calculated!", 0)
+
+    def calculate_alignment_process(self, progress=None, stop_event=None):
+        if self.stop_processing(stop_event):
+            return None
+
+        run_number = self.view.get_alignment_run()
+        tilts = self.view.get_alignment_tilts()
+
+        if self.model.has_peaks() and self.model.has_UB():
+            if run_number is not None and tilts is not None:
+                progress("Calculating alignment.", 25)
+
+                result = self.model.get_alignment_info(run_number, tilts)
+
+                if result is not None:
+                    progress("Alignment calculated.", 100)
+                    return result
+
+                progress("No indexed peaks for selected run.", 0)
+            else:
+                progress("Invalid alignment parameters.", 0)
+        else:
+            progress("Alignment requires indexed peaks and UB.", 0)
 
     def cluster_process(self, progress=None, stop_event=None):
         if self.stop_processing(stop_event):

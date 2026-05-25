@@ -3590,6 +3590,47 @@ class UBModel(NeuXtalVizModel):
 
             return peak_info
 
+    def get_alignment_info(self, run_number, tilts=(0.0, 0.0, 0.0)):
+        if not (self.has_peaks() and self.has_UB()):
+            return None
+
+        UB = self.get_UB()
+        B = 2 * np.pi * UB
+
+        yaw, pitch, roll = tilts
+        G = scipy.spatial.transform.Rotation.from_euler(
+            "yxz", [yaw, pitch, roll], degrees=True
+        ).as_matrix()
+
+        observed, predicted, observed_hkl = [], [], []
+
+        for peak in mtd[self.table]:
+            if peak.getRunNumber() != run_number or peak.getHKL().norm2() <= 0:
+                continue
+
+            hkl = np.array(list(peak.getHKL()), dtype=float)
+            q_sample = np.array(list(peak.getQSampleFrame()), dtype=float)
+            R = np.array(peak.getGoniometerMatrix(), dtype=float)
+
+            q_lab = R @ q_sample
+            q_observed = np.linalg.solve(G @ R, q_lab)
+            hkl_observed = np.linalg.solve(B, q_observed)
+
+            observed.append(q_observed)
+            predicted.append(B @ hkl)
+            observed_hkl.append(hkl_observed)
+
+        if len(observed) == 0:
+            return None
+
+        return {
+            "run_number": run_number,
+            "observed": np.asarray(observed),
+            "predicted": np.asarray(predicted),
+            "observed_hkl": np.asarray(observed_hkl),
+            "tilts": np.asarray(tilts, dtype=float),
+        }
+
     def get_peak(self, i):
         """
         Get a specific peak's information by index.

@@ -31,7 +31,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
 from matplotlib.figure import Figure
 from matplotlib.transforms import Affine2D
-from matplotlib.ticker import FormatStrFormatter
+from matplotlib.ticker import FormatStrFormatter, MaxNLocator as MplMaxNLocator
 
 from mpl_toolkits.axisartist import Axes, GridHelperCurveLinear
 from mpl_toolkits.axisartist.grid_finder import (
@@ -75,6 +75,7 @@ class UBView(NeuXtalVizWidget):
         self.table_tab()
         self.verify_tab()
         self.modulation_tab()
+        self.alignment_tab()
 
         self.layout().addWidget(self.tab_widget, stretch=1)
 
@@ -2003,8 +2004,95 @@ class UBView(NeuXtalVizWidget):
 
         mod_tab.setLayout(modulation_layout)
 
+    def alignment_tab(self):
+        align_tab = QWidget()
+        self.tab_widget.addTab(align_tab, "Alignment")
+
+        alignment_layout = QVBoxLayout()
+
+        run_label = QLabel("Run #:")
+        yaw_label = QLabel("Yaw (y):")
+        pitch_label = QLabel("Pitch (x):")
+        roll_label = QLabel("Roll (z):")
+
+        notation = QDoubleValidator.StandardNotation
+
+        validator = QDoubleValidator(-360, 360, 3, notation=notation)
+
+        self.align_yaw_line = QLineEdit("0")
+        self.align_pitch_line = QLineEdit("0")
+        self.align_roll_line = QLineEdit("0")
+
+        self.align_yaw_line.setValidator(validator)
+        self.align_pitch_line.setValidator(validator)
+        self.align_roll_line.setValidator(validator)
+
+        self.align_yaw_line.setToolTip(
+            "Manual goniometer yaw correction in degrees about y."
+        )
+        self.align_pitch_line.setToolTip(
+            "Manual goniometer pitch correction in degrees about x."
+        )
+        self.align_roll_line.setToolTip(
+            "Manual goniometer roll correction in degrees about z."
+        )
+
+        self.alignment_run_combo = QComboBox(self)
+        self.alignment_run_combo.addItem("None")
+        self.alignment_run_combo.setEnabled(False)
+        self.alignment_run_combo.setToolTip(
+            "Run number used for the alignment comparison."
+        )
+        self.auto_scale_dropdown(self.alignment_run_combo)
+
+        self.calculate_alignment_button = QPushButton(
+            "Calculate Alignment", self
+        )
+        self.calculate_alignment_button.setToolTip(
+            "Compare UB-predicted Q positions to observed peaks for one run."
+        )
+        self.calculate_alignment_button.setIcon(
+            qta.icon("fa6s.ruler-combined")
+        )
+        self.calculate_alignment_button.setEnabled(False)
+
+        controls_layout = QHBoxLayout()
+        controls_layout.addWidget(run_label)
+        controls_layout.addWidget(self.alignment_run_combo)
+        controls_layout.addSpacing(12)
+        controls_layout.addWidget(yaw_label)
+        controls_layout.addWidget(self.align_yaw_line)
+        controls_layout.addWidget(pitch_label)
+        controls_layout.addWidget(self.align_pitch_line)
+        controls_layout.addWidget(roll_label)
+        controls_layout.addWidget(self.align_roll_line)
+        controls_layout.addSpacing(12)
+        controls_layout.addWidget(self.calculate_alignment_button)
+        controls_layout.addStretch(1)
+
+        plot_layout = QVBoxLayout()
+
+        self.canvas_align = FigureCanvas(Figure(tight_layout=True))
+
+        plot_layout.addWidget(NavigationToolbar2QT(self.canvas_align, self))
+        plot_layout.addWidget(self.canvas_align)
+
+        fig = self.canvas_align.figure
+
+        self.ax_align = fig.subplots(3, 1, sharex=True, sharey=True)
+
+        self.clear_alignment_plot()
+
+        alignment_layout.addLayout(controls_layout)
+        alignment_layout.addLayout(plot_layout)
+
+        align_tab.setLayout(alignment_layout)
+
     def connect_cluster(self, cluster):
         self.cluster_button.clicked.connect(cluster)
+
+    def connect_calculate_alignment(self, calculate_alignment):
+        self.calculate_alignment_button.clicked.connect(calculate_alignment)
 
     def connect_h_index(self, update_index):
         self.h_line.editingFinished.connect(update_index)
@@ -2456,7 +2544,7 @@ class UBView(NeuXtalVizWidget):
             self,
             "Load peaks file",
             path,
-            "Peaks files (*.nxs; *.peaks; *.integrate)",
+            "Peaks files (*.nxs *.peaks *.integrate)",
             options=options,
         )
 
@@ -2473,7 +2561,7 @@ class UBView(NeuXtalVizWidget):
             self,
             "Save peaks file",
             path,
-            "Peaks files (*.nxs; *.peaks; *.integrate)",
+            "Peaks files (*.nxs *.peaks *.integrate)",
             options=options,
         )
 
@@ -3972,6 +4060,158 @@ class UBView(NeuXtalVizWidget):
                 self.param_min_line.text()
             )
 
+    def update_alignment_runs(self, peaks):
+        current = self.alignment_run_combo.currentText()
+
+        runs = sorted(
+            {
+                int(peak["run_number"])
+                for peak in peaks
+                if peak.get("ind") and peak.get("run_number") is not None
+            }
+        )
+
+        self.alignment_run_combo.blockSignals(True)
+        self.alignment_run_combo.clear()
+
+        if len(runs) > 0:
+            for run in runs:
+                self.alignment_run_combo.addItem(str(run))
+
+            index = self.alignment_run_combo.findText(current)
+            self.alignment_run_combo.setCurrentIndex(0 if index < 0 else index)
+            self.alignment_run_combo.setEnabled(True)
+            self.calculate_alignment_button.setEnabled(True)
+        else:
+            self.alignment_run_combo.addItem("None")
+            self.alignment_run_combo.setCurrentIndex(0)
+            self.alignment_run_combo.setEnabled(False)
+            self.calculate_alignment_button.setEnabled(False)
+
+        self.auto_scale_dropdown(self.alignment_run_combo)
+        self.alignment_run_combo.blockSignals(False)
+
+    def get_alignment_run(self):
+        text = self.alignment_run_combo.currentText().strip()
+
+        if re.fullmatch(r"-?\d+", text):
+            return int(text)
+
+    def get_alignment_tilts(self):
+        params = [
+            self.align_yaw_line,
+            self.align_pitch_line,
+            self.align_roll_line,
+        ]
+        valid_params = all([param.hasAcceptableInput() for param in params])
+
+        if valid_params:
+            return tuple(float(param.text()) for param in params)
+
+    def clear_alignment_plot(self):
+        self.plotter.clear_actors()
+
+        labels = ["$h$", "$k$", "$l$"]
+
+        for axis, label in zip(self.ax_align, labels):
+            axis.clear()
+            axis.set_xlim(-1, 1)
+            axis.set_ylim(1, 100)
+            axis.minorticks_on()
+            axis.set_yscale("log")
+            axis.xaxis.set_major_locator(MplMaxNLocator(integer=True))
+            axis.set_xlabel(label)
+            axis.axvline(0, color="0.5", linestyle="--", linewidth=1)
+
+        self.canvas_align.draw_idle()
+        self.canvas_align.flush_events()
+
+    def add_alignment_peaks(self, alignment_dict):
+        observed = np.asarray(alignment_dict["observed"])
+        predicted = np.asarray(alignment_dict["predicted"])
+        observed_hkl = np.asarray(alignment_dict["observed_hkl"])
+        observed_color = "lightblue"
+        predicted_color = "pink"
+        bin_width = 0.05
+
+        self.clear_alignment_plot()
+
+        if observed.size == 0 or predicted.size == 0 or observed_hkl.size == 0:
+            return
+
+        limit = np.nanmax(np.abs(observed_hkl))
+        limit = max(bin_width, np.ceil(limit / bin_width) * bin_width)
+        bins = np.arange(-limit, limit + 1.5 * bin_width, bin_width)
+
+        for i, axis in enumerate(self.ax_align):
+            counts, _ = np.histogram(observed_hkl[:, i], bins=bins)
+            axis.stairs(counts, bins, color="C{}".format(i))
+            axis.set_xlim(-limit, limit)
+
+            positive = counts[counts > 0]
+            ymax = 10 if positive.size == 0 else max(10, positive.max() * 1.25)
+            axis.set_ylim(1, ymax)
+
+        self.canvas_align.draw_idle()
+        self.canvas_align.flush_events()
+
+        coords = np.vstack([observed, predicted])
+        min_lim = np.nanmin(coords, axis=0)
+        max_lim = np.nanmax(coords, axis=0)
+
+        if np.allclose(min_lim, max_lim):
+            min_lim = min_lim - 1
+            max_lim = max_lim + 1
+        else:
+            span = max_lim - min_lim
+            pad = np.where(span > 0, 0.05 * span, 1.0)
+            min_lim = min_lim - pad
+            max_lim = max_lim + pad
+
+        mesh = pv.Line(
+            pointa=(min_lim[0], 0, 0), pointb=(max_lim[0], 0, 0), resolution=1
+        )
+        self.plotter.add_mesh(
+            mesh, color="k", style="wireframe", render_lines_as_tubes=True
+        )
+
+        mesh = pv.Line(
+            pointa=(0, min_lim[1], 0), pointb=(0, max_lim[1], 0), resolution=1
+        )
+        self.plotter.add_mesh(
+            mesh, color="k", style="wireframe", render_lines_as_tubes=True
+        )
+
+        mesh = pv.Line(
+            pointa=(0, 0, min_lim[2]), pointb=(0, 0, max_lim[2]), resolution=1
+        )
+        self.plotter.add_mesh(
+            mesh, color="k", style="wireframe", render_lines_as_tubes=True
+        )
+
+        self.plotter.add_mesh(
+            pv.PolyData(observed),
+            color=observed_color,
+            smooth_shading=True,
+            point_size=12,
+            render_points_as_spheres=True,
+        )
+        self.plotter.add_mesh(
+            pv.PolyData(predicted),
+            color=predicted_color,
+            smooth_shading=True,
+            point_size=10,
+            render_points_as_spheres=True,
+        )
+        self.plotter.add_legend(
+            [["Observed", observed_color], ["Predicted", predicted_color]],
+            loc="lower right",
+            bcolor="w",
+            face=None,
+        )
+        self.plotter.enable_depth_peeling()
+        self.reset_view()
+
     def add_cluster_peaks(self, peak_dict):
         self.plotter.clear_actors()
 
@@ -4025,6 +4265,9 @@ class UBView(NeuXtalVizWidget):
         for i in range(3):
             self.ax_clust[i].minorticks_on()
             self.ax_clust[i].set_yscale("log")
+            self.ax_clust[i].xaxis.set_major_locator(
+                MplMaxNLocator(integer=True)
+            )
 
         self.ax_clust[0].set_xlabel("$[h00]$")
         self.ax_clust[1].set_xlabel("$[0k0]$")
