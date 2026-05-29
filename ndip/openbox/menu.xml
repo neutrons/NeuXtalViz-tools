@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8">
+<openbox_menu xmlns="http://openbox.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://openbox.org/ file:///usr/share/openbox/menu.xsd">
+    <menu id="root-menu" label="Menu">
+        <!-- Add any other tools you need the user to be able to launch from here! -->
+        <item label="NeuXtalViz">
+            <action name="execute"><execute>pixi run -m /opt/NeuXtalViz/pixi.toml python /opt/NeuXtalViz/src/NeuXtalViz.py</execute></action>
+        </item>
+    </menu>
+</openbox_menu>
