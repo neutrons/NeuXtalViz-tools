@@ -47,7 +47,7 @@ WORKDIR /usr/local/pixi/shiver
 RUN pixi install
 
 # Install FullProf
-RUN curl -fsSL --create-dirs -o /opt/fullprof/fullprof.tgz https://www.ill.eu/sites/fullprof/downloads/FullProf_Suite_March2026_Linux64_ifort.tgz
+RUN curl -fsSL --create-dirs -o /opt/fullprof/fullprof.tgz https://www2017.ill.eu/sites/fullprof/downloads/FullProf_Suite_April2026_Linux.tgz
 WORKDIR /opt/fullprof
 RUN tar -xvzf fullprof.tgz
 RUN ln -s /opt/fullprof/fp_studio /opt/fullprof/fullprof
