@@ -74,6 +74,8 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.slice_im = None
         self.xlim = None
         self.ylim = None
+        self._slice_zoom_xlim = None
+        self._slice_zoom_ylim = None
 
     def slicer_tab(self):
         slice_tab = QWidget()
@@ -232,6 +234,11 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.auto_limits_box.setToolTip(
             "Automatically reset slice limits on redraw. Uncheck to reuse the current limits."
         )
+        self.auto_zoom_box = QCheckBox("Auto Zoom")
+        self.auto_zoom_box.setChecked(True)
+        self.auto_zoom_box.setToolTip(
+            "Automatically reset zoom to full extent on redraw. Uncheck to retain zoom when possible."
+        )
 
         self.xmin_line = QLineEdit("")
         self.xmax_line = QLineEdit("")
@@ -300,6 +307,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         view_params_layout.addWidget(self.ymax_line, 0, 3)
 
         view_params_layout.addWidget(self.auto_limits_box, 1, 4)
+        view_params_layout.addWidget(self.auto_zoom_box, 0, 7)
         view_params_layout.addWidget(self.vlim_combo, 0, 4)
         view_params_layout.addWidget(vmin_label, 1, 5)
         view_params_layout.addWidget(self.vmin_line, 1, 6)
@@ -358,6 +366,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         slice_tab.setLayout(plots_layout)
 
         self.toggle_line_box.toggled.connect(self.toggle_container)
+        self.auto_zoom_box.toggled.connect(self._handle_auto_zoom_toggle)
 
     def toggle_container(self, state):
         self.container.setVisible(state)
@@ -425,6 +434,9 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
     def connect_auto_limits(self, update_limits):
         self.auto_limits_box.toggled.connect(update_limits)
+
+    def connect_auto_zoom(self, update_zoom):
+        self.auto_zoom_box.toggled.connect(update_zoom)
 
     def connect_xmin_line(self, update_vals):
         self.xmin_line.editingFinished.connect(update_vals)
@@ -684,6 +696,13 @@ class VolumeSlicerView(NeuXtalVizWidget):
         return "hkl = ({:.3f}, {:.3f}, {:.3f})".format(h, k, l)
 
     def add_slice(self, slice_dict):
+        prev_xlim = (
+            self.ax_slice.get_xlim() if self.slice_im is not None else None
+        )
+        prev_ylim = (
+            self.ax_slice.get_ylim() if self.slice_im is not None else None
+        )
+
         if self._cx is not None:
             self.ax_cut.callbacks.disconnect(self._cx)
         if self._sx is not None:
@@ -794,24 +813,41 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.set_vmin_value(self.vmin)
         self.set_vmax_value(self.vmax)
 
-        if self.get_xmin_value() is None:
-            self.set_xmin_value(self.xlim[0])
-        if self.get_xmax_value() is None:
-            self.set_xmax_value(self.xlim[1])
+        have_limits = all(
+            val is not None
+            for val in (
+                self.get_xmin_value(),
+                self.get_xmax_value(),
+                self.get_ymin_value(),
+                self.get_ymax_value(),
+            )
+        )
 
-        if self.get_ymin_value() is None:
+        if (
+            self.get_auto_zoom()
+            or prev_xlim is None
+            or prev_ylim is None
+            or not have_limits
+        ):
+            self.set_xmin_value(self.xlim[0])
+            self.set_xmax_value(self.xlim[1])
             self.set_ymin_value(self.ylim[0])
-        if self.get_ymax_value() is None:
             self.set_ymax_value(self.ylim[1])
 
-        xmin, ymin = self.get_xmin_value(), self.get_ymin_value()
-        xmax, ymax = self.get_xmax_value(), self.get_ymax_value()
+            xmin, ymin = self.get_xmin_value(), self.get_ymin_value()
+            xmax, ymax = self.get_xmax_value(), self.get_ymax_value()
 
-        xmin, ymin, _ = np.dot(self.T, [xmin, ymin, 1])
-        xmax, ymax, _ = np.dot(self.T, [xmax, ymax, 1])
+            xmin, ymin, _ = np.dot(self.T, [xmin, ymin, 1])
+            xmax, ymax, _ = np.dot(self.T, [xmax, ymax, 1])
 
-        self.ax_slice.set_xlim([xmin, xmax])
-        self.ax_slice.set_ylim([ymin, ymax])
+            self.ax_slice.set_xlim([xmin, xmax])
+            self.ax_slice.set_ylim([ymin, ymax])
+        else:
+            self.ax_slice.set_xlim(prev_xlim)
+            self.ax_slice.set_ylim(prev_ylim)
+
+            self._slice_zoom_xlim = prev_xlim
+            self._slice_zoom_ylim = prev_ylim
 
         self.canvas_slice.draw_idle()
         self.canvas_slice.flush_events()
@@ -1064,6 +1100,9 @@ class VolumeSlicerView(NeuXtalVizWidget):
     def get_auto_limits(self):
         return self.auto_limits_box.isChecked()
 
+    def get_auto_zoom(self):
+        return self.auto_zoom_box.isChecked()
+
     def set_vmin_value(self, val):
         self.vmin_line.setText(str(round(val, 5)))
 
@@ -1111,6 +1150,21 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.xmax_line.blockSignals(False)
         self.ymin_line.blockSignals(False)
         self.ymax_line.blockSignals(False)
+        self._slice_zoom_xlim = None
+        self._slice_zoom_ylim = None
+
+    def _handle_auto_zoom_toggle(self, checked):
+        if (
+            checked
+            and self.slice_im is not None
+            and self.xlim is not None
+            and self.ylim is not None
+        ):
+            self.set_xmin_value(self.xlim[0])
+            self.set_xmax_value(self.xlim[1])
+            self.set_ymin_value(self.ylim[0])
+            self.set_ymax_value(self.ylim[1])
+            self.set_slice_lim(self.xlim, self.ylim)
 
     def slice_limits(self, ax):
         self.xmin_line.blockSignals(True)

@@ -61,6 +61,8 @@ from mantid.simpleapi import (
     BinMD,
     ConvertUnits,
     CropWorkspace,
+    MaskDetectors,
+    SaveMask,
     mtd,
 )
 
@@ -1264,6 +1266,8 @@ class UBModel(NeuXtalVizModel):
             Q_max = 2 * np.pi / min_d
 
         if mtd.doesExist("data"):
+            self.detector_ids = np.array([], dtype=int)
+
             input_ws_names = (
                 list(mtd["data"].getNames())
                 if mtd["data"].isGroup()
@@ -1338,6 +1342,9 @@ class UBModel(NeuXtalVizModel):
 
                 two_theta = mtd["detectors"].column("TwoTheta")
                 az_phi = mtd["detectors"].column("Azimuthal")
+                self.detector_ids = np.array(
+                    mtd["detectors"].column("DetectorID"), dtype=int
+                )
 
                 if min_d is None:
                     k = 2 * np.pi / min(wavelength)
@@ -1817,12 +1824,19 @@ class UBModel(NeuXtalVizModel):
         nu_arr = nu[uni_rows][sort]
         counts_arr = counts[sort]
 
+        detector_ids = getattr(self, "detector_ids", np.array([], dtype=int))
+        if detector_ids.size == gamma.size:
+            det_ids_arr = detector_ids[uni_rows][sort]
+        else:
+            det_ids_arr = np.array([], dtype=int)
+
         inst_view["d"] = d_spacing
         inst_view["d_min"] = d_min
         inst_view["d_max"] = d_max
         inst_view["gamma"] = gamma_arr
         inst_view["nu"] = nu_arr
         inst_view["counts"] = counts_arr
+        inst_view["detector_ids"] = det_ids_arr
         inst_view["ind"] = ind
 
         if len(gamma_arr) == 0:
@@ -1866,6 +1880,80 @@ class UBModel(NeuXtalVizModel):
         inst_view["yedges"] = yedges
 
         self.inst_view = inst_view
+
+    def save_roi_mask(self, instrument, filename):
+        if not hasattr(self, "inst_view") or not hasattr(self, "roi_view"):
+            return False, "No instrument ROI is available to save."
+
+        horz = float(self.roi_view.get("horz", 0.0))
+        vert = float(self.roi_view.get("vert", 0.0))
+        horz_roi = float(self.roi_view.get("horz_roi", 0.0))
+        vert_roi = float(self.roi_view.get("vert_roi", 0.0))
+
+        inst_name = self.get_instrument_name(instrument)
+
+        mask_ws = "ub_roi_mask"
+        det_ws = "ub_roi_mask_detectors"
+
+        for ws in [mask_ws, det_ws]:
+            if mtd.doesExist(ws):
+                DeleteWorkspace(Workspace=ws)
+
+        try:
+            LoadEmptyInstrument(
+                InstrumentName=inst_name,
+                OutputWorkspace=mask_ws,
+            )
+
+            # Build gamma/nu on the full instrument pixel map.
+            PreprocessDetectorsToMD(
+                InputWorkspace=mask_ws,
+                OutputWorkspace=det_ws,
+            )
+
+            detector_ids = np.asarray(
+                mtd[det_ws].column("DetectorID"), dtype=int
+            )
+            two_theta = np.asarray(mtd[det_ws].column("TwoTheta"), dtype=float)
+            az_phi = np.asarray(mtd[det_ws].column("Azimuthal"), dtype=float)
+
+            kf_x = np.sin(two_theta) * np.cos(az_phi)
+            kf_y = np.sin(two_theta) * np.sin(az_phi)
+            kf_z = np.cos(two_theta)
+
+            nu = np.rad2deg(np.arcsin(kf_y))
+            gamma = np.rad2deg(np.arctan2(kf_x, kf_z))
+
+            in_roi = (
+                (gamma >= horz - horz_roi)
+                & (gamma <= horz + horz_roi)
+                & (nu >= vert - vert_roi)
+                & (nu <= vert + vert_roi)
+            )
+
+            selected = np.unique(detector_ids[in_roi])
+            selected = selected[selected >= 0]
+
+            if selected.size == 0:
+                return False, "No detectors were selected in the ROI box."
+
+            MaskDetectors(
+                Workspace=mask_ws,
+                DetectorList=selected.tolist(),
+            )
+
+            SaveMask(InputWorkspace=mask_ws, OutputFile=filename)
+        finally:
+            for ws in [det_ws, mask_ws]:
+                if mtd.doesExist(ws):
+                    DeleteWorkspace(Workspace=ws)
+
+        return (
+            True,
+            "Saved ROI mask XML ({} detectors from full-pixel instrument ROI).".format(
+                selected.size
+            ),
+        )
 
     def extract_roi(self, horz, vert, horz_roi, vert_roi, val):
         """

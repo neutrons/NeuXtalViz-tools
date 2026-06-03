@@ -89,6 +89,9 @@ class UBView(NeuXtalVizWidget):
         self.inst_im = None
         self.x_min, self.x_max = None, None
         self.y_min, self.y_max = None, None
+        self._last_slice_view = None
+        self._last_slice_labels = None
+        self._last_inst_view = None
 
     def parameters_tab(self):
         ub_peaks_tab = QWidget()
@@ -573,7 +576,7 @@ class UBView(NeuXtalVizWidget):
         self.iron_box = QCheckBox("Avoid Iron", self)
         self.iron_box.setChecked(False)
 
-        validator = QIntValidator(10, 1000, self)
+        validator = QIntValidator(10, 10000, self)
 
         self.max_peaks_line = QLineEdit("100")
         self.max_peaks_line.setValidator(validator)
@@ -1672,6 +1675,14 @@ class UBView(NeuXtalVizWidget):
         self.slice_auto_limits_box.setToolTip(
             "Automatically reset slice limits on redraw. Uncheck to reuse the current limits."
         )
+        self.slice_auto_zoom_box = QCheckBox("Auto Zoom")
+        self.slice_auto_zoom_box.setChecked(True)
+        self.slice_auto_zoom_box.setToolTip(
+            "Automatically reset slice zoom to full extent on redraw. Uncheck to retain current zoom when possible."
+        )
+        self.slice_auto_zoom_box.toggled.connect(
+            self._handle_slice_auto_zoom_toggle
+        )
 
         self.vmin_line.setValidator(validator)
         self.vmax_line.setValidator(validator)
@@ -1694,6 +1705,7 @@ class UBView(NeuXtalVizWidget):
         convert_to_hkl_view_layout.addWidget(self.clim_combo)
         convert_to_hkl_view_layout.addWidget(self.slice_scale_combo)
         convert_to_hkl_view_layout.addWidget(self.slice_auto_limits_box)
+        convert_to_hkl_view_layout.addWidget(self.slice_auto_zoom_box)
         convert_to_hkl_view_layout.addWidget(QLabel("V Min:", self))
         convert_to_hkl_view_layout.addWidget(self.vmin_line)
         convert_to_hkl_view_layout.addWidget(QLabel("V Max:", self))
@@ -1795,6 +1807,14 @@ class UBView(NeuXtalVizWidget):
         self.instrument_auto_limits_box.setToolTip(
             "Automatically reset instrument limits on redraw. Uncheck to reuse the current limits."
         )
+        self.instrument_auto_zoom_box = QCheckBox("Auto Zoom")
+        self.instrument_auto_zoom_box.setChecked(True)
+        self.instrument_auto_zoom_box.setToolTip(
+            "Automatically reset instrument zoom to full extent on redraw. Uncheck to retain current zoom when possible."
+        )
+        self.instrument_auto_zoom_box.toggled.connect(
+            self._handle_instrument_auto_zoom_toggle
+        )
 
         self.inst_vmin_line.setValidator(validator)
         self.inst_vmax_line.setValidator(validator)
@@ -1817,6 +1837,7 @@ class UBView(NeuXtalVizWidget):
         data_layout.addWidget(self.vbar_combo)
         data_layout.addWidget(self.instrument_scale_combo)
         data_layout.addWidget(self.instrument_auto_limits_box)
+        data_layout.addWidget(self.instrument_auto_zoom_box)
         data_layout.addWidget(QLabel("V Min:", self))
         data_layout.addWidget(self.inst_vmin_line)
         data_layout.addWidget(QLabel("V Max:", self))
@@ -1873,6 +1894,12 @@ class UBView(NeuXtalVizWidget):
         self.add_peak_button.setToolTip("Add a peak to the list.")
         self.add_peak_button.setIcon(qta.icon("fa6s.square-plus"))
 
+        self.save_roi_mask_button = QPushButton("Save ROI Mask", self)
+        self.save_roi_mask_button.setToolTip(
+            "Save the current instrument ROI box as a detector mask XML file."
+        )
+        self.save_roi_mask_button.setIcon(qta.icon("fa6s.floppy-disk"))
+
         self.diffraction_label = QLabel("Axis:", self)
         self.inst_gonio_label = QLabel("ω,χ,φ [°]:", self)
 
@@ -1896,6 +1923,7 @@ class UBView(NeuXtalVizWidget):
         peak_layout.addWidget(self.inst_gonio_label)
         peak_layout.addWidget(self.inst_gonio_line)
         peak_layout.addStretch(1)
+        peak_layout.addWidget(self.save_roi_mask_button)
         peak_layout.addWidget(self.add_peak_button)
 
         self.canvas_inst = FigureCanvas(Figure(constrained_layout=True))
@@ -2126,6 +2154,9 @@ class UBView(NeuXtalVizWidget):
 
     def connect_add_peak(self, add_peak):
         self.add_peak_button.clicked.connect(add_peak)
+
+    def connect_save_roi_mask(self, save_roi_mask):
+        self.save_roi_mask_button.clicked.connect(save_roi_mask)
 
     def connect_delete_peak(self, delete_peak):
         self.delete_peak_button.clicked.connect(delete_peak)
@@ -2598,6 +2629,27 @@ class UBView(NeuXtalVizWidget):
         if filename is not None:
             if not filename.endswith(".mat"):
                 filename += ".mat"
+
+        return filename
+
+    def save_mask_file_dialog(self, path=""):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.AnyFile)
+
+        filename, _ = file_dialog.getSaveFileName(
+            self,
+            "Save detector mask file",
+            path,
+            "Mask files (*.xml)",
+            options=options,
+        )
+
+        if filename is not None:
+            if not filename.endswith(".xml"):
+                filename += ".xml"
 
         return filename
 
@@ -3671,6 +3723,13 @@ class UBView(NeuXtalVizWidget):
         self.check_l_line.setText(str(round(l, 4)))
 
     def update_instrument_view(self, inst_view):
+        prev_xlim = (
+            self.ax_inst.get_xlim() if self.inst_im is not None else None
+        )
+        prev_ylim = (
+            self.ax_inst.get_ylim() if self.inst_im is not None else None
+        )
+
         img = inst_view["img"]
         xedges = inst_view["xedges"]
         yedges = inst_view["yedges"]
@@ -3718,10 +3777,20 @@ class UBView(NeuXtalVizWidget):
         # self.cb_inst = self.fig_inst.colorbar(self.im, ax=self.ax_inst)
         # self.cb_inst.minorticks_on()
 
+        if (
+            not self.get_instrument_auto_zoom()
+            and prev_xlim is not None
+            and prev_ylim is not None
+        ):
+            self.ax_inst.set_xlim(prev_xlim)
+            self.ax_inst.set_ylim(prev_ylim)
+
         self.canvas_inst.draw_idle()
         self.canvas_inst.flush_events()
 
         self.ax_inst.format_coord = self.__format_inst_coord
+
+        self._last_inst_view = inst_view
 
     def update_roi_view(self, roi_view):
         horz = roi_view["horz"]
@@ -3875,6 +3944,9 @@ class UBView(NeuXtalVizWidget):
     def get_instrument_auto_limits(self):
         return self.instrument_auto_limits_box.isChecked()
 
+    def get_instrument_auto_zoom(self):
+        return self.instrument_auto_zoom_box.isChecked()
+
     def set_inst_vmin_value(self, val):
         self.inst_vmin_line.setText(str(round(val, 5)))
 
@@ -3895,6 +3967,17 @@ class UBView(NeuXtalVizWidget):
 
     def get_slice_auto_limits(self):
         return self.slice_auto_limits_box.isChecked()
+
+    def get_slice_auto_zoom(self):
+        return self.slice_auto_zoom_box.isChecked()
+
+    def _handle_slice_auto_zoom_toggle(self, checked):
+        if checked and self._last_slice_view is not None:
+            self.update_slice(self._last_slice_view)
+
+    def _handle_instrument_auto_zoom_toggle(self, checked):
+        if checked and self._last_inst_view is not None:
+            self.update_instrument_view(self._last_inst_view)
 
     def set_vmin_value(self, val):
         self.vmin_line.setText(str(round(val, 5)))
@@ -3923,6 +4006,13 @@ class UBView(NeuXtalVizWidget):
         return "hkl = ({:.3f}, {:.3f}, {:.3f})".format(h, k, l)
 
     def update_slice(self, slice_dict):
+        prev_xlim = (
+            self.ax_slice.get_xlim() if self.slice_im is not None else None
+        )
+        prev_ylim = (
+            self.ax_slice.get_ylim() if self.slice_im is not None else None
+        )
+
         cmap = cmaps[self.get_colormap()]
 
         x = slice_dict["x"]
@@ -4014,6 +4104,21 @@ class UBView(NeuXtalVizWidget):
         )
         self.cb_slice.minorticks_on()
 
+        labels_key = tuple(labels)
+        major_change = (
+            self._last_slice_labels is not None
+            and self._last_slice_labels != labels_key
+        )
+
+        if (
+            not self.get_slice_auto_zoom()
+            and prev_xlim is not None
+            and prev_ylim is not None
+            and not major_change
+        ):
+            self.ax_slice.set_xlim(prev_xlim)
+            self.ax_slice.set_ylim(prev_ylim)
+
         self.canvas_slice.draw_idle()
         self.canvas_slice.flush_events()
 
@@ -4023,6 +4128,9 @@ class UBView(NeuXtalVizWidget):
         self._slice_click_cid = self.fig_slice.canvas.mpl_connect(
             "button_press_event", self.on_press_slice
         )
+
+        self._last_slice_view = slice_dict
+        self._last_slice_labels = labels_key
 
     def on_press_slice(self, event):
         if (

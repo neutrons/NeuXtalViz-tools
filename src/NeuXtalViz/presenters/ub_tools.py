@@ -71,6 +71,7 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_inst_vmax_line(self.update_inst_cvals)
 
         self.view.connect_add_peak(self.add_peak)
+        self.view.connect_save_roi_mask(self.save_roi_mask)
         self.view.connect_slice_ready(self.add_slice_peak)
         self.view.connect_check_hkl(self.calculate_hkl)
 
@@ -1489,6 +1490,18 @@ class UB(NeuXtalVizPresenter):
 
         if filename:
             self.model.save_UB(filename)
+
+    def save_roi_mask(self):
+        inst = self.view.get_instrument()
+        ipts = self.view.get_IPTS()
+
+        path = self.model.get_shared_file_path(inst, ipts)
+
+        filename = self.view.save_mask_file_dialog(path)
+
+        if filename:
+            success, message = self.model.save_roi_mask(inst, filename)
+            self.update_processing(message, 0)
 
     def switch_instrument(self):
         instrument = self.view.get_instrument()
