@@ -1,7 +1,8 @@
 name: nxv
 channels:
   - conda-forge
-  - mantid
+  - mantid/label/nightly
+  - oncat
 dependencies:
   - python>=3.11
   - numpy
@@ -11,6 +12,7 @@ dependencies:
   - h5py
   - pyvista>=0.45.2
   - pyvistaqt
+  - qtpy
   - vtk
   - pytest
   - mantid
@@ -19,12 +21,14 @@ dependencies:
   - astropy
   - dill
   - psutil
+  - qdarkstyle
+  - qtawesome
   - multiprocess
   - black
   - sphinx
   - sphinx-autodoc-typehints
   - pydata-sphinx-theme
   - numpydoc
+  - pre-commit
   - pip:
-    - pyqtdarktheme
     - pyoncat

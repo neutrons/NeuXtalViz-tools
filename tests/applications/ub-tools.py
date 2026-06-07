@@ -533,6 +533,7 @@ def MANDI_Mesolite_UB(app, window):
     ub_view.alpha_line.setText("90")
     ub_view.beta_line.setText("90")
     ub_view.gamma_line.setText("90")
+    ub_view.calculate_tolerance_line.setText("0.15")
 
     ub_view.a_line.setStyleSheet("background-color: yellow;")
     ub_view.b_line.setStyleSheet("background-color: yellow;")
@@ -540,6 +541,7 @@ def MANDI_Mesolite_UB(app, window):
     ub_view.alpha_line.setStyleSheet("background-color: yellow;")
     ub_view.beta_line.setStyleSheet("background-color: yellow;")
     ub_view.gamma_line.setStyleSheet("background-color: yellow;")
+    ub_view.calculate_tolerance_line.setStyleSheet("background-color: yellow;")
 
     QTest.mouseClick(ub_view.conventional_button, Qt.LeftButton)
     QTest.qWait(1000 * 5)
@@ -550,6 +552,7 @@ def MANDI_Mesolite_UB(app, window):
     ub_view.alpha_line.setStyleSheet("")
     ub_view.beta_line.setStyleSheet("")
     ub_view.gamma_line.setStyleSheet("")
+    ub_view.calculate_tolerance_line.setStyleSheet("")
     ub_view.optimize_combo.setStyleSheet("")
     ub_view.conventional_button.setStyleSheet("")
     ub_view.refine_button.setStyleSheet("")
@@ -558,8 +561,11 @@ def MANDI_Mesolite_UB(app, window):
         os.path.join(directory, "Mesolite_UB_conventional_cell.png"), "png"
     )
 
+    ub_view.index_tolerance_line.setText("0.15")
+
     ub_view.peaks_tab.setCurrentIndex(1)
     ub_view.index_button.setStyleSheet("background-color: green;")
+    ub_view.index_tolerance_line.setStyleSheet("background-color: yellow;")
 
     QTest.mouseClick(ub_view.index_button, Qt.LeftButton)
     QTest.qWait(1000 * 5)
@@ -569,13 +575,16 @@ def MANDI_Mesolite_UB(app, window):
     )
 
     ub_view.index_button.setStyleSheet("")
+    ub_view.index_tolerance_line.setStyleSheet("")
 
     ub_view.ub_tab.setCurrentIndex(2)
 
     index = ub_view.optimize_combo.findText("Orthorhombic")
     ub_view.optimize_combo.setCurrentIndex(index)
+    ub_view.refine_tolerance_line.setText("0.15")
 
     ub_view.optimize_combo.setStyleSheet("background-color: yellow;")
+    ub_view.refine_tolerance_line.setStyleSheet("background-color: yellow;")
     ub_view.conventional_button.setStyleSheet("background-color: green;")
 
     ub_view.refine_button.setStyleSheet("background-color: green;")
@@ -588,6 +597,7 @@ def MANDI_Mesolite_UB(app, window):
     )
 
     ub_view.optimize_combo.setStyleSheet("")
+    ub_view.refine_tolerance_line.setStyleSheet("")
     ub_view.conventional_button.setStyleSheet("")
 
     ub_view.refine_button.setStyleSheet("")
@@ -973,5 +983,5 @@ if __name__ == "__main__":
     # run_qt_scenario(TOPAZ_Si_UB)
     # run_qt_scenario(TOPAZ_Scolecite_UB)
     # run_qt_scenario(CORELLI_Bixbyite_UB)
-    run_qt_scenario(CORELLI_Natrolite_UB)
-    # run_qt_scenario(MANDI_Mesolite_UB)
+    # run_qt_scenario(CORELLI_Natrolite_UB)
+    run_qt_scenario(MANDI_Mesolite_UB)

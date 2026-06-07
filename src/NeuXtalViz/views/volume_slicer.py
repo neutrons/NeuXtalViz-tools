@@ -13,8 +13,7 @@ from qtpy.QtWidgets import (
 )
 
 from qtpy.QtGui import QDoubleValidator
-from qtpy.QtCore import Qt
-from PyQt5.QtCore import pyqtSignal
+from qtpy.QtCore import Qt, Signal
 
 import numpy as np
 import pyvista as pv
@@ -54,8 +53,8 @@ opacities = {
 
 
 class VolumeSlicerView(NeuXtalVizWidget):
-    slice_ready = pyqtSignal()
-    cut_ready = pyqtSignal()
+    slice_ready = Signal()
+    cut_ready = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)

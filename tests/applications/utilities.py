@@ -1,70 +1,85 @@
-# -------------------------------------------------------------------------- #
-# xvfb-run -s "-screen 0 1920x1080x24" python tests/applications/ub-tools.py #
-# -------------------------------------------------------------------------- #
-import sys
 import os
 import glob
 import shutil
+import traceback
+import faulthandler
 
-os.environ["QT_API"] = "pyqt5"
+faulthandler.enable()
+
+os.environ.setdefault("QT_API", "pyside6")
+# os.environ.setdefault("QT_OPENGL", "software")
 
 from qtpy.QtWidgets import QApplication
+from qtpy.QtCore import QTimer
 from qtpy.QtTest import QTest
-from qtpy.QtCore import QTimer, QThread, QThreadPool
+
+import qdarkstyle
+from qdarkstyle.light.palette import LightPalette
 
 from NeuXtalViz.application import NeuXtalViz
 
-import qdarkstyle
-
-from qdarkstyle.light.palette import LightPalette
-
-DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+"""
+QT_API=pyside6 \
+QT_OPENGL=software \
+LIBGL_ALWAYS_SOFTWARE=1 \
+MESA_GL_VERSION_OVERRIDE=3.3 \
+xvfb-run -s "-screen 0 1920x1080x24" \
+python tests/applications/ub-tools.py
+"""
 
 
 def run_qt_scenario(scenario):
-    app = QApplication(sys.argv)
-    app.setStyleSheet(qdarkstyle.load_stylesheet(palette=LightPalette))
-    app.setQuitOnLastWindowClosed(True)
+    app = QApplication.instance()
+    if app is None:
+        app = QApplication([])
+
+    app.setQuitOnLastWindowClosed(False)
+
+    app.setStyleSheet(
+        qdarkstyle.load_stylesheet(
+            qt_api=os.environ["QT_API"],
+            palette=LightPalette,
+        )
+    )
 
     window = NeuXtalViz()
     window.show()
 
+    result = {"rc": 0}
+
     def _wrapped():
-        scenario(app, window)
+        try:
+            scenario(app, window)
+            result["rc"] = 0
 
-        window.close()
-        QApplication.closeAllWindows()
+        except BaseException:
+            traceback.print_exc()
+            result["rc"] = 1
 
-        for _ in range(3):
-            app.processEvents()
-            QTest.qWait(50)
+        finally:
+            # Let pending screenshot/file/UI events flush.
+            for _ in range(10):
+                app.processEvents()
+                QTest.qWait(50)
 
-        for t in app.findChildren(QTimer):
-            t.stop()
-
-        for th in app.findChildren(QThread):
-            th.requestInterruption()
-            th.quit()
-        for th in app.findChildren(QThread):
-            th.wait(3000)
-
-        QThreadPool.globalInstance().waitForDone(5000)
-
-    QTimer.singleShot(0, app.quit)
+            # Do NOT close/delete the window.
+            # Do NOT kill QThreads here.
+            # Do NOT call deleteLater().
+            #
+            # For Qt6 + VTK/PyVista under xvfb, the segfault is often in
+            # C++ destructor order during QApplication teardown.
+            app.exit(result["rc"])
 
     QTimer.singleShot(0, _wrapped)
-    rc = app.exec_()
 
-    # Previously this function forcibly terminated the process with os._exit(0)
-    # if any non-main threads were still alive. That prevented multiple
-    # scenarios from running sequentially (e.g. in ub-tools.py). We now
-    # rely on the explicit QThread and QThreadPool cleanup above and simply
-    # return the Qt exit code so callers can invoke this multiple times.
-    return rc
+    rc = app.exec()
+
+    # Critical: bypass Python/Qt/VTK destructor cleanup.
+    os._exit(rc)
 
 
 def copy_generated_pngs(directory):
-    static = os.path.abspath(os.path.join(DIRECTORY, "../../docs/source"))
+    static = os.path.abspath(os.path.join(directory, "../../docs/source"))
     os.makedirs(static, exist_ok=True)
     for png in glob.glob(
         os.path.join(directory, "**", "*.png"), recursive=True

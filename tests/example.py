@@ -1,6 +1,6 @@
 import sys
 import os
-from PyQt5.QtWidgets import (
+from qtpy.QtWidgets import (
     QApplication,
     QMainWindow,
     QFileDialog,
@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
     QLabel,
     QHBoxLayout,
 )
-from PyQt5.QtCore import Qt
+from qtpy.QtCore import Qt
 from subprocess import Popen, PIPE
 
 
@@ -115,4 +115,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     editor = FileEditorApp()
     editor.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

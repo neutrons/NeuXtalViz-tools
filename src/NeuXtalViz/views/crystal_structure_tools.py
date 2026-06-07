@@ -643,7 +643,7 @@ class CrystalStructureView(NeuXtalVizWidget):
 
             T[0, 0] = T[1, 1] = T[2, 2] = radius
             T[:3, 3] = coord
-            atm = sphere.copy().transform(T)
+            atm = sphere.copy().transform(T, inplace=True)
             geoms.append(atm)
 
             self.indexing[len(block_keys)] = info["best_index"]

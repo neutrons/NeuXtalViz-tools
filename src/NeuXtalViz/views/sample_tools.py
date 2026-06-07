@@ -18,8 +18,12 @@ from qtpy.QtWidgets import (
     QFileDialog,
 )
 
-from qtpy.QtGui import QDoubleValidator, QIntValidator, QRegExpValidator
-from PyQt5.QtCore import Qt, QRegExp
+from qtpy.QtGui import (
+    QDoubleValidator,
+    QIntValidator,
+    QRegularExpressionValidator,
+)
+from qtpy.QtCore import Qt, QRegularExpression
 
 import pyvista as pv
 
@@ -105,8 +109,8 @@ class SampleView(NeuXtalVizWidget):
             + "(-((\(\d+[A-Z][a-z]?\)|[DT]|[A-Z][a-z]?)(\d+(\.\d+)?)?))*$"
         )
 
-        regexp = QRegExp(exp)
-        validator = QRegExpValidator(regexp)
+        regexp = QRegularExpression(exp)
+        validator = QRegularExpressionValidator(regexp)
 
         validator = QIntValidator(1, 10000, self)
 
@@ -292,8 +296,8 @@ class SampleView(NeuXtalVizWidget):
         self.y_line.setValidator(validator)
         self.z_line.setValidator(validator)
 
-        regexp = QRegExp("^-1$|^1$")
-        validator = QRegExpValidator(regexp)
+        regexp = QRegularExpression("^-1$|^1$")
+        validator = QRegularExpressionValidator(regexp)
 
         self.sense_line.setValidator(validator)
 

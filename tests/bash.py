@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import (
+from qtpy.QtWidgets import (
     QApplication,
     QWidget,
     QVBoxLayout,
@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QPushButton,
 )
-from PyQt5.QtCore import QProcess
+from qtpy.QtCore import QProcess
 
 
 class BashShellWidget(QWidget):
@@ -15,7 +15,7 @@ class BashShellWidget(QWidget):
         super().__init__()
 
         # Set up the UI
-        self.setWindowTitle("Bash Shell in PyQt5")
+        self.setWindowTitle("Bash Shell in Qt")
         self.layout = QVBoxLayout()
 
         self.output_display = QTextEdit()
@@ -62,4 +62,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     shell = BashShellWidget()
     shell.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

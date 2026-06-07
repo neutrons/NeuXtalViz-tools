@@ -180,4 +180,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     editor = CommandBrowser()
     editor.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

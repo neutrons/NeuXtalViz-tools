@@ -136,7 +136,7 @@ def linkcode_resolve(domain, info):
 
 def skip_qt_members(app, what, name, obj, skip, options):
     try:
-        from PyQt5.QtCore import pyqtSignal, QMetaObject
+        from PyQt6.QtCore import pyqtSignal, QMetaObject
     except ImportError:
         try:
             from qtpy.QtCore import Signal as pyqtSignal, QMetaObject

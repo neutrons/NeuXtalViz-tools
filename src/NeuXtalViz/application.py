@@ -3,7 +3,7 @@ import sys
 import traceback
 import subprocess
 
-os.environ["QT_API"] = "pyqt5"
+os.environ["QT_API"] = "pyside6"
 
 from qtpy.QtWidgets import (
     QApplication,
@@ -263,13 +263,21 @@ def handle_exception(exc_type, exc_value, exc_traceback):
     msg_box.setText("An unexpected error occurred. Please see details below:")
     msg_box.setDetailedText(error_message)
     msg_box.setIcon(QMessageBox.Critical)
-    msg_box.exec_()
+    msg_box.exec()
 
 
 def gui():
     sys.excepthook = handle_exception
     app = QApplication(sys.argv)
-    app.setStyleSheet(qdarkstyle.load_stylesheet(palette=LightPalette))
+    app.setStyleSheet(
+        qdarkstyle.load_stylesheet(
+            qt_api=os.environ["QT_API"], palette=LightPalette
+        )
+    )
     window = NeuXtalViz()
     window.show()
-    sys.exit(app.exec_())
+    try:
+        sys.excepthook = None
+        sys.exit(app.exec())
+    except RuntimeError:
+        pass

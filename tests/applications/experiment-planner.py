@@ -19,7 +19,7 @@ def TOPAZ_Si_plan(app, window):
     ep_view = ep_presenter.view
 
     ep_presenter.model.load_UB(
-        os.path.join("/SNS/TOPAZ/IPTS-36169/shared/nxv/", "Si_UB.mat")
+        os.path.join("/SNS/EXAMPLES/TOPAZ/IPTS-36169/shared/nxv/", "Si_UB.mat")
     )
     ep_presenter.update_oriented_lattice()
     ep_presenter.view.set_transform(ep_presenter.model.get_transform())

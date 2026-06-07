@@ -24,8 +24,12 @@ from qtpy.QtWidgets import (
     QFrame,
 )
 
-from qtpy.QtGui import QDoubleValidator, QIntValidator, QRegExpValidator
-from qtpy.QtCore import Qt, Signal, QRegExp, QItemSelectionModel
+from qtpy.QtGui import (
+    QDoubleValidator,
+    QIntValidator,
+    QRegularExpressionValidator,
+)
+from qtpy.QtCore import Qt, Signal, QRegularExpression, QItemSelectionModel
 
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
@@ -198,8 +202,8 @@ class UBView(NeuXtalVizWidget):
         self.gamma_line = QLineEdit()
 
         pattern = r"^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?(\(\d+\))?$$"
-        regex = QRegExp(pattern)
-        validator = QRegExpValidator(regex)
+        regex = QRegularExpression(pattern)
+        validator = QRegularExpressionValidator(regex)
 
         self.a_line.setValidator(validator)
         self.b_line.setValidator(validator)
