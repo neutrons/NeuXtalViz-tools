@@ -127,9 +127,12 @@ def linkcode_resolve(domain, info):
         for attr in attrname:
             obj = getattr(obj, attr)
     if not hasattr(mod, "__pyx_unpickle_Enum"):
-        lines = inspect.getsourcelines(obj)
-        start, stop = lines[1], lines[1] + len(lines[0]) - 1
-        return "{}#L{}-L{}".format(url, start, stop)
+        try:
+            lines = inspect.getsourcelines(obj)
+            start, stop = lines[1], lines[1] + len(lines[0]) - 1
+            return "{}#L{}-L{}".format(url, start, stop)
+        except (TypeError, OSError):
+            return url
     else:
         return url
 

@@ -79,7 +79,7 @@ def run_qt_scenario(scenario):
 
 
 def copy_generated_pngs(directory):
-    static = os.path.abspath(os.path.join(directory, "../../docs/source"))
+    static = os.path.abspath(os.path.join(directory, "../../../docs/source"))
     os.makedirs(static, exist_ok=True)
     for png in glob.glob(
         os.path.join(directory, "**", "*.png"), recursive=True

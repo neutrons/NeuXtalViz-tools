@@ -78,6 +78,9 @@ class Worker(QRunnable):
 
     @Slot()
     def run(self):
+        if sys.excepthook is None:
+            sys.excepthook = sys.__excepthook__
+
         def emit_to_signal(s):
             if s:
                 self.signals.output.emit(s)

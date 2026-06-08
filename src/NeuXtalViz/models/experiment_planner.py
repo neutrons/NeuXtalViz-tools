@@ -172,6 +172,7 @@ class ExperimentModel(NeuXtalVizModel):
         self.dirname = None
         self.instrument_background = None
         self.last_meshmap = None
+        self._count_refl_cache = {}
 
     def get_instrument_directory(self, instrument):
         """
@@ -911,7 +912,7 @@ class ExperimentModel(NeuXtalVizModel):
         free = 0
         for limit in limits:
             free += 1 - np.isclose(limit[0], limit[1])
-        step *= 2**free
+        step *= 2 ** (free - 1)
 
         angular_coverage = []
         for limit in limits:
@@ -1642,6 +1643,98 @@ class ExperimentModel(NeuXtalVizModel):
 
         return np.array([h, k, l, d, lamda]).T.tolist()
 
+    def _cumulative_stats(
+        self, filtered_ws, pg, d_min, d_max, rows, total_sym, total_asym
+    ):
+        """
+        Compute cumulative completeness/redundancy/unique for all rows without
+        workspace cloning.  Peaks are extracted once from filtered_ws; HKLs are
+        reduced to their canonical symmetry-equivalent using PointGroup, then a
+        two-pointer scan over sorted run numbers gives O(N_peaks + N_rows) work.
+        """
+        pg_obj = PointGroupFactory.Instance().createPointGroup(pg)
+        ws = mtd[filtered_ws]
+
+        first_sym, first_asym = {}, {}
+        runs_sym, runs_asym = [], []
+
+        for i in range(ws.getNumberPeaks()):
+            peak = ws.getPeak(i)
+            h = int(round(peak.getH()))
+            k = int(round(peak.getK()))
+            l = int(round(peak.getL()))
+            run = peak.getRunNumber()
+            if not (d_min <= peak.getDSpacing() <= d_max):
+                continue
+
+            key_asym = (h, k, l)
+            if key_asym not in first_asym or run < first_asym[key_asym]:
+                first_asym[key_asym] = run
+            runs_asym.append(run)
+
+            equivs = pg_obj.getEquivalents(V3D(h, k, l))
+            key_sym = min(
+                (int(round(v[0])), int(round(v[1])), int(round(v[2])))
+                for v in equivs
+            )
+            if key_sym not in first_sym or run < first_sym[key_sym]:
+                first_sym[key_sym] = run
+            runs_sym.append(run)
+
+        def scan(first_dict, all_runs, total_possible):
+            sorted_firsts = sorted(first_dict.values())
+            sorted_runs = sorted(all_runs)
+            comp_out, mult_out, refl_out = [], [], []
+            h_ptr = o_ptr = 0
+            for row in rows:
+                while (
+                    h_ptr < len(sorted_firsts) and sorted_firsts[h_ptr] <= row
+                ):
+                    h_ptr += 1
+                while o_ptr < len(sorted_runs) and sorted_runs[o_ptr] <= row:
+                    o_ptr += 1
+                unique = h_ptr
+                total_obs = o_ptr
+                comp = unique / total_possible if total_possible > 0 else 0
+                mult = total_obs / unique if unique > 0 else 0
+                comp_out.append(comp * 100)
+                mult_out.append(mult)
+                refl_out.append(unique)
+            return comp_out, mult_out, refl_out
+
+        c_sym, m_sym, r_sym = scan(first_sym, runs_sym, total_sym)
+        c_asym, m_asym, r_asym = scan(first_asym, runs_asym, total_asym)
+        return c_sym, m_sym, r_sym, c_asym, m_asym, r_asym
+
+    def _count_reflections(self, ws_name, pg, lc, d_min, d_max):
+        ws = mtd[ws_name]
+        n = ws.getNumberPeaks()
+        key = (
+            frozenset(
+                (
+                    ws.getPeak(i).getRunNumber(),
+                    round(ws.getPeak(i).getH()),
+                    round(ws.getPeak(i).getK()),
+                    round(ws.getPeak(i).getL()),
+                )
+                for i in range(n)
+            ),
+            pg,
+            lc,
+            round(d_min, 8),
+            round(d_max, 8),
+        )
+        if key not in self._count_refl_cache:
+            self._count_refl_cache[key] = CountReflections(
+                InputWorkspace=ws_name,
+                PointGroup=pg,
+                LatticeCentering=lc,
+                MinDSpacing=d_min,
+                MaxDSpacing=d_max,
+                MissingReflectionsWorkspace="",
+            )
+        return self._count_refl_cache[key]
+
     def calculate_statistics(self, point_group, lattice_centering, use, d_min):
         shel_sym, comp_sym, mult_sym, refl_sym = [], [], [], []
         shel_asym, comp_asym, mult_asym, refl_asym = [], [], [], []
@@ -1699,19 +1792,18 @@ class ExperimentModel(NeuXtalVizModel):
 
         unique, completeness, redundancy, _, _ = symmetric
 
+        total_possible_sym = (
+            round(unique / completeness) if completeness > 0 else 0
+        )
+
         shel_sym = ["Overall"]
         comp_sym = [completeness * 100]
         mult_sym = [redundancy]
         refl_sym = [unique]
 
         for i in range(len(d) - 1):
-            unique, completeness, redundancy, _ = CountReflections(
-                InputWorkspace="filtered",
-                PointGroup=pg,
-                LatticeCentering=lc,
-                MinDSpacing=d[i + 1],
-                MaxDSpacing=d[i],
-                MissingReflectionsWorkspace="",
+            unique, completeness, redundancy, _ = self._count_reflections(
+                "filtered", pg, lc, d[i + 1], d[i]
             )
 
             shel_sym.append("{:.2f}-{:.2f}".format(d[i], d[i + 1]))
@@ -1719,13 +1811,12 @@ class ExperimentModel(NeuXtalVizModel):
             mult_sym.append(redundancy)
             refl_sym.append(unique)
 
-        unique, completeness, redundancy, _ = CountReflections(
-            InputWorkspace="filtered",
-            PointGroup="1",
-            LatticeCentering=lc,
-            MinDSpacing=d_min,
-            MaxDSpacing=d_max,
-            MissingReflectionsWorkspace="",
+        unique, completeness, redundancy, _ = self._count_reflections(
+            "filtered", "1", lc, d_min, d_max
+        )
+
+        total_possible_asym = (
+            round(unique / completeness) if completeness > 0 else 0
         )
 
         shel_asym = ["Overall"]
@@ -1734,13 +1825,8 @@ class ExperimentModel(NeuXtalVizModel):
         refl_asym = [unique]
 
         for i in range(len(d) - 1):
-            unique, completeness, redundancy, _ = CountReflections(
-                InputWorkspace="filtered",
-                PointGroup="1",
-                LatticeCentering=lc,
-                MinDSpacing=d[i + 1],
-                MaxDSpacing=d[i],
-                MissingReflectionsWorkspace="",
+            unique, completeness, redundancy, _ = self._count_reflections(
+                "filtered", "1", lc, d[i + 1], d[i]
             )
 
             shel_asym.append("{:.2f}-{:.2f}".format(d[i], d[i + 1]))
@@ -1748,52 +1834,24 @@ class ExperimentModel(NeuXtalVizModel):
             mult_asym.append(redundancy)
             refl_asym.append(unique)
 
-        dowrows = self.downsample(rows)
-        for row in dowrows:
-            CloneWorkspace(
-                InputWorkspace="filtered", OutputWorkspace="cumulative"
-            )
-            for cumrow in rows:
-                if cumrow > row:
-                    FilterPeaks(
-                        InputWorkspace="cumulative",
-                        FilterVariable="RunNumber",
-                        FilterValue=str(cumrow),
-                        Operator="!=",
-                        OutputWorkspace="cumulative",
-                    )
+        (
+            comp_cumsym,
+            mult_cumsym,
+            refl_cumsym,
+            comp_cumasym,
+            mult_cumasym,
+            refl_cumasym,
+        ) = self._cumulative_stats(
+            "filtered",
+            pg,
+            d_min,
+            d_max,
+            rows,
+            total_possible_sym,
+            total_possible_asym,
+        )
 
-            symmetric = CountReflections(
-                InputWorkspace="cumulative",
-                PointGroup=pg,
-                LatticeCentering=lc,
-                MinDSpacing=d_min,
-                MaxDSpacing=d_max,
-                MissingReflectionsWorkspace="",
-            )
-
-            unique, completeness, redundancy, _ = symmetric
-
-            comp_cumsym.append(completeness * 100)
-            mult_cumsym.append(redundancy)
-            refl_cumsym.append(unique)
-
-            asymmetric = CountReflections(
-                InputWorkspace="cumulative",
-                PointGroup="1",
-                LatticeCentering=lc,
-                MinDSpacing=d_min,
-                MaxDSpacing=d_max,
-                MissingReflectionsWorkspace="",
-            )
-
-            unique, completeness, redundancy, _ = asymmetric
-
-            comp_cumasym.append(completeness * 100)
-            mult_cumasym.append(redundancy)
-            refl_cumasym.append(unique)
-
-        x = np.array(rows)[np.array(dowrows)] if len(dowrows) > 0 else []
+        x = rows
 
         sym = (shel_sym, comp_sym, mult_sym, refl_sym)
         asym = (shel_asym, comp_asym, mult_asym, refl_asym)

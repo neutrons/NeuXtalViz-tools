@@ -157,17 +157,17 @@ class ExperimentView(NeuXtalVizWidget):
             "Highlight all orientations in the plan table."
         )
         self.highlight_button.setIcon(qta.icon("fa6s.highlighter"))
+        self.update_button = QPushButton("Update Highlighted", self)
+        self.update_button.setToolTip(
+            "Update the selected orientations with the current settings."
+        )
+        self.update_button.setIcon(qta.icon("fa6s.file-pen"))
 
         self.count_combo = QComboBox(self)
         self.count_combo.setToolTip(
             "Select the counting method for the experiment."
         )
         self.auto_scale_dropdown(self.count_combo)
-        self.update_button = QPushButton("Update Highlighted", self)
-        self.update_button.setToolTip(
-            "Update the selected orientations with the current settings."
-        )
-        self.update_button.setIcon(qta.icon("fa6s.file-pen"))
         self.count_line = QLineEdit("1.0")
         self.count_line.setToolTip(
             "Set the counting value for the experiment (e.g., time or monitor)."
@@ -1060,6 +1060,9 @@ class ExperimentView(NeuXtalVizWidget):
     def connect_highlight_angles(self, highlight_angles):
         self.highlight_button.clicked.connect(highlight_angles)
 
+    def connect_update(self, update):
+        self.update_button.clicked.connect(update)
+
     def connect_calculate_single(self, calculate_single):
         self.calculate_single_button.clicked.connect(calculate_single)
 
@@ -1131,8 +1134,6 @@ class ExperimentView(NeuXtalVizWidget):
         except ValueError:
             return 360
 
-        self.load_UB_button.clicked.connect(load_UB)
-
     def connect_reset(self, reset):
         self.reset_button.clicked.connect(reset)
 
@@ -1150,9 +1151,6 @@ class ExperimentView(NeuXtalVizWidget):
 
     def connect_wavelength(self, update_wavelength):
         self.wl_min_line.editingFinished.connect(update_wavelength)
-
-    def connect_update(self, update):
-        self.update_button.clicked.connect(update)
 
     def connect_move_up(self, move_up):
         self.move_up_button.clicked.connect(move_up)
@@ -1747,8 +1745,8 @@ class ExperimentView(NeuXtalVizWidget):
         self.plan_table.blockSignals(False)
 
     def highlight_angles(self):
-        self.plan_table.setSelectionBehavior(self.plan_table.SelectRows)
         self.plan_table.selectAll()
+        self.plan_table.setFocus()
 
     def get_title(self):
         return self.title_line.text()
@@ -2137,7 +2135,9 @@ class ExperimentView(NeuXtalVizWidget):
         colors = np.array(peak_dict["axis_colors"])
 
         for i in range(3):
-            arrow = pv.Arrow([0, 0, 0], coords[i], scale="auto")
+            arrow = pv.Arrow(
+                start=[0, 0, 0], direction=coords[i], scale="auto"
+            )
             self.plotter.add_mesh(arrow, color=colors[i], smooth_shading=True)
 
         radius = 0.2 * np.sqrt(np.min(np.sum(coords**2, axis=1)))
@@ -2347,7 +2347,7 @@ class ExperimentView(NeuXtalVizWidget):
             zorder=0,
         )
 
-    def plot_instrument(self, inst_background, gamma, nu, lamda, d):
+    def plot_instrument(self, inst_background, gamma, nu, lamda):
         if self.cb_inst is not None:
             self.cb_inst.remove()
             self.cb_inst = None
@@ -2412,11 +2412,9 @@ class ExperimentView(NeuXtalVizWidget):
         gamma_1,
         nu_1,
         lamda_1,
-        d_1,
         gamma_2,
         nu_2,
         lamda_2,
-        d_2,
     ):
         if self.cb_inst is not None:
             self.cb_inst.remove()
@@ -2938,7 +2936,7 @@ class ExperimentView(NeuXtalVizWidget):
     def __format_inst_coord(self, x, y):
         return "γ = {:.1f}°, ν = {:.1f}°".format(x, y)
 
-    def __format_band_coord(self, x, y):
+    def __format_band_coord(self, x, _y):
         wl = "λ = {:.3f} Å, ".format(x)
         if self.bragg_band_alt is not None:
             if self.hkl is not None or self.hkl_alt is not None:
@@ -2961,7 +2959,7 @@ class ExperimentView(NeuXtalVizWidget):
             d = "d = {:.3f} Å".format(self.bragg_band * x)
             return wl + hkl + d
 
-    def __format_harm_coord(self, x, y):
+    def __format_harm_coord(self, x, _y):
         wl = "λ = {:.3f} Å, ".format(x)
         if self.hkl_laue is not None:
             hkl = self.hkl_laue / x * self.scale_laue

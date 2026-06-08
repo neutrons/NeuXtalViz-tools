@@ -10,10 +10,11 @@ from qtpy.QtWidgets import (
     QLineEdit,
     QFileDialog,
     QCheckBox,
+    QSlider,
 )
 
 from qtpy.QtGui import QDoubleValidator
-from qtpy.QtCore import Qt, Signal
+from qtpy.QtCore import Qt, Signal, QEvent
 
 import numpy as np
 import pyvista as pv
@@ -192,6 +193,18 @@ class VolumeSlicerView(NeuXtalVizWidget):
             "Set the position of the slice along the selected plane."
         )
 
+        self.slice_slider = QSlider(Qt.Horizontal)
+        self.slice_slider.setToolTip("Drag to move the slice position.")
+        self._slice_smin = 0.0
+        self._slice_smax = 1.0
+        self._slice_step = 0.001
+        self._slice_steps = 1000
+        self.slice_slider.setMinimum(0)
+        self.slice_slider.setMaximum(self._slice_steps)
+        self.slice_slider.valueChanged.connect(self._on_slice_slider_changed)
+        self.slice_slider.sliderReleased.connect(self.slice_ready)
+        self.slice_slider.installEventFilter(self)
+
         self.cut_line = QLineEdit("0.0")
         self.cut_line.setValidator(validator)
         self.cut_line.setToolTip(
@@ -291,8 +304,8 @@ class VolumeSlicerView(NeuXtalVizWidget):
         slice_params_layout.addWidget(self.slice_line)
         slice_params_layout.addWidget(slice_thickness_label)
         slice_params_layout.addWidget(self.slice_thickness_line)
-        slice_params_layout.addWidget(self.toggle_line_box)
-        slice_params_layout.addStretch(1)
+        slice_params_layout.addWidget(self.auto_limits_box)
+        slice_params_layout.addWidget(self.auto_zoom_box)
         slice_params_layout.addWidget(self.slice_scale_combo)
         slice_params_layout.addWidget(self.save_slice_button)
 
@@ -305,8 +318,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         view_params_layout.addWidget(ymax_label, 0, 2)
         view_params_layout.addWidget(self.ymax_line, 0, 3)
 
-        view_params_layout.addWidget(self.auto_limits_box, 1, 4)
-        view_params_layout.addWidget(self.auto_zoom_box, 0, 7)
+        view_params_layout.addWidget(self.toggle_line_box, 1, 4)
         view_params_layout.addWidget(self.vlim_combo, 0, 4)
         view_params_layout.addWidget(vmin_label, 1, 5)
         view_params_layout.addWidget(self.vmin_line, 1, 6)
@@ -325,6 +337,8 @@ class VolumeSlicerView(NeuXtalVizWidget):
         plots_layout.addLayout(draw_layout)
 
         self.canvas_slice = FigureCanvas(Figure(constrained_layout=True))
+        self.canvas_slice.setFocusPolicy(Qt.StrongFocus)
+        self.canvas_slice.installEventFilter(self)
         self.canvas_cut = FigureCanvas(
             Figure(constrained_layout=True, figsize=(6.4, 3.2))
         )
@@ -346,6 +360,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         line_layout.addLayout(fig_1d_layout)
 
         plots_layout.addLayout(image_layout)
+        plots_layout.addWidget(self.slice_slider)
         plots_layout.addLayout(slice_params_layout)
         plots_layout.addLayout(view_params_layout)
 
@@ -574,6 +589,11 @@ class VolumeSlicerView(NeuXtalVizWidget):
         bounds = np.array([[min_bnd[i], max_bnd[i]] for i in [0, 1, 2]])
         limits = np.array([[min_lim[i], max_lim[i]] for i in [0, 1, 2]])
 
+        ind = np.abs(self.norm).tolist().index(1)
+        self._setup_slice_slider(
+            limits[ind][0], limits[ind][1], signal.shape[ind]
+        )
+
         a = pv._vtk.vtkMatrix3x3()
         b = pv._vtk.vtkMatrix4x4()
         for i in range(3):
@@ -801,9 +821,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         self.cb = self.fig_slice.colorbar(self.slice_im, ax=self.ax_slice)
         self.cb.minorticks_on()
-
-        self.canvas_slice.draw_idle()
-        self.canvas_slice.flush_events()
 
         self.ax_slice.format_coord = self.__format_axis_coord
 
@@ -1050,8 +1067,82 @@ class VolumeSlicerView(NeuXtalVizWidget):
         if self.cut_line.hasAcceptableInput():
             return float(self.cut_line.text())
 
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.KeyPress:
+            if obj is self.canvas_slice and event.key() in (
+                Qt.Key_Left,
+                Qt.Key_Right,
+            ):
+                step = -1 if event.key() == Qt.Key_Left else 1
+                self.slice_slider.setValue(
+                    max(
+                        self.slice_slider.minimum(),
+                        min(
+                            self.slice_slider.maximum(),
+                            self.slice_slider.value() + step,
+                        ),
+                    )
+                )
+                return True
+        elif event.type() == QEvent.KeyRelease:
+            if event.key() in (Qt.Key_Left, Qt.Key_Right) and obj in (
+                self.canvas_slice,
+                self.slice_slider,
+            ):
+                self.slice_ready.emit()
+                return True
+        return super().eventFilter(obj, event)
+
+    @staticmethod
+    def _nice_step(span, n_bins):
+        raw = span / max(n_bins, 1)
+        if raw <= 0:
+            return 0.01
+        exp = int(np.floor(np.log10(raw)))
+        mult = raw / 10**exp
+        if mult < 1.5:
+            m = 1.0
+        elif mult < 3.5:
+            m = 2.0
+        elif mult < 7.5:
+            m = 5.0
+        else:
+            m = 10.0
+        return m * 10**exp
+
+    def _setup_slice_slider(self, smin, smax, n_bins):
+        span = smax - smin
+        step = self._nice_step(span, n_bins)
+        # Snap to step multiples so integer values are exactly reachable
+        n_min = int(np.floor(np.round(smin / step, 6)))
+        n_max = int(np.ceil(np.round(smax / step, 6)))
+        self._slice_step = step
+        self._slice_smin = n_min * step
+        self._slice_smax = n_max * step
+        self._slice_steps = max(n_max - n_min, 1)
+        self.slice_slider.blockSignals(True)
+        self.slice_slider.setMinimum(0)
+        self.slice_slider.setMaximum(self._slice_steps)
+        val = self.get_slice_value()
+        if val is not None:
+            pos = int(round((val - self._slice_smin) / step))
+            self.slice_slider.setValue(max(0, min(self._slice_steps, pos)))
+        self.slice_slider.blockSignals(False)
+
+    def _on_slice_slider_changed(self, pos):
+        val = self._slice_smin + pos * self._slice_step
+        decimals = max(0, -int(np.floor(np.log10(self._slice_step))))
+        self.slice_line.blockSignals(True)
+        self.slice_line.setText(str(round(val, decimals)))
+        self.slice_line.blockSignals(False)
+
     def set_slice_value(self, val):
         self.slice_line.setText(str(round(val, 4)))
+        if self._slice_smax != self._slice_smin:
+            pos = int(round((val - self._slice_smin) / self._slice_step))
+            self.slice_slider.blockSignals(True)
+            self.slice_slider.setValue(max(0, min(self._slice_steps, pos)))
+            self.slice_slider.blockSignals(False)
 
     def set_cut_value(self, val):
         self.cut_line.setText(str(round(val, 4)))

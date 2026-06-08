@@ -100,6 +100,7 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_slice_scale_combo(self.update_slice_display)
         self.view.connect_slice_auto_limits(self.update_slice_display)
         self.view.connect_slice_line(self.reslice)
+        self.view.connect_slice_slider(self.reslice)
         self.view.connect_vmin_line(self.update_cvals)
         self.view.connect_vmax_line(self.update_cvals)
         self.view.connect_instrument_auto_limits(

@@ -2207,6 +2207,8 @@ class UBModel(NeuXtalVizModel):
             W = np.column_stack([U, V, W])
 
             slice_dict["z"] = value
+            slice_dict["z_min"] = float(min_values[i])
+            slice_dict["z_max"] = float(max_values[i])
             slice_dict["W"] = np.column_stack([W[:, ind], W[:, i]])
 
             v = scipy.linalg.cholesky(np.dot(R.T, R)[ind][:, ind], lower=False)

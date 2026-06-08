@@ -1,4 +1,6 @@
 import os
+import sys
+import subprocess
 
 from qtpy.QtTest import QTest
 from qtpy.QtCore import Qt
@@ -979,9 +981,30 @@ def CORELLI_Natrolite_UB(app, window):
     copy_generated_pngs(directory)
 
 
+SCENARIOS = {
+    "TOPAZ_Si_UB": TOPAZ_Si_UB,
+    "TOPAZ_Scolecite_UB": TOPAZ_Scolecite_UB,
+    "CORELLI_Bixbyite_UB": CORELLI_Bixbyite_UB,
+    "MANDI_Mesolite_UB": MANDI_Mesolite_UB,
+    "CORELLI_Natrolite_UB": CORELLI_Natrolite_UB,
+}
+
 if __name__ == "__main__":
-    # run_qt_scenario(TOPAZ_Si_UB)
-    # run_qt_scenario(TOPAZ_Scolecite_UB)
-    # run_qt_scenario(CORELLI_Bixbyite_UB)
-    # run_qt_scenario(CORELLI_Natrolite_UB)
-    run_qt_scenario(MANDI_Mesolite_UB)
+    if len(sys.argv) > 1:
+        name = sys.argv[1]
+        if name not in SCENARIOS:
+            print(f"Unknown scenario: {name}")
+            print(f"Available: {', '.join(SCENARIOS)}")
+            sys.exit(1)
+        run_qt_scenario(SCENARIOS[name])
+    else:
+        script = os.path.abspath(__file__)
+        failed = []
+        for name in SCENARIOS:
+            print(f"Running {name} ...")
+            rc = subprocess.run([sys.executable, script, name]).returncode
+            if rc != 0:
+                failed.append(name)
+        if failed:
+            print(f"Failed: {', '.join(failed)}")
+            sys.exit(1)

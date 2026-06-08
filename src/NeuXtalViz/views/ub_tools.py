@@ -22,6 +22,8 @@ from qtpy.QtWidgets import (
     QTabWidget,
     QFileDialog,
     QFrame,
+    QSlider,
+    QAbstractItemView,
 )
 
 from qtpy.QtGui import (
@@ -29,7 +31,13 @@ from qtpy.QtGui import (
     QIntValidator,
     QRegularExpressionValidator,
 )
-from qtpy.QtCore import Qt, Signal, QRegularExpression, QItemSelectionModel
+from qtpy.QtCore import (
+    Qt,
+    Signal,
+    QEvent,
+    QRegularExpression,
+    QItemSelectionModel,
+)
 
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
@@ -74,6 +82,11 @@ class UBView(NeuXtalVizWidget):
         super().__init__(parent)
 
         self.tab_widget = QTabWidget(self)
+
+        self._slice_smin = 0.0
+        self._slice_smax = 1.0
+        self._slice_step = 0.1
+        self._slice_steps = 10
 
         self.parameters_tab()
         self.table_tab()
@@ -1217,6 +1230,7 @@ class UBView(NeuXtalVizWidget):
 
     def table_tab(self):
         peaks_table_tab = QWidget()
+        self._peaks_tab = peaks_table_tab
         self.tab_widget.addTab(peaks_table_tab, "Peaks")
 
         peaks_layout = QVBoxLayout()
@@ -1719,7 +1733,19 @@ class UBView(NeuXtalVizWidget):
         convert_to_hkl_tab_layout.addStretch(1)
         convert_to_hkl_tab_layout.addLayout(convert_to_hkl_action_layout)
 
+        self.slice_slider = QSlider(Qt.Horizontal)
+        self.slice_slider.setToolTip(
+            "Drag or use arrow keys to move the slice position."
+        )
+        self.slice_slider.setMinimum(0)
+        self.slice_slider.setMaximum(self._slice_steps)
+        self.slice_slider.valueChanged.connect(self._on_slice_slider_changed)
+        self.slice_slider.sliderReleased.connect(self._slice_slider_released)
+        self.slice_slider.installEventFilter(self)
+
         self.canvas_slice = FigureCanvas(Figure(figsize=[12.8, 12.8]))
+        self.canvas_slice.setFocusPolicy(Qt.StrongFocus)
+        self.canvas_slice.installEventFilter(self)
 
         self.ax_xint = None
         self.ax_yint = None
@@ -1731,6 +1757,7 @@ class UBView(NeuXtalVizWidget):
         self.ax_slice = self.fig_slice.subplots(1, 1)
 
         slice_layout = QVBoxLayout()
+        slice_layout.addWidget(self.slice_slider)
         slice_layout.addWidget(NavigationToolbar2QT(self.canvas_slice, self))
         slice_layout.addWidget(self.canvas_slice)
 
@@ -2323,6 +2350,83 @@ class UBView(NeuXtalVizWidget):
 
     def connect_slice_line(self, update_slice):
         self.slice_line.editingFinished.connect(update_slice)
+
+    def connect_slice_slider(self, reslice):
+        self._slice_reslice = reslice
+
+    def _slice_slider_released(self):
+        if hasattr(self, "_slice_reslice"):
+            self._slice_reslice()
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.KeyPress:
+            if obj is self.canvas_slice and event.key() in (
+                Qt.Key_Left,
+                Qt.Key_Right,
+            ):
+                step = -1 if event.key() == Qt.Key_Left else 1
+                self.slice_slider.setValue(
+                    max(
+                        self.slice_slider.minimum(),
+                        min(
+                            self.slice_slider.maximum(),
+                            self.slice_slider.value() + step,
+                        ),
+                    )
+                )
+                return True
+        elif event.type() == QEvent.KeyRelease:
+            if event.key() in (Qt.Key_Left, Qt.Key_Right) and obj in (
+                self.canvas_slice,
+                self.slice_slider,
+            ):
+                if hasattr(self, "_slice_reslice"):
+                    self._slice_reslice()
+                return True
+        return super().eventFilter(obj, event)
+
+    @staticmethod
+    def _nice_step(span, n_bins):
+        raw = span / max(n_bins, 1)
+        if raw <= 0:
+            return 0.1
+        exp = int(np.floor(np.log10(raw)))
+        mult = raw / 10**exp
+        if mult < 1.5:
+            m = 1.0
+        elif mult < 3.5:
+            m = 2.0
+        elif mult < 7.5:
+            m = 5.0
+        else:
+            m = 10.0
+        return m * 10**exp
+
+    def _setup_slice_slider(self, smin, smax):
+        span = smax - smin
+        n_bins = round(span / 0.1) if span > 0 else 10
+        step = self._nice_step(span, n_bins)
+        n_min = int(np.floor(np.round(smin / step, 6)))
+        n_max = int(np.ceil(np.round(smax / step, 6)))
+        self._slice_step = step
+        self._slice_smin = n_min * step
+        self._slice_smax = n_max * step
+        self._slice_steps = max(n_max - n_min, 1)
+        self.slice_slider.blockSignals(True)
+        self.slice_slider.setMinimum(0)
+        self.slice_slider.setMaximum(self._slice_steps)
+        val = self.get_slice_value()
+        if val is not None:
+            pos = int(round((val - self._slice_smin) / step))
+            self.slice_slider.setValue(max(0, min(self._slice_steps, pos)))
+        self.slice_slider.blockSignals(False)
+
+    def _on_slice_slider_changed(self, pos):
+        val = self._slice_smin + pos * self._slice_step
+        decimals = max(0, -int(np.floor(np.log10(self._slice_step))))
+        self.slice_line.blockSignals(True)
+        self.slice_line.setText(str(round(val, decimals)))
+        self.slice_line.blockSignals(False)
 
     def connect_slice_scale_combo(self, update_slice):
         self.slice_scale_combo.currentIndexChanged.connect(update_slice)
@@ -2951,24 +3055,26 @@ class UBView(NeuXtalVizWidget):
     def _set_highlight_actor(self, centers):
         """Add highlight markers at the given peak centers."""
 
+        camera_pos = self.plotter.camera_position
+
         self._clear_highlight_actor()
 
-        if len(centers) == 0:
-            return
+        if len(centers) > 0:
+            sphere = pv.PolyData(np.asarray(centers))
+            actor = self.plotter.add_mesh(
+                sphere,
+                color="pink",
+                style="points",
+                point_size=10,
+                render_points_as_spheres=True,
+                show_scalar_bar=False,
+            )
+            self._highlight_actor = actor
 
-        sphere = pv.PolyData(np.asarray(centers))
-        actor = self.plotter.add_mesh(
-            sphere,
-            color="pink",
-            style="points",
-            point_size=10,
-            render_points_as_spheres=True,
-            show_scalar_bar=False,
-        )
-        self._highlight_actor = actor
+        self.plotter.camera_position = camera_pos
 
     def highlight(self, index, dataset):
-        """Toggle peak highlight in Q-view and sync table selection."""
+        """Select a peak in the table from a 3D view click."""
 
         if index - 1 not in self.indexing:
             return
@@ -2982,15 +3088,15 @@ class UBView(NeuXtalVizWidget):
                 continue
             peak_no = item.text()
             if peak_no.isnumeric() and ind == int(peak_no) - 1:
+                self.tab_widget.setCurrentWidget(self._peaks_tab)
                 index_item = self.peaks_table.model().index(row, 0)
-                self.peaks_table.setCurrentCell(row, 0)
-                mode = (
-                    QItemSelectionModel.Deselect
-                    if item.isSelected()
-                    else QItemSelectionModel.Select
-                )
                 self.peaks_table.selectionModel().select(
-                    index_item, mode | QItemSelectionModel.Rows
+                    index_item,
+                    QItemSelectionModel.ClearAndSelect
+                    | QItemSelectionModel.Rows,
+                )
+                self.peaks_table.scrollTo(
+                    index_item, QAbstractItemView.PositionAtCenter
                 )
                 break
 
@@ -4135,6 +4241,11 @@ class UBView(NeuXtalVizWidget):
 
         self._last_slice_view = slice_dict
         self._last_slice_labels = labels_key
+
+        z_min = slice_dict.get("z_min")
+        z_max = slice_dict.get("z_max")
+        if z_min is not None and z_max is not None and z_max > z_min:
+            self._setup_slice_slider(z_min, z_max)
 
     def on_press_slice(self, event):
         if (

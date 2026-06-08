@@ -1,4 +1,6 @@
 import os
+import sys
+import subprocess
 
 from qtpy.QtTest import QTest
 from qtpy.QtCore import Qt
@@ -19,7 +21,7 @@ def TOPAZ_Si_plan(app, window):
     ep_view = ep_presenter.view
 
     ep_presenter.model.load_UB(
-        os.path.join("/SNS/EXAMPLES/TOPAZ/IPTS-36169/shared/nxv/", "Si_UB.mat")
+        os.path.join("/SNS/TOPAZ/IPTS-36169/shared/nxv/", "Si_UB.mat")
     )
     ep_presenter.update_oriented_lattice()
     ep_presenter.view.set_transform(ep_presenter.model.get_transform())
@@ -114,7 +116,7 @@ def TOPAZ_Si_plan(app, window):
     ep_view.optimize_button.setStyleSheet("background-color: green;")
 
     QTest.mouseClick(ep_view.optimize_button, Qt.LeftButton)
-    QTest.qWait(1000 * 30)
+    QTest.qWait(1000 * 40)
 
     app.primaryScreen().grabWindow(window.winId()).save(
         os.path.join(directory, "Si_plan_optimize_coverage.png"), "png"
@@ -130,7 +132,6 @@ def TOPAZ_Si_plan(app, window):
 
     ep_view.title_line.setStyleSheet("background-color: yellow;")
     ep_view.highlight_button.setStyleSheet("background-color: yellow;")
-    ep_view.update_button.setStyleSheet("background-color: green;")
 
     QTest.mouseClick(ep_view.highlight_button, Qt.LeftButton)
     QTest.qWait(1000 * 10)
@@ -143,7 +144,6 @@ def TOPAZ_Si_plan(app, window):
 
     ep_view.title_line.setStyleSheet("")
     ep_view.highlight_button.setStyleSheet("")
-    ep_view.update_button.setStyleSheet("")
 
     ep_view.save_plan_button.setStyleSheet("background-color: yellow;")
 
@@ -156,6 +156,26 @@ def TOPAZ_Si_plan(app, window):
     copy_generated_pngs(directory)
 
 
+SCENARIOS = {
+    "TOPAZ_Si_plan": TOPAZ_Si_plan,
+}
+
 if __name__ == "__main__":
-    run_qt_scenario(TOPAZ_Si_plan)
-    # run_qt_scenario(CORELLI_Bixbyite_plan)
+    if len(sys.argv) > 1:
+        name = sys.argv[1]
+        if name not in SCENARIOS:
+            print(f"Unknown scenario: {name}")
+            print(f"Available: {', '.join(SCENARIOS)}")
+            sys.exit(1)
+        run_qt_scenario(SCENARIOS[name])
+    else:
+        script = os.path.abspath(__file__)
+        failed = []
+        for name in SCENARIOS:
+            print(f"Running {name} ...")
+            rc = subprocess.run([sys.executable, script, name]).returncode
+            if rc != 0:
+                failed.append(name)
+        if failed:
+            print(f"Failed: {', '.join(failed)}")
+            sys.exit(1)
