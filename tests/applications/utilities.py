@@ -1,6 +1,7 @@
 import os
 import glob
 import shutil
+import tempfile
 import traceback
 import faulthandler
 
@@ -10,7 +11,15 @@ os.environ.setdefault("QT_API", "pyside6")
 # os.environ.setdefault("QT_OPENGL", "software")
 
 from qtpy.QtWidgets import QApplication
-from qtpy.QtCore import QTimer
+from qtpy.QtCore import QSettings, QTimer
+
+_local_cfg = os.path.join(
+    tempfile.gettempdir(), os.environ.get("USER", "user"), "qt"
+)
+os.makedirs(_local_cfg, exist_ok=True)
+QSettings.setPath(
+    QSettings.Format.NativeFormat, QSettings.Scope.UserScope, _local_cfg
+)
 from qtpy.QtTest import QTest
 
 import qdarkstyle

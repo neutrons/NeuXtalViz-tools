@@ -1,5 +1,6 @@
 import os
 import sys
+import tempfile
 import traceback
 import subprocess
 
@@ -17,6 +18,15 @@ from qtpy.QtWidgets import (
 )
 
 from qtpy.QtGui import QIcon
+from qtpy.QtCore import QSettings
+
+_local_cfg = os.path.join(
+    tempfile.gettempdir(), os.environ.get("USER", "user"), "qt"
+)
+os.makedirs(_local_cfg, exist_ok=True)
+QSettings.setPath(
+    QSettings.Format.NativeFormat, QSettings.Scope.UserScope, _local_cfg
+)
 
 from NeuXtalViz._version import __version__
 
