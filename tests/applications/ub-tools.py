@@ -696,7 +696,7 @@ def CORELLI_Natrolite_UB(app, window):
 
     ub_view.horizontal_line.setText("-11")
     ub_view.vertical_line.setText("-12")
-    ub_view.diffraction_line.setText("1.83")
+    ub_view.diffraction_line.setText("6.51")
     ub_presenter.update_roi()
     ub_presenter.update_scan()
 
@@ -709,7 +709,7 @@ def CORELLI_Natrolite_UB(app, window):
 
     ub_view.horizontal_line.setText("31")
     ub_view.vertical_line.setText("-6")
-    ub_view.diffraction_line.setText("1.73")
+    ub_view.diffraction_line.setText("3.18")
     ub_presenter.update_roi()
     ub_presenter.update_scan()
 
@@ -753,6 +753,8 @@ def CORELLI_Natrolite_UB(app, window):
     ub_view.alpha_line.setStyleSheet("")
     ub_view.beta_line.setStyleSheet("")
     ub_view.gamma_line.setStyleSheet("")
+    ub_view.set_ub_button.setStyleSheet("")
+
     ub_view.optimize_combo.setStyleSheet("")
     ub_view.conventional_button.setStyleSheet("")
     ub_view.refine_button.setStyleSheet("")
@@ -927,7 +929,7 @@ def CORELLI_Natrolite_UB(app, window):
     ub_view.refine_button.setStyleSheet("background-color: green;")
 
     QTest.mouseClick(ub_view.refine_button, Qt.LeftButton)
-    QTest.qWait(1000 * 5)
+    QTest.qWait(1000 * 15)
 
     app.primaryScreen().grabWindow(window.winId()).save(
         os.path.join(directory, "Si_UB_refine_UB.png"), "png"

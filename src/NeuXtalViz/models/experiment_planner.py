@@ -136,9 +136,9 @@ centering_conditions = {
     "P": lambda h, k, l: True,
     "I": lambda h, k, l: (h + k + l) % 2 == 0,
     "F": lambda h, k, l: (h % 2 == k % 2 == l % 2),
-    "C": lambda h, k, l: k % 2 == 0 and l % 2 == 0,
-    "A": lambda h, k, l: h % 2 == 0 and l % 2 == 0,
-    "B": lambda h, k, l: h % 2 == 0 and k % 2 == 0,
+    "C": lambda h, k, l: (h + k) % 2 == 0,
+    "A": lambda h, k, l: (k + l) % 2 == 0,
+    "B": lambda h, k, l: (h + l) % 2 == 0,
     "R": lambda h, k, l: True,
     "Robv": lambda h, k, l: (-h + k + l) % 3 == 0,
     "Rrev": lambda h, k, l: (h - k + l) % 3 == 0,
@@ -1644,7 +1644,7 @@ class ExperimentModel(NeuXtalVizModel):
         return np.array([h, k, l, d, lamda]).T.tolist()
 
     def _cumulative_stats(
-        self, filtered_ws, pg, d_min, d_max, rows, total_sym, total_asym
+        self, filtered_ws, pg, lc, d_min, d_max, rows, total_sym, total_asym
     ):
         """
         Compute cumulative completeness/redundancy/unique for all rows without
@@ -1653,6 +1653,7 @@ class ExperimentModel(NeuXtalVizModel):
         two-pointer scan over sorted run numbers gives O(N_peaks + N_rows) work.
         """
         pg_obj = PointGroupFactory.Instance().createPointGroup(pg)
+        is_allowed = centering_conditions.get(lc, lambda h, k, l: True)
         ws = mtd[filtered_ws]
 
         first_sym, first_asym = {}, {}
@@ -1665,6 +1666,8 @@ class ExperimentModel(NeuXtalVizModel):
             l = int(round(peak.getL()))
             run = peak.getRunNumber()
             if not (d_min <= peak.getDSpacing() <= d_max):
+                continue
+            if not is_allowed(h, k, l):
                 continue
 
             key_asym = (h, k, l)
@@ -1844,6 +1847,7 @@ class ExperimentModel(NeuXtalVizModel):
         ) = self._cumulative_stats(
             "filtered",
             pg,
+            lc,
             d_min,
             d_max,
             rows,

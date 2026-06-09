@@ -428,7 +428,13 @@ class VolumeSlicerView(NeuXtalVizWidget):
     def connect_cut_scale_combo(self, update_cut):
         self.cut_scale_combo.currentIndexChanged.connect(update_cut)
 
+    def _reset_slice_to_zero(self):
+        self.slice_line.blockSignals(True)
+        self.slice_line.setText("0.0")
+        self.slice_line.blockSignals(False)
+
     def connect_slice_combo(self, update_slice):
+        self.slice_combo.currentIndexChanged.connect(self._reset_slice_to_zero)
         self.slice_combo.currentIndexChanged.connect(update_slice)
 
     def connect_cut_combo(self, update_cut):
@@ -1111,6 +1117,8 @@ class VolumeSlicerView(NeuXtalVizWidget):
         return m * 10**exp
 
     def _setup_slice_slider(self, smin, smax, n_bins):
+        extent = max(abs(smin), abs(smax)) or 1.0
+        smin, smax = -extent, extent
         span = smax - smin
         step = self._nice_step(span, n_bins)
         # Snap to step multiples so integer values are exactly reachable

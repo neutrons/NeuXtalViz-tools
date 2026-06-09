@@ -560,7 +560,6 @@ class UBView(NeuXtalVizWidget):
         convert_to_q_action_layout.addLayout(wavelength_params_layout)
 
         convert_to_q_tab_layout.addLayout(experiment_params_layout)
-        convert_to_q_tab_layout.addLayout(wavelength_params_layout)
         convert_to_q_tab_layout.addLayout(instrument_params_layout)
         convert_to_q_tab_layout.addStretch(1)
         convert_to_q_tab_layout.addLayout(convert_to_q_action_layout)
@@ -2403,6 +2402,8 @@ class UBView(NeuXtalVizWidget):
         return m * 10**exp
 
     def _setup_slice_slider(self, smin, smax):
+        extent = max(abs(smin), abs(smax)) or 1.0
+        smin, smax = -extent, extent
         span = smax - smin
         n_bins = round(span / 0.1) if span > 0 else 10
         step = self._nice_step(span, n_bins)
@@ -2440,7 +2441,13 @@ class UBView(NeuXtalVizWidget):
     def connect_slice_auto_limits(self, update_limits):
         self.slice_auto_limits_box.toggled.connect(update_limits)
 
+    def _reset_slice_to_zero(self):
+        self.slice_line.blockSignals(True)
+        self.slice_line.setText("0.0")
+        self.slice_line.blockSignals(False)
+
     def connect_slice_combo(self, update_slice):
+        self.slice_combo.currentIndexChanged.connect(self._reset_slice_to_zero)
         self.slice_combo.currentIndexChanged.connect(update_slice)
 
     def connect_vlim_combo(self, update_clim):
@@ -2992,7 +2999,7 @@ class UBView(NeuXtalVizWidget):
             if few:
                 sphere = pv.Icosphere(radius=1, nsub=0)
             else:
-                sphere = pv.PolyData([0, 0, 0])
+                sphere = pv.PolyData(np.array([[0.0, 0.0, 0.0]]))
 
             geoms, self.indexing = [], {}
             for i, (T, I, ind, no) in enumerate(zip(*params)):
@@ -3060,7 +3067,7 @@ class UBView(NeuXtalVizWidget):
         self._clear_highlight_actor()
 
         if len(centers) > 0:
-            sphere = pv.PolyData(np.asarray(centers))
+            sphere = pv.PolyData(np.asarray(centers, dtype=float))
             actor = self.plotter.add_mesh(
                 sphere,
                 color="pink",
@@ -4413,14 +4420,14 @@ class UBView(NeuXtalVizWidget):
         )
 
         self.plotter.add_mesh(
-            pv.PolyData(observed),
+            pv.PolyData(np.asarray(observed, dtype=float)),
             color=observed_color,
             smooth_shading=True,
             point_size=12,
             render_points_as_spheres=True,
         )
         self.plotter.add_mesh(
-            pv.PolyData(predicted),
+            pv.PolyData(np.asarray(predicted, dtype=float)),
             color=predicted_color,
             smooth_shading=True,
             point_size=10,
@@ -4465,7 +4472,7 @@ class UBView(NeuXtalVizWidget):
             mask = (np.abs(delta) < 1).all(axis=1)
             coords = coords[mask]
             delta = delta[mask]
-            points = pv.PolyData(coords)
+            points = pv.PolyData(np.asarray(coords, dtype=float))
             if uni >= 0:
                 color = "C{}".format(uni)
                 multiblock[color] = points

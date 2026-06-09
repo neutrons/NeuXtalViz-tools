@@ -2111,7 +2111,7 @@ class ExperimentView(NeuXtalVizWidget):
             self.reset_view()
             return None
 
-        coords = np.array(peak_dict["coords"])
+        coords = np.array(peak_dict["coords"], dtype=float)
         colors = np.array(peak_dict["colors"])
 
         points = pv.PolyData(coords)
