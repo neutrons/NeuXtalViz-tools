@@ -3973,6 +3973,7 @@ class UBView(NeuXtalVizWidget):
             xlabel = r"$\vartheta$ [°]"
 
         self.ax_scan.set_xlabel(xlabel)
+        self.ax_scan.autoscale(enable=True, axis="both")
         self.ax_scan.relim()
         self.ax_scan.autoscale_view()
 
