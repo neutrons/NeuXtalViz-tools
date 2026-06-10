@@ -2279,7 +2279,6 @@ class ExperimentView(NeuXtalVizWidget):
         self.ax_cov[2].set_xticks(x + width, shel)
 
         self.canvas_cov.draw_idle()
-        self.canvas_cov.flush_events()
 
         x, comp, mult, refl = cumsym
 
@@ -2325,7 +2324,6 @@ class ExperimentView(NeuXtalVizWidget):
             self.ax_cum[2].xaxis.get_major_locator().set_params(integer=True)
 
         self.canvas_cum.draw_idle()
-        self.canvas_cum.flush_events()
 
     def _plot_instrument_background(self, inst_background):
         if inst_background is None:
@@ -2404,7 +2402,6 @@ class ExperimentView(NeuXtalVizWidget):
         )
 
         self.canvas_inst.draw_idle()
-        self.canvas_inst.flush_events()
 
     def plot_instrument_alternate(
         self,
@@ -2486,7 +2483,6 @@ class ExperimentView(NeuXtalVizWidget):
         )
 
         self.canvas_inst.draw_idle()
-        self.canvas_inst.flush_events()
 
     def get_intersect(self):
         if self.intersect_line.hasAcceptableInput():
@@ -2579,7 +2575,7 @@ class ExperimentView(NeuXtalVizWidget):
             self.roi_ready.emit(horz, vert)
 
     def plot_harmonics(self, hkls, lamdas):
-        for line in self.ax_band.lines:
+        for line in self.ax_band.lines[:]:
             line.remove()
         for text in self.ax_band.texts:
             text.remove()
@@ -2603,7 +2599,6 @@ class ExperimentView(NeuXtalVizWidget):
                 self.scale_alt = lamda
 
         self.canvas_inst.draw_idle()
-        self.canvas_inst.flush_events()
 
     def plot_harmonics_alternate(self, hkls, lamdas):
         for hkl, lamda in zip(hkls, lamdas):
@@ -2623,10 +2618,9 @@ class ExperimentView(NeuXtalVizWidget):
                 self.scale_alt = lamda
 
         self.canvas_inst.draw_idle()
-        self.canvas_inst.flush_events()
 
     def update_inst(self):
-        for line in self.ax_inst.lines:
+        for line in self.ax_inst.lines[:]:
             line.remove()
 
         xmin, xmax = self.ax_inst.get_xlim()
@@ -2637,7 +2631,7 @@ class ExperimentView(NeuXtalVizWidget):
         horz_alt = self.get_horizontal_alternate()
         vert_alt = self.get_vertical_alternate()
 
-        for line in self.ax_band.lines:
+        for line in self.ax_band.lines[:]:
             line.remove()
 
         self.harm_ready.emit()
@@ -2693,7 +2687,6 @@ class ExperimentView(NeuXtalVizWidget):
             )
 
         self.canvas_inst.draw_idle()
-        self.canvas_inst.flush_events()
 
     def connect_roi_ready(self, lookup):
         self.roi_ready.connect(lookup)
@@ -2771,7 +2764,6 @@ class ExperimentView(NeuXtalVizWidget):
         )
 
         self.canvas_laue.draw_idle()
-        self.canvas_laue.flush_events()
 
     def on_press_laue(self, event):
         if (
@@ -2782,13 +2774,13 @@ class ExperimentView(NeuXtalVizWidget):
             self.sel_ready.emit(horz, vert)
 
     def update_laue(self, horz, vert, lamdas, hkl, lamda_0):
-        for line in self.ax_laue.lines:
+        for line in self.ax_laue.lines[:]:
             line.remove()
 
         self.ax_laue.axvline(x=horz, color="k", linestyle="--")
         self.ax_laue.axhline(y=vert, color="k", linestyle="--")
 
-        for line in self.ax_harm.lines:
+        for line in self.ax_harm.lines[:]:
             line.remove()
         for text in self.ax_harm.texts:
             text.remove()
@@ -2801,7 +2793,6 @@ class ExperimentView(NeuXtalVizWidget):
         self.scale_laue = lamda_0
 
         self.canvas_laue.draw_idle()
-        self.canvas_laue.flush_events()
 
     def connect_selection_ready(self, lookup):
         self.sel_ready.connect(lookup)
@@ -2924,7 +2915,6 @@ class ExperimentView(NeuXtalVizWidget):
         self.cb_slice.ax.set_ylabel("Redundancy")
 
         self.canvas_slice.draw_idle()
-        self.canvas_slice.flush_events()
 
         self.ax_slice.format_coord = self.__format_hkl_coord
 

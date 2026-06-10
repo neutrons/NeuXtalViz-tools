@@ -3,6 +3,9 @@ import sys
 import tempfile
 import traceback
 import subprocess
+import faulthandler
+
+faulthandler.enable()
 
 os.environ["QT_API"] = "pyside6"
 
@@ -287,7 +290,7 @@ def gui():
     window = NeuXtalViz()
     window.show()
     try:
-        sys.excepthook = None
+        sys.excepthook = sys.__excepthook__
         sys.exit(app.exec())
     except RuntimeError:
         pass

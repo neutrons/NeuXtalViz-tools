@@ -1,5 +1,6 @@
 from NeuXtalViz.presenters.base_presenter import NeuXtalVizPresenter
 
+import functools
 import numpy as np
 
 
@@ -261,7 +262,18 @@ class VolumeSlicer(NeuXtalVizPresenter):
             if reset:
                 self.view.reset_slice_cut()
 
-            worker = self.view.worker(self.redraw_data_process)
+            norm = self.get_normal()
+            clim_method = self.get_clim_method()
+            slice_value = self.view.get_slice_value()
+
+            worker = self.view.worker(
+                functools.partial(
+                    self.redraw_data_process,
+                    norm=norm,
+                    clim_method=clim_method,
+                    slice_value=slice_value,
+                )
+            )
             worker.connect_result(self.redraw_data_complete)
             worker.connect_finished(self.slice_data)
             worker.connect_progress(self.update_processing)
@@ -278,7 +290,14 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
         self.draw_idle = True
 
-    def redraw_data_process(self, progress, stop_event=None):
+    def redraw_data_process(
+        self,
+        progress,
+        stop_event=None,
+        norm=None,
+        clim_method=None,
+        slice_value=None,
+    ):
         if self.stop_processing(stop_event):
             return None
 
@@ -293,13 +312,11 @@ class VolumeSlicer(NeuXtalVizPresenter):
             if self.stop_processing(stop_event):
                 return None
 
-            norm = self.get_normal()
-
             histo = self.model.get_histo_info(norm)
 
             data = histo["signal"]
 
-            data = self.model.calculate_clim(data, self.get_clim_method())
+            data = self.model.calculate_clim(data, clim_method)
 
             progress("Updating volume...", 50)
 
@@ -308,16 +325,18 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
             histo["signal"] = data
 
-            value = self.view.get_slice_value()
-
             normal = -self.model.get_normal_plane(norm)
 
-            # origin = self.model.get_normal('[hkl]', orig)
-
-            if value is not None:
+            if slice_value is not None:
                 progress("Volume drawn!", 100)
 
-                return histo, normal, norm, value, self.model.get_transform()
+                return (
+                    histo,
+                    normal,
+                    norm,
+                    slice_value,
+                    self.model.get_transform(),
+                )
 
             else:
                 progress("Invalid parameters.", 0)
@@ -326,7 +345,28 @@ class VolumeSlicer(NeuXtalVizPresenter):
         if self.slice_idle:
             self.slice_idle = False
 
-            worker = self.view.worker(self.slice_data_process)
+            norm = self.get_normal()
+            thick = self.view.get_slice_thickness()
+            value = self.view.get_slice_value()
+            vlim_method = self.get_vlim_method()
+            scale = self.view.get_slice_scale()
+            auto_limits = self.view.get_auto_limits()
+            vmin = self.view.get_vmin_value()
+            vmax = self.view.get_vmax_value()
+
+            worker = self.view.worker(
+                functools.partial(
+                    self.slice_data_process,
+                    norm=norm,
+                    thick=thick,
+                    value=value,
+                    vlim_method=vlim_method,
+                    scale=scale,
+                    auto_limits=auto_limits,
+                    vmin=vmin,
+                    vmax=vmax,
+                )
+            )
             worker.connect_result(self.slice_data_complete)
             worker.connect_finished(self.cut_data)
             worker.connect_progress(self.update_processing)
@@ -339,16 +379,23 @@ class VolumeSlicer(NeuXtalVizPresenter):
             self.view.add_slice(result)
         self.slice_idle = True
 
-    def slice_data_process(self, progress, stop_event=None):
+    def slice_data_process(
+        self,
+        progress,
+        stop_event=None,
+        norm=None,
+        thick=None,
+        value=None,
+        vlim_method=None,
+        scale=None,
+        auto_limits=None,
+        vmin=None,
+        vmax=None,
+    ):
         if self.stop_processing(stop_event):
             return None
 
         if self.model.is_histo_loaded():
-            norm = self.get_normal()
-
-            thick = self.view.get_slice_thickness()
-            value = self.view.get_slice_value()
-
             if thick is not None and value is not None:
                 progress("Processing...", 1)
 
@@ -364,16 +411,11 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
                 data = slice_histo["signal"]
 
-                vmin, vmax = self._resolve_display_limits(
-                    data,
-                    self.get_vlim_method(),
-                    self.view.get_slice_scale(),
-                    self.view.get_auto_limits(),
-                    self.view.get_vmin_value(),
-                    self.view.get_vmax_value(),
+                vmin_out, vmax_out = self._resolve_display_limits(
+                    data, vlim_method, scale, auto_limits, vmin, vmax
                 )
-                slice_histo["vmin"] = vmin
-                slice_histo["vmax"] = vmax
+                slice_histo["vmin"] = vmin_out
+                slice_histo["vmax"] = vmax_out
 
                 progress("Data sliced!", 100)
 
@@ -383,7 +425,18 @@ class VolumeSlicer(NeuXtalVizPresenter):
         if self.cut_idle:
             self.cut_idle = False
 
-            worker = self.view.worker(self.cut_data_process)
+            axis = self.get_axis()
+            cut_value = self.view.get_cut_value()
+            cut_thick = self.view.get_cut_thickness()
+
+            worker = self.view.worker(
+                functools.partial(
+                    self.cut_data_process,
+                    axis=axis,
+                    cut_value=cut_value,
+                    cut_thick=cut_thick,
+                )
+            )
             worker.connect_result(self.cut_data_complete)
             worker.connect_finished(self.update_complete)
             worker.connect_progress(self.update_processing)
@@ -395,17 +448,19 @@ class VolumeSlicer(NeuXtalVizPresenter):
             self.view.add_cut(result)
         self.cut_idle = True
 
-    def cut_data_process(self, progress, stop_event=None):
+    def cut_data_process(
+        self,
+        progress,
+        stop_event=None,
+        axis=None,
+        cut_value=None,
+        cut_thick=None,
+    ):
         if self.stop_processing(stop_event):
             return None
 
         if self.model.is_sliced():
-            value = self.view.get_cut_value()
-            thick = self.view.get_cut_thickness()
-
-            axis = self.get_axis()
-
-            if value is not None and thick is not None:
+            if cut_value is not None and cut_thick is not None:
                 progress("Processing...", 1)
 
                 if self.stop_processing(stop_event):
@@ -418,7 +473,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
                 progress("Data cut!", 100)
 
-                cut_histo = self.model.get_cut_info(axis, value, thick)
+                cut_histo = self.model.get_cut_info(axis, cut_value, cut_thick)
 
                 return cut_histo
 

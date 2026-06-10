@@ -1,3 +1,5 @@
+import functools
+
 from NeuXtalViz.presenters.periodic_table import PeriodicTable
 from NeuXtalViz.presenters.base_presenter import NeuXtalVizPresenter
 
@@ -178,7 +180,14 @@ class CrystalStructure(NeuXtalVizPresenter):
         ----------
         None
         """
-        worker = self.view.worker(self.calculate_F2_process)
+        d_min = self.view.get_minimum_d_spacing()
+        params = self.view.get_lattice_constants()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.calculate_F2_process, d_min=d_min, params=params
+            )
+        )
         worker.connect_result(self.calculate_F2_complete)
         worker.connect_finished(self.update_complete)
         worker.connect_progress(self.update_processing)
@@ -197,21 +206,11 @@ class CrystalStructure(NeuXtalVizPresenter):
         if result is not None:
             self.view.set_factors(*result)
 
-    def calculate_F2_process(self, progress, stop_event=None):
+    def calculate_F2_process(
+        self, progress, stop_event=None, d_min=None, params=None
+    ):
         if self.stop_processing(stop_event):
             return None
-
-        """
-        Worker process for F2 calculation.
-
-        Parameters
-        ----------
-        progress : callable
-            Progress callback function.
-        """
-        d_min = self.view.get_minimum_d_spacing()
-
-        params = self.view.get_lattice_constants()
 
         if params is not None:
             progress("Processing...", 1)
@@ -246,7 +245,11 @@ class CrystalStructure(NeuXtalVizPresenter):
         ----------
         None
         """
-        worker = self.view.worker(self.calculate_hkl_process)
+        hkl = self.view.get_hkl()
+
+        worker = self.view.worker(
+            functools.partial(self.calculate_hkl_process, hkl=hkl)
+        )
         worker.connect_result(self.calculate_hkl_complete)
         worker.connect_finished(self.update_complete)
         worker.connect_progress(self.update_processing)
@@ -265,19 +268,9 @@ class CrystalStructure(NeuXtalVizPresenter):
         if result is not None:
             self.view.set_equivalents(*result)
 
-    def calculate_hkl_process(self, progress, stop_event=None):
+    def calculate_hkl_process(self, progress, stop_event=None, hkl=None):
         if self.stop_processing(stop_event):
             return None
-
-        """
-        Worker process for hkl calculation.
-
-        Parameters
-        ----------
-        progress : callable
-            Progress callback function.
-        """
-        hkl = self.view.get_hkl()
 
         if hkl is not None:
             progress("Processing...", 1)

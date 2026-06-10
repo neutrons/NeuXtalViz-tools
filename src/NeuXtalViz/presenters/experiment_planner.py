@@ -1,5 +1,7 @@
 from NeuXtalViz.presenters.base_presenter import NeuXtalVizPresenter
 
+import functools
+
 
 class Experiment(NeuXtalVizPresenter):
     def __init__(self, view, model):
@@ -179,7 +181,22 @@ class Experiment(NeuXtalVizPresenter):
         self.view.update_wavelength(wl_min)
 
     def show_instrument(self):
-        worker = self.view.worker(self.show_instrument_process)
+        instrument = self.view.get_instrument()
+        motors = self.view.get_motors()
+        cal = self.view.get_detector_calibration()
+        gon = self.view.get_goniometer_calibration()
+        mask = self.view.get_mask()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.show_instrument_process,
+                instrument=instrument,
+                motors=motors,
+                cal=cal,
+                gon=gon,
+                mask=mask,
+            )
+        )
         worker.connect_result(self.show_instrument_complete)
         worker.connect_finished(self.update_hkl_limits)
         worker.connect_progress(self.update_processing)
@@ -187,9 +204,19 @@ class Experiment(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def show_instrument_complete(self, result):
-        return self.view.add_instrument(result)
+        if result is not None:
+            self.view.add_instrument(result)
 
-    def show_instrument_process(self, progress, stop_event=None):
+    def show_instrument_process(
+        self,
+        progress,
+        stop_event=None,
+        instrument=None,
+        motors=None,
+        cal=None,
+        gon=None,
+        mask=None,
+    ):
         if self.stop_processing(stop_event):
             return None
 
@@ -198,7 +225,7 @@ class Experiment(NeuXtalVizPresenter):
         if self.stop_processing(stop_event):
             return None
 
-        self.create_instrument()
+        self.model.initialize_instrument(instrument, motors, cal, gon, mask)
 
         progress("Calculating instrument view.", 5)
 
@@ -229,7 +256,35 @@ class Experiment(NeuXtalVizPresenter):
         self.calculate_single_hkl()
 
     def calculate_single_hkl(self):
-        worker = self.view.worker(self.calculate_single_process)
+        hkl_1, hkl_2 = self.view.get_input_hkls()
+        wavelength = self.view.get_wavelength()
+        equiv = self.view.use_equivalents()
+        pg = self.view.get_point_group()
+        instrument = self.view.get_instrument()
+        mode = self.view.get_mode()
+        limits = self.view.get_goniometer_limits()
+        instr_motors = self.view.get_motors()
+        cal = self.view.get_detector_calibration()
+        gon = self.view.get_goniometer_calibration()
+        mask = self.view.get_mask()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.calculate_single_process,
+                hkl_1=hkl_1,
+                hkl_2=hkl_2,
+                wavelength=wavelength,
+                equiv=equiv,
+                pg=pg,
+                instrument=instrument,
+                mode=mode,
+                limits=limits,
+                instr_motors=instr_motors,
+                cal=cal,
+                gon=gon,
+                mask=mask,
+            )
+        )
         worker.connect_result(self.calculate_single_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -242,23 +297,29 @@ class Experiment(NeuXtalVizPresenter):
             gamma, nu, lamda, _ = result
             self.view.plot_instrument(inst_background, gamma, nu, lamda)
 
-    def calculate_single_process(self, progress, stop_event=None):
+    def calculate_single_process(
+        self,
+        progress,
+        stop_event=None,
+        hkl_1=None,
+        hkl_2=None,
+        wavelength=None,
+        equiv=None,
+        pg=None,
+        instrument=None,
+        mode=None,
+        limits=None,
+        instr_motors=None,
+        cal=None,
+        gon=None,
+        mask=None,
+    ):
         if self.stop_processing(stop_event):
             return None
 
-        hkl_1, hkl_2 = self.view.get_input_hkls()
-        wavelength = self.view.get_wavelength()
-
         hkl = hkl_1 if not self.alt_hkl else hkl_2
 
-        equiv = self.view.use_equivalents()
-        pg = self.view.get_point_group()
-
-        instrument = self.view.get_instrument()
-        mode = self.view.get_mode()
         axes, polarities = self.model.get_axes_polarities(instrument, mode)
-
-        limits = self.view.get_goniometer_limits()
 
         if hkl is not None and self.model.has_UB():
             progress("Initializing instrument", 5)
@@ -266,7 +327,9 @@ class Experiment(NeuXtalVizPresenter):
             if self.stop_processing(stop_event):
                 return None
 
-            self.create_instrument()
+            self.model.initialize_instrument(
+                instrument, instr_motors, cal, gon, mask
+            )
 
             progress("Instrument initialized! ", 10)
 
@@ -298,7 +361,35 @@ class Experiment(NeuXtalVizPresenter):
                 progress("Invalid parameters for single peak calculation.", 0)
 
     def calculate_double(self):
-        worker = self.view.worker(self.calculate_double_process)
+        hkl_1, hkl_2 = self.view.get_input_hkls()
+        wavelength = self.view.get_wavelength()
+        equiv = self.view.use_equivalents()
+        pg = self.view.get_point_group()
+        instrument = self.view.get_instrument()
+        mode = self.view.get_mode()
+        limits = self.view.get_goniometer_limits()
+        instr_motors = self.view.get_motors()
+        cal = self.view.get_detector_calibration()
+        gon = self.view.get_goniometer_calibration()
+        mask = self.view.get_mask()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.calculate_double_process,
+                hkl_1=hkl_1,
+                hkl_2=hkl_2,
+                wavelength=wavelength,
+                equiv=equiv,
+                pg=pg,
+                instrument=instrument,
+                mode=mode,
+                limits=limits,
+                instr_motors=instr_motors,
+                cal=cal,
+                gon=gon,
+                mask=mask,
+            )
+        )
         worker.connect_result(self.calculate_double_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -313,21 +404,27 @@ class Experiment(NeuXtalVizPresenter):
                 inst_background, gamma_1, nu_1, lamda_1, gamma_2, nu_2, lamda_2
             )
 
-    def calculate_double_process(self, progress, stop_event=None):
+    def calculate_double_process(
+        self,
+        progress,
+        stop_event=None,
+        hkl_1=None,
+        hkl_2=None,
+        wavelength=None,
+        equiv=None,
+        pg=None,
+        instrument=None,
+        mode=None,
+        limits=None,
+        instr_motors=None,
+        cal=None,
+        gon=None,
+        mask=None,
+    ):
         if self.stop_processing(stop_event):
             return None
 
-        hkl_1, hkl_2 = self.view.get_input_hkls()
-        wavelength = self.view.get_wavelength()
-
-        equiv = self.view.use_equivalents()
-        pg = self.view.get_point_group()
-
-        instrument = self.view.get_instrument()
-        mode = self.view.get_mode()
         axes, polarities = self.model.get_axes_polarities(instrument, mode)
-
-        limits = self.view.get_goniometer_limits()
 
         if hkl_1 is not None and hkl_2 is not None and self.model.has_UB():
             progress("Initializing instrument", 5)
@@ -335,7 +432,9 @@ class Experiment(NeuXtalVizPresenter):
             if self.stop_processing(stop_event):
                 return None
 
-            self.create_instrument()
+            self.model.initialize_instrument(
+                instrument, instr_motors, cal, gon, mask
+            )
 
             progress("Instrument initialized! ", 10)
 
@@ -453,7 +552,11 @@ class Experiment(NeuXtalVizPresenter):
             self.update_peaks(True)
 
     def delete_angles(self):
-        worker = self.view.worker(self.delete_angles_process)
+        rows = self.view.get_angles_to_delete()
+
+        worker = self.view.worker(
+            functools.partial(self.delete_angles_process, rows=rows)
+        )
         worker.connect_result(self.delete_angles_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -465,9 +568,7 @@ class Experiment(NeuXtalVizPresenter):
             self.view.delete_angles(rows)
             self.update_peaks(False)
 
-    def delete_angles_process(self, progress, stop_event=None):
-
-        rows = self.view.get_angles_to_delete()
+    def delete_angles_process(self, progress, stop_event=None, rows=None):
 
         if rows is not None:
             self.model.delete_angles(rows)
@@ -480,7 +581,24 @@ class Experiment(NeuXtalVizPresenter):
             progress("No rows selected for deletion.", 0)
 
     def add_orientation(self):
-        worker = self.view.worker(self.add_orientation_process)
+        angles = self.view.get_angles()
+        free_angles = self.view.get_free_angles()
+        all_angles = self.view.get_all_angles()
+        wavelength = self.view.get_wavelength()
+        d_min = self.view.get_d_min()
+        rows = self.view.get_number_of_orientations()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.add_orientation_process,
+                angles=angles,
+                free_angles=free_angles,
+                all_angles=all_angles,
+                wavelength=wavelength,
+                d_min=d_min,
+                rows=rows,
+            )
+        )
         worker.connect_result(self.add_orientation_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -488,6 +606,8 @@ class Experiment(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def add_orientation_complete(self, result):
+        if result is None:
+            return
         angles, all_angles, free_angles = result
 
         comment = self.model.comment
@@ -500,17 +620,19 @@ class Experiment(NeuXtalVizPresenter):
         self.view.add_orientations(title, comment, [update_angles])
         self.update_peaks(False)
 
-    def add_orientation_process(self, progress, stop_event=None):
+    def add_orientation_process(
+        self,
+        progress,
+        stop_event=None,
+        angles=None,
+        free_angles=None,
+        all_angles=None,
+        wavelength=None,
+        d_min=None,
+        rows=None,
+    ):
         if self.stop_processing(stop_event):
             return None
-
-        angles = self.view.get_angles()
-        free_angles = self.view.get_free_angles()
-        all_angles = self.view.get_all_angles()
-
-        wavelength = self.view.get_wavelength()
-        d_min = self.view.get_d_min()
-        rows = self.view.get_number_of_orientations()
 
         if len(angles) > 0:
             progress("Calculating reflections", 5)
@@ -528,7 +650,36 @@ class Experiment(NeuXtalVizPresenter):
             progress("No angles provided for orientation.", 0)
 
     def mesh_scan(self):
-        worker = self.view.worker(self.mesh_scan_process)
+        mesh_angles = self.view.get_mesh_angles()
+        free_angles = self.view.get_free_angles()
+        all_angles = self.view.get_all_angles()
+        wavelength = self.view.get_wavelength()
+        d_min = self.view.get_d_min()
+        rows = self.view.get_number_of_orientations()
+        instrument = self.view.get_instrument()
+        mode = self.view.get_mode()
+        instr_motors = self.view.get_motors()
+        cal = self.view.get_detector_calibration()
+        gon = self.view.get_goniometer_calibration()
+        mask = self.view.get_mask()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.mesh_scan_process,
+                mesh_angles=mesh_angles,
+                free_angles=free_angles,
+                all_angles=all_angles,
+                wavelength=wavelength,
+                d_min=d_min,
+                rows=rows,
+                instrument=instrument,
+                mode=mode,
+                instr_motors=instr_motors,
+                cal=cal,
+                gon=gon,
+                mask=mask,
+            )
+        )
         worker.connect_result(self.mesh_scan_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -541,20 +692,26 @@ class Experiment(NeuXtalVizPresenter):
             self.view.add_orientations(title, "Mesh Scan", result)
             self.update_peaks(False)
 
-    def mesh_scan_process(self, progress, stop_event=None):
+    def mesh_scan_process(
+        self,
+        progress,
+        stop_event=None,
+        mesh_angles=None,
+        free_angles=None,
+        all_angles=None,
+        wavelength=None,
+        d_min=None,
+        rows=None,
+        instrument=None,
+        mode=None,
+        instr_motors=None,
+        cal=None,
+        gon=None,
+        mask=None,
+    ):
         if self.stop_processing(stop_event):
             return None
 
-        mesh_angles = self.view.get_mesh_angles()
-        free_angles = self.view.get_free_angles()
-        all_angles = self.view.get_all_angles()
-
-        wavelength = self.view.get_wavelength()
-        d_min = self.view.get_d_min()
-        rows = self.view.get_number_of_orientations()
-
-        instrument = self.view.get_instrument()
-        mode = self.view.get_mode()
         axes, polarities = self.model.get_axes_polarities(instrument, mode)
         self.model.generate_axes(axes, polarities)
 
@@ -563,7 +720,9 @@ class Experiment(NeuXtalVizPresenter):
         if self.stop_processing(stop_event):
             return None
 
-        self.create_instrument()
+        self.model.initialize_instrument(
+            instrument, instr_motors, cal, gon, mask
+        )
 
         if mesh_angles is not None:
             progress("Calculating reflections", 5)
@@ -583,40 +742,93 @@ class Experiment(NeuXtalVizPresenter):
             progress("No mesh angles provided for mesh scan.", 0)
 
     def calculate_plane(self):
-        if self.convert_idle:
-            worker = self.view.worker(self.calculate_plane_process)
-            worker.connect_result(self.convert_to_hkl_complete)
-            worker.connect_progress(self.update_processing)
+        if not self.convert_idle:
+            return
 
-            self.convert_idle = False
-            self.view.start_worker_pool(worker)
-
-    def calculate_plane_process(self, progress, stop_event=None):
-        if self.stop_processing(stop_event):
-            return None
+        self.convert_idle = False
 
         hkl_1 = self.view.get_plane_hkl_1()
         hkl_2 = self.view.get_plane_hkl_2()
-
-        if hkl_1 is None or hkl_2 is None:
-            progress("Invalid HKL vectors for plane preview.", 0)
-            return None
-
         max_deg = self.view.get_plane_max_angle()
         n_steps = self.view.get_plane_n_steps()
-
         instrument = self.view.get_instrument()
         mode = self.view.get_mode()
-        axes, polarities = self.model.get_axes_polarities(instrument, mode)
-        self.model.generate_axes(axes, polarities)
         limits = self.view.get_goniometer_limits()
-
         proj = self.view.get_projection_matrix()
         value = self.view.get_slice_value()
         thickness = self.view.get_slice_thickness()
         d_min = self.view.get_d_min()
         symm = self.view.use_symmetry_mesh()
         point_group = self.view.get_point_group()
+        wavelength = self.view.get_wavelength()
+        norm = self.get_normal()
+        instr_motors = self.view.get_motors()
+        cal = self.view.get_detector_calibration()
+        gon = self.view.get_goniometer_calibration()
+        mask = self.view.get_mask()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.calculate_plane_process,
+                hkl_1=hkl_1,
+                hkl_2=hkl_2,
+                max_deg=max_deg,
+                n_steps=n_steps,
+                instrument=instrument,
+                mode=mode,
+                limits=limits,
+                proj=proj,
+                value=value,
+                thickness=thickness,
+                d_min=d_min,
+                symm=symm,
+                point_group=point_group,
+                wavelength=wavelength,
+                norm=norm,
+                instr_motors=instr_motors,
+                cal=cal,
+                gon=gon,
+                mask=mask,
+            )
+        )
+        worker.connect_result(self.convert_to_hkl_complete)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def calculate_plane_process(
+        self,
+        progress,
+        stop_event=None,
+        hkl_1=None,
+        hkl_2=None,
+        max_deg=None,
+        n_steps=None,
+        instrument=None,
+        mode=None,
+        limits=None,
+        proj=None,
+        value=None,
+        thickness=None,
+        d_min=None,
+        symm=None,
+        point_group=None,
+        wavelength=None,
+        norm=None,
+        instr_motors=None,
+        cal=None,
+        gon=None,
+        mask=None,
+    ):
+        if self.stop_processing(stop_event):
+            return None
+
+        if hkl_1 is None or hkl_2 is None:
+            progress("Invalid HKL vectors for plane preview.", 0)
+            return None
+
+        axes, polarities = self.model.get_axes_polarities(instrument, mode)
+        self.model.generate_axes(axes, polarities)
 
         validate = [proj, value, thickness, d_min]
         if not all(elem is not None for elem in validate):
@@ -646,15 +858,15 @@ class Experiment(NeuXtalVizPresenter):
         if self.stop_processing(stop_event):
             return None
 
-        self.create_instrument()
-        self.model.calculate_footprint(self.view.get_wavelength(), d_min)
+        self.model.initialize_instrument(
+            instrument, instr_motors, cal, gon, mask
+        )
+        self.model.calculate_footprint(wavelength, d_min)
 
         progress("Calculating plane coverage...", 50)
 
         if self.stop_processing(stop_event):
             return None
-
-        norm = self.get_normal()
 
         result = self.model.calculate_rotations(
             angles,
@@ -674,7 +886,44 @@ class Experiment(NeuXtalVizPresenter):
         return result
 
     def plane_scan(self):
-        worker = self.view.worker(self.plane_scan_process)
+        hkl_1 = self.view.get_plane_hkl_1()
+        hkl_2 = self.view.get_plane_hkl_2()
+        max_deg = self.view.get_plane_max_angle()
+        n_steps = self.view.get_plane_n_steps()
+        free_angles = self.view.get_free_angles()
+        all_angles = self.view.get_all_angles()
+        wavelength = self.view.get_wavelength()
+        d_min = self.view.get_d_min()
+        rows = self.view.get_number_of_orientations()
+        instrument = self.view.get_instrument()
+        mode = self.view.get_mode()
+        limits = self.view.get_goniometer_limits()
+        instr_motors = self.view.get_motors()
+        cal = self.view.get_detector_calibration()
+        gon = self.view.get_goniometer_calibration()
+        mask = self.view.get_mask()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.plane_scan_process,
+                hkl_1=hkl_1,
+                hkl_2=hkl_2,
+                max_deg=max_deg,
+                n_steps=n_steps,
+                free_angles=free_angles,
+                all_angles=all_angles,
+                wavelength=wavelength,
+                d_min=d_min,
+                rows=rows,
+                instrument=instrument,
+                mode=mode,
+                limits=limits,
+                instr_motors=instr_motors,
+                cal=cal,
+                gon=gon,
+                mask=mask,
+            )
+        )
         worker.connect_result(self.plane_scan_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -687,39 +936,45 @@ class Experiment(NeuXtalVizPresenter):
             self.view.add_orientations(title, "Plane Scan", result)
             self.update_peaks(False)
 
-    def plane_scan_process(self, progress, stop_event=None):
+    def plane_scan_process(
+        self,
+        progress,
+        stop_event=None,
+        hkl_1=None,
+        hkl_2=None,
+        max_deg=None,
+        n_steps=None,
+        free_angles=None,
+        all_angles=None,
+        wavelength=None,
+        d_min=None,
+        rows=None,
+        instrument=None,
+        mode=None,
+        limits=None,
+        instr_motors=None,
+        cal=None,
+        gon=None,
+        mask=None,
+    ):
         if self.stop_processing(stop_event):
             return None
-
-        hkl_1 = self.view.get_plane_hkl_1()
-        hkl_2 = self.view.get_plane_hkl_2()
 
         if hkl_1 is None or hkl_2 is None:
             progress("Invalid HKL vectors for plane scan.", 0)
             return None
 
-        max_deg = self.view.get_plane_max_angle()
-        n_steps = self.view.get_plane_n_steps()
-
-        free_angles = self.view.get_free_angles()
-        all_angles = self.view.get_all_angles()
-
-        wavelength = self.view.get_wavelength()
-        d_min = self.view.get_d_min()
-        rows = self.view.get_number_of_orientations()
-
-        instrument = self.view.get_instrument()
-        mode = self.view.get_mode()
         axes, polarities = self.model.get_axes_polarities(instrument, mode)
         self.model.generate_axes(axes, polarities)
-        limits = self.view.get_goniometer_limits()
 
         progress("Initializing instrument", 5)
 
         if self.stop_processing(stop_event):
             return None
 
-        self.create_instrument()
+        self.model.initialize_instrument(
+            instrument, instr_motors, cal, gon, mask
+        )
 
         progress("Calculating plane orientations", 5)
 
@@ -762,10 +1017,49 @@ class Experiment(NeuXtalVizPresenter):
 
     def convert_to_hkl(self):
         if self.convert_idle:
-            worker = self.view.worker(self.convert_to_hkl_process)
+            instrument = self.view.get_instrument()
+            mode = self.view.get_mode()
+            proj = self.view.get_projection_matrix()
+            value = self.view.get_slice_value()
+            thickness = self.view.get_slice_thickness()
+            d_min = self.view.get_d_min()
+            symm = self.view.use_symmetry_mesh()
+            point_group = self.view.get_point_group()
+            norm = self.get_normal()
+            if self.mesh:
+                angles = self.view.get_mesh_angles()
+            else:
+                angles = self.view.get_plan_angles()
+            wavelength = self.view.get_wavelength()
+            instr_motors = self.view.get_motors()
+            cal = self.view.get_detector_calibration()
+            gon = self.view.get_goniometer_calibration()
+            mask = self.view.get_mask()
+
+            worker = self.view.worker(
+                functools.partial(
+                    self.convert_to_hkl_process,
+                    instrument=instrument,
+                    mode=mode,
+                    proj=proj,
+                    value=value,
+                    thickness=thickness,
+                    d_min=d_min,
+                    symm=symm,
+                    point_group=point_group,
+                    norm=norm,
+                    angles=angles,
+                    wavelength=wavelength,
+                    instr_motors=instr_motors,
+                    cal=cal,
+                    gon=gon,
+                    mask=mask,
+                )
+            )
             worker.connect_result(self.convert_to_hkl_complete)
             worker.connect_progress(self.update_processing)
 
+            self.convert_idle = False
             self.view.start_worker_pool(worker)
 
     def convert_to_hkl_complete(self, result):
@@ -773,27 +1067,31 @@ class Experiment(NeuXtalVizPresenter):
             self.view.update_slice(result)
         self.convert_idle = True
 
-    def convert_to_hkl_process(self, progress, stop_event=None):
+    def convert_to_hkl_process(
+        self,
+        progress,
+        stop_event=None,
+        instrument=None,
+        mode=None,
+        proj=None,
+        value=None,
+        thickness=None,
+        d_min=None,
+        symm=None,
+        point_group=None,
+        norm=None,
+        angles=None,
+        wavelength=None,
+        instr_motors=None,
+        cal=None,
+        gon=None,
+        mask=None,
+    ):
         if self.stop_processing(stop_event):
             return None
 
-        instrument = self.view.get_instrument()
-        mode = self.view.get_mode()
-
         axes, polarities = self.model.get_axes_polarities(instrument, mode)
         self.model.generate_axes(axes, polarities)
-
-        proj = self.view.get_projection_matrix()
-
-        value = self.view.get_slice_value()
-
-        thickness = self.view.get_slice_thickness()
-
-        d_min = self.view.get_d_min()
-
-        symm = self.view.use_symmetry_mesh()
-
-        point_group = self.view.get_point_group()
 
         validate = [proj, value, thickness, d_min]
 
@@ -801,8 +1099,6 @@ class Experiment(NeuXtalVizPresenter):
             U, V, W, invalid = self.model.validate_projection(proj)
 
             if not invalid:
-
-                norm = self.get_normal()
 
                 if self.slice_only:
                     self.slice_only = False
@@ -816,13 +1112,6 @@ class Experiment(NeuXtalVizPresenter):
                         progress("Slice updated!", 0)
                     return result
 
-                if self.mesh:
-                    angles = self.view.get_mesh_angles()
-                else:
-                    angles = self.view.get_plan_angles()
-
-                wavelength = self.view.get_wavelength()
-
                 if len(angles) > 0:
 
                     progress("Initializing instrument...", 5)
@@ -830,7 +1119,9 @@ class Experiment(NeuXtalVizPresenter):
                     if self.stop_processing(stop_event):
                         return None
 
-                    self.create_instrument()
+                    self.model.initialize_instrument(
+                        instrument, instr_motors, cal, gon, mask
+                    )
 
                     self.model.calculate_footprint(wavelength, d_min)
 
@@ -878,6 +1169,11 @@ class Experiment(NeuXtalVizPresenter):
         return norm
 
     def visualize(self):
+        if not self.draw_idle:
+            return
+
+        self.draw_idle = False
+
         point_group = self.view.get_point_group()
         lattice_centering = self.view.get_lattice_centering()
         use = self.view.get_orientations_to_use()
@@ -886,8 +1182,7 @@ class Experiment(NeuXtalVizPresenter):
         row = self.view.get_peak_list()
         color = self.view.get_color_scheme()
 
-        if self.draw_idle:
-
+        try:
             self.update_processing()
 
             self.update_processing("Calculating statistics...", 5)
@@ -899,8 +1194,6 @@ class Experiment(NeuXtalVizPresenter):
             self.update_processing("Statistics calculated...", 30)
 
             if stats is not None and self.model.has_UB():
-                self.draw_idle = False
-
                 self.view.plot_statistics(*stats)
 
                 self.update_processing("Calculating coverage...", 50)
@@ -916,16 +1209,49 @@ class Experiment(NeuXtalVizPresenter):
 
                     self.view.add_peaks(peak_dict)
 
-                self.draw_idle = True
-
             else:
-
                 self.view.add_peaks(None)
 
             self.update_complete("Data visualized!")
 
+        finally:
+            self.draw_idle = True
+
     def optimize_coverage(self):
-        worker = self.view.worker(self.optimize_coverage_process)
+        point_group = self.view.get_point_group()
+        lattice_centering = self.view.get_lattice_centering()
+        use = self.view.get_orientations_to_use()
+        opt = self.view.get_optimized_settings()
+        d_min = self.view.get_d_min()
+        wavelength = self.view.get_wavelength()
+        n_orient = self.view.get_settings()
+        instrument = self.view.get_instrument()
+        mode = self.view.get_mode()
+        limits = self.view.get_goniometer_limits()
+        instr_motors = self.view.get_motors()
+        cal = self.view.get_detector_calibration()
+        gon = self.view.get_goniometer_calibration()
+        mask = self.view.get_mask()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.optimize_coverage_process,
+                point_group=point_group,
+                lattice_centering=lattice_centering,
+                use=use,
+                opt=opt,
+                d_min=d_min,
+                wavelength=wavelength,
+                n_orient=n_orient,
+                instrument=instrument,
+                mode=mode,
+                limits=limits,
+                instr_motors=instr_motors,
+                cal=cal,
+                gon=gon,
+                mask=mask,
+            )
+        )
         worker.connect_result(self.optimize_coverage_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -938,27 +1264,34 @@ class Experiment(NeuXtalVizPresenter):
             self.view.add_orientations(title, "CrystalPlan", result)
             self.update_peaks(False)
 
-    def optimize_coverage_process(self, progress, stop_event=None):
+    def optimize_coverage_process(
+        self,
+        progress,
+        stop_event=None,
+        point_group=None,
+        lattice_centering=None,
+        use=None,
+        opt=None,
+        d_min=None,
+        wavelength=None,
+        n_orient=None,
+        instrument=None,
+        mode=None,
+        limits=None,
+        instr_motors=None,
+        cal=None,
+        gon=None,
+        mask=None,
+    ):
         if self.stop_processing(stop_event):
             return None
-
-        point_group = self.view.get_point_group()
-        lattice_centering = self.view.get_lattice_centering()
-        use = self.view.get_orientations_to_use()
-        opt = self.view.get_optimized_settings()
-        d_min = self.view.get_d_min()
-        wavelength = self.view.get_wavelength()
-        n_orient = self.view.get_settings()
 
         n_elite = 2
         n_gener = 10
         n_indiv = 10
         mutation_rate = 0.15
 
-        instrument = self.view.get_instrument()
-        mode = self.view.get_mode()
         axes = self.model.get_goniometer_axes(instrument, mode)
-        limits = self.view.get_goniometer_limits()
 
         if self.model.has_UB():
             progress("Initializing instrument", 5)
@@ -966,7 +1299,9 @@ class Experiment(NeuXtalVizPresenter):
             if self.stop_processing(stop_event):
                 return None
 
-            self.create_instrument()
+            self.model.initialize_instrument(
+                instrument, instr_motors, cal, gon, mask
+            )
 
             progress("Instrument initialized! ", 10)
 
@@ -1077,7 +1412,36 @@ class Experiment(NeuXtalVizPresenter):
             self.model.set_path(filename)
 
     def add_settings(self):
-        worker = self.view.worker(self.add_settings_process)
+        wavelength = self.view.get_wavelength()
+        d_min = self.view.get_d_min()
+        rows = self.view.get_number_of_orientations()
+        instrument = self.view.get_instrument()
+        mode = self.view.get_mode()
+        limits = self.view.get_goniometer_limits()
+        instr_motors = self.view.get_motors()
+        cal = self.view.get_detector_calibration()
+        gon = self.view.get_goniometer_calibration()
+        mask = self.view.get_mask()
+        angle_settings = [
+            self.view.get_angle_setting(row) for row in range(rows)
+        ]
+
+        worker = self.view.worker(
+            functools.partial(
+                self.add_settings_process,
+                wavelength=wavelength,
+                d_min=d_min,
+                rows=rows,
+                instrument=instrument,
+                mode=mode,
+                limits=limits,
+                instr_motors=instr_motors,
+                cal=cal,
+                gon=gon,
+                mask=mask,
+                angle_settings=angle_settings,
+            )
+        )
         worker.connect_result(self.add_settings_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -1088,26 +1452,36 @@ class Experiment(NeuXtalVizPresenter):
         if result is not None:
             self.update_peaks(False)
 
-    def add_settings_process(self, progress, stop_event=None):
+    def add_settings_process(
+        self,
+        progress,
+        stop_event=None,
+        wavelength=None,
+        d_min=None,
+        rows=None,
+        instrument=None,
+        mode=None,
+        limits=None,
+        instr_motors=None,
+        cal=None,
+        gon=None,
+        mask=None,
+        angle_settings=None,
+    ):
         if self.stop_processing(stop_event):
             return None
 
-        wavelength = self.view.get_wavelength()
-        d_min = self.view.get_d_min()
-        rows = self.view.get_number_of_orientations()
-
-        instrument = self.view.get_instrument()
-        mode = self.view.get_mode()
         axes, polarities = self.model.get_axes_polarities(instrument, mode)
         self.model.generate_axes(axes, polarities)
-        limits = self.view.get_goniometer_limits()
 
         progress("Initializing instrument", 5)
 
         if self.stop_processing(stop_event):
             return None
 
-        self.create_instrument()
+        self.model.initialize_instrument(
+            instrument, instr_motors, cal, gon, mask
+        )
         self.model.clear_combined()
 
         for row in range(rows):
@@ -1116,7 +1490,7 @@ class Experiment(NeuXtalVizPresenter):
             if self.stop_processing(stop_event):
                 return None
 
-            angles = self.view.get_angle_setting(row)
+            angles = angle_settings[row]
 
             setting = self.model.get_setting(angles, limits)
 

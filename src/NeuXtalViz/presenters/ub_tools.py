@@ -1,5 +1,6 @@
 from NeuXtalViz.presenters.base_presenter import NeuXtalVizPresenter
 
+import functools
 import numpy as np
 
 
@@ -90,7 +91,7 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_integer_n_index(self.hand_index_integer)
         self.view.connect_integer_p_index(self.hand_index_integer)
 
-        self.view.connect_slice_combo(self.reslice)
+        self.view.connect_slice_combo(self.reslice, self.update_slice_extent)
         self.view.connect_slice_thickness_line(self.reslice)
         self.view.connect_slice_width_line(self.reslice)
 
@@ -109,6 +110,7 @@ class UB(NeuXtalVizPresenter):
 
         self.slice_idle = True
         self.volume_idle = True
+        self.instrument_view_idle = True
         self.slice_signal_cache = None
         self.inst_signal_cache = None
 
@@ -321,14 +323,35 @@ class UB(NeuXtalVizPresenter):
     def convert_Q(self, force_reload=False):
         self.update_data_status()
 
-        def process(progress=None, stop_event=None):
-            return self.convert_Q_process(
-                progress=progress,
-                stop_event=stop_event,
+        instrument = self.view.get_instrument()
+        wavelength = self.view.get_wavelength()
+        tube_cal = self.view.get_tube_calibration()
+        det_cal = self.view.get_detector_calibration()
+        gon_cal = self.view.get_goniometer_calibration()
+        IPTS = self.view.get_IPTS()
+        runs = self.view.get_runs()
+        exp = self.view.get_experiment()
+        lorentz = self.view.get_lorentz()
+        time_stop = self.view.get_time_stop()
+        d_min = self.view.get_convert_min_d()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.convert_Q_process,
+                instrument=instrument,
+                wavelength=wavelength,
+                tube_cal=tube_cal,
+                det_cal=det_cal,
+                gon_cal=gon_cal,
+                IPTS=IPTS,
+                runs=runs,
+                exp=exp,
+                lorentz=lorentz,
+                time_stop=time_stop,
+                d_min=d_min,
                 force_reload=force_reload,
             )
-
-        worker = self.view.worker(process)
+        )
         worker.connect_result(self.convert_Q_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -346,23 +369,24 @@ class UB(NeuXtalVizPresenter):
             self.update_instrument_view()
 
     def convert_Q_process(
-        self, progress=None, stop_event=None, force_reload=False
+        self,
+        progress=None,
+        stop_event=None,
+        instrument=None,
+        wavelength=None,
+        tube_cal=None,
+        det_cal=None,
+        gon_cal=None,
+        IPTS=None,
+        runs=None,
+        exp=None,
+        lorentz=None,
+        time_stop=None,
+        d_min=None,
+        force_reload=False,
     ):
         if self.stop_processing(stop_event):
             return None
-
-        instrument = self.view.get_instrument()
-        wavelength = self.view.get_wavelength()
-        tube_cal = self.view.get_tube_calibration()
-        det_cal = self.view.get_detector_calibration()
-        gon_cal = self.view.get_goniometer_calibration()
-
-        IPTS = self.view.get_IPTS()
-        runs = self.view.get_runs()
-        exp = self.view.get_experiment()
-        lorentz = self.view.get_lorentz()
-        time_stop = self.view.get_time_stop()
-        d_min = self.view.get_convert_min_d()
 
         validate = [IPTS, runs, wavelength]
 
@@ -516,7 +540,43 @@ class UB(NeuXtalVizPresenter):
                     )
 
     def update_instrument_view(self):
-        worker = self.view.worker(self.update_instrument_view_process)
+        if not self.instrument_view_idle:
+            return
+
+        self.instrument_view_idle = False
+
+        ind = self.view.get_data_list()
+        d_min = self.view.get_d_min()
+        d_max = self.view.get_d_max()
+        horz = self.view.get_horizontal()
+        vert = self.view.get_vertical()
+        horz_roi = self.view.get_horizontal_roi()
+        vert_roi = self.view.get_vertical_roi()
+        val = self.view.get_diffraction()
+        vlim_method = self.get_vlim_method()
+        instrument_scale = self.view.get_instrument_scale()
+        instrument_auto_limits = self.view.get_instrument_auto_limits()
+        inst_vmin = self.view.get_inst_vmin_value()
+        inst_vmax = self.view.get_inst_vmax_value()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.update_instrument_view_process,
+                ind=ind,
+                d_min=d_min,
+                d_max=d_max,
+                horz=horz,
+                vert=vert,
+                horz_roi=horz_roi,
+                vert_roi=vert_roi,
+                val=val,
+                vlim_method=vlim_method,
+                instrument_scale=instrument_scale,
+                instrument_auto_limits=instrument_auto_limits,
+                inst_vmin=inst_vmin,
+                inst_vmax=inst_vmax,
+            )
+        )
         worker.connect_result(self.update_instrument_view_complete)
         # worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -524,6 +584,7 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def update_instrument_view_complete(self, result):
+        self.instrument_view_idle = True
         if result is not None:
             self.inst_signal_cache = np.array(result[0]["img"], copy=True)
             self.view.update_instrument_view(result[0])
@@ -538,20 +599,28 @@ class UB(NeuXtalVizPresenter):
         angles = self.model.get_run_goniometer(ind)
         self.view.set_instrument_goniometer_setting(angles)
 
-    def update_instrument_view_process(self, progress=None, stop_event=None):
+    def update_instrument_view_process(
+        self,
+        progress=None,
+        stop_event=None,
+        ind=None,
+        d_min=None,
+        d_max=None,
+        horz=None,
+        vert=None,
+        horz_roi=None,
+        vert_roi=None,
+        val=None,
+        vlim_method=None,
+        instrument_scale=None,
+        instrument_auto_limits=None,
+        inst_vmin=None,
+        inst_vmax=None,
+    ):
         if self.stop_processing(stop_event):
             return None
 
         if self.model.has_Q():
-            ind = self.view.get_data_list()
-            d_min = self.view.get_d_min()
-            d_max = self.view.get_d_max()
-            horz = self.view.get_horizontal()
-            vert = self.view.get_vertical()
-            horz_roi = self.view.get_horizontal_roi()
-            vert_roi = self.view.get_vertical_roi()
-            val = self.view.get_diffraction()
-
             validate = [d_min, d_max, horz, vert, horz_roi, vert_roi, val]
 
             if all(elem is not None for elem in validate):
@@ -580,11 +649,11 @@ class UB(NeuXtalVizPresenter):
                 self.model.inst_view["vmin"], self.model.inst_view["vmax"] = (
                     self._resolve_display_limits(
                         signal,
-                        self.get_vlim_method(),
-                        self.view.get_instrument_scale(),
-                        self.view.get_instrument_auto_limits(),
-                        self.view.get_inst_vmin_value(),
-                        self.view.get_inst_vmax_value(),
+                        vlim_method,
+                        instrument_scale,
+                        instrument_auto_limits,
+                        inst_vmin,
+                        inst_vmax,
                     )
                 )
 
@@ -617,6 +686,8 @@ class UB(NeuXtalVizPresenter):
             progress("Invalid parameters for instrument view.", 0)
 
     def update_roi(self):
+        if not self.instrument_view_idle:
+            return
         if self.model.has_Q():
             horz = self.view.get_horizontal()
             vert = self.view.get_vertical()
@@ -634,6 +705,8 @@ class UB(NeuXtalVizPresenter):
                 self.update_check_hkl()
 
     def update_scan(self):
+        if not self.instrument_view_idle:
+            return
         if self.model.has_Q():
             horz = self.view.get_horizontal()
             vert = self.view.get_vertical()
@@ -733,7 +806,28 @@ class UB(NeuXtalVizPresenter):
     def find_peaks(self):
         self.update_data_status()
 
-        worker = self.view.worker(self.find_peaks_process)
+        Q_min = self.view.get_find_peaks_distance()
+        d_max = self.view.get_find_peaks_spacing()
+        params = self.view.get_find_peaks_parameters()
+        edge = self.view.get_find_peaks_edge()
+        peak_width = self.view.get_peak_width()
+        no_al = self.view.get_avoid_aluminum()
+        no_cu = self.view.get_avoid_copper()
+        no_fe = self.view.get_avoid_iron()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.find_peaks_process,
+                Q_min=Q_min,
+                d_max=d_max,
+                params=params,
+                edge=edge,
+                peak_width=peak_width,
+                no_al=no_al,
+                no_cu=no_cu,
+                no_fe=no_fe,
+            )
+        )
         worker.connect_result(self.find_peaks_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -743,20 +837,23 @@ class UB(NeuXtalVizPresenter):
     def find_peaks_complete(self, result):
         self.model.copy_UB_from_peaks()
 
-    def find_peaks_process(self, progress=None, stop_event=None):
+    def find_peaks_process(
+        self,
+        progress=None,
+        stop_event=None,
+        Q_min=None,
+        d_max=None,
+        params=None,
+        edge=None,
+        peak_width=None,
+        no_al=None,
+        no_cu=None,
+        no_fe=None,
+    ):
         if self.stop_processing(stop_event):
             return None
 
         if self.model.has_Q():
-            Q_min = self.view.get_find_peaks_distance()
-            d_max = self.view.get_find_peaks_spacing()
-            params = self.view.get_find_peaks_parameters()
-            edge = self.view.get_find_peaks_edge()
-            peak_width = self.view.get_peak_width()
-            no_al = self.view.get_avoid_aluminum()
-            no_cu = self.view.get_avoid_copper()
-            no_fe = self.view.get_avoid_iron()
-
             if (
                 Q_min is not None
                 and params is not None
@@ -798,7 +895,16 @@ class UB(NeuXtalVizPresenter):
     def find_conventional(self):
         self.update_data_status()
 
-        worker = self.view.worker(self.find_conventional_process)
+        params = self.view.get_lattice_constants()
+        tol = self.view.get_calculate_UB_tol()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.find_conventional_process,
+                params=params,
+                tol=tol,
+            )
+        )
         worker.connect_result(self.find_conventional_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -808,14 +914,13 @@ class UB(NeuXtalVizPresenter):
     def find_conventional_complete(self, result=None):
         self.update_data_status()
 
-    def find_conventional_process(self, progress=None, stop_event=None):
+    def find_conventional_process(
+        self, progress=None, stop_event=None, params=None, tol=None
+    ):
         if self.stop_processing(stop_event):
             return None
 
         if self.model.has_peaks():
-            params = self.view.get_lattice_constants()
-            tol = self.view.get_calculate_UB_tol()
-
             if params is not None and tol is not None:
                 progress("Processing...", 1)
 
@@ -836,7 +941,16 @@ class UB(NeuXtalVizPresenter):
     def find_niggli(self):
         self.update_data_status()
 
-        worker = self.view.worker(self.find_niggli_process)
+        params = self.view.get_min_max_constants()
+        tol = self.view.get_calculate_UB_tol()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.find_niggli_process,
+                params=params,
+                tol=tol,
+            )
+        )
         worker.connect_result(self.find_niggli_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -846,14 +960,13 @@ class UB(NeuXtalVizPresenter):
     def find_niggli_complete(self, result):
         self.show_cells()
 
-    def find_niggli_process(self, progress=None, stop_event=None):
+    def find_niggli_process(
+        self, progress=None, stop_event=None, params=None, tol=None
+    ):
         if self.stop_processing(stop_event):
             return None
 
         if self.model.has_peaks():
-            params = self.view.get_min_max_constants()
-            tol = self.view.get_calculate_UB_tol()
-
             if params is not None and tol is not None:
                 progress("Processing...", 1)
 
@@ -872,7 +985,14 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters.", 0)
 
     def show_cells(self):
-        worker = self.view.worker(self.show_cells_process)
+        scalar = self.view.get_max_scalar_error()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.show_cells_process,
+                scalar=scalar,
+            )
+        )
         worker.connect_result(self.show_cells_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -883,13 +1003,11 @@ class UB(NeuXtalVizPresenter):
         if result is not None:
             self.view.update_cell_table(result)
 
-    def show_cells_process(self, progress=None, stop_event=None):
+    def show_cells_process(self, progress=None, stop_event=None, scalar=None):
         if self.stop_processing(stop_event):
             return None
 
         if self.model.has_peaks() and self.model.has_UB():
-            scalar = self.view.get_max_scalar_error()
-
             if scalar is not None:
                 progress("Processing...", 1)
 
@@ -913,11 +1031,23 @@ class UB(NeuXtalVizPresenter):
 
         if constants is not None and directions is not None:
             self.model.set_manual_UB(constants, directions)
+            self.update_data_status()
+            self.update_lattice_info()
+            self.update_oriented_lattice()
 
     def set_UB_from_scattering_plane(self):
         self.update_data_status()
 
-        worker = self.view.worker(self.set_UB_from_scattering_plane_process)
+        constants = self.view.get_lattice_constants()
+        directions = self.view.get_sample_directions()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.set_UB_from_scattering_plane_process,
+                constants=constants,
+                directions=directions,
+            )
+        )
         worker.connect_result(self.set_UB_from_scattering_plane_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -928,13 +1058,10 @@ class UB(NeuXtalVizPresenter):
         self.update_data_status()
 
     def set_UB_from_scattering_plane_process(
-        self, progress=None, stop_event=None
+        self, progress=None, stop_event=None, constants=None, directions=None
     ):
         if self.stop_processing(stop_event):
             return None
-
-        constants = self.view.get_lattice_constants()
-        directions = self.view.get_sample_directions()
 
         if constants is None or directions is None:
             progress("Invalid parameters.", 0)
@@ -964,7 +1091,16 @@ class UB(NeuXtalVizPresenter):
         return True
 
     def select_cell(self):
-        worker = self.view.worker(self.select_cell_process)
+        form = self.view.get_form_number()
+        tol = self.view.get_calculate_UB_tol()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.select_cell_process,
+                form=form,
+                tol=tol,
+            )
+        )
         worker.connect_result(self.select_cell_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -974,14 +1110,13 @@ class UB(NeuXtalVizPresenter):
     def select_cell_complete(self, result):
         pass
 
-    def select_cell_process(self, progress=None, stop_event=None):
+    def select_cell_process(
+        self, progress=None, stop_event=None, form=None, tol=None
+    ):
         if self.stop_processing(stop_event):
             return None
 
         if self.model.has_peaks() and self.model.has_UB():
-            form = self.view.get_form_number()
-            tol = self.view.get_calculate_UB_tol()
-
             if form is not None and tol is not None:
                 progress("Processing...", 1)
 
@@ -1036,7 +1171,16 @@ class UB(NeuXtalVizPresenter):
             self.view.set_transform_matrix(T)
 
     def transform_UB(self):
-        worker = self.view.worker(self.transform_UB_process)
+        params = self.view.get_transform_matrix()
+        tol = self.view.get_transform_UB_tol()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.transform_UB_process,
+                params=params,
+                tol=tol,
+            )
+        )
         worker.connect_result(self.transform_UB_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -1046,14 +1190,13 @@ class UB(NeuXtalVizPresenter):
     def transform_UB_complete(self, result):
         self.model.copy_UB_from_peaks()
 
-    def transform_UB_process(self, progress=None, stop_event=None):
+    def transform_UB_process(
+        self, progress=None, stop_event=None, params=None, tol=None
+    ):
         if self.stop_processing(stop_event):
             return None
 
         if self.model.has_peaks() and self.model.has_UB():
-            params = self.view.get_transform_matrix()
-            tol = self.view.get_transform_UB_tol()
-
             if params is not None and tol is not None:
                 progress("Processing...", 1)
 
@@ -1072,7 +1215,18 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters.", 0)
 
     def refine_UB(self):
-        worker = self.view.worker(self.refine_UB_process)
+        params = self.view.get_lattice_constants()
+        tol = self.view.get_refine_UB_tol()
+        option = self.view.get_refine_UB_option()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.refine_UB_process,
+                params=params,
+                tol=tol,
+                option=option,
+            )
+        )
         worker.connect_result(self.refine_UB_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -1082,15 +1236,18 @@ class UB(NeuXtalVizPresenter):
     def refine_UB_complete(self, result):
         self.model.copy_UB_from_peaks()
 
-    def refine_UB_process(self, progress=None, stop_event=None):
+    def refine_UB_process(
+        self,
+        progress=None,
+        stop_event=None,
+        params=None,
+        tol=None,
+        option=None,
+    ):
         if self.stop_processing(stop_event):
             return None
 
         if self.model.has_peaks():
-            params = self.view.get_lattice_constants()
-            tol = self.view.get_refine_UB_tol()
-            option = self.view.get_refine_UB_option()
-
             if option == "Constrained" and params is not None:
                 progress("Processing...", 1)
 
@@ -1141,7 +1298,20 @@ class UB(NeuXtalVizPresenter):
         return mod_vec_1, mod_vec_2, mod_vec_3, max_order, cross_terms
 
     def index_peaks(self):
-        worker = self.view.worker(self.index_peaks_process)
+        mod_info = self.get_modulation_info()
+        params = self.view.get_index_peaks_parameters()
+        sat = self.view.get_index_satellite_peaks()
+        round_hkl = self.view.get_index_peaks_round()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.index_peaks_process,
+                mod_info=mod_info,
+                params=params,
+                sat=sat,
+                round_hkl=round_hkl,
+            )
+        )
         worker.connect_result(self.index_peaks_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -1151,19 +1321,21 @@ class UB(NeuXtalVizPresenter):
     def index_peaks_complete(self, result):
         self.model.copy_UB_from_peaks()
 
-    def index_peaks_process(self, progress=None, stop_event=None):
+    def index_peaks_process(
+        self,
+        progress=None,
+        stop_event=None,
+        mod_info=None,
+        params=None,
+        sat=None,
+        round_hkl=None,
+    ):
         if self.stop_processing(stop_event):
             return None
-
-        mod_info = self.get_modulation_info()
 
         mod_vec_1, mod_vec_2, mod_vec_3, max_order, cross_terms = mod_info
 
         if self.model.has_peaks() and self.model.has_UB():
-            params = self.view.get_index_peaks_parameters()
-            sat = self.view.get_index_satellite_peaks()
-            round_hkl = self.view.get_index_peaks_round()
-
             if params is not None:
                 tol, sat_tol = params
 
@@ -1196,7 +1368,24 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters.", 0)
 
     def predict_peaks(self):
-        worker = self.view.worker(self.predict_peaks_process)
+        mod_info = self.get_modulation_info()
+        centering = self.view.get_predict_peaks_centering()
+        wavelength = self.view.get_wavelength()
+        params = self.view.get_predict_peaks_parameters()
+        predict_sat = self.view.get_predict_satellite_peaks()
+        edge = self.view.get_predict_peaks_edge()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.predict_peaks_process,
+                mod_info=mod_info,
+                centering=centering,
+                wavelength=wavelength,
+                params=params,
+                predict_sat=predict_sat,
+                edge=edge,
+            )
+        )
         worker.connect_result(self.predict_peaks_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -1206,25 +1395,25 @@ class UB(NeuXtalVizPresenter):
     def predict_peaks_complete(self, result):
         self.model.copy_UB_from_peaks()
 
-    def predict_peaks_process(self, progress=None, stop_event=None):
+    def predict_peaks_process(
+        self,
+        progress=None,
+        stop_event=None,
+        mod_info=None,
+        centering=None,
+        wavelength=None,
+        params=None,
+        predict_sat=None,
+        edge=None,
+    ):
         if self.stop_processing(stop_event):
             return None
 
-        mod_info = self.get_modulation_info()
-
         mod_vec_1, mod_vec_2, mod_vec_3, max_order, cross_terms = mod_info
-
-        centering = self.view.get_predict_peaks_centering()
-
-        wavelength = self.view.get_wavelength()
-
-        params = self.view.get_predict_peaks_parameters()
 
         # sat = self.view.get_predict_satellite_peaks()
 
-        edge = self.view.get_predict_peaks_edge()
-
-        if self.model.has_peaks() and self.model.has_UB():
+        if self.model.has_UB():
             if wavelength is not None and params is not None:
                 d_min, sat_d_min = params
 
@@ -1250,7 +1439,7 @@ class UB(NeuXtalVizPresenter):
                 if self.stop_processing(stop_event):
                     return None
 
-                if self.view.get_predict_satellite_peaks():
+                if predict_sat:
                     progress("Predicting modulated...", 75)
 
                     self.model.predict_satellite_peaks(
@@ -1272,7 +1461,18 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters.", 0)
 
     def integrate_peaks(self):
-        worker = self.view.worker(self.integrate_peaks_process)
+        params = self.view.get_integrate_peaks_parameters()
+        ellipsoid = self.view.get_ellipsoid()
+        centroid = self.view.get_centroid()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.integrate_peaks_process,
+                params=params,
+                ellipsoid=ellipsoid,
+                centroid=centroid,
+            )
+        )
         worker.connect_result(self.integrate_peaks_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -1282,15 +1482,16 @@ class UB(NeuXtalVizPresenter):
     def integrate_peaks_complete(self, result):
         self.model.copy_UB_from_peaks()
 
-    def integrate_peaks_process(self, progress=None, stop_event=None):
+    def integrate_peaks_process(
+        self,
+        progress=None,
+        stop_event=None,
+        params=None,
+        ellipsoid=None,
+        centroid=None,
+    ):
         if self.stop_processing(stop_event):
             return None
-
-        params = self.view.get_integrate_peaks_parameters()
-
-        ellipsoid = self.view.get_ellipsoid()
-
-        centroid = self.view.get_centroid()
 
         if self.model.has_peaks() and self.model.has_Q():
             if params is not None:
@@ -1326,7 +1527,18 @@ class UB(NeuXtalVizPresenter):
             progress("Invalid parameters.", 0)
 
     def filter_peaks(self):
-        worker = self.view.worker(self.filter_peaks_process)
+        name = self.view.get_filter_variable()
+        operator = self.view.get_filter_comparison()
+        value = self.view.get_filter_value()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.filter_peaks_process,
+                name=name,
+                operator=operator,
+                value=value,
+            )
+        )
         worker.connect_result(self.filter_peaks_complete)
         worker.connect_finished(self.visualize)
         worker.connect_progress(self.update_processing)
@@ -1336,13 +1548,16 @@ class UB(NeuXtalVizPresenter):
     def filter_peaks_complete(self, result):
         self.model.copy_UB_from_peaks()
 
-    def filter_peaks_process(self, progress=None, stop_event=None):
+    def filter_peaks_process(
+        self,
+        progress=None,
+        stop_event=None,
+        name=None,
+        operator=None,
+        value=None,
+    ):
         if self.stop_processing(stop_event):
             return None
-
-        name = self.view.get_filter_variable()
-        operator = self.view.get_filter_comparison()
-        value = self.view.get_filter_value()
 
         if self.model.has_peaks() and value is not None:
             progress("Processing...", 1)
@@ -1590,6 +1805,18 @@ class UB(NeuXtalVizPresenter):
 
         return method
 
+    def update_slice_extent(self):
+        proj = self.view.get_projection_matrix()
+        if proj is None:
+            return
+        U, V, W, invalid = self.model.validate_projection(proj)
+        if invalid:
+            return
+        norm = self.get_normal()
+        z_min, z_max = self.model.get_slice_z_extent(U, V, W, norm)
+        if z_min is not None and z_max is not None and z_max > z_min:
+            self.view.setup_slice_slider(z_min, z_max)
+
     def reslice(self):
         if self.model.is_sliced():
             self.convert_to_hkl()
@@ -1598,7 +1825,32 @@ class UB(NeuXtalVizPresenter):
         if self.slice_idle:
             self.slice_idle = False
 
-            worker = self.view.worker(self.convert_to_hkl_process)
+            proj = self.view.get_projection_matrix()
+            value = self.view.get_slice_value()
+            thickness = self.view.get_slice_thickness()
+            width = self.view.get_slice_width()
+            norm = self.get_normal()
+            clim_method = self.get_clim_method()
+            slice_scale = self.view.get_slice_scale()
+            slice_auto_limits = self.view.get_slice_auto_limits()
+            vmin = self.view.get_vmin_value()
+            vmax = self.view.get_vmax_value()
+
+            worker = self.view.worker(
+                functools.partial(
+                    self.convert_to_hkl_process,
+                    proj=proj,
+                    value=value,
+                    thickness=thickness,
+                    width=width,
+                    norm=norm,
+                    clim_method=clim_method,
+                    slice_scale=slice_scale,
+                    slice_auto_limits=slice_auto_limits,
+                    vmin=vmin,
+                    vmax=vmax,
+                )
+            )
             worker.connect_result(self.convert_to_hkl_complete)
             worker.connect_finished(self.update_complete)
             worker.connect_progress(self.update_processing)
@@ -1611,17 +1863,23 @@ class UB(NeuXtalVizPresenter):
             self.view.update_slice(result)
         self.slice_idle = True
 
-    def convert_to_hkl_process(self, progress=None, stop_event=None):
+    def convert_to_hkl_process(
+        self,
+        progress=None,
+        stop_event=None,
+        proj=None,
+        value=None,
+        thickness=None,
+        width=None,
+        norm=None,
+        clim_method=None,
+        slice_scale=None,
+        slice_auto_limits=None,
+        vmin=None,
+        vmax=None,
+    ):
         if self.stop_processing(stop_event):
             return None
-
-        proj = self.view.get_projection_matrix()
-
-        value = self.view.get_slice_value()
-
-        thickness = self.view.get_slice_thickness()
-
-        width = self.view.get_slice_width()
 
         validate = [proj, value, thickness, width]
 
@@ -1629,8 +1887,6 @@ class UB(NeuXtalVizPresenter):
             U, V, W, invalid = self.model.validate_projection(proj)
 
             if not invalid:
-
-                norm = self.get_normal()
 
                 progress("Processing...", 1)
 
@@ -1649,11 +1905,11 @@ class UB(NeuXtalVizPresenter):
                     slice_histo["vmin"], slice_histo["vmax"] = (
                         self._resolve_display_limits(
                             signal,
-                            self.get_clim_method(),
-                            self.view.get_slice_scale(),
-                            self.view.get_slice_auto_limits(),
-                            self.view.get_vmin_value(),
-                            self.view.get_vmax_value(),
+                            clim_method,
+                            slice_scale,
+                            slice_auto_limits,
+                            vmin,
+                            vmax,
                         )
                     )
 
@@ -1668,7 +1924,14 @@ class UB(NeuXtalVizPresenter):
             progress("Invalid parameters.", 0)
 
     def cluster(self):
-        worker = self.view.worker(self.cluster_process)
+        params = self.view.get_cluster_parameters()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.cluster_process,
+                params=params,
+            )
+        )
         worker.connect_result(self.cluster_complete)
         worker.connect_progress(self.update_processing)
 
@@ -1682,7 +1945,16 @@ class UB(NeuXtalVizPresenter):
             self.update_processing("Peaks added!", 0)
 
     def calculate_alignment(self):
-        worker = self.view.worker(self.calculate_alignment_process)
+        run_number = self.view.get_alignment_run()
+        tilts = self.view.get_alignment_tilts()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.calculate_alignment_process,
+                run_number=run_number,
+                tilts=tilts,
+            )
+        )
         worker.connect_result(self.calculate_alignment_complete)
         worker.connect_progress(self.update_processing)
 
@@ -1694,12 +1966,15 @@ class UB(NeuXtalVizPresenter):
             self.view.add_alignment_peaks(result)
             self.update_processing("Alignment calculated!", 0)
 
-    def calculate_alignment_process(self, progress=None, stop_event=None):
+    def calculate_alignment_process(
+        self,
+        progress=None,
+        stop_event=None,
+        run_number=None,
+        tilts=None,
+    ):
         if self.stop_processing(stop_event):
             return None
-
-        run_number = self.view.get_alignment_run()
-        tilts = self.view.get_alignment_tilts()
 
         if self.model.has_peaks() and self.model.has_UB():
             if run_number is not None and tilts is not None:
@@ -1717,11 +1992,9 @@ class UB(NeuXtalVizPresenter):
         else:
             progress("Alignment requires indexed peaks and UB.", 0)
 
-    def cluster_process(self, progress=None, stop_event=None):
+    def cluster_process(self, progress=None, stop_event=None, params=None):
         if self.stop_processing(stop_event):
             return None
-
-        params = self.view.get_cluster_parameters()
 
         if params is not None:
             progress("Invalid parameters.", 0)

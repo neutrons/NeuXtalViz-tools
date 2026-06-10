@@ -102,6 +102,7 @@ class UBView(NeuXtalVizWidget):
         self._inst_click_cid = None
         self._scan_click_cid = None
         self._slice_click_cid = None
+        self._roi_lines = None
         self.slice_im = None
         self.inst_im = None
         self.x_min, self.x_max = None, None
@@ -2446,8 +2447,13 @@ class UBView(NeuXtalVizWidget):
         self.slice_line.setText("0.0")
         self.slice_line.blockSignals(False)
 
-    def connect_slice_combo(self, update_slice):
+    def setup_slice_slider(self, z_min, z_max):
+        self._setup_slice_slider(z_min, z_max)
+
+    def connect_slice_combo(self, update_slice, update_extent=None):
         self.slice_combo.currentIndexChanged.connect(self._reset_slice_to_zero)
+        if update_extent is not None:
+            self.slice_combo.currentIndexChanged.connect(update_extent)
         self.slice_combo.currentIndexChanged.connect(update_slice)
 
     def connect_vlim_combo(self, update_clim):
@@ -2550,7 +2556,6 @@ class UBView(NeuXtalVizWidget):
             self.cb_slice.minorticks_on()
 
             self.canvas_slice.draw_idle()
-            self.canvas_slice.flush_events()
 
     def update_instrument_colorbar_vlims(self, vmin, vmax):
         if self.inst_im is not None:
@@ -2560,7 +2565,6 @@ class UBView(NeuXtalVizWidget):
             self.inst_im.set_clim(vmin=vmin, vmax=vmax)
 
             self.canvas_inst.draw_idle()
-            self.canvas_inst.flush_events()
 
     def _create_norm(self, scale, vmin, vmax):
         scale = scale.lower()
@@ -2586,7 +2590,6 @@ class UBView(NeuXtalVizWidget):
             self.cb_slice.minorticks_on()
 
         self.canvas_slice.draw_idle()
-        self.canvas_slice.flush_events()
 
     def update_instrument_display(self, cmap_key, scale, vmin, vmax):
         if self.inst_im is None:
@@ -2599,7 +2602,6 @@ class UBView(NeuXtalVizWidget):
         self.inst_im.set_norm(self._create_norm(scale, vmin, vmax))
 
         self.canvas_inst.draw_idle()
-        self.canvas_inst.flush_events()
 
     def get_color_bar_values(self):
         return 0, 100
@@ -3903,7 +3905,6 @@ class UBView(NeuXtalVizWidget):
             self.ax_inst.set_ylim(prev_ylim)
 
         self.canvas_inst.draw_idle()
-        self.canvas_inst.flush_events()
 
         self.ax_inst.format_coord = self.__format_inst_coord
 
@@ -3915,17 +3916,31 @@ class UBView(NeuXtalVizWidget):
         horz_roi = roi_view["horz_roi"]
         vert_roi = roi_view["vert_roi"]
 
-        for line in self.ax_inst.lines:
-            line.remove()
-
-        self.ax_inst.axvline(x=horz - horz_roi, color="k", linestyle="--")
-        self.ax_inst.axvline(x=horz + horz_roi, color="k", linestyle="--")
-
-        self.ax_inst.axhline(y=vert - vert_roi, color="k", linestyle="--")
-        self.ax_inst.axhline(y=vert + vert_roi, color="k", linestyle="--")
+        if (
+            self._roi_lines is not None
+            and self._roi_lines[0] in self.ax_inst.lines
+        ):
+            vl1, vl2, hl1, hl2 = self._roi_lines
+            vl1.set_xdata([horz - horz_roi, horz - horz_roi])
+            vl2.set_xdata([horz + horz_roi, horz + horz_roi])
+            hl1.set_ydata([vert - vert_roi, vert - vert_roi])
+            hl2.set_ydata([vert + vert_roi, vert + vert_roi])
+        else:
+            vl1 = self.ax_inst.axvline(
+                x=horz - horz_roi, color="k", linestyle="--"
+            )
+            vl2 = self.ax_inst.axvline(
+                x=horz + horz_roi, color="k", linestyle="--"
+            )
+            hl1 = self.ax_inst.axhline(
+                y=vert - vert_roi, color="k", linestyle="--"
+            )
+            hl2 = self.ax_inst.axhline(
+                y=vert + vert_roi, color="k", linestyle="--"
+            )
+            self._roi_lines = [vl1, vl2, hl1, hl2]
 
         self.canvas_inst.draw_idle()
-        self.canvas_inst.flush_events()
 
         self.inst_roi = {"roi": (horz_roi, vert_roi)}
 
@@ -3941,7 +3956,10 @@ class UBView(NeuXtalVizWidget):
         val = roi_view["val"]
         label = roi_view["label"]
 
-        self.ax_scan.clear()
+        for container in self.ax_scan.containers[:]:
+            container.remove()
+        for line in self.ax_scan.lines[:]:
+            line.remove()
 
         self.ax_scan.errorbar(x, y, yerr=np.sqrt(y), fmt=".", color="C0")
         self.ax_scan.plot(x, y, color="C1")
@@ -3955,9 +3973,10 @@ class UBView(NeuXtalVizWidget):
             xlabel = r"$\vartheta$ [°]"
 
         self.ax_scan.set_xlabel(xlabel)
+        self.ax_scan.relim()
+        self.ax_scan.autoscale_view()
 
         self.canvas_scan.draw_idle()
-        self.canvas_scan.flush_events()
 
         if self._scan_click_cid is not None:
             self.fig_scan.canvas.mpl_disconnect(self._scan_click_cid)
@@ -3981,7 +4000,6 @@ class UBView(NeuXtalVizWidget):
             self.line_scan.set_xdata([val])
 
             self.canvas_scan.draw_idle()
-            self.canvas_scan.flush_events()
 
             self.scan_ready.emit()
 
@@ -3990,9 +4008,6 @@ class UBView(NeuXtalVizWidget):
             event.inaxes == self.ax_inst
             and self.fig_inst.canvas.toolbar.mode == ""
         ):
-            for line in self.ax_inst.lines:
-                line.remove()
-
             horz_roi, vert_roi = self.inst_roi["roi"]
 
             horz, vert = event.xdata, event.ydata
@@ -4006,14 +4021,31 @@ class UBView(NeuXtalVizWidget):
             self.horizontal_line.blockSignals(False)
             self.vertical_line.blockSignals(False)
 
-            self.ax_inst.axvline(x=horz - horz_roi, color="k", linestyle="--")
-            self.ax_inst.axvline(x=horz + horz_roi, color="k", linestyle="--")
-
-            self.ax_inst.axhline(y=vert - vert_roi, color="k", linestyle="--")
-            self.ax_inst.axhline(y=vert + vert_roi, color="k", linestyle="--")
+            if (
+                self._roi_lines is not None
+                and self._roi_lines[0] in self.ax_inst.lines
+            ):
+                vl1, vl2, hl1, hl2 = self._roi_lines
+                vl1.set_xdata([horz - horz_roi, horz - horz_roi])
+                vl2.set_xdata([horz + horz_roi, horz + horz_roi])
+                hl1.set_ydata([vert - vert_roi, vert - vert_roi])
+                hl2.set_ydata([vert + vert_roi, vert + vert_roi])
+            else:
+                vl1 = self.ax_inst.axvline(
+                    x=horz - horz_roi, color="k", linestyle="--"
+                )
+                vl2 = self.ax_inst.axvline(
+                    x=horz + horz_roi, color="k", linestyle="--"
+                )
+                hl1 = self.ax_inst.axhline(
+                    y=vert - vert_roi, color="k", linestyle="--"
+                )
+                hl2 = self.ax_inst.axhline(
+                    y=vert + vert_roi, color="k", linestyle="--"
+                )
+                self._roi_lines = [vl1, vl2, hl1, hl2]
 
             self.canvas_inst.draw_idle()
-            self.canvas_inst.flush_events()
 
             self.roi_ready.emit()
 
@@ -4237,7 +4269,6 @@ class UBView(NeuXtalVizWidget):
             self.ax_slice.set_ylim(prev_ylim)
 
         self.canvas_slice.draw_idle()
-        self.canvas_slice.flush_events()
 
         self.ax_slice.format_coord = self.__format_hkl_coord
         if self._slice_click_cid is not None:
@@ -4354,7 +4385,6 @@ class UBView(NeuXtalVizWidget):
             axis.axvline(0, color="0.5", linestyle="--", linewidth=1)
 
         self.canvas_align.draw_idle()
-        self.canvas_align.flush_events()
 
     def add_alignment_peaks(self, alignment_dict):
         observed = np.asarray(alignment_dict["observed"])
@@ -4383,7 +4413,6 @@ class UBView(NeuXtalVizWidget):
             axis.set_ylim(1, ymax)
 
         self.canvas_align.draw_idle()
-        self.canvas_align.flush_events()
 
         coords = np.vstack([observed, predicted])
         min_lim = np.nanmin(coords, axis=0)
@@ -4504,7 +4533,6 @@ class UBView(NeuXtalVizWidget):
         self.ax_clust[2].set_xlabel("$[00l]$")
 
         self.canvas_clust.draw_idle()
-        self.canvas_clust.flush_events()
 
         _, mapper = self.plotter.add_composite(
             multiblock,

@@ -2079,6 +2079,33 @@ class UBModel(NeuXtalVizModel):
         """
         return 2 * np.pi / Q
 
+    def get_slice_z_extent(self, U, V, W, normal):
+        if not (self.has_UB() and self.has_Q()):
+            return None, None
+        UB = self.get_UB()
+        Wt = np.column_stack([U, V, W])
+        Bp = np.dot(UB, Wt)
+        bp_inv = np.linalg.inv(2 * np.pi * Bp)
+        Qx_min, Qy_min, Qz_min = self.min_lim
+        Qx_max, Qy_max, Qz_max = self.max_lim
+        corners = np.array(
+            [
+                [Qx_min, Qy_min, Qz_min],
+                [Qx_max, Qy_min, Qz_min],
+                [Qx_min, Qy_max, Qz_min],
+                [Qx_max, Qy_max, Qz_min],
+                [Qx_min, Qy_min, Qz_max],
+                [Qx_max, Qy_min, Qz_max],
+                [Qx_min, Qy_max, Qz_max],
+                [Qx_max, Qy_max, Qz_max],
+            ]
+        )
+        trans_corners = np.einsum("ij,kj->ki", bp_inv, corners)
+        i = np.array(normal).tolist().index(1)
+        return float(np.min(trans_corners[:, i])), float(
+            np.max(trans_corners[:, i])
+        )
+
     def get_slice_info(self, U, V, W, normal, value, thickness, width):
         """
         Get the slicing information for a given normal and value.
@@ -2868,7 +2895,7 @@ class UBModel(NeuXtalVizModel):
         u1, u2, u3, v1, v2, v3 = directions
 
         for ws in [self.cell, self.primitive_cell, self.table, self.Q]:
-            if mtd.doesExist(ws):
+            if ws is not None and mtd.doesExist(ws):
                 SetUB(
                     Workspace=ws,
                     a=a,
@@ -3196,22 +3223,29 @@ class UBModel(NeuXtalVizModel):
 
         self.copy_UB_to_peaks()
 
-        d_max = self.get_max_d_spacing(self.table)
+        has_q = self.Q is not None and mtd.doesExist(self.Q)
 
-        self.copy_UB_to_Q()
+        if has_q:
+            self.copy_UB_to_Q()
+            input_ws = self.Q
+        else:
+            input_ws = self.cell
+
+        d_max = self.get_max_d_spacing(input_ws)
 
         PredictPeaks(
-            InputWorkspace=self.Q,
+            InputWorkspace=input_ws,
             WavelengthMin=lamda_min,
             WavelengthMax=lamda_max,
             MinDSpacing=d_min,
             MaxDSpacing=d_max * 1.2,
             ReflectionCondition=centering_reflection[centering],
-            EdgePixels=edge_pixels,
+            EdgePixels=edge_pixels if has_q else 0,
             OutputWorkspace=self.table,
         )
 
-        self.integrate_peaks(0.1, 1, 1, method="sphere", centroid=False)
+        if has_q:
+            self.integrate_peaks(0.1, 1, 1, method="sphere", centroid=False)
 
         self.clear_intensity()
 
