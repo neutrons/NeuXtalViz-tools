@@ -1,3 +1,5 @@
+import os
+
 from qtpy.QtWidgets import (
     QWidget,
     QHBoxLayout,
@@ -488,8 +490,15 @@ class VolumeSlicerView(NeuXtalVizWidget):
         file_dialog.setFileMode(QFileDialog.AnyFile)
 
         filename, _ = file_dialog.getSaveFileName(
-            self, "Save csv file", "", "CSV files (*.csv)", options=options
+            self,
+            "Save csv file",
+            self._get_file_dialog_dir(),
+            "CSV files (*.csv)",
+            options=options,
         )
+
+        if filename:
+            self._remember_file_dialog_dir(os.path.dirname(filename))
 
         return filename
 
@@ -561,8 +570,15 @@ class VolumeSlicerView(NeuXtalVizWidget):
         file_dialog.setFileMode(QFileDialog.AnyFile)
 
         filename, _ = file_dialog.getOpenFileName(
-            self, "Load NXS file", "", "NXS files (*.nxs)", options=options
+            self,
+            "Load NXS file",
+            self._get_file_dialog_dir(),
+            "NXS files (*.nxs)",
+            options=options,
         )
+
+        if filename:
+            self._remember_file_dialog_dir(os.path.dirname(filename))
 
         return filename
 

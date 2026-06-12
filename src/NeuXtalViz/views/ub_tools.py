@@ -3956,10 +3956,7 @@ class UBView(NeuXtalVizWidget):
         val = roi_view["val"]
         label = roi_view["label"]
 
-        for container in self.ax_scan.containers[:]:
-            container.remove()
-        for line in self.ax_scan.lines[:]:
-            line.remove()
+        self.ax_scan.clear()
 
         self.ax_scan.errorbar(x, y, yerr=np.sqrt(y), fmt=".", color="C0")
         self.ax_scan.plot(x, y, color="C1")
@@ -3973,9 +3970,6 @@ class UBView(NeuXtalVizWidget):
             xlabel = r"$\vartheta$ [°]"
 
         self.ax_scan.set_xlabel(xlabel)
-        self.ax_scan.autoscale(enable=True, axis="both")
-        self.ax_scan.relim()
-        self.ax_scan.autoscale_view()
 
         self.canvas_scan.draw_idle()
 

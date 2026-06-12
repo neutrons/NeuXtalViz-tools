@@ -1,7 +1,10 @@
+import os
+
 from qtpy.QtWidgets import (
     QWidget,
     QTableWidget,
     QTableWidgetItem,
+    QAbstractItemView,
     QHeaderView,
     QGridLayout,
     QHBoxLayout,
@@ -261,8 +264,8 @@ class ExperimentView(NeuXtalVizWidget):
         self.plan_table.setToolTip(
             "Table of planned orientations and settings."
         )
-        self.plan_table.setSelectionBehavior(QTableWidget.SelectRows)
-        self.plan_table.setSelectionMode(QTableWidget.ExtendedSelection)
+        self.plan_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.plan_table.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         labels = ["Motor", "Value"]
 
@@ -1011,14 +1014,14 @@ class ExperimentView(NeuXtalVizWidget):
         )
         self.peaks_table.setRowCount(0)
         self.peaks_table.setColumnCount(5)
-        self.peaks_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.peaks_table.setSelectionBehavior(QAbstractItemView.SelectRows)
 
         header = ["h", "k", "l", "d", "λ"]
 
         self.peaks_table.horizontalHeader().setSectionResizeMode(stretch)
         self.peaks_table.setHorizontalHeaderLabels(header)
         self.peaks_table.setEditTriggers(QTableWidget.NoEditTriggers)
-        self.peaks_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.peaks_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.peaks_table.setSortingEnabled(False)
 
         peak_layout.addWidget(self.peaks_table)
@@ -1212,8 +1215,15 @@ class ExperimentView(NeuXtalVizWidget):
         file_filters = "Calibration files (*.DetCal *.detcal *.xml)"
 
         filename, _ = file_dialog.getOpenFileName(
-            self, "Load calibration file", path, file_filters, options=options
+            self,
+            "Load calibration file",
+            path or self._get_file_dialog_dir(),
+            file_filters,
+            options=options,
         )
+
+        if filename:
+            self._remember_file_dialog_dir(os.path.dirname(filename))
 
         return filename
 
@@ -1227,8 +1237,15 @@ class ExperimentView(NeuXtalVizWidget):
         file_filters = "Goniometer calibration files (*.xml)"
 
         filename, _ = file_dialog.getOpenFileName(
-            self, "Load calibration file", path, file_filters, options=options
+            self,
+            "Load calibration file",
+            path or self._get_file_dialog_dir(),
+            file_filters,
+            options=options,
         )
+
+        if filename:
+            self._remember_file_dialog_dir(os.path.dirname(filename))
 
         return filename
 
@@ -1242,8 +1259,15 @@ class ExperimentView(NeuXtalVizWidget):
         file_filters = "Mask files (*.xml)"
 
         filename, _ = file_dialog.getOpenFileName(
-            self, "Load mask file", path, file_filters, options=options
+            self,
+            "Load mask file",
+            path or self._get_file_dialog_dir(),
+            file_filters,
+            options=options,
         )
+
+        if filename:
+            self._remember_file_dialog_dir(os.path.dirname(filename))
 
         return filename
 
@@ -1255,8 +1279,15 @@ class ExperimentView(NeuXtalVizWidget):
         file_dialog.setFileMode(QFileDialog.AnyFile)
 
         filename, _ = file_dialog.getOpenFileName(
-            self, "Load UB file", path, "UB files (*.mat)", options=options
+            self,
+            "Load UB file",
+            path or self._get_file_dialog_dir(),
+            "UB files (*.mat)",
+            options=options,
         )
+
+        if filename:
+            self._remember_file_dialog_dir(os.path.dirname(filename))
 
         return filename
 
@@ -1270,7 +1301,7 @@ class ExperimentView(NeuXtalVizWidget):
         filename, _ = file_dialog.getSaveFileName(
             self,
             "Save peaks file",
-            path,
+            path or self._get_file_dialog_dir(),
             "Experiment files (*.csv)",
             options=options,
         )
@@ -1278,6 +1309,7 @@ class ExperimentView(NeuXtalVizWidget):
         if filename is not None:
             if not filename.endswith(".csv"):
                 filename += ".csv"
+            self._remember_file_dialog_dir(os.path.dirname(filename))
 
         return filename
 
@@ -1291,10 +1323,13 @@ class ExperimentView(NeuXtalVizWidget):
         filename, _ = file_dialog.getOpenFileName(
             self,
             "Load experiment file",
-            path,
+            path or self._get_file_dialog_dir(),
             "Experiment files (*.nxs)",
             options=options,
         )
+
+        if filename:
+            self._remember_file_dialog_dir(os.path.dirname(filename))
 
         return filename
 
@@ -1308,7 +1343,7 @@ class ExperimentView(NeuXtalVizWidget):
         filename, _ = file_dialog.getSaveFileName(
             self,
             "Save experiment file",
-            path,
+            path or self._get_file_dialog_dir(),
             "Experiment files (*.nxs)",
             options=options,
         )
@@ -1316,6 +1351,7 @@ class ExperimentView(NeuXtalVizWidget):
         if filename is not None:
             if not filename.endswith(".nxs"):
                 filename += ".nxs"
+            self._remember_file_dialog_dir(os.path.dirname(filename))
 
         return filename
 
@@ -2800,7 +2836,7 @@ class ExperimentView(NeuXtalVizWidget):
     def highlight_peak(self, row):
         self.peaks_table.blockSignals(True)
         self.peaks_table.clearSelection()
-        self.peaks_table.setSelectionBehavior(self.peaks_table.SelectRows)
+        self.peaks_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         for r in range(self.peaks_table.rowCount()):
             if self.peaks_table.item(r, 0).data(Qt.UserRole) == row:
                 self.peaks_table.selectRow(r)

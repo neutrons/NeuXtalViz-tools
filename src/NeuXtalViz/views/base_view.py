@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 from qtpy.QtWidgets import (
     QWidget,
@@ -23,7 +24,7 @@ from qtpy.QtGui import (
     QFont,
     QColor,
 )
-from qtpy.QtCore import Qt, Signal
+from qtpy.QtCore import Qt, Signal, QSettings
 
 import numpy as np
 import pyvista as pv
@@ -869,6 +870,21 @@ class NeuXtalVizWidget(QWidget):
 
         self.plotter.screenshot(filename)
 
+    _FILE_DIALOG_MAX_DEPTH = 3
+
+    def _get_file_dialog_dir(self):
+        settings = QSettings("NeuXtalViz", "NeuXtalViz")
+        return settings.value("file_dialog_last_dir", "")
+
+    def _remember_file_dialog_dir(self, path):
+        if not path:
+            return
+        parts = pathlib.Path(path).parts
+        if len(parts) > self._FILE_DIALOG_MAX_DEPTH + 1:
+            path = str(pathlib.Path(*parts[: self._FILE_DIALOG_MAX_DEPTH + 1]))
+        settings = QSettings("NeuXtalViz", "NeuXtalViz")
+        settings.setValue("file_dialog_last_dir", path)
+
     def save_screenshot_file_dialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -877,8 +893,15 @@ class NeuXtalVizWidget(QWidget):
         file_dialog.setFileMode(QFileDialog.AnyFile)
 
         filename, _ = file_dialog.getSaveFileName(
-            self, "Save PNG file", "", "PNG files (*.png)", options=options
+            self,
+            "Save PNG file",
+            self._get_file_dialog_dir(),
+            "PNG files (*.png)",
+            options=options,
         )
+
+        if filename:
+            self._remember_file_dialog_dir(os.path.dirname(filename))
 
         return filename
 

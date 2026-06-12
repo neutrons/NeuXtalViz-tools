@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 
 from qtpy.QtWidgets import (
@@ -409,8 +411,15 @@ class CrystalStructureView(NeuXtalVizWidget):
         file_dialog.setFileMode(QFileDialog.AnyFile)
 
         filename, _ = file_dialog.getOpenFileName(
-            self, "Load CIF file", "", "CIF files (*.cif)", options=options
+            self,
+            "Load CIF file",
+            self._get_file_dialog_dir(),
+            "CIF files (*.cif)",
+            options=options,
         )
+
+        if filename:
+            self._remember_file_dialog_dir(os.path.dirname(filename))
 
         return filename
 
@@ -422,8 +431,15 @@ class CrystalStructureView(NeuXtalVizWidget):
         file_dialog.setFileMode(QFileDialog.AnyFile)
 
         filename, _ = file_dialog.getSaveFileName(
-            self, "Save INS file", "", "INS files (*.ins)", options=options
+            self,
+            "Save INS file",
+            self._get_file_dialog_dir(),
+            "INS files (*.ins)",
+            options=options,
         )
+
+        if filename:
+            self._remember_file_dialog_dir(os.path.dirname(filename))
 
         return filename
 

@@ -416,8 +416,15 @@ class SampleView(NeuXtalVizWidget):
         file_dialog.setFileMode(QFileDialog.AnyFile)
 
         filename, _ = file_dialog.getOpenFileName(
-            self, "Load UB file", "", "UB files (*.mat)", options=options
+            self,
+            "Load UB file",
+            self._get_file_dialog_dir(),
+            "UB files (*.mat)",
+            options=options,
         )
+
+        if filename:
+            self._remember_file_dialog_dir(os.path.dirname(filename))
 
         return filename
 
