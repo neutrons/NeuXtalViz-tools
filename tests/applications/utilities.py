@@ -8,7 +8,6 @@ import faulthandler
 faulthandler.enable()
 
 os.environ.setdefault("QT_API", "pyside6")
-# os.environ.setdefault("QT_OPENGL", "software")
 
 from qtpy.QtWidgets import QApplication
 from qtpy.QtCore import QSettings, QTimer

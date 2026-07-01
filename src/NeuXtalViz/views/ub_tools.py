@@ -123,7 +123,6 @@ class UBView(NeuXtalVizWidget):
         self.load_q_button = QPushButton("Load Q", self)
         self.load_q_button.setToolTip("Load a Q-sample workspace from a file.")
         self.load_q_button.setIcon(qta.icon("fa6s.folder-open"))
-        self.load_q_button.hide()
 
         self.save_peaks_button = QPushButton("Save Peaks", self)
         self.save_peaks_button.setToolTip("Save the peaks table to a file.")
@@ -164,6 +163,7 @@ class UBView(NeuXtalVizWidget):
         convert_io_layout.addWidget(self.q_label)
         convert_io_layout.addStretch(1)
         convert_io_layout.addWidget(self.save_q_button)
+        convert_io_layout.addWidget(self.load_q_button)
 
         peaks_io_layout = QHBoxLayout()
 
@@ -730,8 +730,8 @@ class UBView(NeuXtalVizWidget):
         self.centering_combo.addItem("P")
         self.centering_combo.addItem("I")
         self.centering_combo.addItem("F")
-        self.centering_combo.addItem("Robv")
-        self.centering_combo.addItem("Rrev")
+        self.centering_combo.addItem("R(obv)")
+        self.centering_combo.addItem("R(rev)")
         self.centering_combo.addItem("A")
         self.centering_combo.addItem("B")
         self.centering_combo.addItem("C")

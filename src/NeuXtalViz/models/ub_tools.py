@@ -59,6 +59,7 @@ from mantid.simpleapi import (
     LoadEmptyInstrument,
     ApplyCalibration,
     BinMD,
+    SliceMD,
     ConvertUnits,
     CropWorkspace,
     MaskDetectors,
@@ -145,6 +146,7 @@ class UBModel(NeuXtalVizModel):
         super(UBModel, self).__init__()
 
         self.Q = None
+        self.conv = "YZY"
         self.table = "ub_peaks"
         self.filter_table_backup = self.table + "_filter_backup"
         self.cell = "ub_lattice"
@@ -1449,86 +1451,6 @@ class UBModel(NeuXtalVizModel):
 
                 lamda = None
 
-            self.Q_max_cut = Q_max
-
-            self.Q = "md"
-
-            if mtd.doesExist("Q3D"):
-                DeleteWorkspace(Workspace="Q3D")
-
-            BinMD(
-                InputWorkspace=self.Q,
-                AlignedDim0="Q_sample_x,{},{},256".format(-Q_max, Q_max),
-                AlignedDim1="Q_sample_y,{},{},256".format(-Q_max, Q_max),
-                AlignedDim2="Q_sample_z,{},{},256".format(-Q_max, Q_max),
-                OutputWorkspace="Q3D",
-            )
-
-            CreatePeaksWorkspace(
-                InstrumentWorkspace=self.Q,
-                NumberOfPeaks=0,
-                OutputWorkspace=self.table,
-            )
-
-            CopySample(
-                InputWorkspace=self.Q,
-                OutputWorkspace=self.cell,
-                CopyName=False,
-                CopyMaterial=False,
-                CopyEnvironment=False,
-                CopyShape=False,
-            )
-
-            CompactMD(InputWorkspace="Q3D", OutputWorkspace="Q3D")
-
-            signal = mtd["Q3D"].getSignalArray().copy()
-
-            mu = scipy.ndimage.gaussian_filter(signal, 4, mode="nearest")
-            mu2 = scipy.ndimage.gaussian_filter(signal**2, 4, mode="nearest")
-            var = np.maximum(mu2 - mu**2, 0.0)
-            std = np.sqrt(var) + 1e-6
-
-            Z = (signal - mu) / std
-
-            mask = Z > 3
-
-            signal[~mask] = np.nan
-
-            signal[np.isclose(signal, 0)] = np.nan
-
-            # threshold = np.nanpercentile(signal, 99)
-            # signal[signal >= threshold] = threshold
-
-            dims = [mtd["Q3D"].getDimension(i) for i in range(3)]
-
-            x, y, z = [
-                np.linspace(
-                    dim.getMinimum() + dim.getBinWidth() / 2,
-                    dim.getMaximum() - dim.getBinWidth() / 2,
-                    dim.getNBins(),
-                )
-                for dim in dims
-            ]
-
-            Qx, Qy, Qz = np.meshgrid(x, y, z, indexing="ij")
-
-            mask = (Qx**2 + Qy**2 + Qz**2) > self.Q_max_cut**2
-            signal[mask] = np.nan
-
-            self.spacing = tuple([dim.getBinWidth() for dim in dims])
-
-            self.min_lim = x[0], y[0], z[0]
-            self.max_lim = x[-1], y[-1], z[-1]
-
-            signal = np.log10(signal)
-
-            smin = np.nanmin(signal)
-            smax = np.nanmax(signal)
-
-            self.signal = np.round(
-                255 * (signal - smin) / (smax - smin)
-            ).astype(np.float32)
-
             self.wavelength = wavelength
             self.counts = counts
 
@@ -1543,6 +1465,90 @@ class UBModel(NeuXtalVizModel):
 
             self.nu = np.rad2deg(np.arcsin(kf_y))
             self.gamma = np.rad2deg(np.arctan2(kf_x, kf_z))
+
+            self.make_Q(Q_max)
+
+    def make_Q(self, Q_max):
+
+        self.Q_max_cut = Q_max
+
+        self.Q = "md"
+
+        if mtd.doesExist("Q3D"):
+            DeleteWorkspace(Workspace="Q3D")
+
+        BinMD(
+            InputWorkspace=self.Q,
+            AlignedDim0="Q_sample_x,{},{},256".format(-Q_max, Q_max),
+            AlignedDim1="Q_sample_y,{},{},256".format(-Q_max, Q_max),
+            AlignedDim2="Q_sample_z,{},{},256".format(-Q_max, Q_max),
+            OutputWorkspace="Q3D",
+        )
+
+        CreatePeaksWorkspace(
+            InstrumentWorkspace=self.Q,
+            NumberOfPeaks=0,
+            OutputWorkspace=self.table,
+        )
+
+        CopySample(
+            InputWorkspace=self.Q,
+            OutputWorkspace=self.cell,
+            CopyName=False,
+            CopyMaterial=False,
+            CopyEnvironment=False,
+            CopyShape=False,
+        )
+
+        CompactMD(InputWorkspace="Q3D", OutputWorkspace="Q3D")
+
+        signal = mtd["Q3D"].getSignalArray().copy()
+
+        mu = scipy.ndimage.gaussian_filter(signal, 4, mode="nearest")
+        mu2 = scipy.ndimage.gaussian_filter(signal**2, 4, mode="nearest")
+        var = np.maximum(mu2 - mu**2, 0.0)
+        std = np.sqrt(var) + 1e-6
+
+        Z = (signal - mu) / std
+
+        mask = Z > 3
+
+        signal[~mask] = np.nan
+
+        signal[np.isclose(signal, 0)] = np.nan
+
+        # threshold = np.nanpercentile(signal, 99)
+        # signal[signal >= threshold] = threshold
+
+        dims = [mtd["Q3D"].getDimension(i) for i in range(3)]
+
+        x, y, z = [
+            np.linspace(
+                dim.getMinimum() + dim.getBinWidth() / 2,
+                dim.getMaximum() - dim.getBinWidth() / 2,
+                dim.getNBins(),
+            )
+            for dim in dims
+        ]
+
+        Qx, Qy, Qz = np.meshgrid(x, y, z, indexing="ij")
+
+        mask = (Qx**2 + Qy**2 + Qz**2) > self.Q_max_cut**2
+        signal[mask] = np.nan
+
+        self.spacing = tuple([dim.getBinWidth() for dim in dims])
+
+        self.min_lim = x[0], y[0], z[0]
+        self.max_lim = x[-1], y[-1], z[-1]
+
+        signal = np.log10(signal)
+
+        smin = np.nanmin(signal)
+        smax = np.nanmax(signal)
+
+        self.signal = np.round(255 * (signal - smin) / (smax - smin)).astype(
+            np.float32
+        )
 
     def is_mono(self, wavelength):
         return np.isclose(wavelength[0], wavelength[1])
@@ -3494,9 +3500,87 @@ class UBModel(NeuXtalVizModel):
         filename : str
             Name of Q file with extension .nxs.
 
+        Returns
+        -------
+        d_min : float
+            Minimum d-spacing derived from Q_max.
+        wavelength : list or None
+            [lambda_min, lambda_max] for DGS data, None otherwise.
+
         """
 
+        self.Q = "md"
+
         LoadMD(Filename=filename, OutputWorkspace=self.Q)
+
+        ws = mtd[self.Q]
+
+        wavelength = None
+
+        if ws.getNumDims() == 4:
+            dim_names = [ws.getDimension(i).getName() for i in range(4)]
+
+            q_names = ["Q_sample_x", "Q_sample_y", "Q_sample_z"]
+            if not all(dim_names[i] == q_names[i] for i in range(3)):
+                raise ValueError(
+                    "Expected Q_sample_x/y/z as first three dimensions, "
+                    "got: {}".format(dim_names[:3])
+                )
+
+            aligned_dims = []
+            for i in range(3):
+                d = ws.getDimension(i)
+                aligned_dims.append(
+                    "{},{},{},{}".format(
+                        d.getName(),
+                        d.getMinimum(),
+                        d.getMaximum(),
+                        d.getNBins(),
+                    )
+                )
+
+            SliceMD(
+                InputWorkspace=self.Q,
+                AlignedDim0=aligned_dims[0],
+                AlignedDim1=aligned_dims[1],
+                AlignedDim2=aligned_dims[2],
+                OutputWorkspace=self.Q,
+            )
+
+            try:
+                run = ws.getExperimentInfo(0).run()
+                Ei = float(run.getProperty("Ei").value)  # meV
+                lamda = 9.0445 / np.sqrt(Ei)
+                wavelength = [round(lamda - 0.1, 4), round(lamda + 0.1, 4)]
+                self.wavelength = wavelength
+            except Exception:
+                pass
+
+        ws = mtd[self.Q]
+        Q_max = max(
+            max(
+                abs(ws.getDimension(i).getMinimum()),
+                abs(ws.getDimension(i).getMaximum()),
+            )
+            for i in range(3)
+        )
+
+        self.make_Q(Q_max)
+
+        # Propagate UB/lattice from the loaded workspace to the cell workspace
+        CopySample(
+            InputWorkspace=self.Q,
+            OutputWorkspace=self.cell,
+            CopyName=False,
+            CopyMaterial=False,
+            CopyEnvironment=False,
+            CopyShape=False,
+            CopyLattice=True,
+        )
+
+        d_min = round(2 * np.pi / Q_max, 4)
+
+        return d_min, wavelength
 
     def save_Q(self, filename):
         """

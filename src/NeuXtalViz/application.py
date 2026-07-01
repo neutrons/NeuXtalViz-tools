@@ -7,7 +7,7 @@ import faulthandler
 
 faulthandler.enable()
 
-os.environ["QT_API"] = "pyside6"
+os.environ.setdefault("QT_API", "pyside6")
 
 from qtpy.QtWidgets import (
     QApplication,
