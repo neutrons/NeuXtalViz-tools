@@ -27,17 +27,17 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
@@ -2072,7 +2072,7 @@ rebuilding the footprint or coverage map.</p>
 <span id="neuxtalviz-models-ub-tools-module"></span><h2>NeuXtalViz.models.ub_tools module<a class="headerlink" href="#module-NeuXtalViz.models.ub_tools" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">UBModel</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L129-L4050"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">UBModel</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L130-L4134"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel" title="NeuXtalViz.models.base_model.NeuXtalVizModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuXtalVizModel</span></code></a></p>
 <p>Model for UB matrix and peak table operations in NeuXtalViz.</p>
 <p>Provides methods for loading, saving, and manipulating
@@ -2448,16 +2448,19 @@ and modulated structures.</p>
 <tr class="row-even"><td><p><strong>is_mono</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>save_roi_mask</strong></p></td>
+<tr class="row-odd"><td><p><strong>make_Q</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>snapshot_filter_peaks</strong></p></td>
+<tr class="row-even"><td><p><strong>save_roi_mask</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>undo_filter_peaks</strong></p></td>
+<tr class="row-odd"><td><p><strong>snapshot_filter_peaks</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>validate_projection</strong></p></td>
+<tr class="row-even"><td><p><strong>undo_filter_peaks</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>validate_projection</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -2465,7 +2468,7 @@ and modulated structures.</p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.add_peak">
-<span class="sig-name descname"><span class="pre">add_peak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vert</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1585-L1624"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.add_peak" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_peak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vert</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1591-L1630"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.add_peak" title="Link to this definition">#</a></dt>
 <dd><p>Add a peak to the peaks table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2485,39 +2488,39 @@ and modulated structures.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.add_peak_from_hkl">
-<span class="sig-name descname"><span class="pre">add_peak_from_hkl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkl</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1626-L1656"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.add_peak_from_hkl" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_peak_from_hkl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkl</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1632-L1662"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.add_peak_from_hkl" title="Link to this definition">#</a></dt>
 <dd><p>Add a peak to the peaks workspace using HKL coordinates.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.avoid_aluminum_contamination">
-<span class="sig-name descname"><span class="pre">avoid_aluminum_contamination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3592-L3602"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.avoid_aluminum_contamination" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">avoid_aluminum_contamination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3676-L3686"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.avoid_aluminum_contamination" title="Link to this definition">#</a></dt>
 <dd><p>Arblaster, J. W. Selected Values of the Crystallographic
 Properties of Elements; ASM International, 2018</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.avoid_contamination">
-<span class="sig-name descname"><span class="pre">avoid_contamination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3628-L3655"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.avoid_contamination" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">avoid_contamination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3712-L3739"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.avoid_contamination" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.avoid_copper_contamination">
-<span class="sig-name descname"><span class="pre">avoid_copper_contamination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3604-L3614"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.avoid_copper_contamination" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">avoid_copper_contamination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3688-L3698"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.avoid_copper_contamination" title="Link to this definition">#</a></dt>
 <dd><p>Arblaster, J. W. Selected Values of the Crystallographic
 Properties of Elements; ASM International, 2018</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.avoid_iron_contamination">
-<span class="sig-name descname"><span class="pre">avoid_iron_contamination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3616-L3626"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.avoid_iron_contamination" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">avoid_iron_contamination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3700-L3710"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.avoid_iron_contamination" title="Link to this definition">#</a></dt>
 <dd><p>Arblaster, J. W. Selected Values of the Crystallographic
 Properties of Elements; ASM International, 2018</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.calculate_clim">
-<span class="sig-name descname"><span class="pre">calculate_clim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'normal'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2265-L2315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_clim" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_clim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'normal'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2271-L2321"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_clim" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the color limits for the given data using the specified method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2539,7 +2542,7 @@ Properties of Elements; ASM International, 2018</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.calculate_fractional">
-<span class="sig-name descname"><span class="pre">calculate_fractional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod_vec_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_hkl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_mnp</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3777-L3807"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_fractional" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_fractional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod_vec_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_hkl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_mnp</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3861-L3891"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_fractional" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the fractional coordinates from the given modulation vectors and integer coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2563,18 +2566,18 @@ Properties of Elements; ASM International, 2018</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.calculate_highlight">
-<span class="sig-name descname"><span class="pre">calculate_highlight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3908-L3911"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_highlight" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_highlight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3992-L3995"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_highlight" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.calculate_hkl">
-<span class="sig-name descname"><span class="pre">calculate_hkl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3035-L3041"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_hkl" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_hkl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3041-L3047"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_hkl" title="Link to this definition">#</a></dt>
 <dd><p>Calculate hkl values without rounding.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.calculate_hkl_position">
-<span class="sig-name descname"><span class="pre">calculate_hkl_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1676-L1723"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_hkl_position" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_hkl_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1682-L1729"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_hkl_position" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the HKL position for a given peak index and Miller indices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2596,7 +2599,7 @@ Properties of Elements; ASM International, 2018</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.calculate_instrument_view">
-<span class="sig-name descname"><span class="pre">calculate_instrument_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_max</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1775-L1882"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_instrument_view" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_instrument_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_max</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1781-L1888"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_instrument_view" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the instrument view for a given peak index and d-spacing range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2618,7 +2621,7 @@ Properties of Elements; ASM International, 2018</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.calculate_integer">
-<span class="sig-name descname"><span class="pre">calculate_integer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod_vec_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkl</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3809-L3853"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_integer" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_integer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod_vec_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkl</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3893-L3937"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_integer" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the integer coordinates from the given modulation vectors and HKL coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2640,7 +2643,7 @@ Properties of Elements; ASM International, 2018</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.calculate_peaks">
-<span class="sig-name descname"><span class="pre">calculate_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hkl_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkl_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3877-L3906"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hkl_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkl_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3961-L3990"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calculate_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Calculate d-spacing and angle between two HKL planes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2664,7 +2667,7 @@ Properties of Elements; ASM International, 2018</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.calibrate_data">
-<span class="sig-name descname"><span class="pre">calibrate_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">det_cal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gon_cal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tube_cal</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1126-L1228"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calibrate_data" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calibrate_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">det_cal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gon_cal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tube_cal</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1128-L1230"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.calibrate_data" title="Link to this definition">#</a></dt>
 <dd><p>Calibrate the loaded data using detector, goniometer, and tube
 calibration files.</p>
 <dl class="field-list simple">
@@ -2685,12 +2688,12 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.can_undo_filter_peaks">
-<span class="sig-name descname"><span class="pre">can_undo_filter_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L199-L200"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.can_undo_filter_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">can_undo_filter_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L201-L202"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.can_undo_filter_peaks" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.centroid_peaks">
-<span class="sig-name descname"><span class="pre">centroid_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_radius</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3076-L3092"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.centroid_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">centroid_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_radius</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3082-L3098"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.centroid_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Re-center peak locations using centroid within given radius</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2704,18 +2707,18 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.clear_filter_peaks_backup">
-<span class="sig-name descname"><span class="pre">clear_filter_peaks_backup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L202-L204"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.clear_filter_peaks_backup" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">clear_filter_peaks_backup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L204-L206"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.clear_filter_peaks_backup" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.clear_intensity">
-<span class="sig-name descname"><span class="pre">clear_intensity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3145-L3152"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.clear_intensity" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">clear_intensity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3151-L3158"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.clear_intensity" title="Link to this definition">#</a></dt>
 <dd><p>Clear the intensity values of all peaks in the peaks table.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.cluster_peaks">
-<span class="sig-name descname"><span class="pre">cluster_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.025</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3913-L3996"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.cluster_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cluster_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.025</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3997-L4080"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.cluster_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Cluster peaks using DBSCAN algorithm.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2739,7 +2742,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.convert_data">
-<span class="sig-name descname"><span class="pre">convert_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lorentz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_reload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1243-L1545"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.convert_data" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">convert_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lorentz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_reload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1245-L1469"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.convert_data" title="Link to this definition">#</a></dt>
 <dd><p>Convert loaded data to Q-space using Mantid algorithms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2761,43 +2764,43 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.copy_UB_from_Q">
-<span class="sig-name descname"><span class="pre">copy_UB_from_Q</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2523-L2535"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_from_Q" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">copy_UB_from_Q</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2529-L2541"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_from_Q" title="Link to this definition">#</a></dt>
 <dd><p>Copy the UB matrix from the Q workspace to the cell workspace.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.copy_UB_from_peaks">
-<span class="sig-name descname"><span class="pre">copy_UB_from_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2495-L2507"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_from_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">copy_UB_from_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2501-L2513"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_from_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Copy the UB matrix from the peaks workspace to the cell workspace.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_Q">
-<span class="sig-name descname"><span class="pre">copy_UB_to_Q</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2537-L2549"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_Q" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">copy_UB_to_Q</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2543-L2555"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_Q" title="Link to this definition">#</a></dt>
 <dd><p>Copy the UB matrix from the cell workspace to the Q workspace.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_peaks">
-<span class="sig-name descname"><span class="pre">copy_UB_to_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2509-L2521"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">copy_UB_to_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2515-L2527"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Copy the UB matrix from the cell workspace to the peaks workspace.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.delete_peak">
-<span class="sig-name descname"><span class="pre">delete_peak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">no</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1658-L1662"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.delete_peak" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">delete_peak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">no</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1664-L1668"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.delete_peak" title="Link to this definition">#</a></dt>
 <dd><p>Delete a single peak row from the current peaks workspace.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.delete_peak_rows">
-<span class="sig-name descname"><span class="pre">delete_peak_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numbers</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1664-L1674"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.delete_peak_rows" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">delete_peak_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numbers</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1670-L1680"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.delete_peak_rows" title="Link to this definition">#</a></dt>
 <dd><p>Delete multiple peak rows from the current peaks workspace.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.delete_peaks">
-<span class="sig-name descname"><span class="pre">delete_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peaks</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3544-L3556"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.delete_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">delete_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peaks</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3628-L3640"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.delete_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Remove peaks.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2811,7 +2814,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.determine_UB_with_lattice_parameters">
-<span class="sig-name descname"><span class="pre">determine_UB_with_lattice_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2606-L2639"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.determine_UB_with_lattice_parameters" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">determine_UB_with_lattice_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2612-L2645"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.determine_UB_with_lattice_parameters" title="Link to this definition">#</a></dt>
 <dd><p>Determine UB with prior known lattice parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2829,7 +2832,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.determine_UB_with_niggli_cell">
-<span class="sig-name descname"><span class="pre">determine_UB_with_niggli_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2579-L2604"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.determine_UB_with_niggli_cell" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">determine_UB_with_niggli_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2585-L2610"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.determine_UB_with_niggli_cell" title="Link to this definition">#</a></dt>
 <dd><p>Determine UB with primitive lattice using min/max lattice constant.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2847,7 +2850,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.extract_roi">
-<span class="sig-name descname"><span class="pre">extract_roi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">horz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vert</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horz_roi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vert_roi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1958-L2045"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.extract_roi" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">extract_roi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">horz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vert</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horz_roi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vert_roi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1964-L2051"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.extract_roi" title="Link to this definition">#</a></dt>
 <dd><p>Extract a region of interest (ROI) from the instrument view.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2871,7 +2874,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.filter_peaks">
-<span class="sig-name descname"><span class="pre">filter_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3558-L3581"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.filter_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">filter_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3642-L3665"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.filter_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Filter out peaks based on value and operator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2889,13 +2892,13 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.find_UB_from_scattering_plane">
-<span class="sig-name descname"><span class="pre">find_UB_from_scattering_plane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constants</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directions</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2913-L2977"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.find_UB_from_scattering_plane" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">find_UB_from_scattering_plane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constants</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directions</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2919-L2983"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.find_UB_from_scattering_plane" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the UB matrix from a scattering plane and one peak.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.find_peaks">
-<span class="sig-name descname"><span class="pre">find_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_peaks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3043-L3074"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.find_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">find_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_peaks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3049-L3080"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.find_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Harvest strong peak locations from Q-sample into a peaks table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2915,7 +2918,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.generate_lattice_transforms">
-<span class="sig-name descname"><span class="pre">generate_lattice_transforms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2851-L2880"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.generate_lattice_transforms" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">generate_lattice_transforms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2857-L2886"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.generate_lattice_transforms" title="Link to this definition">#</a></dt>
 <dd><p>Obtain possible transforms compatabile with a unit cell lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2935,7 +2938,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_Q">
-<span class="sig-name descname"><span class="pre">get_Q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2059-L2068"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_Q" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_Q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2065-L2074"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_Q" title="Link to this definition">#</a></dt>
 <dd><p>Convert to Q momentum transfer magnitude.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -2949,7 +2952,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_Q_info">
-<span class="sig-name descname"><span class="pre">get_Q_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2329-L2409"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_Q_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_Q_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2335-L2415"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_Q_info" title="Link to this definition">#</a></dt>
 <dd><p>Extract Q-space information from the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -2963,12 +2966,12 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_Q_status">
-<span class="sig-name descname"><span class="pre">get_Q_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L243-L254"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_Q_status" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_Q_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L245-L256"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_Q_status" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_UB">
-<span class="sig-name descname"><span class="pre">get_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L273-L284"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L275-L286"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_UB" title="Link to this definition">#</a></dt>
 <dd><p>Retrieve the UB matrix from the oriented lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -2982,17 +2985,17 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_UB_status">
-<span class="sig-name descname"><span class="pre">get_UB_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L267-L271"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_UB_status" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_UB_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L269-L273"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_UB_status" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_alignment_info">
-<span class="sig-name descname"><span class="pre">get_alignment_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tilts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">0.0,</span> <span class="pre">0.0)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3717-L3756"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_alignment_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_alignment_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tilts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">0.0,</span> <span class="pre">0.0)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3801-L3840"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_alignment_info" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_all_goniometer_matrices">
-<span class="sig-name descname"><span class="pre">get_all_goniometer_matrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3436-L3461"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_all_goniometer_matrices" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_all_goniometer_matrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3442-L3467"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_all_goniometer_matrices" title="Link to this definition">#</a></dt>
 <dd><p>Extract all goniometer matrices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3012,7 +3015,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_autoreduce_instrument">
-<span class="sig-name descname"><span class="pre">get_autoreduce_instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L541-L568"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_autoreduce_instrument" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_autoreduce_instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L543-L570"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_autoreduce_instrument" title="Link to this definition">#</a></dt>
 <dd><p>Get the autoreduce instrument definition file path for a given instrument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3032,7 +3035,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_calibration_file_path">
-<span class="sig-name descname"><span class="pre">get_calibration_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L495-L518"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_calibration_file_path" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_calibration_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L497-L520"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_calibration_file_path" title="Link to this definition">#</a></dt>
 <dd><p>Get the calibration file path for a given instrument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3052,7 +3055,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_cluster_info">
-<span class="sig-name descname"><span class="pre">get_cluster_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3998-L4050"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_cluster_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_cluster_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L4082-L4134"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_cluster_info" title="Link to this definition">#</a></dt>
 <dd><p>Get cluster information for peaks based on UB and peak table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3066,7 +3069,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_d">
-<span class="sig-name descname"><span class="pre">get_d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2070-L2080"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_d" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2076-L2086"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_d" title="Link to this definition">#</a></dt>
 <dd><p>Convert to d-spacing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3080,12 +3083,12 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_d_min">
-<span class="sig-name descname"><span class="pre">get_d_min</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3583-L3590"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_d_min" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_d_min</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3667-L3674"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_d_min" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_default_d_min">
-<span class="sig-name descname"><span class="pre">get_default_d_min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L365-L380"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_default_d_min" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_default_d_min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L367-L382"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_default_d_min" title="Link to this definition">#</a></dt>
 <dd><p>Get the default minimum d-spacing for a given instrument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3105,7 +3108,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_example_file_path">
-<span class="sig-name descname"><span class="pre">get_example_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L407-L429"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_example_file_path" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_example_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L409-L431"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_example_file_path" title="Link to this definition">#</a></dt>
 <dd><p>Get the example data file path for a given instrument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3125,7 +3128,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_files">
-<span class="sig-name descname"><span class="pre">get_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IPTS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L570-L639"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_files" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IPTS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L572-L641"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_files" title="Link to this definition">#</a></dt>
 <dd><p>Get the appropriate data files for a given instrument, IPTS, and run numbers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3159,7 +3162,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_goniometer_axes">
-<span class="sig-name descname"><span class="pre">get_goniometer_axes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L348-L363"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_goniometer_axes" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_goniometer_axes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L350-L365"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_goniometer_axes" title="Link to this definition">#</a></dt>
 <dd><p>Get goniometer axis names for a given instrument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3179,7 +3182,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_goniometers">
-<span class="sig-name descname"><span class="pre">get_goniometers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L314-L329"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_goniometers" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_goniometers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L316-L331"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_goniometers" title="Link to this definition">#</a></dt>
 <dd><p>Get goniometer settings for a given instrument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3199,7 +3202,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_has_Q_vol">
-<span class="sig-name descname"><span class="pre">get_has_Q_vol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2317-L2327"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_has_Q_vol" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_has_Q_vol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2323-L2333"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_has_Q_vol" title="Link to this definition">#</a></dt>
 <dd><p>Check if the Q volume data exists.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3213,7 +3216,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_instrument_name">
-<span class="sig-name descname"><span class="pre">get_instrument_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L297-L312"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_instrument_name" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_instrument_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L299-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_instrument_name" title="Link to this definition">#</a></dt>
 <dd><p>Get the instrument name string for a given instrument identifier.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3233,7 +3236,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_lattice_constant_errors">
-<span class="sig-name descname"><span class="pre">get_lattice_constant_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2428-L2453"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_lattice_constant_errors" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_lattice_constant_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2434-L2459"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_lattice_constant_errors" title="Link to this definition">#</a></dt>
 <dd><p>Get the errors in the lattice constants from the oriented lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3247,7 +3250,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_lattice_constants">
-<span class="sig-name descname"><span class="pre">get_lattice_constants</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2411-L2426"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_lattice_constants" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_lattice_constants</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2417-L2432"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_lattice_constants" title="Link to this definition">#</a></dt>
 <dd><p>Get the lattice constants from the oriented lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3261,7 +3264,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_lite_file_path">
-<span class="sig-name descname"><span class="pre">get_lite_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L431-L459"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_lite_file_path" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_lite_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L433-L461"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_lite_file_path" title="Link to this definition">#</a></dt>
 <dd><p>Get the LITE file path for a given instrument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3281,7 +3284,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_max_d_spacing">
-<span class="sig-name descname"><span class="pre">get_max_d_spacing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3154-L3181"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_max_d_spacing" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_max_d_spacing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3160-L3187"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_max_d_spacing" title="Link to this definition">#</a></dt>
 <dd><p>Obtain the maximum d-spacing from the oriented lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3301,12 +3304,12 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_modulation_info">
-<span class="sig-name descname"><span class="pre">get_modulation_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3657-L3661"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_modulation_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_modulation_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3741-L3745"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_modulation_info" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_number_workspaces">
-<span class="sig-name descname"><span class="pre">get_number_workspaces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1230-L1241"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_number_workspaces" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_number_workspaces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1232-L1243"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_number_workspaces" title="Link to this definition">#</a></dt>
 <dd><p>Get the number of workspaces in the current Mantid session.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3320,7 +3323,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_peak">
-<span class="sig-name descname"><span class="pre">get_peak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3758-L3775"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_peak" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_peak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3842-L3859"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_peak" title="Link to this definition">#</a></dt>
 <dd><p>Get a specific peak’s information by index.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3340,7 +3343,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_peak_info">
-<span class="sig-name descname"><span class="pre">get_peak_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3663-L3715"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_peak_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_peak_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3747-L3799"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_peak_info" title="Link to this definition">#</a></dt>
 <dd><p>Extract detailed information for each peak in the current table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3354,12 +3357,12 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_peaks_status">
-<span class="sig-name descname"><span class="pre">get_peaks_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L256-L265"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_peaks_status" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_peaks_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L258-L267"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_peaks_status" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_raw_file_path">
-<span class="sig-name descname"><span class="pre">get_raw_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L382-L405"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_raw_file_path" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_raw_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L384-L407"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_raw_file_path" title="Link to this definition">#</a></dt>
 <dd><p>Get the raw data file path for a given instrument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3379,13 +3382,13 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_run_goniometer">
-<span class="sig-name descname"><span class="pre">get_run_goniometer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1550-L1583"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_run_goniometer" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_run_goniometer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1556-L1589"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_run_goniometer" title="Link to this definition">#</a></dt>
 <dd><p>Return goniometer Euler angles for the selected run.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_sample_directions">
-<span class="sig-name descname"><span class="pre">get_sample_directions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2478-L2493"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_sample_directions" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_sample_directions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2484-L2499"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_sample_directions" title="Link to this definition">#</a></dt>
 <dd><p>Get the sample directions from the UB matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3399,7 +3402,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_shared_file_path">
-<span class="sig-name descname"><span class="pre">get_shared_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ipts</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L461-L493"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_shared_file_path" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_shared_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ipts</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L463-L495"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_shared_file_path" title="Link to this definition">#</a></dt>
 <dd><p>Get the shared file path for a given instrument and IPTS.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3421,7 +3424,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_slice_info">
-<span class="sig-name descname"><span class="pre">get_slice_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2109-L2258"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_slice_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_slice_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2115-L2264"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_slice_info" title="Link to this definition">#</a></dt>
 <dd><p>Get the slicing information for a given normal and value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3449,12 +3452,12 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_slice_z_extent">
-<span class="sig-name descname"><span class="pre">get_slice_z_extent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2082-L2107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_slice_z_extent" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_slice_z_extent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2088-L2113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_slice_z_extent" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_vanadium_file_path">
-<span class="sig-name descname"><span class="pre">get_vanadium_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L520-L539"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_vanadium_file_path" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_vanadium_file_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L522-L541"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_vanadium_file_path" title="Link to this definition">#</a></dt>
 <dd><p>Get the vanadium calibration file path for a given instrument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3474,7 +3477,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_wavelength">
-<span class="sig-name descname"><span class="pre">get_wavelength</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L331-L346"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_wavelength" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_wavelength</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L333-L348"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_wavelength" title="Link to this definition">#</a></dt>
 <dd><p>Get the wavelength for a given instrument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3494,7 +3497,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.has_Q">
-<span class="sig-name descname"><span class="pre">has_Q</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L167-L182"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.has_Q" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">has_Q</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L169-L184"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.has_Q" title="Link to this definition">#</a></dt>
 <dd><p>Check if the Q workspace exists in Mantid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3508,7 +3511,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.has_UB">
-<span class="sig-name descname"><span class="pre">has_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L228-L241"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.has_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">has_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L230-L243"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.has_UB" title="Link to this definition">#</a></dt>
 <dd><p>Check if the UB matrix is defined on the sample.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3522,7 +3525,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.has_peaks">
-<span class="sig-name descname"><span class="pre">has_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L184-L197"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.has_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">has_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L186-L199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.has_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Check if the peaks table exists in Mantid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3536,7 +3539,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.index_peaks">
-<span class="sig-name descname"><span class="pre">index_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sat_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round_hkl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2979-L3033"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.index_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">index_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sat_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round_hkl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2985-L3039"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.index_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Index the peaks and calculate the lattice parameter uncertainties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3566,7 +3569,7 @@ calibration files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.integrate_peaks">
-<span class="sig-name descname"><span class="pre">integrate_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_inner_fact</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_outer_fact</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sphere'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centroid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3094-L3143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.integrate_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">integrate_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_inner_fact</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_outer_fact</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sphere'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centroid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3100-L3149"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.integrate_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Integrate peaks using spherical or ellipsoidal regions.
 Ellipsoid integration adapts itself to the peak distribution.</p>
 <dl class="field-list simple">
@@ -3589,12 +3592,12 @@ Ellipsoid integration adapts itself to the peak distribution.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.is_mono">
-<span class="sig-name descname"><span class="pre">is_mono</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1547-L1548"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.is_mono" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_mono</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1553-L1554"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.is_mono" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.is_sliced">
-<span class="sig-name descname"><span class="pre">is_sliced</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2047-L2057"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.is_sliced" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_sliced</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2053-L2063"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.is_sliced" title="Link to this definition">#</a></dt>
 <dd><p>Check if the data has been sliced.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -3608,7 +3611,7 @@ Ellipsoid integration adapts itself to the peak distribution.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.load_Q">
-<span class="sig-name descname"><span class="pre">load_Q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3488-L3499"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.load_Q" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_Q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3494-L3583"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.load_Q" title="Link to this definition">#</a></dt>
 <dd><p>Load Q file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3617,12 +3620,20 @@ Ellipsoid integration adapts itself to the peak distribution.</p>
 </dd>
 </dl>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>d_min</strong><span class="classifier">float</span></dt><dd><p>Minimum d-spacing derived from Q_max.</p>
+</dd>
+<dt><strong>wavelength</strong><span class="classifier">list or None</span></dt><dd><p>[lambda_min, lambda_max] for DGS data, None otherwise.</p>
+</dd>
+</dl>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.load_UB">
-<span class="sig-name descname"><span class="pre">load_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2564-L2577"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.load_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2570-L2583"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.load_UB" title="Link to this definition">#</a></dt>
 <dd><p>Load UB from file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3636,7 +3647,7 @@ Ellipsoid integration adapts itself to the peak distribution.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.load_data">
-<span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IPTS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_stop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_reload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L958-L1124"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.load_data" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IPTS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_stop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_reload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L960-L1126"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.load_data" title="Link to this definition">#</a></dt>
 <dd><p>Load experimental data for a given instrument and run parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3660,7 +3671,7 @@ Ellipsoid integration adapts itself to the peak distribution.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.load_peaks">
-<span class="sig-name descname"><span class="pre">load_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3514-L3527"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.load_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3598-L3611"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.load_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Load peaks file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3673,8 +3684,13 @@ Ellipsoid integration adapts itself to the peak distribution.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.make_Q">
+<span class="sig-name descname"><span class="pre">make_Q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q_max</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1471-L1551"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.make_Q" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.possible_conventional_cells">
-<span class="sig-name descname"><span class="pre">possible_conventional_cells</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2769-L2823"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.possible_conventional_cells" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">possible_conventional_cells</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2775-L2829"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.possible_conventional_cells" title="Link to this definition">#</a></dt>
 <dd><p>List possible conventional cells.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3696,7 +3712,7 @@ Ellipsoid integration adapts itself to the peak distribution.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.predict_modulated_peaks">
-<span class="sig-name descname"><span class="pre">predict_modulated_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3252-L3311"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.predict_modulated_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">predict_modulated_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3258-L3317"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.predict_modulated_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Predict the modulated peak positions based on main peaks.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3720,7 +3736,7 @@ Ellipsoid integration adapts itself to the peak distribution.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.predict_peaks">
-<span class="sig-name descname"><span class="pre">predict_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">centering</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3183-L3250"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.predict_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">predict_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">centering</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3189-L3256"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.predict_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Predict peak Q-sample locations with UB and lattice centering.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
@@ -3777,7 +3793,7 @@ Ellipsoid integration adapts itself to the peak distribution.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.predict_satellite_peaks">
-<span class="sig-name descname"><span class="pre">predict_satellite_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3328-L3375"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.predict_satellite_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">predict_satellite_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_vec_3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3334-L3381"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.predict_satellite_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Locate satellite peaks from goniometer angles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3801,7 +3817,7 @@ Ellipsoid integration adapts itself to the peak distribution.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.refine_UB_with_constraints">
-<span class="sig-name descname"><span class="pre">refine_UB_with_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2666-L2705"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.refine_UB_with_constraints" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">refine_UB_with_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2672-L2711"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.refine_UB_with_constraints" title="Link to this definition">#</a></dt>
 <dd><p>Refine UB with constraints corresponding to lattice system.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
@@ -3856,7 +3872,7 @@ Ellipsoid integration adapts itself to the peak distribution.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.refine_UB_without_constraints">
-<span class="sig-name descname"><span class="pre">refine_UB_without_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sat_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2641-L2664"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.refine_UB_without_constraints" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">refine_UB_without_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sat_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2647-L2670"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.refine_UB_without_constraints" title="Link to this definition">#</a></dt>
 <dd><p>Refine UB with unconstrained lattice parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3872,7 +3888,7 @@ Ellipsoid integration adapts itself to the peak distribution.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.refine_U_only">
-<span class="sig-name descname"><span class="pre">refine_U_only</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2707-L2734"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.refine_U_only" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">refine_U_only</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2713-L2740"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.refine_U_only" title="Link to this definition">#</a></dt>
 <dd><p>Refine the U orientation only.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3888,7 +3904,7 @@ Ellipsoid integration adapts itself to the peak distribution.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.remove_duplicate_peaks">
-<span class="sig-name descname"><span class="pre">remove_duplicate_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peaks</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3416-L3434"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.remove_duplicate_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">remove_duplicate_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peaks</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3422-L3440"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.remove_duplicate_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Omit duplicate peaks from different based on indexing.
 Table will be sorted.</p>
 <dl class="field-list simple">
@@ -3903,7 +3919,7 @@ Table will be sorted.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.renumber_runs_by_index">
-<span class="sig-name descname"><span class="pre">renumber_runs_by_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3463-L3486"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.renumber_runs_by_index" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">renumber_runs_by_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3469-L3492"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.renumber_runs_by_index" title="Link to this definition">#</a></dt>
 <dd><p>Re-label the runs by index based on goniometer setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3919,7 +3935,7 @@ Table will be sorted.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.roi_scan_to_hkl">
-<span class="sig-name descname"><span class="pre">roi_scan_to_hkl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vert</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1725-L1773"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.roi_scan_to_hkl" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">roi_scan_to_hkl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vert</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1731-L1779"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.roi_scan_to_hkl" title="Link to this definition">#</a></dt>
 <dd><p>Convert a ROI scan position to HKL coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3945,7 +3961,7 @@ Table will be sorted.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.save_Q">
-<span class="sig-name descname"><span class="pre">save_Q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3501-L3512"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.save_Q" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_Q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3585-L3596"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.save_Q" title="Link to this definition">#</a></dt>
 <dd><p>Save Q file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3959,7 +3975,7 @@ Table will be sorted.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.save_UB">
-<span class="sig-name descname"><span class="pre">save_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2551-L2562"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.save_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2557-L2568"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.save_UB" title="Link to this definition">#</a></dt>
 <dd><p>Save UB to file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3973,7 +3989,7 @@ Table will be sorted.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.save_peaks">
-<span class="sig-name descname"><span class="pre">save_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3529-L3542"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.save_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3613-L3626"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.save_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Save the current peaks table to a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3987,12 +4003,12 @@ Table will be sorted.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.save_roi_mask">
-<span class="sig-name descname"><span class="pre">save_roi_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1884-L1956"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.save_roi_mask" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_roi_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L1890-L1962"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.save_roi_mask" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.select_cell">
-<span class="sig-name descname"><span class="pre">select_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2736-L2767"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.select_cell" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2742-L2773"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.select_cell" title="Link to this definition">#</a></dt>
 <dd><p>Transform to conventional cell using form number.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4008,7 +4024,7 @@ Table will be sorted.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.set_goniometer">
-<span class="sig-name descname"><span class="pre">set_goniometer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3313-L3326"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.set_goniometer" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_goniometer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3319-L3332"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.set_goniometer" title="Link to this definition">#</a></dt>
 <dd><p>Set the goniometer matrix for a peaks workspace.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4024,7 +4040,7 @@ Table will be sorted.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.set_manual_UB">
-<span class="sig-name descname"><span class="pre">set_manual_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constants</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directions</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2882-L2911"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.set_manual_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_manual_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constants</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directions</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2888-L2917"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.set_manual_UB" title="Link to this definition">#</a></dt>
 <dd><p>Set the unit cell parameters and directions manually.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4040,7 +4056,7 @@ Table will be sorted.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.set_peak">
-<span class="sig-name descname"><span class="pre">set_peak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_hkl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_mnp</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3855-L3875"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.set_peak" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_peak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_hkl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_mnp</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3939-L3959"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.set_peak" title="Link to this definition">#</a></dt>
 <dd><p>Set the HKL, integer HKL, and integer MNP values for a specific peak.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4060,7 +4076,7 @@ Table will be sorted.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.simplify_vector">
-<span class="sig-name descname"><span class="pre">simplify_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2455-L2476"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.simplify_vector" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">simplify_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2461-L2482"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.simplify_vector" title="Link to this definition">#</a></dt>
 <dd><p>Simplify a vector to its primitive integer form.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4080,12 +4096,12 @@ Table will be sorted.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.snapshot_filter_peaks">
-<span class="sig-name descname"><span class="pre">snapshot_filter_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L206-L214"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.snapshot_filter_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">snapshot_filter_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L208-L216"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.snapshot_filter_peaks" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.sort_peaks_by_d">
-<span class="sig-name descname"><span class="pre">sort_peaks_by_d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peaks</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3398-L3414"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.sort_peaks_by_d" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">sort_peaks_by_d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peaks</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3404-L3420"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.sort_peaks_by_d" title="Link to this definition">#</a></dt>
 <dd><p>Sort peaks table by descending d-spacing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4099,7 +4115,7 @@ Table will be sorted.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.sort_peaks_by_hkl">
-<span class="sig-name descname"><span class="pre">sort_peaks_by_hkl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peaks</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3377-L3396"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.sort_peaks_by_hkl" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">sort_peaks_by_hkl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peaks</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L3383-L3402"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.sort_peaks_by_hkl" title="Link to this definition">#</a></dt>
 <dd><p>Sort peaks table by descending hkl values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4113,7 +4129,7 @@ Table will be sorted.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.transform_lattice">
-<span class="sig-name descname"><span class="pre">transform_lattice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2825-L2849"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.transform_lattice" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">transform_lattice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2831-L2855"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.transform_lattice" title="Link to this definition">#</a></dt>
 <dd><p>Apply a cell transformation to the lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4129,19 +4145,19 @@ Table will be sorted.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.undo_filter_peaks">
-<span class="sig-name descname"><span class="pre">undo_filter_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L216-L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.undo_filter_peaks" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">undo_filter_peaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L218-L228"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.undo_filter_peaks" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.update_UB">
-<span class="sig-name descname"><span class="pre">update_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L286-L295"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.update_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L288-L297"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.update_UB" title="Link to this definition">#</a></dt>
 <dd><p>Update the UB matrix on the sample and synchronize with Mantid
 workspaces.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.validate_projection">
-<span class="sig-name descname"><span class="pre">validate_projection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proj</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2260-L2263"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.validate_projection" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">validate_projection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proj</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L2266-L2269"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.validate_projection" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -4857,6 +4873,7 @@ workspaces.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.ub_tools.UBModel.load_UB"><code class="docutils literal notranslate"><span class="pre">UBModel.load_UB()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.ub_tools.UBModel.load_data"><code class="docutils literal notranslate"><span class="pre">UBModel.load_data()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.ub_tools.UBModel.load_peaks"><code class="docutils literal notranslate"><span class="pre">UBModel.load_peaks()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.ub_tools.UBModel.make_Q"><code class="docutils literal notranslate"><span class="pre">UBModel.make_Q()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.ub_tools.UBModel.possible_conventional_cells"><code class="docutils literal notranslate"><span class="pre">UBModel.possible_conventional_cells()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.ub_tools.UBModel.predict_modulated_peaks"><code class="docutils literal notranslate"><span class="pre">UBModel.predict_modulated_peaks()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.ub_tools.UBModel.predict_peaks"><code class="docutils literal notranslate"><span class="pre">UBModel.predict_peaks()</span></code></a></li>
@@ -4934,8 +4951,8 @@ workspaces.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -4959,7 +4976,7 @@ workspaces.</p>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.18.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0.
 </p></div>
       
     </div>
