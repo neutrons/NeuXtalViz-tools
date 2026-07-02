@@ -431,6 +431,7 @@
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.models.html#NeuXtalViz.models.base_model.NeuXtalVizModel.ca_star_axes"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.ca_star_axes()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.models.html#NeuXtalViz.models.base_model.NeuXtalVizModel.calculate_camera_parameters"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.calculate_camera_parameters()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.models.html#NeuXtalViz.models.base_model.NeuXtalVizModel.files_exist"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.files_exist()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.models.html#NeuXtalViz.models.base_model.NeuXtalVizModel.get_indices"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.get_indices()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.models.html#NeuXtalViz.models.base_model.NeuXtalVizModel.get_oriented_lattice_parameters"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.get_oriented_lattice_parameters()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.models.html#NeuXtalViz.models.base_model.NeuXtalVizModel.get_transform"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.get_transform()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.models.html#NeuXtalViz.models.base_model.NeuXtalVizModel.get_vector"><code class="docutils literal notranslate"><span class="pre">NeuXtalVizModel.get_vector()</span></code></a></li>
@@ -641,6 +642,7 @@
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.get_goniometer_axes"><code class="docutils literal notranslate"><span class="pre">UBModel.get_goniometer_axes()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.get_goniometers"><code class="docutils literal notranslate"><span class="pre">UBModel.get_goniometers()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.get_has_Q_vol"><code class="docutils literal notranslate"><span class="pre">UBModel.get_has_Q_vol()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.get_instrument_from_Q"><code class="docutils literal notranslate"><span class="pre">UBModel.get_instrument_from_Q()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.get_instrument_name"><code class="docutils literal notranslate"><span class="pre">UBModel.get_instrument_name()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.get_lattice_constant_errors"><code class="docutils literal notranslate"><span class="pre">UBModel.get_lattice_constant_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.get_lattice_constants"><code class="docutils literal notranslate"><span class="pre">UBModel.get_lattice_constants()</span></code></a></li>
@@ -1022,7 +1024,7 @@
 <span id="neuxtalviz-application-module"></span><h2>NeuXtalViz.application module<a class="headerlink" href="#module-NeuXtalViz.application" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NeuXtalViz</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L62-L266"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NeuXtalViz</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L63-L267"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QMainWindow</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
@@ -2209,59 +2211,59 @@
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.experiment_browser_GUI">
-<span class="sig-name descname"><span class="pre">experiment_browser_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L218-L224"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.experiment_browser_GUI" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">experiment_browser_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L219-L225"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.experiment_browser_GUI" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.fullprof_GUI">
-<span class="sig-name descname"><span class="pre">fullprof_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L242-L248"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.fullprof_GUI" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fullprof_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L243-L249"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.fullprof_GUI" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.garnet_reduction_GUI">
-<span class="sig-name descname"><span class="pre">garnet_reduction_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L226-L232"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.garnet_reduction_GUI" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">garnet_reduction_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L227-L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.garnet_reduction_GUI" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.olex2_GUI">
-<span class="sig-name descname"><span class="pre">olex2_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L234-L240"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.olex2_GUI" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">olex2_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L235-L241"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.olex2_GUI" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.shelxle_GUI">
-<span class="sig-name descname"><span class="pre">shelxle_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L210-L216"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.shelxle_GUI" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">shelxle_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L211-L217"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.shelxle_GUI" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.show_about_dialog">
-<span class="sig-name descname"><span class="pre">show_about_dialog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L173-L183"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.show_about_dialog" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">show_about_dialog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L174-L184"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.show_about_dialog" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.structdiff_GUI">
-<span class="sig-name descname"><span class="pre">structdiff_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L258-L266"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.structdiff_GUI" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">structdiff_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L259-L267"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.structdiff_GUI" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.topaz_reduction_GUI">
-<span class="sig-name descname"><span class="pre">topaz_reduction_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L185-L208"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.topaz_reduction_GUI" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">topaz_reduction_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L186-L209"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.topaz_reduction_GUI" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.vesta_GUI">
-<span class="sig-name descname"><span class="pre">vesta_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L250-L256"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.vesta_GUI" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">vesta_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L251-L257"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.vesta_GUI" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="NeuXtalViz.application.gui">
-<span class="sig-name descname"><span class="pre">gui</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L282-L296"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.gui" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">gui</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L283-L308"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.gui" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="NeuXtalViz.application.handle_exception">
-<span class="sig-name descname"><span class="pre">handle_exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_traceback</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L269-L279"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.handle_exception" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">handle_exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_traceback</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L270-L280"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.handle_exception" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </section>
