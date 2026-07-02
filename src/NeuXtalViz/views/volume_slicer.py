@@ -263,6 +263,13 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.ymin_line = QLineEdit("")
         self.ymax_line = QLineEdit("")
 
+        self.vmin_line.setPlaceholderText("auto")
+        self.vmax_line.setPlaceholderText("auto")
+        self.xmin_line.setPlaceholderText("auto")
+        self.xmax_line.setPlaceholderText("auto")
+        self.ymin_line.setPlaceholderText("auto")
+        self.ymax_line.setPlaceholderText("auto")
+
         validator = QDoubleValidator(-1e32, 1e32, 6, notation=notation)
 
         self.vmin_line.setValidator(validator)

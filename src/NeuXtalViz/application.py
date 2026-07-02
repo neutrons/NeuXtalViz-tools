@@ -20,7 +20,7 @@ from qtpy.QtWidgets import (
     QFileDialog,
 )
 
-from qtpy.QtGui import QIcon
+from qtpy.QtGui import QIcon, QPalette
 from qtpy.QtCore import QSettings
 
 _local_cfg = os.path.join(
@@ -40,6 +40,7 @@ pyvista.set_plot_theme("document")
 import qdarkstyle
 
 from qdarkstyle.light.palette import LightPalette
+from qdarkstyle.dark.palette import DarkPalette
 
 
 from NeuXtalViz.views.crystal_structure_tools import CrystalStructureView
@@ -282,11 +283,22 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 def gui():
     sys.excepthook = handle_exception
     app = QApplication(sys.argv)
-    app.setStyleSheet(
-        qdarkstyle.load_stylesheet(
-            qt_api=os.environ["QT_API"], palette=LightPalette
+    bg = app.palette().color(QPalette.Window)
+    system_is_dark = bg.lightness() < 128
+    app.setProperty("ui_dark", system_is_dark)
+    if system_is_dark:
+        pyvista.set_plot_theme("dark")
+        app.setStyleSheet(
+            qdarkstyle.load_stylesheet(
+                qt_api=os.environ["QT_API"], palette=DarkPalette
+            )
         )
-    )
+    else:
+        app.setStyleSheet(
+            qdarkstyle.load_stylesheet(
+                qt_api=os.environ["QT_API"], palette=LightPalette
+            )
+        )
     window = NeuXtalViz()
     window.show()
     try:

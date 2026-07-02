@@ -104,6 +104,10 @@ class SampleView(NeuXtalVizWidget):
         self.Z_line = QLineEdit()
         self.V_line = QLineEdit()
 
+        self.chem_line.setPlaceholderText("Chemical formula")
+        self.Z_line.setPlaceholderText("Z")
+        self.V_line.setPlaceholderText("Ω (Å³)")
+
         exp = (
             "-^((\(\d+[A-Z][a-z]?\)|[DT]|[A-Z][a-z]?)(\d+(\.\d+)?)?)"
             + "(-((\(\d+[A-Z][a-z]?\)|[DT]|[A-Z][a-z]?)(\d+(\.\d+)?)?))*$"
@@ -148,6 +152,11 @@ class SampleView(NeuXtalVizWidget):
         self.mu_a_line = QLineEdit()
         self.mu_s_line = QLineEdit()
 
+        self.sigma_a_line.setPlaceholderText("σ_a (barn)")
+        self.sigma_s_line.setPlaceholderText("σ_s (barn)")
+        self.mu_a_line.setPlaceholderText("μ_a (1/cm)")
+        self.mu_s_line.setPlaceholderText("μ_s (1/cm)")
+
         self.sigma_a_line.setEnabled(False)
         self.sigma_s_line.setEnabled(False)
 
@@ -187,6 +196,13 @@ class SampleView(NeuXtalVizWidget):
         self.rho_line = QLineEdit()
         self.v_line = QLineEdit()
         self.m_line = QLineEdit()
+
+        self.N_line.setPlaceholderText("N")
+        self.M_line.setPlaceholderText("M (g/mol)")
+        self.n_line.setPlaceholderText("n (cm⁻³)")
+        self.rho_line.setPlaceholderText("ρ (g/cm³)")
+        self.v_line.setPlaceholderText("v (Å³)")
+        self.m_line.setPlaceholderText("m (g)")
 
         self.N_line.setEnabled(False)
         self.M_line.setEnabled(False)
@@ -289,6 +305,11 @@ class SampleView(NeuXtalVizWidget):
         self.angle_line = QLineEdit()
 
         self.name_line.setReadOnly(True)
+        self.x_line.setPlaceholderText("0")
+        self.y_line.setPlaceholderText("0")
+        self.z_line.setPlaceholderText("1")
+        self.sense_line.setPlaceholderText("1 or -1")
+        self.angle_line.setPlaceholderText("Angle (°)")
 
         validator = QIntValidator(-1, 1, self)
 

@@ -17,17 +17,25 @@ from qtpy.QtWidgets import (
     QTabWidget,
     QFileDialog,
     QPlainTextEdit,
+    QApplication,
 )
 
 from qtpy.QtGui import (
     QDoubleValidator,
     QFont,
     QColor,
+    QPalette,
 )
 from qtpy.QtCore import Qt, Signal, QSettings
 
+import qdarkstyle
+from qdarkstyle.light.palette import LightPalette as _LightPalette
+from qdarkstyle.dark.palette import DarkPalette as _DarkPalette
+
 import numpy as np
 import pyvista as pv
+
+pv.set_plot_theme("document")
 
 from pyvistaqt import QtInteractor
 
@@ -53,6 +61,15 @@ class NeuXtalVizWidget(QWidget):
         self.proj_box.setChecked(True)
         self.proj_box.setToolTip("Toggle parallel projection for the 3D view.")
         self.proj_box.clicked.connect(self.change_projection)
+
+        self.joystick_box = QCheckBox("Disable Joystick", self)
+        self.joystick_box.setChecked(True)
+        self.joystick_box.setToolTip(
+            "Uncheck to use joystick-style camera interaction "
+            "(hold mouse button for continuous motion) "
+            "instead of the default trackball style."
+        )
+        self.joystick_box.clicked.connect(self.change_interactor_style)
 
         self.reset_button = QPushButton("Reset View", self)
         self.reset_button.setToolTip(
@@ -93,9 +110,21 @@ class NeuXtalVizWidget(QWidget):
         self.theme_combo.addItem("document")
         self.theme_combo.addItem("dark")
         self.theme_combo.addItem("paraview")
-        self.theme_combo.setToolTip("Select theme.")
+        self.theme_combo.setToolTip("Select 3D view theme.")
         self.theme_combo.currentIndexChanged.connect(self.update_theme)
         self.auto_scale_dropdown(self.theme_combo)
+
+        self.ui_combo = QComboBox(self)
+        self.ui_combo.addItem("Light")
+        self.ui_combo.addItem("Dark")
+        _app = QApplication.instance()
+        _is_dark = bool(_app.property("ui_dark")) if _app else False
+        self.ui_combo.setCurrentText("Dark" if _is_dark else "Light")
+        self.ui_combo.setToolTip(
+            "Switch the application between light and dark mode."
+        )
+        self.ui_combo.currentIndexChanged.connect(self.update_ui_theme)
+        self.auto_scale_dropdown(self.ui_combo)
 
         self.frame = QFrame()
 
@@ -107,23 +136,59 @@ class NeuXtalVizWidget(QWidget):
         camera_layout = QHBoxLayout()
         left_layout = QVBoxLayout()
         right_layout = QVBoxLayout()
+        middle_layout = QVBoxLayout()
 
-        # left_layout.addStretch(1)
         left_layout.addWidget(self.save_button)
         left_layout.addWidget(self.reset_button)
         left_layout.addWidget(self.camera_button)
         left_layout.addWidget(self.theme_combo)
+        left_layout.addWidget(self.ui_combo)
 
-        # right_layout.addStretch(1)
         right_layout.addWidget(self.recip_box)
         right_layout.addWidget(self.axes_box)
         right_layout.addWidget(self.proj_box)
+        right_layout.addWidget(self.joystick_box)
         right_layout.addWidget(self.cons_box)
 
         view_tab = self.__init_view_tab()
 
+        camera_info_font = QFont("Courier New")
+        camera_info_font.setStyleHint(QFont.Monospace)
+        camera_info_font.setPointSize(9)
+        camera_info_tip = (
+            "Current camera view/up direction in Cartesian and [hkl] "
+            "coordinates (unscaled)."
+        )
+
+        self.view_xyz_label = QLabel(self)
+        self.up_xyz_label = QLabel(self)
+        self.view_hkl_label = QLabel(self)
+        self.up_hkl_label = QLabel(self)
+
+        camera_info_layout = QGridLayout()
+        camera_info_layout.setContentsMargins(0, 0, 0, 0)
+        camera_info_layout.setColumnStretch(0, 1)
+        camera_info_layout.setColumnStretch(1, 1)
+        for label in (
+            self.view_xyz_label,
+            self.up_xyz_label,
+            self.view_hkl_label,
+            self.up_hkl_label,
+        ):
+            label.setFont(camera_info_font)
+            label.setToolTip(camera_info_tip)
+        camera_info_layout.addWidget(self.view_xyz_label, 0, 0)
+        camera_info_layout.addWidget(self.up_xyz_label, 0, 1)
+        camera_info_layout.addWidget(self.view_hkl_label, 1, 0)
+        camera_info_layout.addWidget(self.up_hkl_label, 1, 1)
+
+        self.update_camera_info(None, None, None, None)
+
+        middle_layout.addWidget(view_tab)
+        middle_layout.addLayout(camera_info_layout)
+
         camera_layout.addLayout(left_layout)
-        camera_layout.addWidget(view_tab)
+        camera_layout.addLayout(middle_layout)
         camera_layout.addLayout(right_layout)
 
         vis_layout.addLayout(camera_layout)
@@ -284,6 +349,10 @@ class NeuXtalVizWidget(QWidget):
             "Third component of the view direction (e.g., l or w)"
         )
 
+        self.axis1_line.setPlaceholderText("h")
+        self.axis2_line.setPlaceholderText("k")
+        self.axis3_line.setPlaceholderText("l")
+
         self.axis1_label = QLabel("h", self)
         self.axis2_label = QLabel("k", self)
         self.axis3_label = QLabel("l", self)
@@ -304,6 +373,10 @@ class NeuXtalVizWidget(QWidget):
         self.axisup3_line.setToolTip(
             "Third component of the up direction (e.g., l or w)"
         )
+
+        self.axisup1_line.setPlaceholderText("h")
+        self.axisup2_line.setPlaceholderText("k")
+        self.axisup3_line.setPlaceholderText("l")
 
         self.axisup1_label = QLabel("h", self)
         self.axisup2_label = QLabel("k", self)
@@ -823,6 +896,17 @@ class NeuXtalVizWidget(QWidget):
         else:
             self.plotter.disable_parallel_projection()
 
+    def change_interactor_style(self):
+        """
+        Enable or disable joystick-style camera interaction.
+
+        """
+
+        if self.joystick_box.isChecked():
+            self.plotter.enable_trackball_style()
+        else:
+            self.plotter.enable_joystick_style()
+
     def reset_view(self, negative=False):
         """
         Reset the view.
@@ -1033,6 +1117,87 @@ class NeuXtalVizWidget(QWidget):
 
         self.camera_pos_line.setText(text)
 
+    _CAMERA_INFO_FIELD_WIDTH = 6
+
+    @classmethod
+    def _format_vector(cls, vec, decimals):
+        width = cls._CAMERA_INFO_FIELD_WIDTH
+        if vec is None:
+            field = "{:>{width}}".format("--", width=width)
+            return "({0},{0},{0})".format(field)
+        fmt = "({{:>{1}.{0}f}},{{:>{1}.{0}f}},{{:>{1}.{0}f}})".format(
+            decimals, width
+        )
+        return fmt.format(*vec)
+
+    @staticmethod
+    def _snap_to_integers(vec, tol=0.03, max_index=9):
+        """Best-effort snap of a direction vector to small integer ratios.
+
+        Components under ``tol`` (relative to the largest component) are
+        treated as zero, then the remaining components are rationalized
+        against the smallest of them by trying denominators up to
+        ``max_index``. Falls back to plain rounding if nothing rationalizes
+        cleanly (e.g. an irrational direction).
+        """
+
+        v = np.asarray(vec, dtype=float)
+        scale = np.max(np.abs(v))
+        if scale < 1e-8:
+            return np.zeros(3, dtype=int)
+
+        v = v / scale
+        mask = np.abs(v) >= tol
+        v = np.where(mask, v, 0.0)
+        if not np.any(mask):
+            return np.zeros(3, dtype=int)
+
+        base = np.min(np.abs(v[mask]))
+        for d in range(1, max_index + 1):
+            candidate = v / base * d
+            rounded = np.round(candidate)
+            err = np.max(np.abs(candidate - rounded)[mask])
+            if err < tol:
+                ints = rounded.astype(int)
+                nz = np.abs(ints[ints != 0])
+                g = max(int(np.gcd.reduce(nz)), 1) if nz.size else 1
+                return ints // g
+
+        return np.round(v / base).astype(int)
+
+    @classmethod
+    def _format_hkl_vector(cls, vec):
+        width = cls._CAMERA_INFO_FIELD_WIDTH
+        if vec is None:
+            field = "{:>{width}}".format("--", width=width)
+            return "({0},{0},{0})".format(field)
+        ints = cls._snap_to_integers(vec)
+        fmt = "({{:>{0}d}},{{:>{0}d}},{{:>{0}d}})".format(width)
+        return fmt.format(*ints.tolist())
+
+    def update_camera_info(self, view_xyz, up_xyz, view_hkl, up_hkl):
+        """Update the read-only camera view/up direction display.
+
+        Shows the camera view and up vectors in Cartesian coordinates
+        and, when a UB matrix is set, in [hkl] coordinates (snapped to
+        small integers, since only the ratio is meaningful).
+        View and Up are shown in separate grid columns of equal width
+        so they stay aligned regardless of value or label length.
+        """
+
+        self.view_xyz_label.setText(
+            "View(xyz)={}".format(self._format_vector(view_xyz, 3))
+        )
+        self.up_xyz_label.setText(
+            "Up(xyz)={}".format(self._format_vector(up_xyz, 3))
+        )
+        self.view_hkl_label.setText(
+            "View(hkl)={}".format(self._format_hkl_vector(view_hkl))
+        )
+        self.up_hkl_label.setText(
+            "Up(hkl)={}".format(self._format_hkl_vector(up_hkl))
+        )
+
     def update_theme(self):
         theme = self.theme_combo.currentText()
         pv.set_plot_theme(theme)
@@ -1044,6 +1209,22 @@ class NeuXtalVizWidget(QWidget):
         self.show_axes()
         # Refresh axis button colors to match the active theme.
         self._init_axis_icons()
+
+    def update_ui_theme(self):
+        mode = self.ui_combo.currentText()
+        app = QApplication.instance()
+        qt_api = os.environ.get("QT_API")
+        kwargs = {"qt_api": qt_api} if qt_api else {}
+        if mode == "Dark":
+            app.setStyleSheet(
+                qdarkstyle.load_stylesheet(**kwargs, palette=_DarkPalette)
+            )
+            app.setProperty("ui_dark", True)
+        else:
+            app.setStyleSheet(
+                qdarkstyle.load_stylesheet(**kwargs, palette=_LightPalette)
+            )
+            app.setProperty("ui_dark", False)
 
     def update_labels(self):
         """

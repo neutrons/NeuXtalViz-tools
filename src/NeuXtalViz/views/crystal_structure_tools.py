@@ -67,6 +67,13 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.beta_line = QLineEdit()
         self.gamma_line = QLineEdit()
 
+        self.a_line.setPlaceholderText("Å")
+        self.b_line.setPlaceholderText("Å")
+        self.c_line.setPlaceholderText("Å")
+        self.alpha_line.setPlaceholderText("°")
+        self.beta_line.setPlaceholderText("°")
+        self.gamma_line.setPlaceholderText("°")
+
         notation = QDoubleValidator.StandardNotation
 
         validator = QDoubleValidator(0.1, 1000, 4, notation=notation)
@@ -171,6 +178,12 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.occ_line = QLineEdit()
         self.Uiso_line = QLineEdit()
 
+        self.x_line.setPlaceholderText("x")
+        self.y_line.setPlaceholderText("y")
+        self.z_line.setPlaceholderText("z")
+        self.occ_line.setPlaceholderText("1.0")
+        self.Uiso_line.setPlaceholderText("Uiso")
+
         validator = QDoubleValidator(-1, 1, 4, notation=notation)
 
         self.x_line.setValidator(validator)
@@ -201,6 +214,10 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.chem_line.setReadOnly(True)
         self.Z_line.setReadOnly(True)
         self.V_line.setReadOnly(True)
+
+        self.chem_line.setPlaceholderText("Chemical formula")
+        self.Z_line.setPlaceholderText("Z")
+        self.V_line.setPlaceholderText("Ω (Å³)")
 
         Z_label = QLabel("Z")
         V_label = QLabel("Ω")
@@ -280,6 +297,7 @@ class CrystalStructureView(NeuXtalVizWidget):
 
         self.dmin_line = QLineEdit()
         self.dmin_line.setValidator(validator)
+        self.dmin_line.setPlaceholderText("d-min (Å)")
 
         self.calculate_button = QPushButton("Calculate", self)
         self.calculate_button.setIcon(qta.icon("fa6s.calculator"))
@@ -314,6 +332,10 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.h_line.setValidator(validator)
         self.k_line.setValidator(validator)
         self.l_line.setValidator(validator)
+
+        self.h_line.setPlaceholderText("h")
+        self.k_line.setPlaceholderText("k")
+        self.l_line.setPlaceholderText("l")
 
         self.individual_button = QPushButton("Calculate", self)
         self.individual_button.setIcon(qta.icon("fa6s.calculator"))

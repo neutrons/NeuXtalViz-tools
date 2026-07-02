@@ -1652,10 +1652,15 @@ class UB(NeuXtalVizPresenter):
             self.view.set_d_min(d_min)
             if wavelength is not None:
                 self.view.set_wavelength(wavelength)
+            inst = self.model.get_instrument_from_Q()
+            if inst is not None:
+                self.view.set_instrument(inst)
+                self.switch_instrument()
             self.update_lattice_info()
             self.view.set_Q_status(3)
             if self.model.has_peaks():
                 self.refresh_peak_views()
+            self.visualize()
 
     def save_Q(self):
         inst = self.view.get_instrument()

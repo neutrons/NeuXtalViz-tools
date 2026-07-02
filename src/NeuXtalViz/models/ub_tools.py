@@ -3567,7 +3567,6 @@ class UBModel(NeuXtalVizModel):
 
         self.make_Q(Q_max)
 
-        # Propagate UB/lattice from the loaded workspace to the cell workspace
         CopySample(
             InputWorkspace=self.Q,
             OutputWorkspace=self.cell,
@@ -3581,6 +3580,21 @@ class UBModel(NeuXtalVizModel):
         d_min = round(2 * np.pi / Q_max, 4)
 
         return d_min, wavelength
+
+    def get_instrument_from_Q(self):
+        """
+        Return the display-name key (e.g. 'TOPAZ') for the instrument embedded
+        in the loaded Q workspace, or None if unrecognised.
+        """
+        try:
+            ws = mtd[self.Q]
+            inst_name = ws.getExperimentInfo(0).getInstrument().getName()
+            for key, cfg in beamlines.items():
+                if cfg["Name"].upper() == inst_name.upper():
+                    return key
+        except Exception:
+            pass
+        return None
 
     def save_Q(self, filename):
         """

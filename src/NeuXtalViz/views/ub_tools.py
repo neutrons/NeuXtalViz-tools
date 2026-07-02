@@ -215,6 +215,13 @@ class UBView(NeuXtalVizWidget):
         self.beta_line = QLineEdit()
         self.gamma_line = QLineEdit()
 
+        self.a_line.setPlaceholderText("Å")
+        self.b_line.setPlaceholderText("Å")
+        self.c_line.setPlaceholderText("Å")
+        self.alpha_line.setPlaceholderText("°")
+        self.beta_line.setPlaceholderText("°")
+        self.gamma_line.setPlaceholderText("°")
+
         pattern = r"^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?(\(\d+\))?$$"
         regex = QRegularExpression(pattern)
         validator = QRegularExpressionValidator(regex)
@@ -359,6 +366,16 @@ class UBView(NeuXtalVizWidget):
         self.wk_line = QLineEdit()
         self.wl_line = QLineEdit()
 
+        self.uh_line.setPlaceholderText("h")
+        self.uk_line.setPlaceholderText("k")
+        self.ul_line.setPlaceholderText("l")
+        self.vh_line.setPlaceholderText("h")
+        self.vk_line.setPlaceholderText("k")
+        self.vl_line.setPlaceholderText("l")
+        self.wh_line.setPlaceholderText("h")
+        self.wk_line.setPlaceholderText("k")
+        self.wl_line.setPlaceholderText("l")
+
         self.uh_line.setReadOnly(False)
         self.uk_line.setReadOnly(False)
         self.ul_line.setReadOnly(False)
@@ -462,19 +479,25 @@ class UBView(NeuXtalVizWidget):
         validator = QIntValidator(1, 1000000000, self)
 
         self.runs_line = QLineEdit("")
+        self.runs_line.setPlaceholderText("e.g. 12345,12346 or 12345:12400")
 
         self.ipts_line = QLineEdit("")
         self.ipts_line.setValidator(validator)
         self.ipts_line.setToolTip("Enter the IPTS number for the experiment.")
+        self.ipts_line.setPlaceholderText("IPTS number")
 
         self.exp_line = QLineEdit("")
         self.exp_line.setValidator(validator)
         self.exp_line.setToolTip("Enter the experiment number.")
+        self.exp_line.setPlaceholderText("Experiment number")
         self.exp_line.hide()
 
         self.cal_line = QLineEdit("")
+        self.cal_line.setPlaceholderText("Detector calibration file")
         self.tube_line = QLineEdit("")
+        self.tube_line.setPlaceholderText("Tube calibration file")
         self.gon_line = QLineEdit("")
+        self.gon_line.setPlaceholderText("Goniometer calibration file")
 
         self.wl_min_line = QLineEdit("0.3")
         self.wl_min_line.setToolTip("Minimum wavelength for conversion.")
@@ -500,6 +523,7 @@ class UBView(NeuXtalVizWidget):
 
         self.filter_time_line = QLineEdit("")
         self.filter_time_line.setValidator(validator)
+        self.filter_time_line.setPlaceholderText("Max time (s)")
         self.filter_time_line.setToolTip(
             "Maximum time (s) for filtering events."
         )
@@ -1266,6 +1290,13 @@ class UBView(NeuXtalVizWidget):
         self.k2_line.setValidator(validator)
         self.l2_line.setValidator(validator)
 
+        self.h1_line.setPlaceholderText("h")
+        self.k1_line.setPlaceholderText("k")
+        self.l1_line.setPlaceholderText("l")
+        self.h2_line.setPlaceholderText("h")
+        self.k2_line.setPlaceholderText("k")
+        self.l2_line.setPlaceholderText("l")
+
         self.highlight_1_line = QLineEdit()
         self.highlight_2_line = QLineEdit()
 
@@ -1487,6 +1518,10 @@ class UBView(NeuXtalVizWidget):
         self.k_line.setValidator(validator)
         self.l_line.setValidator(validator)
 
+        self.h_line.setPlaceholderText("h")
+        self.k_line.setPlaceholderText("k")
+        self.l_line.setPlaceholderText("l")
+
         validator = QIntValidator(-1000000000, 1000000000, self)
 
         self.int_h_line = QLineEdit()
@@ -1497,6 +1532,10 @@ class UBView(NeuXtalVizWidget):
         self.int_k_line.setValidator(validator)
         self.int_l_line.setValidator(validator)
 
+        self.int_h_line.setPlaceholderText("H")
+        self.int_k_line.setPlaceholderText("K")
+        self.int_l_line.setPlaceholderText("L")
+
         self.int_m_line = QLineEdit()
         self.int_n_line = QLineEdit()
         self.int_p_line = QLineEdit()
@@ -1504,6 +1543,10 @@ class UBView(NeuXtalVizWidget):
         self.int_m_line.setValidator(validator)
         self.int_n_line.setValidator(validator)
         self.int_p_line.setValidator(validator)
+
+        self.int_m_line.setPlaceholderText("m")
+        self.int_n_line.setPlaceholderText("n")
+        self.int_p_line.setPlaceholderText("p")
 
         hkl_info.addWidget(self.delete_peak_button)
         hkl_info.addWidget(left_label)
@@ -1792,6 +1835,10 @@ class UBView(NeuXtalVizWidget):
         self.check_h_line = QLineEdit()
         self.check_k_line = QLineEdit()
         self.check_l_line = QLineEdit()
+
+        self.check_h_line.setPlaceholderText("h")
+        self.check_k_line.setPlaceholderText("k")
+        self.check_l_line.setPlaceholderText("l")
 
         self.check_hkl_button = QPushButton("Check hkl", self)
         self.check_hkl_button.setToolTip(
@@ -2809,6 +2856,11 @@ class UBView(NeuXtalVizWidget):
 
     def get_instrument(self):
         return self.instrument_combo.currentText()
+
+    def set_instrument(self, instrument):
+        idx = self.instrument_combo.findText(instrument)
+        if idx >= 0:
+            self.instrument_combo.setCurrentIndex(idx)
 
     def update_diffraction_label(self, mono):
         text = "Spacing:" if not mono else "Angle:"

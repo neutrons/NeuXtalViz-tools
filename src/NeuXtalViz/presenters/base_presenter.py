@@ -301,3 +301,8 @@ class NeuXtalVizPresenter:
             dir, roll
         )
         self.view.update_camera_display(roll, elevation, azimuth)
+
+        _, _, up = self.view.get_camera_state()
+        view_hkl = self.model.get_indices("[hkl]", dir)
+        up_hkl = self.model.get_indices("[hkl]", up)
+        self.view.update_camera_info(dir, up, view_hkl, up_hkl)

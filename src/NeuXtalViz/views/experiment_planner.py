@@ -351,12 +351,15 @@ class ExperimentView(NeuXtalVizWidget):
 
         self.cal_line = QLineEdit("")
         self.cal_line.setToolTip("Path to detector calibration file.")
+        self.cal_line.setPlaceholderText("Detector calibration file")
 
         self.gon_line = QLineEdit("")
         self.gon_line.setToolTip("Path to goniometer calibration file.")
+        self.gon_line.setPlaceholderText("Goniometer calibration file")
 
         self.mask_line = QLineEdit("")
         self.mask_line.setToolTip("Path to detector mask file.")
+        self.mask_line.setPlaceholderText("Detector mask file")
 
         self.cal_browse_button = QPushButton("Detector", self)
         self.cal_browse_button.setToolTip(
@@ -786,17 +789,23 @@ class ExperimentView(NeuXtalVizWidget):
 
         self.h1_line = QLineEdit()
         self.h1_line.setToolTip("Enter the h index for the first peak.")
+        self.h1_line.setPlaceholderText("h")
         self.k1_line = QLineEdit()
         self.k1_line.setToolTip("Enter the k index for the first peak.")
+        self.k1_line.setPlaceholderText("k")
         self.l1_line = QLineEdit()
         self.l1_line.setToolTip("Enter the l index for the first peak.")
+        self.l1_line.setPlaceholderText("l")
 
         self.h2_line = QLineEdit()
         self.h2_line.setToolTip("Enter the h index for the second peak.")
+        self.h2_line.setPlaceholderText("h")
         self.k2_line = QLineEdit()
         self.k2_line.setToolTip("Enter the k index for the second peak.")
+        self.k2_line.setPlaceholderText("k")
         self.l2_line = QLineEdit()
         self.l2_line.setToolTip("Enter the l index for the second peak.")
+        self.l2_line.setPlaceholderText("l")
 
         self.h1_line.setValidator(validator)
         self.k1_line.setValidator(validator)
@@ -986,6 +995,7 @@ class ExperimentView(NeuXtalVizWidget):
 
         self.comment_line = QLineEdit()
         self.comment_line.setToolTip("Selected peak(s).")
+        self.comment_line.setPlaceholderText("Peak comment")
         self.angles_line.setReadOnly(True)
 
         settings_label = QLabel("Settings:", self)
