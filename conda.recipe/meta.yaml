@@ -1,0 +1,48 @@
+{% set version = environ.get('GIT_DESCRIBE_TAG', '0.0.1') %}
+
+package:
+  name: neuxtalviz
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install . --no-deps --ignore-installed -vv
+  entry_points:
+    - neuxtalviz = NeuXtalViz.application:gui
+
+requirements:
+  host:
+    - python >=3.10
+    - pip
+    - setuptools
+    - wheel
+    - versioningit
+  run:
+    - python >=3.10
+    - mantid >=6.12
+    - pyoncat >=1.6,<2
+    - qtpy
+    - pyqt6
+    - numpy
+    - scipy
+    - matplotlib
+    - pyvista >=0.45.2
+    - pyvistaqt
+    - qdarkstyle
+    - qtawesome
+    - scikit-image
+    - scikit-learn
+
+test:
+  imports:
+    - NeuXtalViz
+
+about:
+  home: https://github.com/neutrons/NeuXtalViz-tools
+  license: GPL-3.0-or-later
+  license_file: LICENSE
+  summary: Neutron Scattering Single Crystal Visualization

@@ -7,9 +7,21 @@ dependencies = [
     "mantid >= 6.12",
   "pyoncat ~= 1.6",
   "qtpy",
-  "pyqt6"
+  "pyqt6",
+  "numpy",
+  "scipy",
+  "matplotlib",
+  "pyvista >= 0.45.2",
+  "pyvistaqt",
+  "qdarkstyle",
+  "qtawesome",
+  "scikit-image",
+  "scikit-learn"
 ]
 license = { text = "GPL3.0" }
+
+[project.gui-scripts]
+neuxtalviz = "NeuXtalViz.application:gui"
 
 [build-system]
 requires = [
