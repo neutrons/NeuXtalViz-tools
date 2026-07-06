@@ -53,7 +53,7 @@ jobs:
       - name: Build conda package
         shell: bash -l {0}
         run: |
-          conda build conda.recipe -c conda-forge -c mantid/label/nightly -c oncat --output-folder /tmp/local-channel
+          conda-build conda.recipe -c conda-forge -c mantid/label/nightly -c oncat --output-folder /tmp/local-channel
 
       - name: Install conda package
         id: install
