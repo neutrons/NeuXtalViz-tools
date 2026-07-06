@@ -402,12 +402,51 @@
 </section>
 <section id="module-NeuXtalViz.config.atoms">
 <span id="neuxtalviz-config-atoms-module"></span><h2>NeuXtalViz.config.atoms module<a class="headerlink" href="#module-NeuXtalViz.config.atoms" title="Link to this heading">#</a></h2>
+<p>Static periodic-table reference data for element lookup and rendering.</p>
+<p>This module holds plain dictionaries keyed by element symbol (plus “D”
+for deuterium and “XX” for an unknown/default element in <code class="docutils literal notranslate"><span class="pre">colors</span></code>)
+that back the periodic table widgets and crystal structure viewer.</p>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h3>
+<dl class="simple">
+<dt>names<span class="classifier">dict[str, str]</span></dt><dd><p>Full element name for each atomic symbol, e.g. <code class="docutils literal notranslate"><span class="pre">names[&quot;H&quot;]</span></code> is
+<code class="docutils literal notranslate"><span class="pre">&quot;Hydrogen&quot;</span></code>. Used by <a class="reference internal" href="NeuXtalViz.models.html#NeuXtalViz.models.periodic_table.AtomModel" title="NeuXtalViz.models.periodic_table.AtomModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuXtalViz.models.periodic_table.AtomModel</span></code></a>
+to look up a human-readable name for a selected element.</p>
+</dd>
+<dt>isotopes<span class="classifier">dict[str, list[int]]</span></dt><dd><p>Mass numbers of the isotopes available for each element symbol. An
+empty list means no isotope data is available, which the periodic
+table view uses to disable selection of that element.</p>
+</dd>
+<dt>colors<span class="classifier">dict[str, tuple[float, float, float]]</span></dt><dd><p>RGB color (each channel in the range 0-1) used to render each atom,
+e.g. in the crystal structure viewer.</p>
+</dd>
+<dt>radii<span class="classifier">dict[str, tuple[float, float, float]]</span></dt><dd><p>Per-element radii in angstroms, roughly ordered as (covalent,
+ionic/calculated, van der Waals), where a value of <code class="docutils literal notranslate"><span class="pre">0.0</span></code>
+indicates the radius is undefined/unavailable for that element.
+Only index 0 is currently used elsewhere, as the base atom
+rendering radius in the crystal structure viewer.</p>
+</dd>
+<dt>indexing<span class="classifier">dict[str, tuple[int, int]]</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">(row,</span> <span class="pre">column)</span></code> position of each element in the periodic table
+grid layout, used to place the corresponding button widget.</p>
+</dd>
+<dt>groups<span class="classifier">dict[str, str]</span></dt><dd><p>Element family/category name (e.g. “Alkali Metals”, “Noble Gases”)
+for each element symbol, used to color-code periodic table buttons
+by group.</p>
+</dd>
+</dl>
+</section>
 </section>
 <section id="module-NeuXtalViz.config.colormap">
 <span id="neuxtalviz-config-colormap-module"></span><h2>NeuXtalViz.config.colormap module<a class="headerlink" href="#module-NeuXtalViz.config.colormap" title="Link to this heading">#</a></h2>
+<p>Custom “modified” Matplotlib colormap definition and registration.</p>
+<p>Defines the <code class="docutils literal notranslate"><span class="pre">custom</span></code> RGB color table (blue -&gt; green -&gt; yellow -&gt; red)
+used to build the “modified” colormap, and provides <a class="reference internal" href="#NeuXtalViz.config.colormap.add_modified" title="NeuXtalViz.config.colormap.add_modified"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_modified()</span></code></a>
+to register it (and its reversed variant) with Matplotlib so it can be
+selected by name elsewhere in NeuXtalViz (e.g. volume slicing and UB
+tool views).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="NeuXtalViz.config.colormap.add_modified">
-<span class="sig-name descname"><span class="pre">add_modified</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/config/colormap.py#L217-L234"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.config.colormap.add_modified" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_modified</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/config/colormap.py#L227-L244"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.config.colormap.add_modified" title="Link to this definition">#</a></dt>
 <dd><p>Register the custom ‘modified’ colormap and its reversed version.</p>
 <p>The ‘modified’ colormap is based on the color array ‘custom’.
 After calling this function, ‘modified’ can be used as a colormap.</p>
@@ -423,6 +462,76 @@ plt.imshow(data, cmap=’modified’)</p>
 </section>
 <section id="module-NeuXtalViz.config.instruments">
 <span id="neuxtalviz-config-instruments-module"></span><h2>NeuXtalViz.config.instruments module<a class="headerlink" href="#module-NeuXtalViz.config.instruments" title="Link to this heading">#</a></h2>
+<p>Static per-instrument (beamline) configuration for SNS and HFIR.</p>
+<p>Provides the <code class="docutils literal notranslate"><span class="pre">beamlines</span></code> dictionary consumed by the UB and experiment
+planning models/views to look up instrument-specific defaults such as
+wavelength range, detector geometry, goniometer definitions, and data
+file naming conventions.</p>
+<section id="id1">
+<h3>Attributes<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<dl>
+<dt>beamlines<span class="classifier">dict[str, dict]</span></dt><dd><p>Mapping of instrument key (e.g. “SNAP”, “CORELLI”, “TOPAZ”, “MANDI”,
+“IMAGINE”, “WAND²”, “DEMAND”) to a dictionary of settings. Common
+keys found in the per-instrument dictionaries:</p>
+<dl class="simple">
+<dt>Name<span class="classifier">str</span></dt><dd><p>Short display/identifier name for the beamline.</p>
+</dd>
+<dt>InstrumentName<span class="classifier">str</span></dt><dd><p>Mantid instrument name, used e.g. with <code class="docutils literal notranslate"><span class="pre">MaskBTP</span></code>.</p>
+</dd>
+<dt>Facility<span class="classifier">str</span></dt><dd><p>Facility the instrument belongs to (“SNS” or “HFIR”).</p>
+</dd>
+<dt>Wavelength<span class="classifier">float or list[float]</span></dt><dd><p>Incident wavelength in angstroms, or a
+<code class="docutils literal notranslate"><span class="pre">[min,</span> <span class="pre">max]</span></code> wavelength band for white-beam/Laue instruments.</p>
+</dd>
+<dt>MinD<span class="classifier">float</span></dt><dd><p>Minimum d-spacing in angstroms usable for peak indexing/search.</p>
+</dd>
+<dt>Grouping<span class="classifier">str</span></dt><dd><p>Default detector pixel grouping/binning as a “columns x rows”
+string (e.g. “2x2”), parsed and passed to Mantid’s grouping
+algorithms.</p>
+</dd>
+<dt>PixelSize<span class="classifier">list[float]</span></dt><dd><p>Detector pixel size in meters as <code class="docutils literal notranslate"><span class="pre">[width,</span> <span class="pre">height]</span></code>.</p>
+</dd>
+<dt>BankPixels<span class="classifier">list[int]</span></dt><dd><p>Number of pixels per detector bank as <code class="docutils literal notranslate"><span class="pre">[columns,</span> <span class="pre">rows]</span></code>.</p>
+</dd>
+<dt>MaskEdges<span class="classifier">list[int]</span></dt><dd><p>Number of pixels to mask at each tube/bank edge as
+<code class="docutils literal notranslate"><span class="pre">[columns,</span> <span class="pre">rows]</span></code>, to exclude noisy edge pixels.</p>
+</dd>
+<dt>MaskBanks<span class="classifier">list[int]</span></dt><dd><p>Bank numbers to mask entirely for this instrument.</p>
+</dd>
+<dt>MaskLost<span class="classifier">list[list], optional</span></dt><dd><p>Additional bank/tube/pixel regions to mask, each entry as
+<code class="docutils literal notranslate"><span class="pre">[bank,</span> <span class="pre">[tube_min,</span> <span class="pre">tube_max],</span> <span class="pre">[pixel_min,</span> <span class="pre">pixel_max]]</span></code>.</p>
+</dd>
+<dt>Goniometers<span class="classifier">list[str]</span></dt><dd><p>Goniometer axis definitions as comma-separated strings
+<code class="docutils literal notranslate"><span class="pre">&quot;name,x,y,z,sense&quot;</span></code> (motor/log name and rotation axis
+vector components and sense), passed directly to Mantid’s
+<code class="docutils literal notranslate"><span class="pre">SetGoniometer</span></code> algorithm.</p>
+</dd>
+<dt>Goniometer<span class="classifier">dict[str, dict]</span></dt><dd><p>Named goniometer configurations (e.g. different sample
+environments or angle conventions) mapping each motor/log
+name to <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y,</span> <span class="pre">z,</span> <span class="pre">sense,</span> <span class="pre">min,</span> <span class="pre">max]</span></code>: rotation axis vector
+components, rotation sense, and allowed angle range in
+degrees.</p>
+</dd>
+<dt>GoniometerNames<span class="classifier">str</span></dt><dd><p>Display string of goniometer axis symbols (e.g. “ω,χ,φ”).</p>
+</dd>
+<dt>Motor<span class="classifier">dict[str, float], optional</span></dt><dd><p>Default fixed motor positions (e.g. detector arc/translation
+or two-theta) used when planning or simulating an experiment.</p>
+</dd>
+<dt>RawFile<span class="classifier">str</span></dt><dd><p>Template file path (relative to an IPTS directory) for the
+instrument’s raw event/histogram file, with a <code class="docutils literal notranslate"><span class="pre">{}</span></code>
+placeholder for the run number.</p>
+</dd>
+<dt>Counting<span class="classifier">list[str]</span></dt><dd><p>Available run-duration counting/normalization options: a
+proton-charge log/PV name and/or <code class="docutils literal notranslate"><span class="pre">&quot;seconds&quot;</span></code> for time-based
+counting.</p>
+</dd>
+<dt>Title<span class="classifier">str</span></dt><dd><p>EPICS PV name providing the run/scan title, used to read or
+display the current run’s title.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
 </section>
 <section id="module-NeuXtalViz.config">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-NeuXtalViz.config" title="Link to this heading">#</a></h2>
@@ -477,12 +586,18 @@ plt.imshow(data, cmap=’modified’)</p>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-NeuXtalViz.config.atoms">NeuXtalViz.config.atoms module</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-NeuXtalViz.config.atoms">NeuXtalViz.config.atoms module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-NeuXtalViz.config.colormap">NeuXtalViz.config.colormap module</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.config.colormap.add_modified"><code class="docutils literal notranslate"><span class="pre">add_modified()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-NeuXtalViz.config.instruments">NeuXtalViz.config.instruments module</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-NeuXtalViz.config.instruments">NeuXtalViz.config.instruments module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Attributes</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-NeuXtalViz.config">Module contents</a></li>
 </ul>
   </nav></div>

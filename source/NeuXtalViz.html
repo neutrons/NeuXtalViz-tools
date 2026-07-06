@@ -407,12 +407,18 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="NeuXtalViz.config.html">NeuXtalViz.config package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="NeuXtalViz.config.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="NeuXtalViz.config.html#module-NeuXtalViz.config.atoms">NeuXtalViz.config.atoms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="NeuXtalViz.config.html#module-NeuXtalViz.config.atoms">NeuXtalViz.config.atoms module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.config.html#attributes">Attributes</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="NeuXtalViz.config.html#module-NeuXtalViz.config.colormap">NeuXtalViz.config.colormap module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.config.html#NeuXtalViz.config.colormap.add_modified"><code class="docutils literal notranslate"><span class="pre">add_modified()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="NeuXtalViz.config.html#module-NeuXtalViz.config.instruments">NeuXtalViz.config.instruments module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="NeuXtalViz.config.html#module-NeuXtalViz.config.instruments">NeuXtalViz.config.instruments module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.config.html#id1">Attributes</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="NeuXtalViz.config.html#module-NeuXtalViz.config">Module contents</a></li>
 </ul>
 </li>
@@ -852,6 +858,7 @@
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.visualize"><code class="docutils literal notranslate"><span class="pre">Experiment.visualize()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.presenters.html#id1">Classes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.periodic_table.Atom"><code class="docutils literal notranslate"><span class="pre">Atom</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.periodic_table.Atom.set_info"><code class="docutils literal notranslate"><span class="pre">Atom.set_info()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.periodic_table.Atom.set_isotope"><code class="docutils literal notranslate"><span class="pre">Atom.set_isotope()</span></code></a></li>
@@ -863,6 +870,7 @@
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.periodic_table.PeriodicTable.update_selection"><code class="docutils literal notranslate"><span class="pre">PeriodicTable.update_selection()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.presenters.html#id2">Classes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.sample_tools.Sample"><code class="docutils literal notranslate"><span class="pre">Sample</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.sample_tools.Sample.add_sample"><code class="docutils literal notranslate"><span class="pre">Sample.add_sample()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="NeuXtalViz.presenters.html#NeuXtalViz.presenters.sample_tools.Sample.highlight_row"><code class="docutils literal notranslate"><span class="pre">Sample.highlight_row()</span></code></a></li>
@@ -1024,8 +1032,15 @@
 <span id="neuxtalviz-application-module"></span><h2>NeuXtalViz.application module<a class="headerlink" href="#module-NeuXtalViz.application" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NeuXtalViz</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L63-L267"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NeuXtalViz</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L63-L355"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QMainWindow</span></code></p>
+<p>Main application window for NeuXtalViz.</p>
+<p>Implements a singleton <code class="docutils literal notranslate"><span class="pre">QMainWindow</span></code> that hosts the UB Calculator,
+Experiment Planner, Reciprocal Space Volume Slicer, and Structure
+Factor Calculator tools in a stacked widget, and provides menu
+actions for launching external reduction/analysis GUIs (TOPAZ,
+garnet, ShelXle, Olex2, FullProf, VESTA) and internal helpers such
+as the experiment browser and structure/diffuse interface.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -1245,342 +1260,354 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">eventFilter</span></code>(self, watched, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">find</span></code>(arg__1, /)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.application.NeuXtalViz.experiment_browser_GUI" title="NeuXtalViz.application.NeuXtalViz.experiment_browser_GUI"><code class="xref py py-obj docutils literal notranslate"><span class="pre">experiment_browser_GUI</span></code></a>()</p></td>
+<td><p>Launch the external SNS experiment browser script.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">find</span></code>(arg__1, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">findChild</span></code>(self, type, /[, name, options])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">findChild</span></code>(self, type, /[, name, options])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">findChildren</span></code>() -&gt; List[~PlaceholderType]
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">findChildren</span></code>() -&gt; List[~PlaceholderType]
 ))</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusInEvent</span></code>(self, event, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusInEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusNextChild</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusNextChild</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusNextPrevChild</span></code>(self, next, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusNextPrevChild</span></code>(self, next, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusOutEvent</span></code>(self, event, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusOutEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusPolicy</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusPolicy</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusPreviousChild</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusPreviousChild</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusProxy</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusProxy</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusWidget</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">focusWidget</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">font</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">font</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fontInfo</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fontInfo</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fontMetrics</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fontMetrics</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">foregroundRole</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">foregroundRole</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">frameGeometry</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">frameGeometry</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">frameSize</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">frameSize</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">geometry</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.application.NeuXtalViz.fullprof_GUI" title="NeuXtalViz.application.NeuXtalViz.fullprof_GUI"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fullprof_GUI</span></code></a>()</p></td>
+<td><p>Launch the external FullProf application.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.application.NeuXtalViz.garnet_reduction_GUI" title="NeuXtalViz.application.NeuXtalViz.garnet_reduction_GUI"><code class="xref py py-obj docutils literal notranslate"><span class="pre">garnet_reduction_GUI</span></code></a>()</p></td>
+<td><p>Launch the external garnet reduction script.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">geometry</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">grab</span></code>(self, /[, rectangle])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">grab</span></code>(self, /[, rectangle])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">grabGesture</span></code>(self, type, /[, flags])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">grabGesture</span></code>(self, type, /[, flags])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">grabKeyboard</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">grabKeyboard</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">grabMouse</span></code>(-&gt; None)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">grabMouse</span></code>(-&gt; None)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">grabShortcut</span></code>(self, key, /[, context])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">grabShortcut</span></code>(self, key, /[, context])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">graphicsEffect</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">graphicsEffect</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">graphicsProxyWidget</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">graphicsProxyWidget</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hasFocus</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hasFocus</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hasHeightForWidth</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hasHeightForWidth</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hasMouseTracking</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hasMouseTracking</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hasTabletTracking</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hasTabletTracking</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">height</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">height</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">heightForWidth</span></code>(self, arg__1, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">heightForWidth</span></code>(self, arg__1, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">heightMM</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">heightMM</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hide</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hide</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hideEvent</span></code>(self, event, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hideEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">iconSize</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">iconSize</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">inherits</span></code>(self, classname, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">inherits</span></code>(self, classname, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">initPainter</span></code>(self, painter, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">initPainter</span></code>(self, painter, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputMethodEvent</span></code>(self, event, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputMethodEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputMethodHints</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputMethodHints</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputMethodQuery</span></code>(self, arg__1, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputMethodQuery</span></code>(self, arg__1, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">insertAction</span></code>(self, before, action, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">insertAction</span></code>(self, before, action, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">insertActions</span></code>(self, before, actions, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">insertActions</span></code>(self, before, actions, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">insertToolBar</span></code>(self, before, toolbar, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">insertToolBar</span></code>(self, before, toolbar, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">insertToolBarBreak</span></code>(self, before, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">insertToolBarBreak</span></code>(self, before, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">installEventFilter</span></code>(self, filterObj, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">installEventFilter</span></code>(self, filterObj, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">internalWinId</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">internalWinId</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isActiveWindow</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isActiveWindow</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isAncestorOf</span></code>(self, child, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isAncestorOf</span></code>(self, child, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isAnimated</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isAnimated</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isDockNestingEnabled</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isDockNestingEnabled</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isEnabled</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isEnabled</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isEnabledTo</span></code>(self, arg__1, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isEnabledTo</span></code>(self, arg__1, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isFullScreen</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isFullScreen</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isHidden</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isHidden</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isLeftToRight</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isLeftToRight</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isMaximized</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isMaximized</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isMinimized</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isMinimized</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isModal</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isModal</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isQmlExposed</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isQmlExposed</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isQuickItemType</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isQuickItemType</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isRightToLeft</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isRightToLeft</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isSeparator</span></code>(self, pos, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isSeparator</span></code>(self, pos, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isSignalConnected</span></code>(self, signal, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isSignalConnected</span></code>(self, signal, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isTopLevel</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isTopLevel</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isVisible</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isVisible</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isVisibleTo</span></code>(self, arg__1, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isVisibleTo</span></code>(self, arg__1, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isWidgetType</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isWidgetType</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isWindow</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isWindow</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isWindowModified</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isWindowModified</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isWindowType</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isWindowType</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">keyPressEvent</span></code>(self, event, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">keyPressEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">keyReleaseEvent</span></code>(self, event, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">keyReleaseEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">keyboardGrabber</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">keyboardGrabber</span></code>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">killTimer</span></code>(-&gt; None)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">killTimer</span></code>(-&gt; None)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">layout</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">layout</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">layoutDirection</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">layoutDirection</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">leaveEvent</span></code>(self, event, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">leaveEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">locale</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">locale</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">logicalDpiX</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">logicalDpiX</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">logicalDpiY</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">logicalDpiY</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">lower</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">lower</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mapFrom</span></code>(-&gt; PySide6.QtCore.QPoint)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mapFrom</span></code>(-&gt; PySide6.QtCore.QPoint)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mapFromGlobal</span></code>(-&gt; PySide6.QtCore.QPoint)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mapFromGlobal</span></code>(-&gt; PySide6.QtCore.QPoint)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mapFromParent</span></code>(-&gt; PySide6.QtCore.QPoint)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mapFromParent</span></code>(-&gt; PySide6.QtCore.QPoint)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mapTo</span></code>(-&gt; PySide6.QtCore.QPoint)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mapTo</span></code>(-&gt; PySide6.QtCore.QPoint)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mapToGlobal</span></code>(-&gt; PySide6.QtCore.QPoint)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mapToGlobal</span></code>(-&gt; PySide6.QtCore.QPoint)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mapToParent</span></code>(-&gt; PySide6.QtCore.QPoint)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mapToParent</span></code>(-&gt; PySide6.QtCore.QPoint)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximumHeight</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximumHeight</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximumSize</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximumSize</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximumWidth</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximumWidth</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">menuBar</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">menuBar</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">menuWidget</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">menuWidget</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">metaObject</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">metaObject</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">metric</span></code>(self, arg__1, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">metric</span></code>(self, arg__1, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">minimumHeight</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">minimumHeight</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">minimumSize</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">minimumSize</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">minimumSizeHint</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">minimumSizeHint</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">minimumWidth</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">minimumWidth</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mouseDoubleClickEvent</span></code>(self, event, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mouseDoubleClickEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mouseGrabber</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mouseGrabber</span></code>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mouseMoveEvent</span></code>(self, event, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mouseMoveEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mousePressEvent</span></code>(self, event, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mousePressEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mouseReleaseEvent</span></code>(self, event, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mouseReleaseEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">move</span></code>(-&gt; None)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">move</span></code>(-&gt; None)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">moveEvent</span></code>(self, event, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">moveEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">moveToThread</span></code>(self, thread, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">moveToThread</span></code>(self, thread, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nativeEvent</span></code>(self, eventType, message, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nativeEvent</span></code>(self, eventType, message, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nativeParentWidget</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nativeParentWidget</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nextInFocusChain</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nextInFocusChain</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalGeometry</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalGeometry</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">objectName</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">objectName</span></code>(self, /)</p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.application.NeuXtalViz.olex2_GUI" title="NeuXtalViz.application.NeuXtalViz.olex2_GUI"><code class="xref py py-obj docutils literal notranslate"><span class="pre">olex2_GUI</span></code></a>()</p></td>
+<td><p>Launch the external Olex2 application.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">overrideWindowFlags</span></code>(self, type, /)</p></td>
 <td><p></p></td>
@@ -1944,23 +1971,29 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sharedPainter</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">show</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.application.NeuXtalViz.shelxle_GUI" title="NeuXtalViz.application.NeuXtalViz.shelxle_GUI"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shelxle_GUI</span></code></a>()</p></td>
+<td><p>Launch the external ShelXle application.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">show</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">showEvent</span></code>(self, event, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">showEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">showFullScreen</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">showFullScreen</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">showMaximized</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">showMaximized</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">showMinimized</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">showMinimized</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">showNormal</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">showNormal</span></code>(self, /)</p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.application.NeuXtalViz.show_about_dialog" title="NeuXtalViz.application.NeuXtalViz.show_about_dialog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_about_dialog</span></code></a>()</p></td>
+<td><p>Display the &quot;About NeuXtalViz&quot; information dialog.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">signalsBlocked</span></code>(self, /)</p></td>
 <td><p></p></td>
@@ -1992,56 +2025,62 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">statusTip</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">style</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.application.NeuXtalViz.structdiff_GUI" title="NeuXtalViz.application.NeuXtalViz.structdiff_GUI"><code class="xref py py-obj docutils literal notranslate"><span class="pre">structdiff_GUI</span></code></a>()</p></td>
+<td><p>Launch the command browser interface as a separate process.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">style</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">styleSheet</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">styleSheet</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tabPosition</span></code>(self, area, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tabPosition</span></code>(self, area, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tabShape</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tabShape</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tabifiedDockWidgets</span></code>(self, dockwidget, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tabifiedDockWidgets</span></code>(self, dockwidget, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tabifyDockWidget</span></code>(self, first, second, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tabifyDockWidget</span></code>(self, first, second, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tabletEvent</span></code>(self, event, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tabletEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">takeCentralWidget</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">takeCentralWidget</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">testAttribute</span></code>(self, arg__1, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">testAttribute</span></code>(self, arg__1, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">thread</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">thread</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">timerEvent</span></code>(self, event, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">timerEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">toolBarArea</span></code>(self, toolbar, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">toolBarArea</span></code>(self, toolbar, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">toolBarBreak</span></code>(self, toolbar, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">toolBarBreak</span></code>(self, toolbar, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">toolButtonStyle</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">toolButtonStyle</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">toolTip</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">toolTip</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">toolTipDuration</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">toolTipDuration</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">topLevelWidget</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">topLevelWidget</span></code>(self, /)</p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.application.NeuXtalViz.topaz_reduction_GUI" title="NeuXtalViz.application.NeuXtalViz.topaz_reduction_GUI"><code class="xref py py-obj docutils literal notranslate"><span class="pre">topaz_reduction_GUI</span></code></a>()</p></td>
+<td><p>Prompt for a TOPAZ reduction directory and launch its main.py.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tr</span></code>(self, sourceText, /[, disambiguation, n])</p></td>
 <td><p></p></td>
@@ -2078,64 +2117,67 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">updatesEnabled</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">visibleRegion</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.application.NeuXtalViz.vesta_GUI" title="NeuXtalViz.application.NeuXtalViz.vesta_GUI"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vesta_GUI</span></code></a>()</p></td>
+<td><p>Launch the external VESTA application.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">visibleRegion</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">whatsThis</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">whatsThis</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">wheelEvent</span></code>(self, event, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">wheelEvent</span></code>(self, event, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">width</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">width</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">widthMM</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">widthMM</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">winId</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">winId</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">window</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">window</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowFilePath</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowFilePath</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowFlags</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowFlags</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowHandle</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowHandle</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowIcon</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowIcon</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowIconText</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowIconText</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowModality</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowModality</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowOpacity</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowOpacity</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowRole</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowRole</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowState</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowState</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowTitle</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowTitle</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowType</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">windowType</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code>(self, /)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">y</span></code>(self, /)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">y</span></code>(self, /)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -2158,52 +2200,25 @@
 <tr class="row-odd"><td><p><strong>destroyed</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>experiment_browser_GUI</strong></p></td>
+<tr class="row-even"><td><p><strong>iconSizeChanged</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>fullprof_GUI</strong></p></td>
+<tr class="row-odd"><td><p><strong>objectNameChanged</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>garnet_reduction_GUI</strong></p></td>
+<tr class="row-even"><td><p><strong>tabifiedDockWidgetActivated</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>iconSizeChanged</strong></p></td>
+<tr class="row-odd"><td><p><strong>toolButtonStyleChanged</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>objectNameChanged</strong></p></td>
+<tr class="row-even"><td><p><strong>windowIconChanged</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>olex2_GUI</strong></p></td>
+<tr class="row-odd"><td><p><strong>windowIconTextChanged</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>shelxle_GUI</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>show_about_dialog</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>structdiff_GUI</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>tabifiedDockWidgetActivated</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>toolButtonStyleChanged</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>topaz_reduction_GUI</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>vesta_GUI</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>windowIconChanged</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>windowIconTextChanged</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>windowTitleChanged</strong></p></td>
+<tr class="row-even"><td><p><strong>windowTitleChanged</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -2211,60 +2226,113 @@
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.experiment_browser_GUI">
-<span class="sig-name descname"><span class="pre">experiment_browser_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L219-L225"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.experiment_browser_GUI" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">experiment_browser_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L270-L282"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.experiment_browser_GUI" title="Link to this definition">#</a></dt>
+<dd><p>Launch the external SNS experiment browser script.</p>
+<p>Shows a critical error dialog if
+<code class="docutils literal notranslate"><span class="pre">/SNS/software/scd/experiment.sh</span></code> cannot be launched.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.fullprof_GUI">
-<span class="sig-name descname"><span class="pre">fullprof_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L243-L249"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.fullprof_GUI" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">fullprof_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L312-L324"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.fullprof_GUI" title="Link to this definition">#</a></dt>
+<dd><p>Launch the external FullProf application.</p>
+<p>Shows a critical error dialog if the <code class="docutils literal notranslate"><span class="pre">fullprof</span></code> executable
+cannot be launched.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.garnet_reduction_GUI">
-<span class="sig-name descname"><span class="pre">garnet_reduction_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L227-L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.garnet_reduction_GUI" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">garnet_reduction_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L284-L296"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.garnet_reduction_GUI" title="Link to this definition">#</a></dt>
+<dd><p>Launch the external garnet reduction script.</p>
+<p>Shows a critical error dialog if <code class="docutils literal notranslate"><span class="pre">/SNS/software/scd/garnet.sh</span></code>
+cannot be launched.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.olex2_GUI">
-<span class="sig-name descname"><span class="pre">olex2_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L235-L241"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.olex2_GUI" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">olex2_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L298-L310"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.olex2_GUI" title="Link to this definition">#</a></dt>
+<dd><p>Launch the external Olex2 application.</p>
+<p>Shows a critical error dialog if
+<code class="docutils literal notranslate"><span class="pre">/SNS/software/scd/olex2/olex2</span></code> cannot be launched.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.shelxle_GUI">
-<span class="sig-name descname"><span class="pre">shelxle_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L211-L217"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.shelxle_GUI" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">shelxle_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L256-L268"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.shelxle_GUI" title="Link to this definition">#</a></dt>
+<dd><p>Launch the external ShelXle application.</p>
+<p>Shows a critical error dialog if the <code class="docutils literal notranslate"><span class="pre">shelxle</span></code> executable
+cannot be launched.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.show_about_dialog">
-<span class="sig-name descname"><span class="pre">show_about_dialog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L174-L184"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.show_about_dialog" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">show_about_dialog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L207-L220"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.show_about_dialog" title="Link to this definition">#</a></dt>
+<dd><p>Display the “About NeuXtalViz” information dialog.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.structdiff_GUI">
-<span class="sig-name descname"><span class="pre">structdiff_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L259-L267"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.structdiff_GUI" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">structdiff_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L340-L355"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.structdiff_GUI" title="Link to this definition">#</a></dt>
+<dd><p>Launch the command browser interface as a separate process.</p>
+<p>Runs <code class="docutils literal notranslate"><span class="pre">views/command_browser.py</span></code> (located next to this
+module) with the <code class="docutils literal notranslate"><span class="pre">python</span></code> interpreter. Shows a critical
+error dialog if the script cannot be launched.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.topaz_reduction_GUI">
-<span class="sig-name descname"><span class="pre">topaz_reduction_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L186-L209"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.topaz_reduction_GUI" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">topaz_reduction_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L222-L254"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.topaz_reduction_GUI" title="Link to this definition">#</a></dt>
+<dd><p>Prompt for a TOPAZ reduction directory and launch its main.py.</p>
+<p>Opens a directory selection dialog (starting from the last used
+TOPAZ path), and if the chosen directory contains a
+<code class="docutils literal notranslate"><span class="pre">main.py</span></code> script, launches it with <code class="docutils literal notranslate"><span class="pre">mantidpython</span></code>. Shows a
+warning if <code class="docutils literal notranslate"><span class="pre">main.py</span></code> is missing, or a critical error dialog
+if launching fails.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.application.NeuXtalViz.vesta_GUI">
-<span class="sig-name descname"><span class="pre">vesta_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L251-L257"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.vesta_GUI" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">vesta_GUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L326-L338"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.NeuXtalViz.vesta_GUI" title="Link to this definition">#</a></dt>
+<dd><p>Launch the external VESTA application.</p>
+<p>Shows a critical error dialog if the <code class="docutils literal notranslate"><span class="pre">VESTA</span></code> executable
+cannot be launched.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="NeuXtalViz.application.gui">
-<span class="sig-name descname"><span class="pre">gui</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L283-L308"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.gui" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">gui</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L388-L423"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.gui" title="Link to this definition">#</a></dt>
+<dd><p>Create and run the NeuXtalViz Qt application.</p>
+<p>Installs a global exception handler, creates the <code class="docutils literal notranslate"><span class="pre">QApplication</span></code>,
+detects whether the system palette is dark or light to select a
+matching <code class="docutils literal notranslate"><span class="pre">qdarkstyle</span></code> theme (and PyVista plot theme), then
+creates and shows the main <code class="docutils literal notranslate"><span class="pre">NeuXtalViz</span></code> window and starts the Qt
+event loop. This is the console-script entry point installed as
+<code class="docutils literal notranslate"><span class="pre">neuxtalviz</span></code>.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="NeuXtalViz.application.handle_exception">
-<span class="sig-name descname"><span class="pre">handle_exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_traceback</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L270-L280"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.handle_exception" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">handle_exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_traceback</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/application.py#L358-L385"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.application.handle_exception" title="Link to this definition">#</a></dt>
+<dd><p>Display an uncaught exception in a critical message dialog.</p>
+<p>Intended to be installed as <code class="docutils literal notranslate"><span class="pre">sys.excepthook</span></code> so that unhandled
+exceptions are shown to the user in a Qt dialog with the full
+traceback available as detailed text, instead of only being
+printed to the console.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>exc_type</strong><span class="classifier">type</span></dt><dd><p>The class of the raised exception.</p>
+</dd>
+<dt><strong>exc_value</strong><span class="classifier">BaseException</span></dt><dd><p>The exception instance that was raised.</p>
+</dd>
+<dt><strong>exc_traceback</strong><span class="classifier">traceback</span></dt><dd><p>The traceback object associated with the exception.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-NeuXtalViz">
