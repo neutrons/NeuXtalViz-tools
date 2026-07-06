@@ -158,6 +158,11 @@ class ExperimentModel(NeuXtalVizModel):
     """
 
     def __init__(self):
+        """
+        Initialize the experiment model and create the ``coverage`` peaks
+        workspace used to track the UB matrix and predicted coverage.
+        """
+
         super(ExperimentModel, self).__init__()
 
         CreatePeaksWorkspace(
@@ -223,6 +228,19 @@ class ExperimentModel(NeuXtalVizModel):
         return os.path.join(AUTOLITE, idf[0]) if len(idf) > 0 else None
 
     def copy_to_instrument_pc(self, filename):
+        """
+        Copy a file to the TOPAZ instrument PC data share, if applicable.
+
+        Only copies the file when it lives under an SNS TOPAZ IPTS
+        directory; otherwise this is a no-op.
+
+        Parameters
+        ----------
+        filename : str
+            Path of the file to copy, expected to start with
+            ``/SNS/TOPAZ/IPTS-<n>/...``.
+        """
+
         split = filename.split("/")
         if len(split) > 4:
             _, facility, instrument, ipts, *_ = split
@@ -243,9 +261,45 @@ class ExperimentModel(NeuXtalVizModel):
                 os.chmod(copy, 0o777)
 
     def set_path(self, filename):
+        """
+        Remember the directory of a file for use as the default directory.
+
+        Parameters
+        ----------
+        filename : str
+            File path whose containing directory should be stored.
+        """
+
         self.dirname = os.path.dirname(filename)
 
     def initialize_instrument(self, instrument, logs, cal, gon, mask):
+        """
+        Build the ``instrument``, ``goniometer``, and related workspaces.
+
+        Loads the empty instrument definition (or autoreduce IDF), applies
+        sample logs, calibration, goniometer parameter, and mask files, then
+        groups detectors and precomputes bank-corner coordinates used for the
+        instrument 3D view and background occupancy plot.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier (key into ``beamlines``).
+        logs : dict
+            Mapping of auxiliary motor names to numeric values (from
+            :meth:`get_motors`/the view's motor table), added as sample
+            logs on the instrument workspace before (re)loading the
+            instrument definition, so motor-dependent geometry is applied.
+        cal : str
+            Path to a calibration file (``.xml`` parameter file or ISAW
+            DetCal file), or an empty string if none.
+        gon : str
+            Path to a goniometer parameter XML file, or an empty string if
+            none.
+        mask : str
+            Path to a mask file, or an empty string if none.
+        """
+
         inst = self.get_instrument_name(instrument)
         idf = self.get_autoreduce_instrument(instrument)
         beamline = beamlines[instrument]
@@ -507,6 +561,20 @@ class ExperimentModel(NeuXtalVizModel):
         return ",".join(parts)
 
     def extract_instrument_view(self):
+        """
+        Build a mesh of detector-bank quadrilaterals for 3D rendering.
+
+        Uses the bank-corner coordinates computed by
+        :meth:`initialize_instrument` (``self.xc``, ``self.yc``, ``self.zc``).
+
+        Returns
+        -------
+        inst_dict : dict
+            Dictionary with keys ``"points"`` (Nx3 array of corner
+            coordinates), ``"faces"`` (PyVista-style face connectivity
+            array), and ``"radius"`` (max extent along each axis).
+        """
+
         n = self.xc.shape[0]
 
         points = np.column_stack(
@@ -528,6 +596,22 @@ class ExperimentModel(NeuXtalVizModel):
         return inst_dict
 
     def get_instrument_background(self):
+        """
+        Compute (or return cached) 2D detector-coverage occupancy image.
+
+        Bins the instrument's ``gamma``/``nu`` detector angles into a 2D
+        histogram to show which regions of angular space are covered by
+        active (unmasked) detectors. Result is cached on
+        ``self.instrument_background``.
+
+        Returns
+        -------
+        instrument_background : dict or None
+            Dictionary with keys ``"img"`` (occupancy image, 1 where
+            detectors exist), ``"xedges"``, ``"yedges"`` (bin edges in
+            gamma/nu), or None if no detector angle data is available.
+        """
+
         if self.instrument_background is not None:
             return self.instrument_background
 
@@ -570,6 +654,9 @@ class ExperimentModel(NeuXtalVizModel):
         return self.instrument_background
 
     def clear_combined(self):
+        """
+        Reset the ``combined`` peaks workspace to be empty.
+        """
 
         CreatePeaksWorkspace(
             InstrumentWorkspace="instrument",
@@ -579,6 +666,20 @@ class ExperimentModel(NeuXtalVizModel):
         )
 
     def get_calibration_file_path(self, instrument):
+        """
+        Get the shared calibration directory for a given instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+
+        Returns
+        -------
+        filepath : str
+            File path to the instrument's shared calibration directory.
+        """
+
         inst = beamlines[instrument]
 
         return os.path.join(
@@ -590,6 +691,20 @@ class ExperimentModel(NeuXtalVizModel):
         )
 
     def get_vanadium_file_path(self, instrument):
+        """
+        Get the shared vanadium directory for a given instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+
+        Returns
+        -------
+        filepath : str
+            File path to the instrument's shared Vanadium directory.
+        """
+
         inst = beamlines[instrument]
 
         return os.path.join(
@@ -597,6 +712,12 @@ class ExperimentModel(NeuXtalVizModel):
         )
 
     def remove_instrument(self):
+        """
+        Delete the ``instrument``, ``combined``, ``filtered``, and
+        ``footprint`` workspaces if they exist, and clear the cached
+        instrument background image.
+        """
+
         if mtd.doesExist("instrument"):
             DeleteWorkspace(Workspace="instrument")
 
@@ -612,15 +733,76 @@ class ExperimentModel(NeuXtalVizModel):
             DeleteWorkspace(Workspace="footprint")
 
     def get_crystal_system_point_groups(self, crystal_system):
+        """
+        Get the point groups belonging to a crystal system.
+
+        Parameters
+        ----------
+        crystal_system : str
+            Crystal system name (e.g. "Cubic", "Tetragonal").
+
+        Returns
+        -------
+        point_groups : list of str
+            Point group symbols for the given crystal system.
+        """
+
         return crystal_system_point_groups[crystal_system]
 
     def get_point_group_centering(self, point_group):
+        """
+        Get the allowed lattice centerings for a point group.
+
+        Parameters
+        ----------
+        point_group : str
+            Point group symbol.
+
+        Returns
+        -------
+        centerings : list of str
+            Allowed lattice centering symbols for the given point group.
+        """
+
         return point_group_centering[point_group]
 
     def get_symmetry(self, point_group, centering):
+        """
+        Coerce point group and centering to plain strings.
+
+        Parameters
+        ----------
+        point_group : str
+            Point group symbol.
+        centering : str
+            Lattice centering symbol.
+
+        Returns
+        -------
+        pg : str
+            Point group symbol as a string.
+        lc : str
+            Lattice centering symbol as a string.
+        """
+
         return str(point_group), str(centering)
 
     def calculate_hkl_limits(self, d_min):
+        """
+        Calculate maximum Miller indices reachable at a minimum d-spacing.
+
+        Parameters
+        ----------
+        d_min : float
+            Minimum d-spacing (in Angstrom).
+
+        Returns
+        -------
+        h_max, k_max, l_max : int
+            Maximum h, k, l indices consistent with ``d_min`` given the
+            oriented lattice on the ``coverage`` workspace.
+        """
+
         ol = mtd["coverage"].sample().getOrientedLattice()
 
         astar = ol.astar()
@@ -634,6 +816,22 @@ class ExperimentModel(NeuXtalVizModel):
         return h_max, k_max, l_max
 
     def create_plan(self, table):
+        """
+        Build the ``plan`` table workspace from an experiment plan tuple.
+
+        Parameters
+        ----------
+        table : tuple
+            8-tuple ``(pv, names, titles, settings, comments, counts,
+            values, use)`` where ``pv`` is the name of the process-variable
+            (title) column, ``names`` are the motor/axis column names,
+            ``titles`` are the row titles/labels, ``settings`` are the
+            per-row lists of motor angles, ``comments`` are per-row comment
+            strings, ``counts`` are per-row "wait for" counting-condition
+            values, ``values`` are per-row target count values, and ``use``
+            are per-row booleans indicating whether the row is active.
+        """
+
         pv, names, titles, settings, comments, counts, values, use = table
 
         CreateEmptyTableWorkspace(OutputWorkspace="plan")
@@ -662,6 +860,27 @@ class ExperimentModel(NeuXtalVizModel):
             mtd["plan"].addRow(row)
 
     def create_sample(self, instrument, mode, UB, wavelength, d_min):
+        """
+        Create the ``sample`` workspace and record experiment settings.
+
+        Stores the UB matrix and the instrument, mode, wavelength range,
+        and minimum d-spacing as sample logs for later retrieval (e.g. by
+        :meth:`load_experiment`).
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+        mode : str
+            Goniometer/experiment mode name.
+        UB : 3x3 array-like
+            UB matrix to set on the sample workspace.
+        wavelength : 2-tuple of float
+            Minimum and maximum wavelength (Angstrom).
+        d_min : float
+            Minimum d-spacing (Angstrom).
+        """
+
         CreateSampleWorkspace(OutputWorkspace="sample")
 
         SetUB(Workspace="sample", UB=UB)
@@ -705,6 +924,19 @@ class ExperimentModel(NeuXtalVizModel):
         )
 
     def update_sample(self, crytsal_system, point_group, lattice_centering):
+        """
+        Record crystal-symmetry information as sample logs.
+
+        Parameters
+        ----------
+        crytsal_system : str
+            Crystal system name.
+        point_group : str
+            Point group symbol.
+        lattice_centering : str
+            Lattice centering symbol.
+        """
+
         if mtd.doesExist("sample"):
             AddSampleLog(
                 Workspace="sample",
@@ -728,6 +960,26 @@ class ExperimentModel(NeuXtalVizModel):
             )
 
     def update_goniometer_motors(self, limits, motors, cal, gon, mask):
+        """
+        Record goniometer motor limits and auxiliary motor/file settings
+        as sample logs so they can be restored by :meth:`load_experiment`.
+
+        Parameters
+        ----------
+        limits : array-like
+            Per-axis (min, max) angle limits, flattened and stored as the
+            ``"limits"`` sample log.
+        motors : dict
+            Mapping of auxiliary motor names to their values.
+        cal : str
+            Calibration file path, stored as the ``"cal"`` sample log.
+        gon : str
+            Goniometer parameter file path, stored as the ``"gon"`` sample
+            log.
+        mask : str
+            Mask file path, stored as the ``"mask"`` sample log.
+        """
+
         if mtd.doesExist("sample"):
             mtd["sample"].run()["limits"] = np.array(limits).flatten().tolist()
 
@@ -742,38 +994,146 @@ class ExperimentModel(NeuXtalVizModel):
             mtd["sample"].run()["mask"] = mask
 
     def load_UB(self, filename):
+        """
+        Load a UB matrix from an ISAW UB file onto the ``coverage``
+        workspace and update the model's cached UB matrix.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the ISAW UB matrix file.
+        """
+
         LoadIsawUB(InputWorkspace="coverage", Filename=filename)
 
         self.copy_UB()
 
     def get_UB(self):
+        """
+        Get the UB matrix currently set on the ``coverage`` workspace.
+
+        Returns
+        -------
+        UB : 3x3 ndarray or None
+            UB matrix, or None if no oriented lattice is set.
+        """
+
         if self.has_UB():
             return mtd["coverage"].sample().getOrientedLattice().getUB().copy()
 
     def copy_UB(self):
+        """
+        Copy the UB matrix from the ``coverage`` workspace into the
+        model's cached UB matrix (:attr:`NeuXtalVizModel.UB`).
+        """
+
         UB = self.get_UB()
         if UB is not None:
             self.set_UB(UB)
 
     def has_UB(self):
+        """
+        Check whether the ``coverage`` workspace has an oriented lattice.
+
+        Returns
+        -------
+        has_ub : bool
+            True if the ``coverage`` workspace has a UB matrix set.
+        """
+
         if HasUB(Workspace="coverage"):
             return True
         else:
             return False
 
     def get_instrument_name(self, instrument):
+        """
+        Get the short Mantid instrument name for an instrument identifier.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier (key into ``beamlines``).
+
+        Returns
+        -------
+        name : str
+            Mantid instrument name.
+        """
+
         return beamlines[instrument]["Name"]
 
     def get_modes(self, instrument):
+        """
+        Get the available goniometer modes for an instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+
+        Returns
+        -------
+        modes : list of str
+            Names of the goniometer modes defined for the instrument.
+        """
+
         return list(beamlines[instrument]["Goniometer"].keys())
 
     def get_counting_options(self, instrument):
+        """
+        Get the counting condition options for an instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+
+        Returns
+        -------
+        counting : object
+            The instrument's "Counting" configuration entry (e.g. a list of
+            available counting/"wait for" conditions).
+        """
+
         return beamlines[instrument]["Counting"]
 
     def get_scan_log(self, instrument):
+        """
+        Get the process-variable/title log name for an instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+
+        Returns
+        -------
+        title : str
+            Name of the instrument's scan title/process-variable log.
+        """
+
         return beamlines[instrument]["Title"]
 
     def get_axes_polarities(self, instrument, mode):
+        """
+        Get the goniometer rotation axes and their polarities for a mode.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+        mode : str
+            Goniometer mode name.
+
+        Returns
+        -------
+        axes : list
+            Per-axis (x, y, z) rotation-axis direction components.
+        polarities : list
+            Per-axis rotation sense/polarity (+1 or -1).
+        """
+
         goniometers = beamlines[instrument]["Goniometer"][mode]
 
         axes = [goniometers[name][:-3] for name in goniometers.keys()]
@@ -783,6 +1143,25 @@ class ExperimentModel(NeuXtalVizModel):
         return axes, polarities
 
     def get_goniometer_axes(self, instrument, mode):
+        """
+        Get Mantid ``SetGoniometer`` axis-string templates for a mode.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+        mode : str
+            Goniometer mode name.
+
+        Returns
+        -------
+        axes : list of str
+            Per-axis template strings of the form
+            ``"{},x,y,z,polarity,type"`` (with a ``{}`` placeholder for the
+            angle value) suitable for formatting and passing to
+            ``SetGoniometer``.
+        """
+
         goniometers = beamlines[instrument]["Goniometer"][mode]
 
         axes = [
@@ -793,11 +1172,42 @@ class ExperimentModel(NeuXtalVizModel):
         return axes
 
     def get_goniometers(self, instrument, mode):
+        """
+        Get goniometer axis names with their angle limits for a mode.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+        mode : str
+            Goniometer mode name.
+
+        Returns
+        -------
+        goniometers : list of tuple
+            One ``(name, min_angle, max_angle)`` tuple per goniometer axis.
+        """
+
         goniometers = beamlines[instrument]["Goniometer"][mode]
 
         return [(name, *goniometers[name][-2:]) for name in goniometers.keys()]
 
     def get_motors(self, instrument):
+        """
+        Get auxiliary motor names and default values for an instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+
+        Returns
+        -------
+        motors : list of tuple
+            One ``(name, value)`` tuple per auxiliary motor, or an empty
+            list if the instrument defines no motors.
+        """
+
         motors = beamlines[instrument].get("Motor")
 
         if motors is not None:
@@ -806,9 +1216,32 @@ class ExperimentModel(NeuXtalVizModel):
             return []
 
     def get_wavelength(self, instrument):
+        """
+        Get the default wavelength (range) for an instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+
+        Returns
+        -------
+        wavelength : float or list of float
+            Single wavelength, or [min, max] wavelength range (Angstrom).
+        """
+
         return beamlines[instrument]["Wavelength"]
 
     def save_plan(self, filename):
+        """
+        Write the active (used) rows of the ``plan`` table to a CSV file.
+
+        Parameters
+        ----------
+        filename : str
+            Output CSV file path.
+        """
+
         plan_dict = mtd["plan"].toDict().copy()
         use_angle = plan_dict["Use"]
 
@@ -826,6 +1259,15 @@ class ExperimentModel(NeuXtalVizModel):
                 writer.writerow(dict(zip(plan_dict.keys(), row)))
 
     def save_experiment(self, filename):
+        """
+        Save the ``plan`` (and ``sample``, if present) workspaces to Nexus.
+
+        Parameters
+        ----------
+        filename : str
+            Output Nexus file path.
+        """
+
         if mtd.doesExist("plan"):
             SaveNexus(InputWorkspace="plan", Filename=filename)
             if mtd.doesExist("sample"):
@@ -834,6 +1276,36 @@ class ExperimentModel(NeuXtalVizModel):
                 )
 
     def load_experiment(self, filename):
+        """
+        Load a previously saved experiment (plan + sample) from Nexus.
+
+        Restores the UB matrix and rebuilds the plan table contents and
+        experiment configuration from the sample logs written by
+        :meth:`create_sample`, :meth:`update_sample`, and
+        :meth:`update_goniometer_motors`.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the Nexus file to load.
+
+        Returns
+        -------
+        plan : tuple
+            ``(titles, settings, comments, counts, values, use)`` -- the
+            plan table contents, in the same layout consumed by
+            :meth:`create_plan`.
+        config : tuple
+            ``(instrument, mode, wl, d_min, lims, vals, cal, gon, mask)``
+            -- the instrument/goniometer configuration, where ``wl`` is
+            either a single wavelength or a [min, max] pair, ``lims`` are
+            the goniometer axis limits, and ``vals`` are the auxiliary
+            motor values.
+        symm : tuple
+            ``(cs, pg, lc)`` -- crystal system, point group, and lattice
+            centering.
+        """
+
         LoadNexus(Filename=filename, OutputWorkspace="experiment")
 
         plan, sample = mtd["experiment"].getNames()
@@ -889,6 +1361,23 @@ class ExperimentModel(NeuXtalVizModel):
         return plan, config, symm
 
     def generate_axes(self, axes, polarities):
+        """
+        Build and cache ``SetGoniometer`` axis-string templates.
+
+        Stores the result on ``self.axes`` for use by
+        :meth:`add_orientation`, :meth:`calculate_rotations`, and the
+        ``CrystalPlan`` genetic algorithm.
+
+        Parameters
+        ----------
+        axes : list
+            Per-axis (x, y, z) rotation-axis direction components, as
+            returned by :meth:`get_axes_polarities`.
+        polarities : list
+            Per-axis rotation sense/polarity, as returned by
+            :meth:`get_axes_polarities`.
+        """
+
         self.axes = [None] * 6
 
         for i, (axis, polarity) in enumerate(zip(axes, polarities)):
@@ -896,6 +1385,26 @@ class ExperimentModel(NeuXtalVizModel):
             self.axes[i] += ",".join(np.array([*axis, polarity]).astype(str))
 
     def get_setting(self, free_angles, limits):
+        """
+        Combine free (variable) angles with fixed-limit angles into a
+        full per-axis goniometer setting.
+
+        Parameters
+        ----------
+        free_angles : sequence of float
+            Values for the axes whose limits are not fixed (min != max),
+            in axis order.
+        limits : sequence of (float, float)
+            Per-axis (min, max) angle limits.
+
+        Returns
+        -------
+        setting : list of float
+            Full per-axis angle setting: the fixed limit value for axes
+            with ``min == max``, otherwise the next value from
+            ``free_angles``.
+        """
+
         setting = []
         col = 0
         for limit in limits:
@@ -907,6 +1416,33 @@ class ExperimentModel(NeuXtalVizModel):
         return setting
 
     def _calculate_matrices(self, axes, polarities, limits, step):
+        """
+        Enumerate goniometer rotation matrices over a grid of axis angles.
+
+        Builds the Cartesian product of per-axis angle values (spaced by
+        ``step``, doubled per additional free axis for finer sampling) and
+        composes the corresponding rotation matrix for each combination.
+
+        Parameters
+        ----------
+        axes : list
+            Per-axis (x, y, z) rotation-axis direction components.
+        polarities : list
+            Per-axis rotation sense/polarity.
+        limits : sequence of (float, float)
+            Per-axis (min, max) angle limits, in degrees.
+        step : float
+            Base angular step size, in degrees.
+
+        Returns
+        -------
+        Rs : list of ndarray, shape (3, 3)
+            Composed rotation matrix for each sampled goniometer setting.
+        angles : ndarray, shape (n_settings, n_axes)
+            Per-axis angle values (in degrees, before polarity/sign
+            adjustment) corresponding to each rotation matrix in ``Rs``.
+        """
+
         self.generate_axes(axes, polarities)
 
         free = 0
@@ -947,6 +1483,43 @@ class ExperimentModel(NeuXtalVizModel):
     def individual_peak(
         self, hkl, wavelength, axes, polarities, limits, equiv, pg, step=1
     ):
+        """
+        Find goniometer settings that bring a peak (or its symmetry
+        equivalents) into the detector range.
+
+        Aggregates results from :meth:`calculate_individual_peak` over the
+        requested HKL and (optionally) all of its point-group equivalents,
+        and caches the combined results on ``self.angles*`` attributes for
+        later lookup via :meth:`get_angles`.
+
+        Parameters
+        ----------
+        hkl : array-like, shape (3,)
+            Miller index of the target reflection.
+        wavelength : 2-tuple of float
+            Minimum and maximum wavelength (Angstrom).
+        axes : list
+            Per-axis (x, y, z) rotation-axis direction components.
+        polarities : list
+            Per-axis rotation sense/polarity.
+        limits : sequence of (float, float)
+            Per-axis (min, max) angle limits, in degrees.
+        equiv : bool
+            If True, also search settings for all symmetry-equivalent HKLs
+            of ``hkl`` under point group ``pg``.
+        pg : str
+            Point group symbol used to generate symmetry equivalents.
+        step : float, optional
+            Base angular step size, in degrees. Default is 1.
+
+        Returns
+        -------
+        gamma, nu, lamda, d : ndarray
+            Detector gamma/nu angles (degrees), wavelength (Angstrom), and
+            d-spacing (Angstrom) for each goniometer setting found that
+            places the peak on an active detector.
+        """
+
         pg = PointGroupFactory.createPointGroup(pg)
 
         hkls = pg.getEquivalents(hkl) if equiv else [hkl]
@@ -998,6 +1571,40 @@ class ExperimentModel(NeuXtalVizModel):
     def calculate_individual_peak(
         self, hkl, wavelength, axes, polarities, limits, step=1
     ):
+        """
+        Scan goniometer settings for a single HKL and keep valid ones.
+
+        Adds a peak with the given HKL to the ``peak`` workspace, rotates
+        its Q vector through every goniometer setting produced by
+        :meth:`_calculate_matrices`, and keeps only settings where the
+        resulting wavelength is in range and the scattered beam does not
+        fall on an already-masked/dead detector.
+
+        Parameters
+        ----------
+        hkl : array-like, shape (3,)
+            Miller index of the target reflection.
+        wavelength : 2-tuple of float
+            Minimum and maximum wavelength (Angstrom). If min and max are
+            equal, a +/-2.5% band is used instead.
+        axes : list
+            Per-axis (x, y, z) rotation-axis direction components.
+        polarities : list
+            Per-axis rotation sense/polarity.
+        limits : sequence of (float, float)
+            Per-axis (min, max) angle limits, in degrees.
+        step : float, optional
+            Base angular step size, in degrees. Default is 1.
+
+        Returns
+        -------
+        settings : ndarray, shape (n_valid, n_axes)
+            Per-axis angle values for each valid goniometer setting.
+        values : tuple of ndarray
+            ``(gamma, nu, lamda, d)`` -- detector gamma/nu angles
+            (degrees), wavelength (Angstrom), and d-spacing (Angstrom;
+            scalar, same for all settings) for each valid setting.
+        """
 
         if np.isclose(wavelength[0], wavelength[1]):
             wavelength = [0.975 * wavelength[0], 1.025 * wavelength[1]]
@@ -1076,6 +1683,47 @@ class ExperimentModel(NeuXtalVizModel):
         pg,
         step=1,
     ):
+        """
+        Find goniometer settings placing two reflections on detectors
+        simultaneously.
+
+        Considers every distinct pair drawn from the point-group
+        equivalents of ``hkl_1`` and ``hkl_2`` (or just the two HKLs
+        themselves if ``equiv`` is False), and aggregates the valid
+        settings found by :meth:`simultaneous_peaks_hkl` for each pair.
+        Caches the combined results on ``self.angles*`` attributes for
+        later lookup via :meth:`get_angles`.
+
+        Parameters
+        ----------
+        hkl_1, hkl_2 : array-like, shape (3,)
+            Miller indices of the two target reflections.
+        wavelength : 2-tuple of float
+            Minimum and maximum wavelength (Angstrom).
+        axes : list
+            Per-axis (x, y, z) rotation-axis direction components.
+        polarities : list
+            Per-axis rotation sense/polarity.
+        limits : sequence of (float, float)
+            Per-axis (min, max) angle limits, in degrees.
+        equiv : bool
+            If True, search over all symmetry-equivalent HKL pairs under
+            point group ``pg``.
+        pg : str
+            Point group symbol used to generate symmetry equivalents.
+        step : float, optional
+            Base angular step size, in degrees. Default is 1.
+
+        Returns
+        -------
+        values0 : tuple of ndarray
+            ``(gamma, nu, lamda, d)`` for the ``hkl_1``-side reflection at
+            each valid goniometer setting.
+        values1 : tuple of ndarray
+            ``(gamma, nu, lamda, d)`` for the ``hkl_2``-side reflection at
+            each valid goniometer setting.
+        """
+
         pg = PointGroupFactory.createPointGroup(pg)
 
         hkls_1 = pg.getEquivalents(hkl_1) if equiv else [hkl_1]
@@ -1162,6 +1810,39 @@ class ExperimentModel(NeuXtalVizModel):
     def simultaneous_peaks_hkl(
         self, hkl_1, hkl_2, wavelength, axes, polarities, limits, step=1
     ):
+        """
+        Scan goniometer settings for a pair of HKLs and keep settings
+        where both reflections simultaneously satisfy the wavelength
+        range and land on active detectors.
+
+        Parameters
+        ----------
+        hkl_1, hkl_2 : array-like, shape (3,)
+            Miller indices of the two target reflections.
+        wavelength : 2-tuple of float
+            Minimum and maximum wavelength (Angstrom). If min and max are
+            equal, a +/-2.5% band is used instead.
+        axes : list
+            Per-axis (x, y, z) rotation-axis direction components.
+        polarities : list
+            Per-axis rotation sense/polarity.
+        limits : sequence of (float, float)
+            Per-axis (min, max) angle limits, in degrees.
+        step : float, optional
+            Base angular step size, in degrees. Default is 1.
+
+        Returns
+        -------
+        angles : ndarray, shape (n_valid, n_axes)
+            Per-axis angle values for each valid goniometer setting.
+        values0 : tuple of ndarray
+            ``(gamma0, nu0, lamda0, d0)`` for the ``hkl_1`` reflection at
+            each valid setting.
+        values1 : tuple of ndarray
+            ``(gamma1, nu1, lamda1, d1)`` for the ``hkl_2`` reflection at
+            each valid setting.
+        """
+
         if np.isclose(wavelength[0], wavelength[1]):
             wavelength = [0.975 * wavelength[0], 1.025 * wavelength[1]]
 
@@ -1267,6 +1948,41 @@ class ExperimentModel(NeuXtalVizModel):
         return angles, (gamma0, nu0, lamda0, d0), (gamma1, nu1, lamda1, d1)
 
     def get_angles(self, gamma, nu):
+        """
+        Look up the cached goniometer setting nearest a detector position.
+
+        Searches the settings previously computed by
+        :meth:`individual_peak` or :meth:`simultaneous_peaks` for the one
+        whose detector (gamma, nu) is closest to the given position, and
+        records the corresponding HKL(s) in ``self.hkl``/``self.hkl_alt``
+        and a descriptive comment in ``self.comment``.
+
+        Parameters
+        ----------
+        gamma : float
+            Detector gamma angle (degrees) to search near.
+        nu : float
+            Detector nu angle (degrees) to search near.
+
+        Returns
+        -------
+        angles : ndarray
+            Per-axis goniometer angle values for the matched setting.
+        gamma, nu : float
+            Detector gamma/nu angles of the matched primary reflection.
+        lamda : float
+            Wavelength (Angstrom) of the matched primary reflection.
+        d : float
+            d-spacing (Angstrom) of the matched primary reflection.
+        gamma_alt, nu_alt : float or None
+            Detector gamma/nu angles of the matched secondary reflection
+            (for simultaneous-peaks results), or None if not applicable.
+        lamda_alt : float or None
+            Wavelength of the matched secondary reflection, or None.
+        d_alt : float or None
+            d-spacing of the matched secondary reflection, or None.
+        """
+
         if len(self.angles_gamma) > 0:
             d2 = (self.angles_gamma - gamma) ** 2 + (self.angles_nu - nu) ** 2
 
@@ -1311,6 +2027,30 @@ class ExperimentModel(NeuXtalVizModel):
             )
 
     def calculate_harmonics(self, hkl, wavelength, wavelength_band):
+        """
+        Find harmonic reflections overlapping a given reflection's beam.
+
+        Parameters
+        ----------
+        hkl : array-like, shape (3,)
+            Miller index of the reference reflection.
+        wavelength : float
+            Wavelength (Angstrom) at which the reference reflection is
+            observed.
+        wavelength_band : 2-tuple of float
+            Minimum and maximum wavelength (Angstrom) of the instrument's
+            usable band.
+
+        Returns
+        -------
+        hkl_harmonics : list
+            For each harmonic order, the reduced-integer HKL if it is an
+            exact (order-1) harmonic, otherwise None.
+        lamda_harmonics : list of float
+            Wavelength (Angstrom) at which each corresponding harmonic
+            order is observed.
+        """
+
         scale = (
             np.gcd.reduce(hkl.astype(int)) if not np.mod(hkl, 1).any() else 1
         )
@@ -1327,6 +2067,38 @@ class ExperimentModel(NeuXtalVizModel):
     def add_mesh(
         self, mesh_angles, wavelength, d_min, rows, free_angles, all_angles
     ):
+        """
+        Add one orientation per point of a regular goniometer-angle mesh.
+
+        Builds an N-dimensional grid over the free goniometer axes and
+        calls :meth:`add_orientation` for every grid point.
+
+        Parameters
+        ----------
+        mesh_angles : tuple
+            ``(limits, ns)`` where ``limits`` is the per-axis (min, max)
+            angle range and ``ns`` is the per-axis number of grid points.
+        wavelength : 2-tuple of float
+            Minimum and maximum wavelength (Angstrom).
+        d_min : float
+            Minimum d-spacing (Angstrom).
+        rows : int
+            Row-number offset; grid point ``i`` is stored as run number
+            ``rows + i`` in the ``combined`` workspace.
+        free_angles : list of str
+            Names of the axes that vary across the mesh, in the order
+            their values should be reported.
+        all_angles : list of str
+            Names of all goniometer axes, in axis order (used to map
+            ``free_angles`` names to grid-point indices).
+
+        Returns
+        -------
+        values : list of ndarray
+            For each mesh point, the values of the ``free_angles`` axes at
+            that point.
+        """
+
         limits, ns = mesh_angles
 
         mins, maxs = zip(*limits)
@@ -1386,6 +2158,41 @@ class ExperimentModel(NeuXtalVizModel):
         n_eq=(0, 1, 0),
         normal_weight=10.0,
     ):
+        """
+        Select, for each of a set of scan angles about ``w``, the
+        goniometer setting from ``Rs`` that best matches that orientation
+        while keeping the scattering plane near the equatorial plane.
+
+        Parameters
+        ----------
+        Rs : array-like, shape (n_settings, 3, 3)
+            Candidate goniometer rotation matrices.
+        motor_angles : array-like, shape (n_settings, n_axes)
+            Per-axis motor angles corresponding to each matrix in ``Rs``.
+        u, v, w : array-like, shape (3,)
+            Orthonormal scattering-plane basis (``u``, ``v`` in-plane,
+            ``w`` normal), as returned by :meth:`calculate_projections`.
+        max_deg : float, optional
+            Total scan range about the plane normal ``w``, in degrees.
+            Default is 360.
+        n_steps : int, optional
+            Number of scan steps over ``max_deg``. Default is 60.
+        n_eq : 3-tuple of float, optional
+            Direction defining the equatorial plane normal. Default is
+            ``(0, 1, 0)``.
+        normal_weight : float, optional
+            Weight penalizing deviation of the scattering plane from the
+            equatorial plane relative to orientation match. Default is
+            10.0.
+
+        Returns
+        -------
+        selected_Rs : ndarray, shape (n_steps, 3, 3)
+            Best-matching rotation matrix for each scan step.
+        selected_angles : ndarray, shape (n_steps, n_axes)
+            Motor angles corresponding to ``selected_Rs``.
+        """
+
         Rs = np.asarray(Rs, dtype=float)
         motor_angles = np.asarray(motor_angles)
 
@@ -1446,6 +2253,29 @@ class ExperimentModel(NeuXtalVizModel):
         equatorial plane (defined by *n_eq*) while scanning around the
         plane normal.
 
+        Parameters
+        ----------
+        hkl_1, hkl_2 : array-like, shape (3,)
+            Two in-plane Miller-index vectors defining the scattering
+            plane.
+        axes : list
+            Per-axis (x, y, z) rotation-axis direction components.
+        polarities : list
+            Per-axis rotation sense/polarity.
+        limits : sequence of (float, float)
+            Per-axis (min, max) angle limits, in degrees.
+        max_deg : float, optional
+            Total scan range about the plane normal, in degrees. Default
+            is 360.
+        n_steps : int, optional
+            Number of scan steps over ``max_deg``. Default is 60.
+        step : float, optional
+            Base angular step size for :meth:`_calculate_matrices`, in
+            degrees. Default is 1.
+        n_eq : 3-tuple of float, optional
+            Direction defining the equatorial plane normal. Default is
+            ``(0, 1, 0)``.
+
         Returns
         -------
         unique_angles : list of ndarray, shape (n_axes,)
@@ -1499,6 +2329,44 @@ class ExperimentModel(NeuXtalVizModel):
         the plane normal.
 
         Returns the list of free-angle values (same format as add_mesh).
+
+        Parameters
+        ----------
+        hkl_1, hkl_2 : array-like, shape (3,)
+            Two in-plane Miller-index vectors defining the scattering
+            plane.
+        wavelength : 2-tuple of float
+            Minimum and maximum wavelength (Angstrom).
+        d_min : float
+            Minimum d-spacing (Angstrom).
+        rows : int
+            Row-number offset; the i-th selected orientation is stored as
+            run number ``rows + i`` in the ``combined`` workspace.
+        free_angles : list of str
+            Names of the axes that vary, in the order their values should
+            be reported.
+        all_angles : list of str
+            Names of all goniometer axes, in axis order.
+        axes : list
+            Per-axis (x, y, z) rotation-axis direction components.
+        polarities : list
+            Per-axis rotation sense/polarity.
+        limits : sequence of (float, float)
+            Per-axis (min, max) angle limits, in degrees.
+        max_deg : float, optional
+            Total scan range about the plane normal, in degrees. Default
+            is 360.
+        n_steps : int, optional
+            Number of scan steps over ``max_deg``. Default is 360.
+        step : float, optional
+            Base angular step size for :meth:`_calculate_matrices`, in
+            degrees. Default is 1.
+
+        Returns
+        -------
+        values : list of ndarray
+            For each selected orientation, the values of the
+            ``free_angles`` axes at that orientation.
         """
         unique_angles = self.compute_plane_angles(
             hkl_1, hkl_2, axes, polarities, limits, max_deg, n_steps, step
@@ -1514,6 +2382,31 @@ class ExperimentModel(NeuXtalVizModel):
         return values
 
     def add_orientation(self, angles, wavelength, d_min, rows):
+        """
+        Predict and store peaks for a single goniometer orientation.
+
+        Sets the goniometer to ``angles`` on the ``instrument`` workspace,
+        predicts peaks with Mantid's ``PredictPeaks``, removes duplicate
+        and dead/masked-detector peaks, tags them with run number
+        ``rows``, and merges them into the ``combined`` workspace.
+
+        Parameters
+        ----------
+        angles : sequence of float
+            Per-axis goniometer angle values, formatted into the cached
+            ``self.axes`` templates.
+        wavelength : 2-tuple of float
+            Minimum and maximum wavelength (Angstrom). If min and max are
+            equal, a +/-2.5% band is used instead.
+        d_min : float
+            Minimum d-spacing (Angstrom).
+        rows : int
+            Run number to assign to the predicted peaks -- identifies this
+            orientation/row in the ``combined`` workspace. May be an
+            existing row index being recalculated, or one past the last
+            existing row to append a new orientation.
+        """
+
         if np.isclose(wavelength[0], wavelength[1]):
             wavelength = [0.975 * wavelength[0], 1.025 * wavelength[1]]
 
@@ -1598,6 +2491,24 @@ class ExperimentModel(NeuXtalVizModel):
         )
 
     def generate_table(self, row):
+        """
+        Build a sorted HKL/d-spacing/wavelength table for one plan row.
+
+        Parameters
+        ----------
+        row : int
+            Run number (plan row) to filter peaks for, taken from the
+            ``combined`` workspace. If -1 and a ``missing`` workspace
+            exists (from :meth:`calculate_statistics`), that workspace of
+            missing reflections is used instead.
+
+        Returns
+        -------
+        table : list of list
+            One row per peak, each ``[h, k, l, d, lamda]`` sorted by
+            descending d-spacing (and h, k, l as tie-breakers).
+        """
+
         if row == -1 and mtd.doesExist("missing"):
             ws = "missing"
         else:
@@ -1651,6 +2562,38 @@ class ExperimentModel(NeuXtalVizModel):
         workspace cloning.  Peaks are extracted once from filtered_ws; HKLs are
         reduced to their canonical symmetry-equivalent using PointGroup, then a
         two-pointer scan over sorted run numbers gives O(N_peaks + N_rows) work.
+
+        Parameters
+        ----------
+        filtered_ws : str
+            Name of the peaks workspace to scan (already filtered to the
+            rows/runs of interest).
+        pg : str
+            Point group symbol used to reduce HKLs to symmetry-equivalent
+            classes for the "symmetric" statistics.
+        lc : str
+            Lattice centering symbol used to determine allowed
+            reflections.
+        d_min, d_max : float
+            d-spacing range (Angstrom) to include.
+        rows : sequence of int
+            Run numbers (plan rows), in cumulative order, at which to
+            report the running statistics.
+        total_sym : int
+            Total number of symmetry-inequivalent reflections possible in
+            range (denominator for symmetric completeness).
+        total_asym : int
+            Total number of reflections possible in range without
+            applying symmetry (denominator for asymmetric completeness).
+
+        Returns
+        -------
+        c_sym, m_sym, r_sym : list of float
+            Cumulative symmetric completeness (%), redundancy, and unique
+            reflection count at each row in ``rows``.
+        c_asym, m_asym, r_asym : list of float
+            Cumulative asymmetric (P1) completeness (%), redundancy, and
+            unique reflection count at each row in ``rows``.
         """
         pg_obj = PointGroupFactory.Instance().createPointGroup(pg)
         is_allowed = centering_conditions.get(lc, lambda h, k, l: True)
@@ -1685,6 +2628,32 @@ class ExperimentModel(NeuXtalVizModel):
             runs_sym.append(run)
 
         def scan(first_dict, all_runs, total_possible):
+            """
+            Compute cumulative completeness/redundancy/unique counts.
+
+            Parameters
+            ----------
+            first_dict : dict
+                Mapping of reflection key to the first run number that
+                observed it.
+            all_runs : list of int
+                Run number of every observation (including repeats).
+            total_possible : int
+                Total number of reflections possible in range (used as
+                the completeness denominator).
+
+            Returns
+            -------
+            comp_out : list of float
+                Cumulative completeness (%) at each row in ``rows``.
+            mult_out : list of float
+                Cumulative redundancy (average multiplicity) at each row
+                in ``rows``.
+            refl_out : list of int
+                Cumulative number of unique reflections at each row in
+                ``rows``.
+            """
+
             sorted_firsts = sorted(first_dict.values())
             sorted_runs = sorted(all_runs)
             comp_out, mult_out, refl_out = [], [], []
@@ -1710,6 +2679,37 @@ class ExperimentModel(NeuXtalVizModel):
         return c_sym, m_sym, r_sym, c_asym, m_asym, r_asym
 
     def _count_reflections(self, ws_name, pg, lc, d_min, d_max):
+        """
+        Cached wrapper around Mantid's ``CountReflections`` algorithm.
+
+        Results are memoized on ``self._count_refl_cache`` keyed by the
+        peak content and parameters, to avoid recomputation for repeated
+        (workspace, point group, centering, d-range) combinations.
+
+        Parameters
+        ----------
+        ws_name : str
+            Name of the peaks workspace to analyze.
+        pg : str
+            Point group symbol.
+        lc : str
+            Lattice centering symbol.
+        d_min, d_max : float
+            d-spacing range (Angstrom) to include.
+
+        Returns
+        -------
+        unique : int
+            Number of unique (symmetry-independent) reflections observed.
+        completeness : float
+            Fraction (0-1) of possible reflections observed.
+        redundancy : float
+            Average multiplicity of observed reflections.
+        extra : object
+            Fourth output value of ``CountReflections`` (unused by callers
+            here).
+        """
+
         ws = mtd[ws_name]
         n = ws.getNumberPeaks()
         key = (
@@ -1739,6 +2739,50 @@ class ExperimentModel(NeuXtalVizModel):
         return self._count_refl_cache[key]
 
     def calculate_statistics(self, point_group, lattice_centering, use, d_min):
+        """
+        Compute per-shell and cumulative completeness/redundancy statistics.
+
+        Filters the ``combined`` workspace down to the active rows,
+        computes overall and per-resolution-shell statistics (both with
+        and without point-group symmetry applied), and computes the
+        row-by-row cumulative statistics via :meth:`_cumulative_stats`.
+        Also builds the ``missing`` workspace of symmetry-predicted but
+        unobserved reflections.
+
+        Parameters
+        ----------
+        point_group : str
+            Point group symbol.
+        lattice_centering : str
+            Lattice centering symbol.
+        use : list of bool
+            Per-row flag (one per plan row/run number) indicating whether
+            that orientation's peaks should be included.
+        d_min : float
+            Minimum d-spacing (Angstrom).
+
+        Returns
+        -------
+        sym : tuple
+            ``(shel_sym, comp_sym, mult_sym, refl_sym)`` -- per-shell
+            labels, completeness (%), redundancy, and unique-reflection
+            counts with point-group symmetry applied (first entry is the
+            "Overall" row).
+        asym : tuple
+            Same layout as ``sym`` but computed in point group "1"
+            (no symmetry applied).
+        cumsym : tuple
+            ``(x, comp_cumsym, mult_cumsym, refl_cumsym)`` -- row numbers
+            and cumulative symmetric completeness/redundancy/unique counts
+            as a function of row.
+        cumasym : tuple
+            ``(x, comp_cumasym, mult_cumasym, refl_cumasym)`` -- same as
+            ``cumsym`` but without symmetry applied.
+
+            Returns None instead if the ``combined`` workspace does not
+            exist or has no peaks after filtering to the active rows.
+        """
+
         shel_sym, comp_sym, mult_sym, refl_sym = [], [], [], []
         shel_asym, comp_asym, mult_asym, refl_asym = [], [], [], []
 
@@ -1865,6 +2909,26 @@ class ExperimentModel(NeuXtalVizModel):
         return sym, asym, cumsym, cumasym
 
     def downsample(self, arr, n=14):
+        """
+        Reduce a sequence to at most ``n`` representative elements.
+
+        Always keeps the first and last elements; for short sequences
+        keeps every other element, for longer sequences picks
+        approximately evenly-spaced indices.
+
+        Parameters
+        ----------
+        arr : sequence
+            Sequence of values to downsample.
+        n : int, optional
+            Target number of interior samples to keep. Default is 14.
+
+        Returns
+        -------
+        sampled : list
+            Downsampled list of elements from ``arr``.
+        """
+
         m = len(arr)
         if m == 0:
             return []
@@ -1881,11 +2945,46 @@ class ExperimentModel(NeuXtalVizModel):
         return [arr[0]] + [arr[i] for i in indices] + [arr[-1]]
 
     def hsl_to_rgb(self, hue, saturation, lightness):
+        """
+        Convert HSL color values to RGB.
+
+        Parameters
+        ----------
+        hue : array-like
+            Hue values, in degrees (0-360).
+        saturation : array-like
+            Saturation values (0-1), broadcastable with ``hue``.
+        lightness : array-like
+            Lightness values (0-1), broadcastable with ``hue``.
+
+        Returns
+        -------
+        rgb : ndarray, shape (..., 3)
+            RGB values (0-1) corresponding to each input HSL triple.
+        """
+
         h = np.array(hue)
         s = np.array(saturation)
         l = np.array(lightness)
 
         def f(h, s, l, n):
+            """
+            Compute one RGB channel from HSL per the CSS HSL-to-RGB formula.
+
+            Parameters
+            ----------
+            h, s, l : ndarray
+                Hue (degrees), saturation, and lightness values.
+            n : float
+                Channel offset (0, 8, or 4 for red, green, blue
+                respectively).
+
+            Returns
+            -------
+            channel : ndarray
+                Computed channel value(s) (0-1).
+            """
+
             k = (n + h / 30) % 12
             a = s * np.minimum(l, 1 - l)
             return l - a * np.maximum(
@@ -1897,6 +2996,16 @@ class ExperimentModel(NeuXtalVizModel):
         return rgb
 
     def delete_angles(self, rows):
+        """
+        Delete plan rows/orientations from the ``combined`` workspace and
+        renumber the remaining runs to be contiguous.
+
+        Parameters
+        ----------
+        rows : list of int
+            Run numbers (plan rows) to delete.
+        """
+
         for row in rows:
             FilterPeaks(
                 InputWorkspace="combined",
@@ -1914,6 +3023,15 @@ class ExperimentModel(NeuXtalVizModel):
             peak.setRunNumber(new_run)
 
     def swap_angles(self, rows):
+        """
+        Swap the run numbers of two plan rows/orientations.
+
+        Parameters
+        ----------
+        rows : 2-element sequence of int
+            The pair of run numbers to swap in the ``combined`` workspace.
+        """
+
         if rows[0] == rows[1]:
             return
         for peak in mtd["combined"]:
@@ -1926,6 +3044,44 @@ class ExperimentModel(NeuXtalVizModel):
     def get_coverage_info(
         self, point_group, lattice_centering, draw_all, color, row=None
     ):
+        """
+        Build reciprocal-space point-cloud data for the coverage plot.
+
+        Reduces observed HKLs to symmetry-independent representatives
+        (applying the lattice centering condition), counts redundancy per
+        representative, and colors each point either by direction on a
+        sphere or by redundancy.
+
+        Parameters
+        ----------
+        point_group : str
+            Point group symbol used to generate symmetry equivalents.
+        lattice_centering : str
+            Lattice centering symbol; only reflections satisfying its
+            centering condition are counted.
+        draw_all : bool
+            If True, use all active peaks (``filtered`` workspace);
+            if False, restrict to the currently selected row (``table``
+            workspace).
+        color : str
+            Coloring scheme: "Sphere" to color by direction, or
+            "Redundancy" to color by observation count.
+        row : int or None, optional
+            If -1, use the ``missing`` reflections workspace instead of
+            ``filtered``/``table``. Default is None.
+
+        Returns
+        -------
+        coverage_dict : dict or None
+            Dictionary with keys ``"colors"`` (per-point RGB uint8),
+            ``"sizes"`` (normalized redundancy per point), ``"coords"``
+            (Cartesian reciprocal-space coordinates), ``"axis_coords"``
+            and ``"axis_colors"`` (coordinates/colors for the (100),
+            (010), (001) axis markers), and ``"type"`` (name of the
+            workspace used). Returns None if no ``filtered`` workspace
+            exists yet.
+        """
+
         pg = PointGroupFactory.createPointGroup(point_group)
 
         coverage_dict = {}
@@ -1952,6 +3108,24 @@ class ExperimentModel(NeuXtalVizModel):
             rep_members = {}
 
             def rep_of(hkl):
+                """
+                Map an HKL to its symmetry-equivalent representative.
+
+                Computes the point-group equivalents of ``hkl``, picks
+                the lexicographically smallest as the representative,
+                and records the full equivalent set in ``rep_members``
+                (from the enclosing scope) the first time it is seen.
+
+                Parameters
+                ----------
+                hkl : tuple of int
+                    Miller index to reduce to its representative.
+
+                Returns
+                -------
+                rep : tuple of int
+                    Symmetry-independent representative Miller index.
+                """
                 eq = tuple(map(tuple, pg.getEquivalents(hkl)))
                 rep = min(eq)
                 if rep not in rep_members:
@@ -2025,6 +3199,26 @@ class ExperimentModel(NeuXtalVizModel):
             return coverage_dict
 
     def get_laue_info(self):
+        """
+        Extract detector-frame angles and HKLs for the current row's peaks.
+
+        Computes gamma/nu detector angles, wavelength, and d-spacing for
+        every peak in the ``table`` workspace, and caches the results as
+        ``self.lamda_peaks``, ``self.gamma_peaks``, ``self.nu_peaks``,
+        ``self.d_peaks``, and ``self.hkl_peaks`` for later lookup by
+        :meth:`get_peak_index`/:meth:`get_peak_selection`.
+
+        Returns
+        -------
+        gamma_peaks, nu_peaks : ndarray
+            Detector gamma/nu angles (degrees) for each peak.
+        lamda_peaks : ndarray
+            Wavelength (Angstrom) for each peak.
+        d_peaks : ndarray
+            d-spacing (Angstrom) for each peak.
+
+            Returns None if the ``table`` workspace does not exist.
+        """
 
         if mtd.doesExist("table"):
 
@@ -2071,6 +3265,32 @@ class ExperimentModel(NeuXtalVizModel):
             return gamma_peaks, nu_peaks, lamda_peaks, d_peaks
 
     def get_peak_index(self, i):
+        """
+        Look up a cached Laue peak (and any co-located peaks) by index.
+
+        Uses the arrays cached by :meth:`get_laue_info`.
+
+        Parameters
+        ----------
+        i : int
+            Index into the cached peak arrays.
+
+        Returns
+        -------
+        gamma, nu : float
+            Detector gamma/nu angles (degrees) of peak ``i``.
+        lamdas : ndarray
+            Wavelengths (Angstrom) of all peaks at the same detector
+            position as peak ``i`` (e.g. harmonics).
+        hkl : ndarray, shape (3,)
+            Miller index of peak ``i``.
+        wl : float
+            Wavelength (Angstrom) of peak ``i``.
+        i : int
+            The (unchanged) input index, echoed back for convenience.
+
+            Returns None if no peaks are cached.
+        """
 
         if len(self.lamda_peaks) > 0:
             gamma = self.gamma_peaks[i]
@@ -2085,6 +3305,34 @@ class ExperimentModel(NeuXtalVizModel):
             return gamma, nu, lamdas, hkl, wl, i
 
     def get_peak_selection(self, gamma, nu):
+        """
+        Find the cached Laue peak nearest a given detector position.
+
+        Uses the arrays cached by :meth:`get_laue_info`.
+
+        Parameters
+        ----------
+        gamma : float
+            Detector gamma angle (degrees) to search near.
+        nu : float
+            Detector nu angle (degrees) to search near.
+
+        Returns
+        -------
+        gamma, nu : float
+            Detector gamma/nu angles (degrees) of the matched peak.
+        lamdas : ndarray
+            Wavelengths (Angstrom) of all peaks at the same detector
+            position as the match (e.g. harmonics).
+        hkl : ndarray, shape (3,)
+            Miller index of the matched peak.
+        wl : float
+            Wavelength (Angstrom) of the matched peak.
+        i : int
+            Index of the matched peak in the cached arrays.
+
+            Returns None if no peaks are cached.
+        """
 
         if len(self.lamda_peaks) > 0:
             d2 = (self.gamma_peaks - gamma) ** 2 + (self.nu_peaks - nu) ** 2
@@ -2102,10 +3350,50 @@ class ExperimentModel(NeuXtalVizModel):
             return gamma, nu, lamdas, hkl, wl, i
 
     def to_index(self, Q, Q_max, scale, n):
+        """
+        Convert Q-coordinate value(s) to a clipped voxel-grid index.
+
+        Parameters
+        ----------
+        Q : array-like
+            Q-coordinate value(s) (inverse Angstrom).
+        Q_max : float
+            Maximum Q extent of the grid (inverse Angstrom).
+        scale : float
+            Conversion factor from Q to index units, typically
+            ``(n - 1) / (2 * Q_max)``.
+        n : int
+            Number of voxels along this axis.
+
+        Returns
+        -------
+        idx : ndarray of int
+            Voxel index (indices) clipped to ``[0, n - 1]``.
+        """
+
         idx = np.round((Q + Q_max) * scale).astype(np.int32)
         return np.clip(idx, 0, n - 1)
 
     def extract_data(self, ws):
+        """
+        Extract bin-center coordinate grids, signal, and errors from an MD workspace.
+
+        Parameters
+        ----------
+        ws : str
+            Name of the MD workspace to extract from.
+
+        Returns
+        -------
+        coords : list of ndarray
+            Meshgrid (``indexing="ij"``) of bin-center coordinates for
+            each non-integrated dimension of ``ws``.
+        signal : ndarray
+            Signal array of ``ws``, squeezed to drop singleton dimensions.
+        errors : ndarray
+            Standard errors (square root of the error-squared array) of
+            ``ws``, squeezed to drop singleton dimensions.
+        """
 
         dims = mtd[ws].getNonIntegratedDimensions()
 
@@ -2124,6 +3412,27 @@ class ExperimentModel(NeuXtalVizModel):
         return np.meshgrid(*xs, indexing="ij"), signal, errors
 
     def calculate_footprint(self, wavelength, d_min, n=200):
+        """
+        Build the reciprocal-space "footprint" workspace covering the
+        instrument's detector solid angle over the wavelength band.
+
+        For every unmasked detector pixel, traces a line in Q-space
+        (voxelized on an ``n``x``n``x``n`` grid out to ``Q_max``) from the
+        minimum to maximum incident wavenumber, and marks the traversed
+        voxels. Creates and populates the ``"footprint"`` MD workspace;
+        does nothing if it already exists.
+
+        Parameters
+        ----------
+        wavelength : 2-tuple of float
+            Minimum and maximum wavelength (Angstrom).
+        d_min : float
+            Minimum d-spacing (Angstrom), used to set the Q-space extent
+            (``Q_max = 2 * pi / d_min``).
+        n : int, optional
+            Number of voxels along each axis of the footprint grid.
+            Default is 200.
+        """
         if not mtd.doesExist("footprint"):
             lamda_min, lamda_max = wavelength
             k_min = 2 * np.pi / lamda_max
@@ -2200,6 +3509,23 @@ class ExperimentModel(NeuXtalVizModel):
             mtd["footprint"].setSignalArray(hist)
 
     def validate_projection(self, proj):
+        """
+        Validate and unpack a 3x3 HKL projection matrix.
+
+        Parameters
+        ----------
+        proj : array-like
+            Flat or nested sequence of 9 values, reshaped to a 3x3
+            projection matrix whose rows/columns are the U, V, W vectors.
+
+        Returns
+        -------
+        U, V, W : ndarray, shape (3,)
+            Rows of the reshaped projection matrix.
+        invalid : bool
+            True if the projection matrix is singular (determinant
+            close to zero), meaning U, V, W do not form a valid basis.
+        """
         proj = np.array(proj).reshape(3, 3)
         invalid = np.isclose(np.linalg.det(proj), 0)
         return *proj, invalid
@@ -2218,6 +3544,53 @@ class ExperimentModel(NeuXtalVizModel):
         use_symmetry=False,
         factor=2,
     ):
+        """
+        Compute (or reuse) reciprocal-space coverage over a set of
+        goniometer orientations and slice it onto an HKL plane.
+
+        Builds a coverage MD workspace (cached under a name derived from
+        the goniometer axes/angles and, if symmetry is applied, the point
+        group) by rotating the footprint into reciprocal space for each
+        orientation in ``angles`` and, if ``use_symmetry`` is True,
+        applying the Laue point-group symmetry equivalents. If a matching
+        coverage workspace already exists, it is reused instead of being
+        recomputed. The resulting 3D coverage is then sliced onto the
+        requested HKL plane via :meth:`_slice_meshmap`.
+
+        Parameters
+        ----------
+        angles : array-like
+            Either a list of goniometer angle tuples (if ``mesh`` is
+            False), or ``(limits, ns)`` describing a grid of angles to
+            mesh over (if ``mesh`` is True).
+        U, V, W : ndarray, shape (3,)
+            HKL projection basis vectors defining the slice plane.
+        normal : list of int
+            One-hot vector selecting which of U, V, W is the slice
+            normal.
+        value : float
+            Slice position along the normal direction.
+        thickness : float
+            Slice half-thickness along the normal direction.
+        mesh : bool
+            If True, ``angles`` is ``(limits, ns)`` and a meshgrid of
+            goniometer angles is generated; if False, ``angles`` is
+            already an explicit list of angle tuples.
+        point_group : str, optional
+            Point group symbol used to generate symmetry equivalents when
+            ``use_symmetry`` is True. Default is "1".
+        use_symmetry : bool, optional
+            Whether to fold in Laue point-group symmetry equivalents when
+            accumulating coverage. Default is False.
+        factor : int, optional
+            Upsampling factor applied to the coverage array along each
+            axis before binning into the MD workspace. Default is 2.
+
+        Returns
+        -------
+        slice_dict : dict
+            Slice dictionary as returned by :meth:`_slice_meshmap`.
+        """
         if mesh:
             limits, ns = angles
 
@@ -2450,6 +3823,21 @@ class ExperimentModel(NeuXtalVizModel):
         return slice_dict
 
     def crystal_plan(self, *args):
+        """
+        Construct a :class:`CrystalPlan` genetic-algorithm optimizer.
+
+        Parameters
+        ----------
+        *args
+            Positional arguments forwarded to :class:`CrystalPlan`, i.e.
+            ``use``, ``opt``, ``axes``, ``limits``, ``wavelength``,
+            ``d_min``, ``point_group``, ``lattice_centering``.
+
+        Returns
+        -------
+        crystal_plan : CrystalPlan
+            The constructed optimizer instance.
+        """
         return CrystalPlan(*args)
 
 
@@ -2472,6 +3860,40 @@ class CrystalPlan:
         point_group,
         lattice_centering,
     ):
+        """
+        Initialize the optimizer from the current combined peaks/UB.
+
+        Clones the ``"combined"`` peaks workspace to ``"crystal_plan"``,
+        removes rows not marked for use, and caches the UB matrix,
+        wavelength band, goniometer axes/limits, resolution range, point
+        group, and lattice centering needed for fitness evaluation.
+
+        Parameters
+        ----------
+        use : list of bool
+            Per-row flag selecting which existing peaks/orientations to
+            keep in the base ``"crystal_plan"`` workspace.
+        opt : list of bool
+            Per-row flag indicating which rows are being optimized (used
+            only for status printing here).
+        axes : list of str
+            Goniometer axis format strings (as used by ``SetGoniometer``)
+            for each of the (up to six) axes.
+        limits : list of 2-tuple of float
+            ``(min, max)`` angle limits for each goniometer axis.
+        wavelength : 2-tuple of float
+            Minimum and maximum wavelength (Angstrom). If both values are
+            equal, they are widened slightly (+/-2.5%) to give a nonzero
+            band.
+        d_min : float
+            Minimum d-spacing (Angstrom) used for peak prediction and
+            fitness evaluation.
+        point_group : str
+            Point group symbol used when evaluating fitness/completeness.
+        lattice_centering : str
+            Lattice centering symbol used when evaluating
+            fitness/completeness.
+        """
         CloneWorkspace(
             InputWorkspace="combined", OutputWorkspace="crystal_plan"
         )
@@ -2522,6 +3944,22 @@ class CrystalPlan:
         #####################
 
     def generation(self, i, j):
+        """
+        Randomly generate one orientation "gene" and predict its peaks.
+
+        Draws a random goniometer angle within ``self.limits`` for each
+        non-fixed axis, records the drawn angles in ``self.genes`` under
+        the key ``"peaks_{i}_{j}"``, sets the instrument goniometer to
+        those angles, and predicts peaks into a workspace of that name
+        (tagged with run number ``i + self.offset``).
+
+        Parameters
+        ----------
+        i : int
+            Orientation index within an individual.
+        j : int
+            Individual index within the population.
+        """
         axes = self.axes.copy()
         limits = self.limits.copy()
 
@@ -2565,6 +4003,26 @@ class CrystalPlan:
             pk.setSigmaIntensity(10)
 
     def initialization(self, n_orient, n_indiv):
+        """
+        Create the initial population of individuals for the genetic algorithm.
+
+        For each of ``n_indiv`` individuals, randomly generates
+        ``n_orient`` orientation genes (see :meth:`generation`), combines
+        their predicted peaks into one workspace per individual (see
+        :meth:`recombination`), and evaluates its fitness.
+
+        Parameters
+        ----------
+        n_orient : int
+            Number of orientations (goniometer settings) per individual.
+        n_indiv : int
+            Number of individuals in the population.
+
+        Returns
+        -------
+        fit : ndarray
+            Fitness score of each individual in the initial population.
+        """
         fit = []
         for j in range(n_indiv):
             for i in range(n_orient):
@@ -2575,6 +4033,22 @@ class CrystalPlan:
         return np.array(fit)
 
     def recombination(self, n_orient, j):
+        """
+        Combine an individual's per-orientation predicted peaks into one workspace.
+
+        Sequentially combines the ``n_orient`` gene peak workspaces
+        ``"peaks_{i}_{j}"`` (for ``i`` in ``range(n_orient)``), starting
+        from the base ``"crystal_plan"`` peaks workspace, into a single
+        peaks workspace named ``"peaks_{j}"``.
+
+        Parameters
+        ----------
+        n_orient : int
+            Number of orientations (goniometer settings) for individual
+            ``j``.
+        j : int
+            Individual index within the population.
+        """
         individuals = "peaks_{}".format(j)
         for i in range(n_orient):
             genes = "peaks_{}_{}".format(i, j)
@@ -2592,6 +4066,28 @@ class CrystalPlan:
                 )
 
     def fitness(self, peaks, n=5):
+        """
+        Score a peaks workspace by resolution-weighted completeness.
+
+        Splits the d-spacing range ``[self.d_min, self.d_max]`` into
+        ``n - 1`` shells (evenly spaced in ``1/d**2``), computes the
+        reflection completeness in each shell via ``CountReflections``,
+        and sums the completeness values weighted so that
+        higher-resolution (smaller d-spacing) shells count more.
+
+        Parameters
+        ----------
+        peaks : str
+            Name of the peaks workspace to evaluate.
+        n : int, optional
+            Number of d-spacing shell boundaries (giving ``n - 1``
+            shells). Default is 5.
+
+        Returns
+        -------
+        fit : float
+            Resolution-weighted completeness fitness score.
+        """
         d = 1 / np.sqrt(np.linspace(1 / self.d_max**2, 1 / self.d_min**2, n))
 
         fit = 0
@@ -2615,6 +4111,26 @@ class CrystalPlan:
         return fit
 
     def crossover(self, n_orient, best, selection):
+        """
+        Produce the next generation's gene workspaces via elitism and crossover.
+
+        Clones the gene workspaces of the elite individuals in ``best``
+        unchanged, then for each parent pair in ``selection`` produces
+        offspring by swapping orientation genes between the two parents
+        (a single split point when ``n_orient > 1``, or independent
+        copies of each parent when ``n_orient == 1``). Renames all
+        resulting workspaces with the ``"peak"`` prefix and rebuilds
+        ``self.genes`` to reflect the new generation's gene angles.
+
+        Parameters
+        ----------
+        n_orient : int
+            Number of orientations (goniometer settings) per individual.
+        best : array-like of int
+            Indices of the elite individuals to carry over unchanged.
+        selection : list of array-like
+            List of parent-index pairs selected for crossover.
+        """
         j = 0
         genes = "peaks_{}_{}"
         genome = "s_{}_{}"
@@ -2695,6 +4211,29 @@ class CrystalPlan:
         self.genes = updated_genes
 
     def mutation(self, n_orient, n_indiv, mutation_rate):
+        """
+        Randomly mutate genes of the current generation and re-evaluate fitness.
+
+        For each individual, each orientation gene has probability
+        ``mutation_rate`` of being replaced by a freshly randomized
+        orientation (see :meth:`generation`); unchanged genes are left in
+        place. Recombines each individual's genes (see
+        :meth:`recombination`) and recomputes its fitness.
+
+        Parameters
+        ----------
+        n_orient : int
+            Number of orientations (goniometer settings) per individual.
+        n_indiv : int
+            Number of individuals in the population.
+        mutation_rate : float
+            Probability, in ``[0, 1]``, that any given gene is mutated.
+
+        Returns
+        -------
+        fit : ndarray
+            Fitness score of each individual after mutation.
+        """
         fit = []
         for j in range(n_indiv):
             for i in range(n_orient):
@@ -2710,6 +4249,39 @@ class CrystalPlan:
         return np.array(fit)
 
     def optimize(self, n_orient, n_indiv, n_gener, n_elite, mutation_rate):
+        """
+        Run the genetic algorithm to find an optimized set of orientations.
+
+        Initializes a population (:meth:`initialization`), then for
+        ``n_gener`` generations ranks individuals by fitness, carries the
+        top ``n_elite`` forward unchanged, fills the remainder of the
+        population via fitness-proportional selection and crossover
+        (:meth:`crossover`), and applies random mutation
+        (:meth:`mutation`). Returns the orientation angles of the
+        best-scoring individual from the final generation, and clones its
+        combined peaks workspace to ``"combined"``.
+
+        Parameters
+        ----------
+        n_orient : int
+            Number of orientations (goniometer settings) per individual.
+        n_indiv : int
+            Number of individuals in the population.
+        n_gener : int
+            Number of generations to evolve.
+        n_elite : int
+            Number of top individuals carried over unchanged each
+            generation.
+        mutation_rate : float
+            Probability, in ``[0, 1]``, that any given gene is mutated
+            each generation.
+
+        Returns
+        -------
+        values : list
+            Orientation angle list for each of the ``n_orient``
+            goniometer settings of the best individual found.
+        """
         fit = self.initialization(n_orient, n_indiv)
 
         ranking = np.argsort(fit)

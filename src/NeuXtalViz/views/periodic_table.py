@@ -39,8 +39,17 @@ class PeriodicTableView(QWidget):
     """
 
     selection = Signal(str)
+    """Signal(str): Emitted with the selected element symbol on close."""
 
     def __init__(self, parent=None):
+        """
+        Initialize the periodic table view and build the button grid.
+
+        Parameters
+        ----------
+        parent : QWidget, optional
+            Parent widget, by default None.
+        """
         super().__init__(parent)
 
         layout = QHBoxLayout()
@@ -54,6 +63,20 @@ class PeriodicTableView(QWidget):
         self.value = "H"
 
     def __init_table(self):
+        """
+        Build the grid of row/column labels and element buttons.
+
+        Creates a mutually-exclusive button group with one button per
+        element, positioned according to `indexing`, colored by group
+        membership using `colors`, and disabled for elements with no
+        isotope data.
+
+        Returns
+        -------
+        table : QGridLayout
+            Layout containing the periodic table row/column labels and
+            element buttons.
+        """
         table = QGridLayout()
 
         for row in range(7):
@@ -83,28 +106,86 @@ class PeriodicTableView(QWidget):
         return table
 
     def get_atom_view(self):
+        """
+        Create a new atom/isotope selection view.
+
+        Returns
+        -------
+        atom_view : AtomView
+            Newly constructed atom detail/isotope selection widget.
+        """
         return AtomView()
 
     def connect_atoms(self, atom_info):
+        """
+        Connect element button clicks to a handler.
+
+        Parameters
+        ----------
+        atom_info : callable
+            Function called with the clicked element's symbol when an
+            element button is clicked.
+        """
         self.atom_info = atom_info
 
         self.atom_buttons.buttonClicked.connect(self.show_atom_dialog)
 
     def show_atom_dialog(self, button):
+        """
+        Invoke the atom info callback for the clicked element button.
+
+        Parameters
+        ----------
+        button : QPushButton
+            Button that was clicked, whose text is the element symbol.
+
+        Returns
+        -------
+        result : object
+            Return value of the `atom_info` callback connected via
+            :meth:`connect_atoms`.
+        """
         return self.atom_info(button.text())
 
     def closeEvent(self, event):
+        """
+        Emit the current selection when the widget is closed.
+
+        Parameters
+        ----------
+        event : QCloseEvent
+            Close event triggering the shutdown; accepted unconditionally.
+        """
         self.selection.emit(self.value)
         event.accept()
 
     def connect_selected(self, value):
+        """
+        Connect a callback to the selection signal.
+
+        Parameters
+        ----------
+        value : callable
+            Function called with the selected element symbol when the
+            selection signal is emitted.
+        """
         self.selection.connect(value)
 
 
 class AtomView(QWidget):
+    """
+    View for displaying isotope and neutron scattering data for an element.
+
+    Provides a user interface for selecting an isotope and displaying the
+    corresponding atomic mass, abundance, and neutron scattering
+    parameters.
+    """
+
     selection = Signal(str)
+    """Signal(str): Emitted with the selected isotope symbol on close."""
 
     def __init__(self):
+        """Initialize the atom view and build its widgets and layout."""
         super().__init__()
 
         card = QGridLayout()
@@ -143,38 +224,122 @@ class AtomView(QWidget):
         self.setLayout(card)
 
     def closeEvent(self, event):
+        """
+        Emit the current isotope selection when the widget is closed.
+
+        Parameters
+        ----------
+        event : QCloseEvent
+            Close event triggering the shutdown; accepted unconditionally.
+        """
         self.selection.emit(self.get_selection())
         event.accept()
 
     def connect_selected(self, value):
+        """
+        Connect a callback to the selection signal.
+
+        Parameters
+        ----------
+        value : callable
+            Function called with the selected isotope symbol when the
+            selection signal is emitted.
+        """
         self.selection.connect(value)
 
     def connect_isotopes(self, update_info):
+        """
+        Connect a callback to isotope combo box changes.
+
+        Parameters
+        ----------
+        update_info : callable
+            Function called when the selected isotope combo box index
+            changes.
+        """
         self.isotope_combo.currentIndexChanged.connect(update_info)
 
     def connect_selection(self, use_isotope):
+        """
+        Connect a callback to the "Use Isotope" button.
+
+        Parameters
+        ----------
+        use_isotope : callable
+            Function called when the select button is clicked.
+        """
         self.select_button.clicked.connect(use_isotope)
 
     def set_symbol_name(self, symbol, name):
+        """
+        Set the displayed element symbol and name.
+
+        Parameters
+        ----------
+        symbol : str
+            Chemical symbol of the element.
+        name : str
+            Full name of the element.
+        """
         self.symbol_label.setText(symbol)
         self.name_label.setText(name)
 
     def get_selection(self):
+        """
+        Return the currently displayed element symbol.
+
+        Returns
+        -------
+        isotope : str
+            Chemical symbol shown in the symbol label.
+        """
         isotope = self.symbol_label.text()  # +self.isotope_combo.currentText()
 
         return isotope
 
     def set_isotope_numbers(self, numbers):
+        """
+        Populate the isotope combo box with the given mass numbers.
+
+        Parameters
+        ----------
+        numbers : list or None
+            Mass numbers of the available isotopes. If None, the combo
+            box is left empty.
+        """
         self.isotope_combo.clear()
         if numbers is not None:
             self.isotope_combo.addItems(np.array(numbers).astype(str).tolist())
 
     def get_isotope(self):
+        """
+        Return the mass number of the currently selected isotope.
+
+        Returns
+        -------
+        iso : int or None
+            Mass number of the selected isotope, 0 if no specific
+            isotope is selected (empty combo box text), or None if the
+            combo box text itself is None.
+        """
         iso = self.isotope_combo.currentText()
         if iso is not None:
             return 0 if iso == "" else int(iso)
 
     def set_atom_parameters(self, atom, scatt):
+        """
+        Update the displayed atomic and neutron scattering parameters.
+
+        Parameters
+        ----------
+        atom : dict
+            Atomic data with keys ``"z"``, ``"mass"``, and
+            ``"abundance"``.
+        scatt : dict
+            Neutron scattering data with keys ``"sigma_coh"``,
+            ``"sigma_inc"``, ``"sigma_tot"``, ``"b_coh_re"``,
+            ``"b_coh_im"``, ``"b_inc_re"``, and ``"b_inc_im"``.
+        """
         self.z_label.setText(str(atom["z"]))
         self.mass_label.setText(str(atom["mass"]))
         self.abundance_label.setText(str(atom["abundance"]))

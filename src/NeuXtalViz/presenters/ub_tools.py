@@ -5,7 +5,30 @@ import numpy as np
 
 
 class UB(NeuXtalVizPresenter):
+    """
+    Presenter for the UB-matrix determination and refinement tools.
+
+    Mediates between the UB tools view and model: wires the view's Qt
+    signals to presenter handlers, converts UI events into model calls,
+    and pushes model results back to the view. Covers Q-space
+    conversion, peak finding/indexing/integration, UB matrix
+    determination/transformation/refinement, lattice/cell selection,
+    instrument and slice visualization, and peak alignment/clustering.
+    """
+
     def __init__(self, view, model):
+        """
+        Initialize the presenter and connect all UB tools view signals
+        to their corresponding presenter handler methods.
+
+        Parameters
+        ----------
+        view : object
+            The UB tools view/UI instance.
+        model : object
+            The UB tools model instance containing data and logic.
+        """
+
         super(UB, self).__init__(view, model)
 
         self.view.connect_load_Q(self.load_Q)
@@ -118,11 +141,42 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_calculate_alignment(self.calculate_alignment)
 
     def refresh_peak_views(self):
+        """
+        Refresh the peaks table and alignment run list in the view.
+
+        Pulls the current peak information from the model (or an empty
+        list if there are no peaks) and pushes it to the peaks table
+        and the alignment run selector in the view.
+        """
+
         peaks = self.model.get_peak_info() if self.model.has_peaks() else []
         self.view.update_peaks_table(peaks)
         self.view.update_alignment_runs(peaks)
 
     def _calculate_display_limits(self, data, method, scale):
+        """
+        Compute display color-limits for a signal array.
+
+        Parameters
+        ----------
+        data : array_like
+            Signal values to compute display limits for.
+        method : str or None
+            Clipping method passed to the model's ``calculate_clim``
+            (e.g. ``"normal"``, ``"boxplot"``, or ``None``).
+        scale : str
+            Display scale, ``"log"`` or ``"linear"``. When ``"log"``
+            and the computed minimum is non-positive or non-finite,
+            the minimum is recomputed from the smallest positive value.
+
+        Returns
+        -------
+        vmin : float
+            Lower display limit.
+        vmax : float
+            Upper display limit.
+        """
+
         clip = self.model.calculate_clim(np.array(data, copy=True), method)
 
         vmin = np.nanmin(clip)
@@ -142,6 +196,36 @@ class UB(NeuXtalVizPresenter):
     def _resolve_display_limits(
         self, data, method, scale, auto_limits, current_vmin, current_vmax
     ):
+        """
+        Resolve the display color-limits to use, honoring manual limits.
+
+        If auto-limits are disabled and valid manual limits are
+        supplied, those are used (adjusted for log scale if needed);
+        otherwise the limits are recomputed from the data.
+
+        Parameters
+        ----------
+        data : array_like
+            Signal values to compute display limits for.
+        method : str or None
+            Clipping method passed to ``_calculate_display_limits``.
+        scale : str
+            Display scale, ``"log"`` or ``"linear"``.
+        auto_limits : bool
+            Whether display limits should be automatically computed.
+        current_vmin : float or None
+            Current manually-set lower limit, if any.
+        current_vmax : float or None
+            Current manually-set upper limit, if any.
+
+        Returns
+        -------
+        vmin : float
+            Resolved lower display limit.
+        vmax : float
+            Resolved upper display limit.
+        """
+
         if (
             not auto_limits
             and current_vmin is not None
@@ -155,6 +239,15 @@ class UB(NeuXtalVizPresenter):
         return self._calculate_display_limits(data, method, scale)
 
     def update_cvals(self):
+        """
+        Update the slice colorbar limits from the view's vmin/vmax
+        line-edit values.
+
+        Connected to the slice view's vmin/vmax line-edit signals.
+        Adjusts the lower limit upward when it is non-positive and the
+        slice scale is logarithmic.
+        """
+
         vmin = self.view.get_vmin_value()
         vmax = self.view.get_vmax_value()
 
@@ -165,6 +258,15 @@ class UB(NeuXtalVizPresenter):
                 self.view.update_colorbar_vlims(vmin, vmax)
 
     def update_inst_cvals(self):
+        """
+        Update the instrument view colorbar limits from the view's
+        vmin/vmax line-edit values.
+
+        Connected to the instrument view's vmin/vmax line-edit
+        signals. Adjusts the lower limit upward when it is
+        non-positive and the instrument scale is logarithmic.
+        """
+
         vmin = self.view.get_inst_vmin_value()
         vmax = self.view.get_inst_vmax_value()
 
@@ -175,6 +277,17 @@ class UB(NeuXtalVizPresenter):
                 self.view.update_instrument_colorbar_vlims(vmin, vmax)
 
     def update_instrument_view_autoscaled(self):
+        """
+        Refresh the instrument view, clearing manual color limits when
+        auto-limits are enabled.
+
+        Connected to the instrument view's vlim-combo signal. If
+        auto-limits are enabled, clears the manual vmin/vmax line
+        edits (blocking their signals while doing so), then redraws
+        the instrument display from the cached signal, or recomputes
+        the instrument view if no cache is available.
+        """
+
         if self.view.get_instrument_auto_limits():
             self.view.inst_vmin_line.blockSignals(True)
             self.view.inst_vmax_line.blockSignals(True)
@@ -188,13 +301,36 @@ class UB(NeuXtalVizPresenter):
             self.update_instrument_view()
 
     def handle_data_combo_change(self):
+        """
+        Handle selection of a new run in the data list combo box.
+
+        Connected to the view's data-list combo box signal. Invalidates
+        the cached instrument signal so the instrument view is
+        recomputed from scratch, then refreshes the (auto-scaled)
+        instrument view.
+        """
+
         self.inst_signal_cache = None
         self.update_instrument_view_autoscaled()
 
     def update_instrument_clim(self):
+        """
+        Refresh the instrument display using the current color limits.
+        """
+
         self.update_instrument_display()
 
     def update_instrument_display(self):
+        """
+        Redraw the instrument view display using the cached signal.
+
+        Connected to the instrument scale/colormap/colorbar combo box
+        and auto-limits signals. If no signal is cached yet, triggers
+        a full instrument view recomputation instead. Otherwise
+        resolves the display limits and updates the view's colormap,
+        scale, and color limits.
+        """
+
         if self.inst_signal_cache is None:
             self.update_instrument_view()
             return
@@ -216,9 +352,22 @@ class UB(NeuXtalVizPresenter):
         )
 
     def update_slice_clim(self):
+        """
+        Refresh the slice display using the current color limits.
+        """
+
         self.update_slice_display()
 
     def update_slice_display(self):
+        """
+        Redraw the HKL slice display using the cached signal.
+
+        Connected to the slice scale/colormap/colorbar combo box and
+        auto-limits signals. If no signal is cached yet, triggers a
+        full reslice instead. Otherwise resolves the display limits
+        and updates the view's colormap, scale, and color limits.
+        """
+
         if self.slice_signal_cache is None:
             self.reslice()
             return
@@ -240,11 +389,10 @@ class UB(NeuXtalVizPresenter):
 
     def update_find_spacing(self):
         """
-        Update the find peaks spacing in the view using Q value.
+        Update the find peaks distance (Q) in the view from the
+        d-spacing value.
 
-        Parameters
-        ----------
-        None
+        Connected to the find-peaks d-spacing line edit signal.
         """
         d = self.view.get_find_peaks_spacing()
         Q = self.model.get_Q(d)
@@ -252,11 +400,10 @@ class UB(NeuXtalVizPresenter):
 
     def update_find_distance(self):
         """
-        Update the find peaks distance in the view using d value.
+        Update the find peaks d-spacing in the view from the distance
+        (Q) value.
 
-        Parameters
-        ----------
-        None
+        Connected to the find-peaks distance (Q) line edit signal.
         """
         Q = self.view.get_find_peaks_distance()
         d = self.model.get_d(Q)
@@ -264,11 +411,15 @@ class UB(NeuXtalVizPresenter):
 
     def hand_index_fractional(self):
         """
-        Handle fractional indexing for peaks and update the view.
+        Recompute integer (h,k,l,m,n,p) indices from a manually edited
+        fractional hkl and update the selected peak and view.
 
-        Parameters
-        ----------
-        None
+        Connected to the h/k/l fractional index line edit signals.
+        Reads the modulation vectors, the current hkl/integer-hkl/mnp
+        indices, and the selected peak row from the view; if all are
+        available, recalculates the integer indices, stores them on
+        the selected peak in the model, and updates the peaks table
+        and index fields in the view.
         """
         mod_info = self.get_modulation_info()
         hkl_info = self.view.get_indices()
@@ -294,8 +445,15 @@ class UB(NeuXtalVizPresenter):
 
     def hand_index_integer(self):
         """
-        Handle integer indexing for peaks and update the view.
+        Recompute a fractional hkl from manually edited integer
+        (h,k,l,m,n,p) indices and update the selected peak and view.
 
+        Connected to the integer h/k/l/m/n/p index line edit signals.
+        Reads the modulation vectors, the current hkl/integer-hkl/mnp
+        indices, and the selected peak row from the view; if all are
+        available, recalculates the fractional hkl, stores it on the
+        selected peak in the model, and updates the peaks table and
+        index fields in the view.
         """
 
         mod_info = self.get_modulation_info()
@@ -321,6 +479,25 @@ class UB(NeuXtalVizPresenter):
             self.view.set_indices(hkl, int_hkl, int_mnp)
 
     def convert_Q(self, force_reload=False):
+        """
+        Load raw event/histogram data and convert it to Q-space in a
+        background worker.
+
+        Connected to the "convert Q" button signal. Gathers the
+        instrument, wavelength, calibration files, IPTS/run/experiment
+        numbers, Lorentz-correction flag, time-stop cutoff, and
+        minimum d-spacing from the view, then dispatches
+        ``convert_Q_process`` to a worker thread whose result updates
+        the run list and triggers a visualization refresh.
+
+        Parameters
+        ----------
+        force_reload : bool, optional
+            Whether to force reloading/reconverting data that has
+            already been loaded (default is False). True when invoked
+            via ``convert_Q_reload``.
+        """
+
         self.update_data_status()
 
         instrument = self.view.get_instrument()
@@ -359,9 +536,28 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def convert_Q_reload(self):
+        """
+        Reconvert data to Q-space, forcing a reload of already-loaded
+        runs.
+
+        Connected to the "reload/reconvert Q" button signal.
+        """
+
         self.convert_Q(force_reload=True)
 
     def convert_Q_complete(self, result):
+        """
+        Handle the result of the Q-space conversion worker.
+
+        Parameters
+        ----------
+        result : dict or None
+            Dictionary with keys ``"runs"`` (list of loaded/converted
+            run workspace names) and ``"mono"`` (whether the data is
+            monochromatic), or None if conversion failed or produced
+            no output.
+        """
+
         if result is not None:
             self.view.set_data_list(result["runs"])
             self.view.update_diffraction_label(result["mono"])
@@ -385,6 +581,54 @@ class UB(NeuXtalVizPresenter):
         d_min=None,
         force_reload=False,
     ):
+        """
+        Worker task that loads, calibrates, and converts data to
+        Q-space.
+
+        Parameters
+        ----------
+        progress : callable or None
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None
+            Event used to signal that processing should stop early.
+        instrument : str or None
+            Instrument name.
+        wavelength : float, tuple, or None
+            Incident wavelength (or wavelength band for
+            time-of-flight instruments).
+        tube_cal : str or None
+            Path to a tube calibration file.
+        det_cal : str or None
+            Path to a detector calibration file.
+        gon_cal : str or None
+            Path to a goniometer calibration file.
+        IPTS : int or None
+            IPTS proposal number.
+        runs : str or None
+            Run number(s) to load.
+        exp : int or None
+            Experiment number (required for DEMAND).
+        lorentz : bool or None
+            Whether to apply the Lorentz correction during conversion.
+        time_stop : float or None
+            Time cutoff used to filter events during loading.
+        d_min : float or None
+            Minimum d-spacing used when converting data to Q-space.
+        force_reload : bool, optional
+            Whether to force reloading/reconverting already-loaded
+            data (default is False).
+
+        Returns
+        -------
+        result : dict or None
+            Dictionary with keys ``"mono"`` (bool, whether the data is
+            monochromatic) and ``"runs"`` (int, number of loaded
+            workspaces), or None if processing was stopped, the
+            required data files do not exist, or the input parameters
+            are invalid.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -470,6 +714,16 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters for Q conversion.", 0)
 
     def add_peak(self):
+        """
+        Add a peak at the current detector position to the model.
+
+        Connected to the "add peak" button signal. Reads the selected
+        run, horizontal/vertical detector coordinates, and diffraction
+        (e.g. time-of-flight or wavelength) value from the view, adds
+        the corresponding peak via the model, and refreshes the
+        visualization.
+        """
+
         if self.model.has_Q():
             ind = self.view.get_data_list()
             horz = self.view.get_horizontal()
@@ -494,6 +748,22 @@ class UB(NeuXtalVizPresenter):
                     )
 
     def add_slice_peak(self, h, k, l):
+        """
+        Add a peak at the given hkl position from the slice view.
+
+        Connected to the view's ``slice_ready`` signal, emitted when
+        the user picks a point on the HKL slice plot.
+
+        Parameters
+        ----------
+        h : float
+            H index of the selected slice position.
+        k : float
+            K index of the selected slice position.
+        l : float
+            L index of the selected slice position.
+        """
+
         if self.model.has_Q() and self.model.has_UB():
             ind = self.view.get_data_list()
 
@@ -504,6 +774,14 @@ class UB(NeuXtalVizPresenter):
                 self.update_processing("Invalid data list index.", 0)
 
     def delete_peak(self):
+        """
+        Delete the currently selected peak(s) from the model.
+
+        Connected to the "delete peak" button signal. Removes the
+        highlighted peak rows from the model's peaks table, clears the
+        selection in the view, and refreshes the visualization.
+        """
+
         peaks = self.view.get_peaks()
 
         if self.model.has_peaks() and len(peaks) > 0:
@@ -514,6 +792,16 @@ class UB(NeuXtalVizPresenter):
             self.update_processing("No highlighted peaks selected.", 0)
 
     def calculate_hkl(self):
+        """
+        Compute the detector position corresponding to a given hkl.
+
+        Connected to the "check hkl" signal. Reads the selected run
+        and target hkl from the view, asks the model for the
+        diffraction value and horizontal/vertical detector
+        coordinates for that hkl, and updates the corresponding view
+        fields and instrument display.
+        """
+
         if self.model.has_Q():
             ind = self.view.get_data_list()
             hkl = self.view.get_check_hkl()
@@ -540,6 +828,19 @@ class UB(NeuXtalVizPresenter):
                     )
 
     def update_instrument_view(self):
+        """
+        Recompute and redraw the instrument detector view in a
+        background worker.
+
+        Connected to the d_min/d_max range signals (and invoked after
+        Q conversion, run selection, and hkl lookups). No-ops if a
+        prior instrument view computation is still in flight. Gathers
+        the selected run, d-spacing range, horizontal/vertical
+        position and ROI, diffraction value, and display-limit
+        settings from the view, then dispatches
+        ``update_instrument_view_process`` to a worker thread.
+        """
+
         if not self.instrument_view_idle:
             return
 
@@ -584,6 +885,19 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def update_instrument_view_complete(self, result):
+        """
+        Handle the result of the instrument view computation worker.
+
+        Parameters
+        ----------
+        result : tuple or None
+            Tuple of ``(inst_view, roi_view)`` dictionaries as produced
+            by the model's ``inst_view``/``roi_view`` state, or None if
+            the computation was stopped or the parameters were
+            invalid. ``inst_view["img"]`` is cached for redisplaying
+            without recomputation.
+        """
+
         self.instrument_view_idle = True
         if result is not None:
             self.inst_signal_cache = np.array(result[0]["img"], copy=True)
@@ -595,6 +909,10 @@ class UB(NeuXtalVizPresenter):
             self.update_check_hkl()
 
     def update_run_goniometer(self):
+        """
+        Update the displayed goniometer setting for the selected run.
+        """
+
         ind = self.view.get_data_list()
         angles = self.model.get_run_goniometer(ind)
         self.view.set_instrument_goniometer_setting(angles)
@@ -617,6 +935,54 @@ class UB(NeuXtalVizPresenter):
         inst_vmin=None,
         inst_vmax=None,
     ):
+        """
+        Worker task that computes the instrument detector view and ROI.
+
+        Parameters
+        ----------
+        progress : callable or None
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None
+            Event used to signal that processing should stop early.
+        ind : int or None
+            Index of the selected run in the data list.
+        d_min : float or None
+            Minimum d-spacing to include in the instrument view.
+        d_max : float or None
+            Maximum d-spacing to include in the instrument view.
+        horz : float or None
+            Horizontal detector coordinate for the ROI center.
+        vert : float or None
+            Vertical detector coordinate for the ROI center.
+        horz_roi : float or None
+            Horizontal ROI half-width.
+        vert_roi : float or None
+            Vertical ROI half-width.
+        val : float or None
+            Diffraction (time-of-flight/wavelength) value for the ROI.
+        vlim_method : str or None
+            Clipping method used to resolve display color limits.
+        instrument_scale : str or None
+            Display scale (``"log"`` or ``"linear"``) for the
+            instrument view.
+        instrument_auto_limits : bool or None
+            Whether display limits should be automatically computed.
+        inst_vmin : float or None
+            Manually-set lower display limit.
+        inst_vmax : float or None
+            Manually-set upper display limit.
+
+        Returns
+        -------
+        inst_view : dict
+            The model's instrument view data (image, extents, and
+            resolved display limits).
+        roi_view : dict
+            The model's extracted region-of-interest data, or None if
+            processing was stopped or the parameters were invalid.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -686,6 +1052,16 @@ class UB(NeuXtalVizPresenter):
             progress("Invalid parameters for instrument view.", 0)
 
     def update_roi(self):
+        """
+        Recompute and redraw the region-of-interest (ROI) view.
+
+        Connected to the horizontal/vertical position and ROI-width
+        line edit signals. No-ops while an instrument view computation
+        is in flight. Extracts the ROI from the model using the
+        current horizontal/vertical position and widths, updates the
+        ROI view, and refreshes the checked hkl display.
+        """
+
         if not self.instrument_view_idle:
             return
         if self.model.has_Q():
@@ -705,6 +1081,15 @@ class UB(NeuXtalVizPresenter):
                 self.update_check_hkl()
 
     def update_scan(self):
+        """
+        Recompute and redraw the ROI scan (integrated profile) view.
+
+        Connected to the view's ``roi_ready`` signal, emitted after
+        the ROI plot has been redrawn. No-ops while an instrument view
+        computation is in flight. Extracts the ROI from the model and
+        updates the scan view and checked hkl display.
+        """
+
         if not self.instrument_view_idle:
             return
         if self.model.has_Q():
@@ -724,6 +1109,14 @@ class UB(NeuXtalVizPresenter):
                 self.update_check_hkl()
 
     def update_check_hkl(self):
+        """
+        Recompute and display the hkl corresponding to the current ROI
+        scan position.
+
+        Connected to the view's ``scan_ready`` signal, emitted after
+        the scan plot has been redrawn.
+        """
+
         ind = self.view.get_data_list()
         horz = self.view.get_horizontal()
         vert = self.view.get_vertical()
@@ -738,6 +1131,16 @@ class UB(NeuXtalVizPresenter):
                 self.view.set_check_hkl(*hkl)
 
     def update_data_status(self):
+        """
+        Refresh the Q/peaks/UB status indicators and undo-filter
+        availability in the view.
+
+        Checks whether the expected data files exist for the current
+        instrument/IPTS/run(s)/experiment selection and updates the
+        Q-data, peaks, and UB status indicators, as well as whether
+        the "undo filter peaks" action is enabled.
+        """
+
         instrument = self.view.get_instrument()
 
         IPTS = self.view.get_IPTS()
@@ -759,6 +1162,17 @@ class UB(NeuXtalVizPresenter):
         self.view.set_undo_filter_enabled(self.model.can_undo_filter_peaks())
 
     def visualize(self):
+        """
+        Refresh the 3D Q-space visualization and dependent UI state.
+
+        Called after data-modifying operations complete (e.g. Q
+        conversion, peak finding/indexing/integration, UB
+        determination). No-ops if there is no Q data or a
+        visualization update is already in progress. Updates the data
+        status, redraws the Q-space volume, refreshes UB/lattice
+        information if a UB matrix is set, and refreshes the peaks
+        table.
+        """
 
         self.update_data_status()
 
@@ -792,6 +1206,11 @@ class UB(NeuXtalVizPresenter):
             self.volume_idle = True
 
     def update_lattice_info(self):
+        """
+        Refresh the lattice constants and sample-direction displays in
+        the view from the current UB matrix.
+        """
+
         params = self.model.get_lattice_constants()
         errors = self.model.get_lattice_constant_errors()
 
@@ -804,6 +1223,18 @@ class UB(NeuXtalVizPresenter):
             self.view.set_sample_directions(params)
 
     def find_peaks(self):
+        """
+        Search for peaks in Q-space in a background worker.
+
+        Connected to the "find peaks" button signal. Gathers the
+        minimum Q, maximum d-spacing, peak-finding parameters, edge
+        exclusion, peak width, and contamination-avoidance flags
+        (aluminum/copper/iron) from the view, then dispatches
+        ``find_peaks_process`` to a worker thread whose completion
+        copies the resulting peaks into the UB and refreshes the
+        visualization.
+        """
+
         self.update_data_status()
 
         Q_min = self.view.get_find_peaks_distance()
@@ -835,6 +1266,16 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def find_peaks_complete(self, result):
+        """
+        Handle completion of the peak-finding worker.
+
+        Parameters
+        ----------
+        result : None
+            Unused; ``find_peaks_process`` reports progress but does
+            not return a value.
+        """
+
         self.model.copy_UB_from_peaks()
 
     def find_peaks_process(
@@ -850,6 +1291,36 @@ class UB(NeuXtalVizPresenter):
         no_cu=None,
         no_fe=None,
     ):
+        """
+        Worker task that finds peaks and optionally removes peaks from
+        known contaminant phases.
+
+        Parameters
+        ----------
+        progress : callable or None
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None
+            Event used to signal that processing should stop early.
+        Q_min : float or None
+            Minimum |Q| distance between peaks used for peak finding.
+        d_max : float or None
+            Maximum d-spacing considered for contamination avoidance.
+        params : tuple or None
+            Peak-finding parameters passed to the model's
+            ``find_peaks``.
+        edge : int or float or None
+            Number of pixels/bins to exclude from the detector edge.
+        peak_width : float or None
+            Peak width used for contamination avoidance.
+        no_al : bool or None
+            Whether to remove peaks matching aluminum contamination.
+        no_cu : bool or None
+            Whether to remove peaks matching copper contamination.
+        no_fe : bool or None
+            Whether to remove peaks matching iron contamination.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -893,6 +1364,16 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters.", 0)
 
     def find_conventional(self):
+        """
+        Determine the UB matrix from known lattice parameters.
+
+        Connected to the "find conventional cell" button signal.
+        Gathers the lattice constants and indexing tolerance from the
+        view, then dispatches ``find_conventional_process`` to a
+        worker thread whose completion refreshes the data status and
+        visualization.
+        """
+
         self.update_data_status()
 
         params = self.view.get_lattice_constants()
@@ -912,11 +1393,40 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def find_conventional_complete(self, result=None):
+        """
+        Handle completion of the conventional-cell UB worker.
+
+        Parameters
+        ----------
+        result : None, optional
+            Unused; ``find_conventional_process`` reports progress but
+            does not return a value.
+        """
+
         self.update_data_status()
 
     def find_conventional_process(
         self, progress=None, stop_event=None, params=None, tol=None
     ):
+        """
+        Worker task that determines the UB matrix from lattice
+        parameters.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        params : tuple or None, optional
+            Lattice constants ``(a, b, c, alpha, beta, gamma)`` as
+            returned by the view, or None if the input fields are
+            invalid.
+        tol : float or None, optional
+            Indexing tolerance, or None if the input field is invalid.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -939,6 +1449,16 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters.", 0)
 
     def find_niggli(self):
+        """
+        Determine the UB matrix from a Niggli (reduced primitive) cell.
+
+        Connected to the "find niggli cell" button signal. Gathers the
+        minimum/maximum lattice constants and indexing tolerance from
+        the view, then dispatches ``find_niggli_process`` to a worker
+        thread whose completion lists the possible conventional cells
+        and refreshes the visualization.
+        """
+
         self.update_data_status()
 
         params = self.view.get_min_max_constants()
@@ -958,11 +1478,39 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def find_niggli_complete(self, result):
+        """
+        Handle completion of the Niggli-cell UB worker.
+
+        Parameters
+        ----------
+        result : None
+            Unused; ``find_niggli_process`` reports progress but does
+            not return a value.
+        """
+
         self.show_cells()
 
     def find_niggli_process(
         self, progress=None, stop_event=None, params=None, tol=None
     ):
+        """
+        Worker task that determines the UB matrix from a Niggli cell.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        params : tuple or None, optional
+            ``(min_d, max_d)`` minimum and maximum lattice constants as
+            returned by the view, or None if the input fields are
+            invalid.
+        tol : float or None, optional
+            Indexing tolerance, or None if the input field is invalid.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -985,6 +1533,16 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters.", 0)
 
     def show_cells(self):
+        """
+        List possible conventional cells compatible with the current
+        Niggli cell.
+
+        Gathers the maximum scalar error tolerance from the view, then
+        dispatches ``show_cells_process`` to a worker thread whose
+        completion populates the cell table and refreshes the
+        visualization.
+        """
+
         scalar = self.view.get_max_scalar_error()
 
         worker = self.view.worker(
@@ -1000,10 +1558,42 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def show_cells_complete(self, result):
+        """
+        Handle completion of the possible-cells worker.
+
+        Parameters
+        ----------
+        result : list or None
+            Possible conventional cells returned by
+            ``show_cells_process``, or None if the operation could not
+            be performed.
+        """
+
         if result is not None:
             self.view.update_cell_table(result)
 
     def show_cells_process(self, progress=None, stop_event=None, scalar=None):
+        """
+        Worker task that lists possible conventional cells.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        scalar : float or None, optional
+            Maximum scalar error tolerance, or None if the input field
+            is invalid.
+
+        Returns
+        -------
+        cells : list
+            Possible conventional cells found, returned only if
+            peaks and a UB matrix are present and ``scalar`` is valid.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -1026,6 +1616,16 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters.", 0)
 
     def set_UB(self):
+        """
+        Set the UB matrix manually from lattice constants and sample
+        directions.
+
+        Connected to the "Set UB" button signal. Reads the lattice
+        constants and sample directions from the view and, if both are
+        valid, sets the UB matrix on the model and refreshes the data
+        status, lattice information, and oriented-lattice display.
+        """
+
         constants = self.view.get_lattice_constants()
         directions = self.view.get_sample_directions()
 
@@ -1036,6 +1636,17 @@ class UB(NeuXtalVizPresenter):
             self.update_oriented_lattice()
 
     def set_UB_from_scattering_plane(self):
+        """
+        Determine the UB matrix from a scattering plane and lattice
+        constants.
+
+        Connected to the "Search U from Scattering Plane" button
+        signal. Gathers the lattice constants and scattering-plane
+        sample directions from the view, then dispatches
+        ``set_UB_from_scattering_plane_process`` to a worker thread
+        whose completion refreshes the data status and visualization.
+        """
+
         self.update_data_status()
 
         constants = self.view.get_lattice_constants()
@@ -1055,11 +1666,47 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def set_UB_from_scattering_plane_complete(self, result=None):
+        """
+        Handle completion of the scattering-plane UB worker.
+
+        Parameters
+        ----------
+        result : bool or None, optional
+            True if ``set_UB_from_scattering_plane_process`` succeeded,
+            otherwise None.
+        """
+
         self.update_data_status()
 
     def set_UB_from_scattering_plane_process(
         self, progress=None, stop_event=None, constants=None, directions=None
     ):
+        """
+        Worker task that determines the UB matrix from a scattering
+        plane.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        constants : list or None, optional
+            Lattice constants and angles ``[a, b, c, alpha, beta,
+            gamma]``, or None if the input fields are invalid.
+        directions : list or None, optional
+            Two non-parallel vectors ``[u1, u2, u3, v1, v2, v3]``
+            defining the scattering plane, or None if the input fields
+            are invalid.
+
+        Returns
+        -------
+        success : bool
+            True if the UB matrix was determined successfully,
+            returned only on success.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -1091,6 +1738,15 @@ class UB(NeuXtalVizPresenter):
         return True
 
     def select_cell(self):
+        """
+        Transform to the conventional cell selected in the cell table.
+
+        Connected to the cell-selection button signal. Gathers the
+        form number and indexing tolerance from the view, then
+        dispatches ``select_cell_process`` to a worker thread whose
+        completion refreshes the visualization.
+        """
+
         form = self.view.get_form_number()
         tol = self.view.get_calculate_UB_tol()
 
@@ -1108,11 +1764,38 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def select_cell_complete(self, result):
+        """
+        Handle completion of the cell-selection worker.
+
+        Parameters
+        ----------
+        result : None
+            Unused; ``select_cell_process`` reports progress but does
+            not return a value.
+        """
+
         pass
 
     def select_cell_process(
         self, progress=None, stop_event=None, form=None, tol=None
     ):
+        """
+        Worker task that transforms the lattice to a conventional cell.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        form : int or None, optional
+            Conventional cell form number, or None if the input field
+            is invalid.
+        tol : float or None, optional
+            Indexing tolerance, or None if the input field is invalid.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -1135,10 +1818,29 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters.", 0)
 
     def highlight_cell(self):
+        """
+        Sync the selected cell-table row to the form-number field.
+
+        Connected to the cell table's selection-changed signal. Reads
+        the form number of the currently selected row and writes it
+        into the form-number input field.
+        """
+
         form = self.view.get_form()
         self.view.set_cell_form(form)
 
     def highlight_peak(self):
+        """
+        Highlight the peak(s) selected in the peaks table.
+
+        Connected to the peaks table's selection-changed signal. If
+        one or more rows are selected, looks up the first selected
+        peak, updates the peak-information display, highlights all
+        selected peaks in the 3D view, and centers the view on the
+        first peak's position. Clears the highlight if no rows are
+        selected.
+        """
+
         peaks = self.view.get_peaks()
         if len(peaks) > 0:
             peak = self.model.get_peak(peaks[0])
@@ -1150,6 +1852,17 @@ class UB(NeuXtalVizPresenter):
             self.view.highlight_peaks([])
 
     def lattice_transform(self):
+        """
+        Populate the symmetry-operation choices for the selected
+        lattice system.
+
+        Connected to the lattice-system combo box signal. Generates
+        the lattice transforms compatible with the selected lattice
+        system, updates the symmetry-operation combo box with their
+        symbols, and applies the currently selected symmetry
+        transform.
+        """
+
         cell = self.view.get_lattice_transform()
 
         Ts = self.model.generate_lattice_transforms(cell)
@@ -1159,6 +1872,16 @@ class UB(NeuXtalVizPresenter):
         self.symmetry_transform()
 
     def symmetry_transform(self):
+        """
+        Display the transform matrix for the selected symmetry
+        operation.
+
+        Connected to the symmetry-operation combo box signal.
+        Regenerates the lattice transforms for the selected lattice
+        system and, if the selected symmetry symbol is among them,
+        writes the corresponding transform matrix into the view.
+        """
+
         cell = self.view.get_lattice_transform()
 
         Ts = self.model.generate_lattice_transforms(cell)
@@ -1171,6 +1894,16 @@ class UB(NeuXtalVizPresenter):
             self.view.set_transform_matrix(T)
 
     def transform_UB(self):
+        """
+        Apply a lattice transformation matrix to the UB matrix.
+
+        Connected to the "Transform" button signal. Gathers the
+        transform matrix and indexing tolerance from the view, then
+        dispatches ``transform_UB_process`` to a worker thread whose
+        completion copies the resulting UB back from the peaks and
+        refreshes the visualization.
+        """
+
         params = self.view.get_transform_matrix()
         tol = self.view.get_transform_UB_tol()
 
@@ -1188,11 +1921,39 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def transform_UB_complete(self, result):
+        """
+        Handle completion of the UB-transformation worker.
+
+        Parameters
+        ----------
+        result : None
+            Unused; ``transform_UB_process`` reports progress but does
+            not return a value.
+        """
+
         self.model.copy_UB_from_peaks()
 
     def transform_UB_process(
         self, progress=None, stop_event=None, params=None, tol=None
     ):
+        """
+        Worker task that applies a lattice transformation to the UB
+        matrix.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        params : 3x3 array-like or None, optional
+            Transform matrix to apply to the hkl values, or None if
+            the input fields are invalid.
+        tol : float or None, optional
+            Indexing tolerance, or None if the input field is invalid.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -1215,6 +1976,17 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters.", 0)
 
     def refine_UB(self):
+        """
+        Refine the UB matrix using the selected refinement option.
+
+        Connected to the "optimize UB" button signal. Gathers the
+        lattice constants, refinement tolerance, and refinement option
+        (e.g. constrained/unconstrained/lattice-system-constrained)
+        from the view, then dispatches ``refine_UB_process`` to a
+        worker thread whose completion copies the resulting UB back
+        from the peaks and refreshes the visualization.
+        """
+
         params = self.view.get_lattice_constants()
         tol = self.view.get_refine_UB_tol()
         option = self.view.get_refine_UB_option()
@@ -1234,6 +2006,16 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def refine_UB_complete(self, result):
+        """
+        Handle completion of the UB-refinement worker.
+
+        Parameters
+        ----------
+        result : None
+            Unused; ``refine_UB_process`` reports progress but does
+            not return a value.
+        """
+
         self.model.copy_UB_from_peaks()
 
     def refine_UB_process(
@@ -1244,6 +2026,29 @@ class UB(NeuXtalVizPresenter):
         tol=None,
         option=None,
     ):
+        """
+        Worker task that refines the UB matrix.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        params : tuple or None, optional
+            Lattice constants ``(a, b, c, alpha, beta, gamma)``, used
+            only when ``option`` is ``"Constrained"``, or None if the
+            input fields are invalid.
+        tol : float or None, optional
+            Indexing tolerance, or None if the input field is invalid.
+        option : str or None, optional
+            Refinement option: ``"Constrained"`` to refine orientation
+            only from ``params``, ``"Unconstrained"`` to refine the UB
+            without lattice-system constraints, or a lattice system
+            name to refine the UB with that lattice-system constraint.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -1283,6 +2088,22 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters.", 0)
 
     def get_modulation_info(self):
+        """
+        Gather modulation-vector and satellite-indexing settings from
+        the view.
+
+        Returns
+        -------
+        mod_vec_1, mod_vec_2, mod_vec_3 : list
+            Modulation offset vectors ``[dh, dk, dl]``.
+        max_order : int
+            Maximum satellite order, 0 if the max-order/cross-terms
+            input is invalid.
+        cross_terms : bool
+            Whether to include modulation cross terms, False if the
+            max-order/cross-terms input is invalid.
+        """
+
         mod_info = self.view.get_max_order_cross_terms()
         if mod_info is not None:
             max_order, cross_terms = mod_info
@@ -1298,6 +2119,17 @@ class UB(NeuXtalVizPresenter):
         return mod_vec_1, mod_vec_2, mod_vec_3, max_order, cross_terms
 
     def index_peaks(self):
+        """
+        Index the peaks table against the current UB matrix.
+
+        Connected to the "index peaks" button signal. Gathers
+        modulation info, indexing tolerances, whether to index
+        satellite peaks, and whether to round hkl values from the
+        view, then dispatches ``index_peaks_process`` to a worker
+        thread whose completion copies the resulting UB back from the
+        peaks and refreshes the visualization.
+        """
+
         mod_info = self.get_modulation_info()
         params = self.view.get_index_peaks_parameters()
         sat = self.view.get_index_satellite_peaks()
@@ -1319,6 +2151,16 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def index_peaks_complete(self, result):
+        """
+        Handle completion of the peak-indexing worker.
+
+        Parameters
+        ----------
+        result : None
+            Unused; ``index_peaks_process`` reports progress but does
+            not return a value.
+        """
+
         self.model.copy_UB_from_peaks()
 
     def index_peaks_process(
@@ -1330,6 +2172,29 @@ class UB(NeuXtalVizPresenter):
         sat=None,
         round_hkl=None,
     ):
+        """
+        Worker task that indexes the peaks table.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        mod_info : tuple or None, optional
+            ``(mod_vec_1, mod_vec_2, mod_vec_3, max_order,
+            cross_terms)`` as returned by ``get_modulation_info``.
+        params : tuple or None, optional
+            ``(tol, sat_tol)`` indexing and satellite-indexing
+            tolerances, or None if the input fields are invalid.
+        sat : bool or None, optional
+            Whether to index satellite peaks; if False, ``max_order``
+            is forced to 0.
+        round_hkl : bool or None, optional
+            Whether to round indexed hkl values to integers.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -1368,6 +2233,19 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters.", 0)
 
     def predict_peaks(self):
+        """
+        Predict peak positions from the UB matrix and lattice
+        centering.
+
+        Connected to the "predict peaks" button signal. Gathers
+        modulation info, lattice centering, wavelength band,
+        d-spacing/edge parameters, and whether to predict satellite
+        peaks from the view, then dispatches
+        ``predict_peaks_process`` to a worker thread whose completion
+        copies the resulting UB back from the peaks and refreshes the
+        visualization.
+        """
+
         mod_info = self.get_modulation_info()
         centering = self.view.get_predict_peaks_centering()
         wavelength = self.view.get_wavelength()
@@ -1393,6 +2271,16 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def predict_peaks_complete(self, result):
+        """
+        Handle completion of the peak-prediction worker.
+
+        Parameters
+        ----------
+        result : None
+            Unused; ``predict_peaks_process`` reports progress but
+            does not return a value.
+        """
+
         self.model.copy_UB_from_peaks()
 
     def predict_peaks_process(
@@ -1406,6 +2294,35 @@ class UB(NeuXtalVizPresenter):
         predict_sat=None,
         edge=None,
     ):
+        """
+        Worker task that predicts peak positions from the UB matrix.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        mod_info : tuple or None, optional
+            ``(mod_vec_1, mod_vec_2, mod_vec_3, max_order,
+            cross_terms)`` as returned by ``get_modulation_info``.
+        centering : str or None, optional
+            Lattice centering symbol used to apply reflection
+            conditions.
+        wavelength : tuple or None, optional
+            ``(lamda_min, lamda_max)`` wavelength band in angstroms,
+            or None if the input fields are invalid.
+        params : tuple or None, optional
+            ``(d_min, sat_d_min)`` minimum d-spacing for fundamental
+            and satellite peaks, or None if the input fields are
+            invalid.
+        predict_sat : bool or None, optional
+            Whether to also predict satellite peak positions.
+        edge : int or float or None, optional
+            Number of pixels/bins to exclude from the detector edge.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -1461,6 +2378,17 @@ class UB(NeuXtalVizPresenter):
                 progress("Invalid parameters.", 0)
 
     def integrate_peaks(self):
+        """
+        Integrate peak intensities in Q-space.
+
+        Connected to the "integrate peaks" button signal. Gathers the
+        integration radius/background factors, whether to use
+        ellipsoidal integration, and whether to centroid peaks first
+        from the view, then dispatches ``integrate_peaks_process`` to
+        a worker thread whose completion copies the resulting UB back
+        from the peaks and refreshes the visualization.
+        """
+
         params = self.view.get_integrate_peaks_parameters()
         ellipsoid = self.view.get_ellipsoid()
         centroid = self.view.get_centroid()
@@ -1480,6 +2408,16 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def integrate_peaks_complete(self, result):
+        """
+        Handle completion of the peak-integration worker.
+
+        Parameters
+        ----------
+        result : None
+            Unused; ``integrate_peaks_process`` reports progress but
+            does not return a value.
+        """
+
         self.model.copy_UB_from_peaks()
 
     def integrate_peaks_process(
@@ -1490,6 +2428,28 @@ class UB(NeuXtalVizPresenter):
         ellipsoid=None,
         centroid=None,
     ):
+        """
+        Worker task that integrates peak intensities.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        params : tuple or None, optional
+            ``(rad, inner_factor, outer_factor)`` integration radius
+            and background shell factors, or None if the input fields
+            are invalid.
+        ellipsoid : bool or None, optional
+            Whether to use ellipsoidal (True) or spherical (False)
+            integration regions.
+        centroid : bool or None, optional
+            Whether to shift peak positions to their centroid before
+            integrating (spherical method only).
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -1527,6 +2487,17 @@ class UB(NeuXtalVizPresenter):
             progress("Invalid parameters.", 0)
 
     def filter_peaks(self):
+        """
+        Filter the peaks table by a variable, comparison operator, and
+        value.
+
+        Connected to the "filter peaks" button signal. Gathers the
+        filter variable, comparison operator, and threshold value from
+        the view, then dispatches ``filter_peaks_process`` to a worker
+        thread whose completion copies the resulting UB back from the
+        peaks and refreshes the visualization.
+        """
+
         name = self.view.get_filter_variable()
         operator = self.view.get_filter_comparison()
         value = self.view.get_filter_value()
@@ -1546,6 +2517,16 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def filter_peaks_complete(self, result):
+        """
+        Handle completion of the peak-filtering worker.
+
+        Parameters
+        ----------
+        result : None
+            Unused; ``filter_peaks_process`` reports progress but does
+            not return a value.
+        """
+
         self.model.copy_UB_from_peaks()
 
     def filter_peaks_process(
@@ -1556,6 +2537,28 @@ class UB(NeuXtalVizPresenter):
         operator=None,
         value=None,
     ):
+        """
+        Worker task that filters the peaks table.
+
+        Snapshots the current peaks table before filtering so the
+        operation can be undone.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        name : str or None, optional
+            Name of the peak variable to filter on.
+        operator : str or None, optional
+            Comparison operator used to filter peaks.
+        value : float or None, optional
+            Threshold value peaks are compared against, or None if the
+            input field is invalid.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -1578,6 +2581,16 @@ class UB(NeuXtalVizPresenter):
             progress("Invalid parameters.", 0)
 
     def undo_filter_peaks(self):
+        """
+        Restore the peaks table to its state before the last filter
+        operation.
+
+        Connected to the "undo filter" button signal. Dispatches
+        ``undo_filter_peaks_process`` to a worker thread whose
+        completion copies the resulting UB back from the peaks and
+        refreshes the visualization.
+        """
+
         worker = self.view.worker(self.undo_filter_peaks_process)
         worker.connect_result(self.undo_filter_peaks_complete)
         worker.connect_finished(self.visualize)
@@ -1586,9 +2599,32 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def undo_filter_peaks_complete(self, result):
+        """
+        Handle completion of the undo-filter worker.
+
+        Parameters
+        ----------
+        result : None
+            Unused; ``undo_filter_peaks_process`` reports progress but
+            does not return a value.
+        """
+
         self.model.copy_UB_from_peaks()
 
     def undo_filter_peaks_process(self, progress=None, stop_event=None):
+        """
+        Worker task that restores the peaks table from the
+        filter-peaks backup.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -1609,6 +2645,15 @@ class UB(NeuXtalVizPresenter):
             progress("No filtered peaks backup available.", 0)
 
     def load_detector_calibration(self):
+        """
+        Prompt for and set a detector calibration file.
+
+        Connected to the "Browse" button signal for the detector
+        calibration field. Opens a file dialog rooted at the
+        instrument's calibration directory and, if a file is chosen,
+        writes its path into the view.
+        """
+
         inst = self.view.get_instrument()
 
         path = self.model.get_calibration_file_path(inst)
@@ -1619,6 +2664,15 @@ class UB(NeuXtalVizPresenter):
             self.view.set_detector_calibration(filename)
 
     def load_goniometer_calibration(self):
+        """
+        Prompt for and set a goniometer calibration file.
+
+        Connected to the "Browse" button signal for the goniometer
+        calibration field. Opens a file dialog rooted at the
+        instrument's calibration directory and, if a file is chosen,
+        writes its path into the view.
+        """
+
         inst = self.view.get_instrument()
 
         path = self.model.get_calibration_file_path(inst)
@@ -1629,6 +2683,15 @@ class UB(NeuXtalVizPresenter):
             self.view.set_goniometer_calibration(filename)
 
     def load_tube_calibration(self):
+        """
+        Prompt for and set a tube calibration file.
+
+        Connected to the "Browse" button signal for the tube
+        calibration field. Opens a file dialog rooted at the
+        instrument's calibration directory and, if a file is chosen,
+        writes its path into the view.
+        """
+
         inst = self.view.get_instrument()
 
         path = self.model.get_calibration_file_path(inst)
@@ -1639,6 +2702,17 @@ class UB(NeuXtalVizPresenter):
             self.view.set_tube_calibration(filename)
 
     def load_Q(self):
+        """
+        Load a Q-sample workspace from a file selected by the user.
+
+        Connected to the "Load Q" button signal. Opens a file dialog
+        rooted at the instrument's shared directory and, if a file is
+        chosen, loads it into the model, updates the minimum
+        d-spacing, wavelength, and instrument selection fields in the
+        view, refreshes the lattice information, and redraws the
+        visualization.
+        """
+
         inst = self.view.get_instrument()
         ipts = self.view.get_IPTS()
 
@@ -1663,6 +2737,15 @@ class UB(NeuXtalVizPresenter):
             self.visualize()
 
     def save_Q(self):
+        """
+        Save the current Q-sample workspace to a file selected by the
+        user.
+
+        Connected to the "Save Q" button signal. Opens a file dialog
+        rooted at the instrument's shared directory and, if a file is
+        chosen, saves the Q-sample workspace there.
+        """
+
         inst = self.view.get_instrument()
         ipts = self.view.get_IPTS()
 
@@ -1674,6 +2757,15 @@ class UB(NeuXtalVizPresenter):
             self.model.save_Q(filename)
 
     def load_peaks(self):
+        """
+        Load a peaks table from a file selected by the user.
+
+        Connected to the "Load Peaks" button signal. Opens a file
+        dialog rooted at the instrument's shared directory and, if a
+        file is chosen, loads it into the model and refreshes the
+        peaks table and 3D peak views.
+        """
+
         inst = self.view.get_instrument()
         ipts = self.view.get_IPTS()
 
@@ -1686,6 +2778,14 @@ class UB(NeuXtalVizPresenter):
             self.refresh_peak_views()
 
     def save_peaks(self):
+        """
+        Save the current peaks table to a file selected by the user.
+
+        Connected to the "Save Peaks" button signal. Opens a file
+        dialog rooted at the instrument's shared directory and, if a
+        file is chosen, saves the peaks table there.
+        """
+
         inst = self.view.get_instrument()
         ipts = self.view.get_IPTS()
 
@@ -1697,6 +2797,15 @@ class UB(NeuXtalVizPresenter):
             self.model.save_peaks(filename)
 
     def load_UB(self):
+        """
+        Load a UB matrix from a file selected by the user.
+
+        Connected to the "Load UB" button signal. Opens a file dialog
+        rooted at the instrument's shared directory and, if a file is
+        chosen, loads it into the model and updates the transform
+        display in the view.
+        """
+
         inst = self.view.get_instrument()
         ipts = self.view.get_IPTS()
 
@@ -1710,6 +2819,14 @@ class UB(NeuXtalVizPresenter):
             self.view.set_transform(self.model.get_transform())
 
     def save_UB(self):
+        """
+        Save the current UB matrix to a file selected by the user.
+
+        Connected to the "Save UB" button signal. Opens a file dialog
+        rooted at the instrument's shared directory and, if a file is
+        chosen, saves the UB matrix there.
+        """
+
         inst = self.view.get_instrument()
         ipts = self.view.get_IPTS()
 
@@ -1721,6 +2838,16 @@ class UB(NeuXtalVizPresenter):
             self.model.save_UB(filename)
 
     def save_roi_mask(self):
+        """
+        Save a detector mask XML file for the current instrument-view
+        ROI.
+
+        Connected to the "Save ROI Mask" button signal. Opens a file
+        dialog rooted at the instrument's shared directory and, if a
+        file is chosen, saves the mask there and reports the outcome
+        message to the view.
+        """
+
         inst = self.view.get_instrument()
         ipts = self.view.get_IPTS()
 
@@ -1733,6 +2860,16 @@ class UB(NeuXtalVizPresenter):
             self.update_processing(message, 0)
 
     def switch_instrument(self):
+        """
+        Refresh instrument-dependent view state after the instrument
+        selection changes.
+
+        Connected to the instrument combo box signal. Updates the
+        wavelength, clears run information, sets the goniometer axes
+        and default minimum d-spacing fields for the newly selected
+        instrument.
+        """
+
         instrument = self.view.get_instrument()
 
         wavelength = self.model.get_wavelength(instrument)
@@ -1752,10 +2889,26 @@ class UB(NeuXtalVizPresenter):
         self.view.set_d_min(d_min)
 
     def update_wavelength(self):
+        """
+        Sync the minimum wavelength value into the wavelength display.
+
+        Connected to editing-finished on the minimum wavelength field.
+        """
+
         wl_min, wl_max = self.view.get_wavelength()
         self.view.update_wavelength(wl_min)
 
     def calculate_peaks(self):
+        """
+        Calculate d-spacings and the interplanar angle for two entered
+        hkl values.
+
+        Connected to the hkl-calculation "Calculate" button signal.
+        Reads the two hkl values and lattice constants from the view
+        and, if the lattice constants are valid, updates the
+        d-spacing/angle display.
+        """
+
         hkl_1, hkl_2 = self.view.get_input_hkls()
         constants = self.view.get_lattice_constants()
         if constants is not None:
@@ -1763,6 +2916,14 @@ class UB(NeuXtalVizPresenter):
             self.view.set_d_phi(*d_phi)
 
     def add_highlight_1(self):
+        """
+        Add the currently selected peak as the first highlighted peak.
+
+        Connected to the first "Add Highlighted" button signal. Looks
+        up the peak selected in the peaks table and, if found, adds it
+        to the view as highlighted peak 1.
+        """
+
         no = self.view.get_peak()
         if no is not None:
             peak = self.model.get_peak(no)
@@ -1770,6 +2931,15 @@ class UB(NeuXtalVizPresenter):
                 self.view.add_highlight_1(peak)
 
     def add_highlight_2(self):
+        """
+        Add the currently selected peak as the second highlighted
+        peak.
+
+        Connected to the second "Add Highlighted" button signal. Looks
+        up the peak selected in the peaks table and, if found, adds it
+        to the view as highlighted peak 2.
+        """
+
         no = self.view.get_peak()
         if no is not None:
             peak = self.model.get_peak(no)
@@ -1777,12 +2947,31 @@ class UB(NeuXtalVizPresenter):
                 self.view.add_highlight_2(peak)
 
     def calculate_highlight(self):
+        """
+        Calculate the angle between the two highlighted peaks.
+
+        Connected to the highlighted-peaks "Calculate" button signal.
+        Reads the Q vectors of the two highlighted peaks from the view
+        and, if both are set, updates the angle display.
+        """
+
         Qs = self.view.get_highlight()
         if Qs is not None:
             phi = self.model.calculate_highlight(*Qs)
             self.view.set_highlight_phi(phi)
 
     def get_normal(self):
+        """
+        Get the slice normal vector for the selected axis pair.
+
+        Returns
+        -------
+        norm : list
+            Unit normal vector ``[1, 0, 0]``, ``[0, 1, 0]``, or
+            ``[0, 0, 1]`` corresponding to the "Axis 2/3", "Axis 1/3",
+            or "Axis 1/2" slice-plane selection, respectively.
+        """
+
         slice_plane = self.view.get_slice()
 
         if slice_plane == "Axis 1/2":
@@ -1795,6 +2984,17 @@ class UB(NeuXtalVizPresenter):
         return norm
 
     def get_clim_method(self):
+        """
+        Get the color-limit clipping method for the slice view.
+
+        Returns
+        -------
+        method : str or None
+            ``"normal"`` for mean +/- 3 standard deviations,
+            ``"boxplot"`` for the interquartile-range method, or None
+            if neither is selected (no clipping).
+        """
+
         ctype = self.view.get_clim_clip_type()
 
         if ctype == "μ±3×σ":
@@ -1807,6 +3007,17 @@ class UB(NeuXtalVizPresenter):
         return method
 
     def get_vlim_method(self):
+        """
+        Get the color-limit clipping method for the instrument view.
+
+        Returns
+        -------
+        method : str or None
+            ``"normal"`` for mean +/- 3 standard deviations,
+            ``"boxplot"`` for the interquartile-range method, or None
+            if neither is selected (no clipping).
+        """
+
         ctype = self.view.get_vlim_clip_type()
 
         if ctype == "μ±3×σ":
@@ -1819,6 +3030,15 @@ class UB(NeuXtalVizPresenter):
         return method
 
     def update_slice_extent(self):
+        """
+        Update the slice slider range for the selected projection and
+        axis pair.
+
+        Connected to the slice axis-pair combo box signal. Validates
+        the projection matrix and, if valid, computes the extent along
+        the slice normal and reconfigures the slice slider's range.
+        """
+
         proj = self.view.get_projection_matrix()
         if proj is None:
             return
@@ -1831,10 +3051,28 @@ class UB(NeuXtalVizPresenter):
             self.view.setup_slice_slider(z_min, z_max)
 
     def reslice(self):
+        """
+        Redraw the HKL slice if sliced data already exists.
+
+        Connected to the slice-position/thickness/width field and
+        slider signals.
+        """
+
         if self.model.is_sliced():
             self.convert_to_hkl()
 
     def convert_to_hkl(self):
+        """
+        Redraw the HKL slice from the current Q-sample data.
+
+        Connected to the "Convert" button signal for HKL conversion.
+        No-ops if a slice update is already in progress. Gathers the
+        projection matrix, slice position/thickness/width, slice
+        normal, color-limit method, and display-scaling parameters
+        from the view, then dispatches ``convert_to_hkl_process`` to a
+        worker thread whose completion updates the slice display.
+        """
+
         if self.slice_idle:
             self.slice_idle = False
 
@@ -1871,6 +3109,18 @@ class UB(NeuXtalVizPresenter):
             self.view.start_worker_pool(worker)
 
     def convert_to_hkl_complete(self, result):
+        """
+        Handle completion of the HKL-slice conversion worker.
+
+        Parameters
+        ----------
+        result : dict or None
+            Slice information dictionary returned by
+            ``convert_to_hkl_process``, or None if the slice could not
+            be computed. If present, its "signal" array is cached and
+            the slice display is updated.
+        """
+
         if result is not None:
             self.slice_signal_cache = np.array(result["signal"], copy=True)
             self.view.update_slice(result)
@@ -1891,6 +3141,48 @@ class UB(NeuXtalVizPresenter):
         vmin=None,
         vmax=None,
     ):
+        """
+        Worker task that computes an HKL slice from Q-sample data.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        proj : array_like or None, optional
+            Projection matrix (9 values reshaped to 3x3) whose rows
+            define the U, V, W basis vectors, or None if the input
+            fields are invalid.
+        value : float or None, optional
+            Position along the slice normal at which to slice.
+        thickness : float or None, optional
+            Thickness of the slice.
+        width : float or None, optional
+            Width of the output histogram bins.
+        norm : list or None, optional
+            Normal vector for the slice, as returned by
+            ``get_normal``.
+        clim_method : str or None, optional
+            Color-limit clipping method, as returned by
+            ``get_clim_method``.
+        slice_scale : str or None, optional
+            Display scaling for the slice ("linear" or "log").
+        slice_auto_limits : bool or None, optional
+            Whether to automatically compute display limits.
+        vmin, vmax : float or None, optional
+            Manual display limits, used when ``slice_auto_limits`` is
+            False.
+
+        Returns
+        -------
+        slice_histo : dict
+            Slice information dictionary (extents, bins, transform,
+            signal, and resolved display limits), returned only if the
+            projection is valid and slice data is available.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -1937,6 +3229,17 @@ class UB(NeuXtalVizPresenter):
             progress("Invalid parameters.", 0)
 
     def cluster(self):
+        """
+        Cluster peak hkl offsets to detect satellite modulation
+        vectors.
+
+        Connected to the "cluster" button signal. Gathers the DBSCAN
+        ``(eps, min_samples)`` parameters from the view, then
+        dispatches ``cluster_process`` to a worker thread whose
+        completion renders the cluster peaks and populates the cluster
+        table.
+        """
+
         params = self.view.get_cluster_parameters()
 
         worker = self.view.worker(
@@ -1951,6 +3254,18 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def cluster_complete(self, result):
+        """
+        Handle completion of the peak-clustering worker.
+
+        Parameters
+        ----------
+        result : dict or None
+            Updated cluster peak information dictionary returned by
+            ``cluster_process``, or None if clustering did not
+            succeed. If present, the 3D cluster view and cluster table
+            are refreshed.
+        """
+
         if result is not None:
             self.update_processing("Adding peaks.", 30)
             self.view.add_cluster_peaks(result)
@@ -1958,6 +3273,17 @@ class UB(NeuXtalVizPresenter):
             self.update_processing("Peaks added!", 0)
 
     def calculate_alignment(self):
+        """
+        Calculate observed-vs-predicted Q vectors for goniometer
+        alignment.
+
+        Connected to the "calculate alignment" button signal. Gathers
+        the selected run number and goniometer tilt angles from the
+        view, then dispatches ``calculate_alignment_process`` to a
+        worker thread whose completion renders the alignment
+        comparison.
+        """
+
         run_number = self.view.get_alignment_run()
         tilts = self.view.get_alignment_tilts()
 
@@ -1974,6 +3300,18 @@ class UB(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def calculate_alignment_complete(self, result):
+        """
+        Handle completion of the alignment-calculation worker.
+
+        Parameters
+        ----------
+        result : dict or None
+            Alignment information dictionary returned by
+            ``calculate_alignment_process``, or None if the
+            calculation did not succeed. If present, the alignment
+            comparison view is refreshed.
+        """
+
         if result is not None:
             self.update_processing("Rendering alignment.", 75)
             self.view.add_alignment_peaks(result)
@@ -1986,6 +3324,32 @@ class UB(NeuXtalVizPresenter):
         run_number=None,
         tilts=None,
     ):
+        """
+        Worker task that computes observed-vs-predicted Q vectors for
+        goniometer alignment.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        run_number : int or None, optional
+            Run number to select peaks from, or None if the input
+            field is invalid.
+        tilts : tuple or None, optional
+            Goniometer tilt angles ``(yaw, pitch, roll)`` in degrees,
+            or None if the input fields are invalid.
+
+        Returns
+        -------
+        result : dict
+            Alignment information dictionary from the model, returned
+            only if peaks and a UB matrix are present, the parameters
+            are valid, and indexed peaks exist for the selected run.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -2006,6 +3370,26 @@ class UB(NeuXtalVizPresenter):
             progress("Alignment requires indexed peaks and UB.", 0)
 
     def cluster_process(self, progress=None, stop_event=None, params=None):
+        """
+        Worker task that clusters peak positions using DBSCAN.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        params : tuple or None, optional
+            ``(eps, min_samples)`` DBSCAN parameters as returned by
+            the view, or None if the input fields are invalid.
+
+        Returns
+        -------
+        peak_info : dict
+            Updated cluster peak information dictionary from the
+            model, returned only if clustering succeeds.
+        """
         if self.stop_processing(stop_event):
             return None
 

@@ -199,13 +199,30 @@ class UBModel(NeuXtalVizModel):
             return False
 
     def can_undo_filter_peaks(self):
+        """
+        Check if a backup of the peaks table exists to undo a filter operation.
+
+        Returns
+        -------
+        bool
+            True if a filter-peaks backup workspace exists, False otherwise.
+        """
         return mtd.doesExist(self.filter_table_backup)
 
     def clear_filter_peaks_backup(self):
+        """
+        Delete the backup workspace used to undo peak filtering, if present.
+        """
         if self.can_undo_filter_peaks():
             DeleteWorkspace(Workspace=self.filter_table_backup)
 
     def snapshot_filter_peaks(self):
+        """
+        Save a backup copy of the current peaks table before filtering.
+
+        Does nothing if there is no peaks table. Any existing backup is
+        cleared first.
+        """
         if not self.has_peaks():
             return
 
@@ -216,6 +233,12 @@ class UBModel(NeuXtalVizModel):
         )
 
     def undo_filter_peaks(self):
+        """
+        Restore the peaks table from the filter-peaks backup, if available.
+
+        Replaces the current peaks table with the backup snapshot taken by
+        `snapshot_filter_peaks`. Does nothing if no backup exists.
+        """
         if not self.can_undo_filter_peaks():
             return
 
@@ -243,6 +266,22 @@ class UBModel(NeuXtalVizModel):
             return False
 
     def get_Q_status(self, files=None):
+        """
+        Get a status code describing the state of the Q-sample data.
+
+        Parameters
+        ----------
+        files : list, optional
+            List of data file paths to check for existence. If None, the
+            status is reported as if the files do not exist.
+
+        Returns
+        -------
+        status : int
+            1 if the files do not exist (or none were given), 2 if the
+            files exist but Q-sample data has not yet been calculated,
+            3 if Q-sample data is ready.
+        """
         if files is not None:
             exist = self.files_exist(files)
             if not exist:
@@ -256,6 +295,15 @@ class UBModel(NeuXtalVizModel):
             return 1
 
     def get_peaks_status(self):
+        """
+        Get a status code describing the state of the peaks table.
+
+        Returns
+        -------
+        status : int
+            0 if there is no peaks table or it is empty, 1 if peaks exist
+            but none are indexed, 2 if at least one peak is indexed.
+        """
         if not self.has_peaks():
             return 0
         elif mtd[self.table].getNumberPeaks() == 0:
@@ -267,6 +315,14 @@ class UBModel(NeuXtalVizModel):
             return 1
 
     def get_UB_status(self):
+        """
+        Get a status code describing whether a UB matrix is available.
+
+        Returns
+        -------
+        status : int
+            0 if no UB matrix is defined, 1 if a UB matrix is available.
+        """
         if not self.has_UB():
             return 0
         else:
@@ -641,6 +697,21 @@ class UBModel(NeuXtalVizModel):
         return filenames, idf, grouping, raw, message
 
     def _can_cache_loaded_data(self, instrument):
+        """
+        Check whether loaded data for an instrument can be cached.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+
+        Returns
+        -------
+        bool
+            True if loaded data can be cached, False for instruments whose
+            data should always be reloaded (e.g. DEMAND, WAND2, or any
+            HFIR instrument).
+        """
         if instrument in ["DEMAND", "WAND²"]:
             return False
 
@@ -649,6 +720,31 @@ class UBModel(NeuXtalVizModel):
     def _loaded_data_cache_key(
         self, instrument, IPTS, exp, time_stop, idf, grouping, raw
     ):
+        """
+        Build a cache key identifying a particular loaded-data request.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+        IPTS : str
+            IPTS number.
+        exp : str
+            Experiment identifier.
+        time_stop : str
+            Time stop filter used when loading event data.
+        idf : str or None
+            Instrument definition file path, or None.
+        grouping : str
+            Detector grouping pattern.
+        raw : bool
+            True if raw event files are being loaded.
+
+        Returns
+        -------
+        key : tuple
+            Hashable key uniquely identifying this loaded-data request.
+        """
         return (
             instrument,
             str(IPTS),
@@ -660,6 +756,25 @@ class UBModel(NeuXtalVizModel):
         )
 
     def _loaded_md_cache_key(self, instrument, wavelength, lorentz, min_d):
+        """
+        Build a cache key identifying a particular converted MD request.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+        wavelength : list
+            Wavelength band [min, max] used for conversion.
+        lorentz : bool
+            Whether the Lorentz correction was applied.
+        min_d : float
+            Minimum d-spacing used for conversion.
+
+        Returns
+        -------
+        key : tuple
+            Hashable key uniquely identifying this converted-data request.
+        """
         return (
             instrument,
             tuple(wavelength),
@@ -669,22 +784,60 @@ class UBModel(NeuXtalVizModel):
         )
 
     def _delete_loaded_file_workspaces(self, filenames):
+        """
+        Delete the raw loaded workspaces associated with given filenames.
+
+        Parameters
+        ----------
+        filenames : list
+            List of data file paths whose loaded workspaces should be
+            removed from Mantid.
+        """
         for filename in filenames:
             workspace = self._loaded_workspace_name(filename)
             if mtd.doesExist(workspace):
                 DeleteWorkspace(Workspace=workspace)
 
     def _loaded_workspace_name(self, filename):
+        """
+        Derive the Mantid workspace name used to cache a loaded raw file.
+
+        Parameters
+        ----------
+        filename : str
+            Data file path.
+
+        Returns
+        -------
+        name : str
+            Sanitized workspace name prefixed with ``loaded_``.
+        """
         workspace = os.path.basename(filename)
         workspace = re.sub(r"[^0-9A-Za-z]+", "_", workspace).strip("_")
         return f"loaded_{workspace}"
 
     def _loaded_md_workspace_name(self, filename):
+        """
+        Derive the Mantid workspace name used to cache a converted MD file.
+
+        Parameters
+        ----------
+        filename : str
+            Data file path.
+
+        Returns
+        -------
+        name : str
+            Sanitized workspace name prefixed with ``md_``.
+        """
         workspace = os.path.basename(filename)
         workspace = re.sub(r"[^0-9A-Za-z]+", "_", workspace).strip("_")
         return f"md_{workspace}"
 
     def _clear_converted_data_cache(self):
+        """
+        Delete all cached converted MD workspaces and reset the MD cache.
+        """
         cached_workspaces = set(self.loaded_md_workspaces.values())
         for workspace in cached_workspaces:
             if mtd.doesExist(workspace):
@@ -699,6 +852,12 @@ class UBModel(NeuXtalVizModel):
                 DeleteWorkspace(Workspace=workspace)
 
     def _clear_loaded_data_cache(self):
+        """
+        Delete all cached loaded-data and converted-MD workspaces.
+
+        Resets the loaded-data cache state, including requested filenames
+        and detector grouping information.
+        """
         self._clear_converted_data_cache()
 
         cached_workspaces = set(self.loaded_data_workspaces.values())
@@ -717,6 +876,16 @@ class UBModel(NeuXtalVizModel):
                 DeleteWorkspace(Workspace=workspace)
 
     def _drop_unrequested_workspaces(self, requested_filenames):
+        """
+        Remove cached workspaces for files no longer part of the request.
+
+        Parameters
+        ----------
+        requested_filenames : list
+            List of data file paths that are still requested; any cached
+            filename not in this list is dropped from the cache and its
+            associated workspaces deleted.
+        """
         requested = set(requested_filenames)
 
         stale_filenames = [
@@ -737,6 +906,16 @@ class UBModel(NeuXtalVizModel):
             self.loaded_convert_metadata.pop(filename, None)
 
     def _group_data_workspaces(self, filenames):
+        """
+        Combine cached raw workspaces for the given filenames into "data".
+
+        Parameters
+        ----------
+        filenames : list
+            List of data file paths whose cached raw workspaces should be
+            grouped together. Any existing "data" workspace is deleted
+            first.
+        """
         workspaces = [
             self.loaded_data_workspaces[filename]
             for filename in filenames
@@ -756,6 +935,16 @@ class UBModel(NeuXtalVizModel):
         )
 
     def _get_requested_loaded_workspaces(self):
+        """
+        Get the cached raw workspace names for the requested filenames.
+
+        Returns
+        -------
+        workspaces : list
+            List of Mantid workspace names corresponding to
+            ``self.requested_filenames`` that are currently cached and
+            exist in Mantid.
+        """
         return [
             self.loaded_data_workspaces[filename]
             for filename in self.requested_filenames
@@ -766,6 +955,28 @@ class UBModel(NeuXtalVizModel):
     def _get_detector_grouping_pattern(
         self, workspace, instrument, grouping, cols, rows, c, r
     ):
+        """
+        Compute (and cache) a detector grouping pattern for pixel binning.
+
+        Parameters
+        ----------
+        workspace : str
+            Name of the workspace used to look up detector geometry.
+        instrument : str
+            Instrument identifier.
+        grouping : str
+            Detector grouping descriptor (e.g. "2x2").
+        cols, rows : int
+            Number of columns and rows of pixels per detector bank.
+        c, r : int
+            Number of columns and rows of pixels to group together.
+
+        Returns
+        -------
+        pattern : str or None
+            Comma-separated grouping pattern string suitable for
+            `GroupDetectors`, or None if the workspace does not exist.
+        """
         key = (instrument, grouping, cols, rows, c, r)
 
         if (
@@ -820,6 +1031,27 @@ class UBModel(NeuXtalVizModel):
     def _prepare_white_beam_workspace(
         self, workspace, instrument, inst, scale_c, scale_r, idf, grouping
     ):
+        """
+        Mask edge/lost pixels and banks, then group detectors in-place.
+
+        Parameters
+        ----------
+        workspace : str
+            Name of the workspace to mask and group.
+        instrument : str
+            Instrument identifier.
+        inst : dict
+            Beamline configuration dictionary for the instrument.
+        scale_c, scale_r : int
+            Scale factors applied to the number of pixel columns and rows
+            (e.g. to account for lite-mode binning) before computing masks.
+        idf : str or None
+            Instrument definition file path; if None, detector grouping is
+            applied based on `grouping`.
+        grouping : str
+            Detector grouping descriptor (e.g. "2x2") used to build the
+            grouping pattern when `idf` is None.
+        """
         cols, rows = beamlines[instrument]["BankPixels"]
         mask_cols, mask_rows = beamlines[instrument]["MaskEdges"]
         cols //= scale_c
@@ -878,6 +1110,37 @@ class UBModel(NeuXtalVizModel):
     def _convert_white_beam_run(
         self, raw_workspace, md_workspace, wavelength, lorentz, q_min, q_max
     ):
+        """
+        Convert a white-beam raw event workspace into Q-sample MD data.
+
+        Crops to a wavelength band, converts to d-spacing to extract the
+        per-detector spectrum, then converts the workspace to Q-sample MD.
+
+        Parameters
+        ----------
+        raw_workspace : str
+            Name of the input raw event workspace.
+        md_workspace : str
+            Name of the output Q-sample MD workspace to create.
+        wavelength : list
+            Wavelength band [min, max] in angstroms to crop to.
+        lorentz : bool
+            Whether to apply the Lorentz correction during MD conversion.
+        q_min, q_max : float
+            Minimum and maximum momentum transfer used for cropping and
+            setting the MD conversion extents.
+
+        Returns
+        -------
+        d_spacing : ndarray
+            Bin-centered d-spacing values.
+        counts : ndarray
+            Counts per detector and d-spacing bin.
+        two_theta : ndarray
+            Scattering angle for each detector.
+        az_phi : ndarray
+            Azimuthal angle for each detector.
+        """
         temp_workspace = str(raw_workspace) + "_convert"
 
         if mtd.doesExist(temp_workspace):
@@ -977,6 +1240,12 @@ class UBModel(NeuXtalVizModel):
             Time to stop loading data.
         force_reload : bool, optional
             Force reloading already cached workspaces instead of reusing them.
+
+        Returns
+        -------
+        bool
+            True if the "data" workspace was successfully loaded/grouped,
+            False if no files were found or loading failed.
         """
 
         filenames, idf, grouping, raw, message = self.get_files(
@@ -1231,12 +1500,13 @@ class UBModel(NeuXtalVizModel):
 
     def get_number_workspaces(self):
         """
-        Get the number of workspaces in the current Mantid session.
+        Get the run numbers associated with the currently loaded data.
 
         Returns
         -------
-        num_ws : int
-            Number of workspaces.
+        runs : list or None
+            List of run numbers for the loaded "data" workspace, or None
+            if no data has been loaded.
         """
 
         if mtd.doesExist("data"):
@@ -1469,6 +1739,19 @@ class UBModel(NeuXtalVizModel):
             self.make_Q(Q_max)
 
     def make_Q(self, Q_max):
+        """
+        Bin the converted MD workspace into a 3D Q-sample volume for display.
+
+        Creates the "Q3D" histogram volume and associated peaks/lattice
+        workspaces, then computes a normalized, outlier-masked log signal
+        array for rendering.
+
+        Parameters
+        ----------
+        Q_max : float
+            Maximum extent of the Q-sample volume along each axis, and the
+            radius beyond which voxels are masked out.
+        """
 
         self.Q_max_cut = Q_max
 
@@ -1551,10 +1834,38 @@ class UBModel(NeuXtalVizModel):
         )
 
     def is_mono(self, wavelength):
+        """
+        Check whether a wavelength band corresponds to monochromatic beam.
+
+        Parameters
+        ----------
+        wavelength : list
+            Wavelength band [min, max] in angstroms.
+
+        Returns
+        -------
+        bool
+            True if the minimum and maximum wavelength are equal
+            (monochromatic beam), False otherwise.
+        """
         return np.isclose(wavelength[0], wavelength[1])
 
     def get_run_goniometer(self, ind):
-        """Return goniometer Euler angles for the selected run."""
+        """
+        Return goniometer Euler angles for the selected run.
+
+        Parameters
+        ----------
+        ind : int
+            Index of the run/goniometer setting.
+
+        Returns
+        -------
+        angles : tuple or None
+            Goniometer Euler angles (in degrees) for the given run index,
+            or None if Q-sample data, wavelength info, or a valid index
+            is not available.
+        """
 
         if not self.has_Q() or ind is None:
             return None
@@ -1630,7 +1941,16 @@ class UBModel(NeuXtalVizModel):
         mtd["ub_peaks"].addPeak(peak)
 
     def add_peak_from_hkl(self, ind, hkl):
-        """Add a peak to the peaks workspace using HKL coordinates."""
+        """
+        Add a peak to the peaks workspace using HKL coordinates.
+
+        Parameters
+        ----------
+        ind : int
+            Index of the run/goniometer setting to use.
+        hkl : list
+            Miller indices [h, k, l] of the peak to add.
+        """
 
         if self.has_UB() and self.has_peaks():
             UB = self.get_UB()
@@ -1662,13 +1982,27 @@ class UBModel(NeuXtalVizModel):
                     return
 
     def delete_peak(self, no):
-        """Delete a single peak row from the current peaks workspace."""
+        """
+        Delete a single peak row from the current peaks workspace.
+
+        Parameters
+        ----------
+        no : int
+            Row index of the peak to delete.
+        """
 
         if self.has_peaks() and 0 <= no < mtd[self.table].getNumberPeaks():
             DeleteTableRows(TableWorkspace=self.table, Rows=no)
 
     def delete_peak_rows(self, numbers):
-        """Delete multiple peak rows from the current peaks workspace."""
+        """
+        Delete multiple peak rows from the current peaks workspace.
+
+        Parameters
+        ----------
+        numbers : list
+            Row indices of the peaks to delete.
+        """
 
         if not self.has_peaks():
             return
@@ -1888,6 +2222,27 @@ class UBModel(NeuXtalVizModel):
         self.inst_view = inst_view
 
     def save_roi_mask(self, instrument, filename):
+        """
+        Save a detector mask XML file for the current instrument-view ROI.
+
+        Loads an empty instrument definition, determines which detectors
+        fall within the current ROI box (in gamma/nu), and writes a Mantid
+        mask file selecting those detectors.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier.
+        filename : str
+            Output path for the saved mask XML file.
+
+        Returns
+        -------
+        success : bool
+            True if the mask was saved successfully, False otherwise.
+        message : str
+            Description of the outcome or error.
+        """
         if not hasattr(self, "inst_view") or not hasattr(self, "roi_view"):
             return False, "No instrument ROI is available to save."
 
@@ -2066,6 +2421,11 @@ class UBModel(NeuXtalVizModel):
         """
         Convert to Q momentum transfer magnitude.
 
+        Parameters
+        ----------
+        d : float
+            Interplanar d-spacing.
+
         Returns
         -------
         Q : float
@@ -2077,6 +2437,11 @@ class UBModel(NeuXtalVizModel):
         """
         Convert to d-spacing.
 
+        Parameters
+        ----------
+        Q : float
+            Momentum transfer.
+
         Returns
         -------
         d : float
@@ -2086,6 +2451,23 @@ class UBModel(NeuXtalVizModel):
         return 2 * np.pi / Q
 
     def get_slice_z_extent(self, U, V, W, normal):
+        """
+        Get the minimum and maximum extent along the slice normal direction.
+
+        Parameters
+        ----------
+        U, V, W : list
+            Normalized direction cosines defining the slice basis vectors.
+        normal : list
+            Normal vector for the slice.
+
+        Returns
+        -------
+        z_min : float or None
+            Minimum extent along the normal direction, or None if no UB/Q data.
+        z_max : float or None
+            Maximum extent along the normal direction, or None if no UB/Q data.
+        """
         if not (self.has_UB() and self.has_Q()):
             return None, None
         UB = self.get_UB()
@@ -2264,6 +2646,23 @@ class UBModel(NeuXtalVizModel):
             return slice_dict
 
     def validate_projection(self, proj):
+        """
+        Validate and unpack a 3x3 projection matrix into its row vectors.
+
+        Parameters
+        ----------
+        proj : array_like
+            Projection matrix, given as 9 values reshaped into 3x3, whose
+            rows define the U, V, W basis vectors of the slice.
+
+        Returns
+        -------
+        U, V, W : ndarray
+            Rows of the projection matrix.
+        invalid : bool
+            True if the projection matrix is singular (determinant close
+            to zero), False otherwise.
+        """
         proj = np.array(proj).reshape(3, 3)
         invalid = np.isclose(np.linalg.det(proj), 0)
         return *proj, invalid
@@ -2917,7 +3316,18 @@ class UBModel(NeuXtalVizModel):
         self.update_UB()
 
     def find_UB_from_scattering_plane(self, constants, directions):
-        """Calculate the UB matrix from a scattering plane and one peak."""
+        """
+        Calculate the UB matrix from a scattering plane and one peak.
+
+        Parameters
+        ----------
+        constants : list
+            Lattice constants and angles [a, b, c, alpha, beta, gamma]
+            in angstroms and degrees.
+        directions : list
+            Two non-parallel vectors [u1, u2, u3, v1, v2, v3] defining the
+            scattering plane.
+        """
 
         if not self.has_peaks() or mtd[self.table].getNumberPeaks() == 0:
             print("No peaks available for scattering-plane UB.")
@@ -3585,6 +3995,12 @@ class UBModel(NeuXtalVizModel):
         """
         Return the display-name key (e.g. 'TOPAZ') for the instrument embedded
         in the loaded Q workspace, or None if unrecognised.
+
+        Returns
+        -------
+        key : str or None
+            Instrument identifier key matching an entry in `beamlines`, or
+            None if the instrument could not be determined.
         """
         try:
             ws = mtd[self.Q]
@@ -3679,6 +4095,15 @@ class UBModel(NeuXtalVizModel):
         )
 
     def get_d_min(self):
+        """
+        Get the minimum d-spacing among the current peaks, capped at 0.7.
+
+        Returns
+        -------
+        d_min : float
+            Smallest peak d-spacing found, or 0.7 angstroms if no peak has
+            a smaller d-spacing (or no peaks are present).
+        """
         d_min = 0.7
         if self.has_peaks():
             for peak in mtd[self.table]:
@@ -3689,8 +4114,19 @@ class UBModel(NeuXtalVizModel):
 
     def avoid_aluminum_contamination(self, d_min, d_max, delta=0.1):
         """
+        Flag peaks coincident with aluminum powder ring reflections.
+
         Arblaster, J. W. Selected Values of the Crystallographic
         Properties of Elements; ASM International, 2018
+
+        Parameters
+        ----------
+        d_min, d_max : float
+            Minimum and maximum d-spacing range over which to generate
+            aluminum reflections.
+        delta : float, optional
+            Tolerance in momentum transfer used to match peaks against
+            aluminum reflections. The default is 0.1.
         """
 
         aluminum = CrystalStructure(
@@ -3701,8 +4137,19 @@ class UBModel(NeuXtalVizModel):
 
     def avoid_copper_contamination(self, d_min, d_max, delta=0.1):
         """
+        Flag peaks coincident with copper powder ring reflections.
+
         Arblaster, J. W. Selected Values of the Crystallographic
         Properties of Elements; ASM International, 2018
+
+        Parameters
+        ----------
+        d_min, d_max : float
+            Minimum and maximum d-spacing range over which to generate
+            copper reflections.
+        delta : float, optional
+            Tolerance in momentum transfer used to match peaks against
+            copper reflections. The default is 0.1.
         """
 
         copper = CrystalStructure(
@@ -3713,8 +4160,19 @@ class UBModel(NeuXtalVizModel):
 
     def avoid_iron_contamination(self, d_min, d_max, delta=0.1):
         """
+        Flag peaks coincident with iron powder ring reflections.
+
         Arblaster, J. W. Selected Values of the Crystallographic
         Properties of Elements; ASM International, 2018
+
+        Parameters
+        ----------
+        d_min, d_max : float
+            Minimum and maximum d-spacing range over which to generate
+            iron reflections.
+        delta : float, optional
+            Tolerance in momentum transfer used to match peaks against
+            iron reflections. The default is 0.1.
         """
 
         aluminum = CrystalStructure(
@@ -3724,6 +4182,25 @@ class UBModel(NeuXtalVizModel):
         self.avoid_contamination(aluminum, d_min, d_max, delta)
 
     def avoid_contamination(self, sample, d_min, d_max, delta=0.1):
+        """
+        Remove peaks in the peaks table that coincide with powder rings.
+
+        Peaks whose momentum transfer is within `delta` of a reflection
+        generated from `sample`, or whose d-spacing exceeds `d_max`, are
+        flagged and removed from the peaks table.
+
+        Parameters
+        ----------
+        sample : CrystalStructure
+            Crystal structure of the contaminant phase used to generate
+            candidate powder-ring reflections.
+        d_min, d_max : float
+            Minimum and maximum d-spacing range over which to generate
+            reflections.
+        delta : float, optional
+            Tolerance in momentum transfer used to match peaks against
+            the generated reflections. The default is 0.1.
+        """
 
         generator = ReflectionGenerator(sample)
 
@@ -3753,6 +4230,15 @@ class UBModel(NeuXtalVizModel):
             )
 
     def get_modulation_info(self):
+        """
+        Get the modulation vectors stored on the oriented lattice.
+
+        Returns
+        -------
+        mod_vecs : list or None
+            List of the three modulation vectors (V3D), or None if there
+            are no peaks or no UB matrix defined.
+        """
         if self.has_peaks() and self.has_UB():
             ol = mtd[self.cell].sample().getOrientedLattice()
 
@@ -3813,6 +4299,30 @@ class UBModel(NeuXtalVizModel):
             return peak_info
 
     def get_alignment_info(self, run_number, tilts=(0.0, 0.0, 0.0)):
+        """
+        Compare observed and UB-predicted Q vectors for peaks in a run.
+
+        Applies an optional goniometer tilt correction (yaw, pitch, roll)
+        and computes, for each indexed peak belonging to `run_number`, the
+        observed Q-sample vector (tilt-corrected) and the corresponding
+        UB-predicted Q vector, for use in goniometer alignment analysis.
+
+        Parameters
+        ----------
+        run_number : int
+            Run number to select peaks from.
+        tilts : tuple, optional
+            Goniometer tilt angles (yaw, pitch, roll) in degrees applied
+            as an extra rotation before comparing to the goniometer
+            matrix. The default is (0.0, 0.0, 0.0).
+
+        Returns
+        -------
+        info : dict or None
+            Dictionary with keys "run_number", "observed", "predicted",
+            "observed_hkl", and "tilts", or None if there are no peaks,
+            no UB matrix, or no indexed peaks for the given run.
+        """
         if not (self.has_peaks() and self.has_UB()):
             return None
 
@@ -4004,6 +4514,19 @@ class UBModel(NeuXtalVizModel):
         return d_1, d_2, phi_12
 
     def calculate_highlight(self, Q1, Q2):
+        """
+        Calculate the angle between two Q vectors.
+
+        Parameters
+        ----------
+        Q1, Q2 : array_like
+            Q vectors (in reciprocal space) to compare.
+
+        Returns
+        -------
+        phi : float
+            Angle between `Q1` and `Q2` in degrees.
+        """
         q1 = np.array(Q1) / np.linalg.norm(Q1)
         q2 = np.array(Q2) / np.linalg.norm(Q2)
         return np.rad2deg(np.arccos(np.clip(np.dot(q1, q2), -1, 1)))

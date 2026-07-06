@@ -61,14 +61,47 @@ from NeuXtalViz.presenters.experiment_planner import Experiment
 
 
 class NeuXtalViz(QMainWindow):
+    """
+    Main application window for NeuXtalViz.
+
+    Implements a singleton ``QMainWindow`` that hosts the UB Calculator,
+    Experiment Planner, Reciprocal Space Volume Slicer, and Structure
+    Factor Calculator tools in a stacked widget, and provides menu
+    actions for launching external reduction/analysis GUIs (TOPAZ,
+    garnet, ShelXle, Olex2, FullProf, VESTA) and internal helpers such
+    as the experiment browser and structure/diffuse interface.
+    """
+
     __instance = None
 
     def __new__(cls):
+        """
+        Create or return the singleton instance of the main window.
+
+        Returns
+        -------
+        instance : NeuXtalViz
+            The single shared ``NeuXtalViz`` main window instance.
+        """
         if NeuXtalViz.__instance is None:
             NeuXtalViz.__instance = QMainWindow.__new__(cls)
         return NeuXtalViz.__instance
 
     def __init__(self, parent=None):
+        """
+        Build the main window layout, menus, and feature tabs.
+
+        Constructs the application/reduction/analysis/interface/help
+        menus, instantiates the view/model/presenter triads for the UB
+        Calculator, Experiment Planner, Volume Slicer, and Crystal
+        Structure tools, and adds their views to a stacked widget that
+        is switched via the Applications menu.
+
+        Parameters
+        ----------
+        parent : QWidget, optional
+            Parent widget for the main window. The default is None.
+        """
         super().__init__(parent)
 
         self._topaz_path = "/SNS/TOPAZ"
@@ -172,6 +205,9 @@ class NeuXtalViz(QMainWindow):
         # self.showMaximized()
 
     def show_about_dialog(self):
+        """
+        Display the "About NeuXtalViz" information dialog.
+        """
         QMessageBox.about(
             self,
             "About NeuXtalViz",
@@ -184,6 +220,15 @@ class NeuXtalViz(QMainWindow):
         )
 
     def topaz_reduction_GUI(self):
+        """
+        Prompt for a TOPAZ reduction directory and launch its main.py.
+
+        Opens a directory selection dialog (starting from the last used
+        TOPAZ path), and if the chosen directory contains a
+        ``main.py`` script, launches it with ``mantidpython``. Shows a
+        warning if ``main.py`` is missing, or a critical error dialog
+        if launching fails.
+        """
         directory = QFileDialog.getExistingDirectory(
             self, "Select Directory", self._topaz_path
         )
@@ -209,6 +254,12 @@ class NeuXtalViz(QMainWindow):
                 )
 
     def shelxle_GUI(self):
+        """
+        Launch the external ShelXle application.
+
+        Shows a critical error dialog if the ``shelxle`` executable
+        cannot be launched.
+        """
         try:
             subprocess.Popen(["shelxle"])
         except subprocess.CalledProcessError as e:
@@ -217,6 +268,12 @@ class NeuXtalViz(QMainWindow):
             )
 
     def experiment_browser_GUI(self):
+        """
+        Launch the external SNS experiment browser script.
+
+        Shows a critical error dialog if
+        ``/SNS/software/scd/experiment.sh`` cannot be launched.
+        """
         try:
             subprocess.Popen(["/SNS/software/scd/experiment.sh"])
         except subprocess.CalledProcessError as e:
@@ -225,6 +282,12 @@ class NeuXtalViz(QMainWindow):
             )
 
     def garnet_reduction_GUI(self):
+        """
+        Launch the external garnet reduction script.
+
+        Shows a critical error dialog if ``/SNS/software/scd/garnet.sh``
+        cannot be launched.
+        """
         try:
             subprocess.Popen(["/SNS/software/scd/garnet.sh"])
         except subprocess.CalledProcessError as e:
@@ -233,6 +296,12 @@ class NeuXtalViz(QMainWindow):
             )
 
     def olex2_GUI(self):
+        """
+        Launch the external Olex2 application.
+
+        Shows a critical error dialog if
+        ``/SNS/software/scd/olex2/olex2`` cannot be launched.
+        """
         try:
             subprocess.Popen(["/SNS/software/scd/olex2/olex2"])
         except subprocess.CalledProcessError as e:
@@ -241,6 +310,12 @@ class NeuXtalViz(QMainWindow):
             )
 
     def fullprof_GUI(self):
+        """
+        Launch the external FullProf application.
+
+        Shows a critical error dialog if the ``fullprof`` executable
+        cannot be launched.
+        """
         try:
             subprocess.Popen(["fullprof"])
         except subprocess.CalledProcessError as e:
@@ -249,6 +324,12 @@ class NeuXtalViz(QMainWindow):
             )
 
     def vesta_GUI(self):
+        """
+        Launch the external VESTA application.
+
+        Shows a critical error dialog if the ``VESTA`` executable
+        cannot be launched.
+        """
         try:
             subprocess.Popen(["VESTA"])
         except subprocess.CalledProcessError as e:
@@ -257,6 +338,13 @@ class NeuXtalViz(QMainWindow):
             )
 
     def structdiff_GUI(self):
+        """
+        Launch the command browser interface as a separate process.
+
+        Runs ``views/command_browser.py`` (located next to this
+        module) with the ``python`` interpreter. Shows a critical
+        error dialog if the script cannot be launched.
+        """
         path = os.path.dirname(__file__)
         file = os.path.join(path, "views/command_browser.py")
         try:
@@ -268,6 +356,23 @@ class NeuXtalViz(QMainWindow):
 
 
 def handle_exception(exc_type, exc_value, exc_traceback):
+    """
+    Display an uncaught exception in a critical message dialog.
+
+    Intended to be installed as ``sys.excepthook`` so that unhandled
+    exceptions are shown to the user in a Qt dialog with the full
+    traceback available as detailed text, instead of only being
+    printed to the console.
+
+    Parameters
+    ----------
+    exc_type : type
+        The class of the raised exception.
+    exc_value : BaseException
+        The exception instance that was raised.
+    exc_traceback : traceback
+        The traceback object associated with the exception.
+    """
 
     error_message = "".join(
         traceback.format_exception(exc_type, exc_value, exc_traceback)
@@ -281,6 +386,16 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
 
 def gui():
+    """
+    Create and run the NeuXtalViz Qt application.
+
+    Installs a global exception handler, creates the ``QApplication``,
+    detects whether the system palette is dark or light to select a
+    matching ``qdarkstyle`` theme (and PyVista plot theme), then
+    creates and shows the main ``NeuXtalViz`` window and starts the Qt
+    event loop. This is the console-script entry point installed as
+    ``neuxtalviz``.
+    """
     sys.excepthook = handle_exception
     app = QApplication(sys.argv)
     bg = app.palette().color(QPalette.Window)

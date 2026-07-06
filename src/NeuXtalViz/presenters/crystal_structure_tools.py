@@ -5,7 +5,33 @@ from NeuXtalViz.presenters.base_presenter import NeuXtalVizPresenter
 
 
 class CrystalStructure(NeuXtalVizPresenter):
+    """
+    Presenter for the crystal structure tool.
+
+    Connects the crystal structure view's signals to model-driven actions
+    for editing lattice parameters, atom sites, and space group settings,
+    calculating structure factors and hkl equivalents, and loading/saving
+    crystal structure files.
+
+    Parameters
+    ----------
+    view : NeuXtalViz.views.crystal_structure_tools.CrystalStructureView
+        View for the crystal structure tool.
+    model : NeuXtalViz.models.crystal_structure_tools.CrystalStructure
+        Model for the crystal structure tool.
+    """
+
     def __init__(self, view, model):
+        """
+        Initialize the presenter and wire up view signals.
+
+        Parameters
+        ----------
+        view : NeuXtalViz.views.crystal_structure_tools.CrystalStructureView
+            View for the crystal structure tool.
+        model : NeuXtalViz.models.crystal_structure_tools.CrystalStructure
+            Model for the crystal structure tool.
+        """
         super(CrystalStructure, self).__init__(view, model)
 
         self.view.connect_group_generator(self.generate_groups)
@@ -209,6 +235,37 @@ class CrystalStructure(NeuXtalVizPresenter):
     def calculate_F2_process(
         self, progress, stop_event=None, d_min=None, params=None
     ):
+        """
+        Worker task that generates unique reflections and structure factors.
+
+        Intended to run on a background worker thread, reporting progress
+        and checking for a stop request between steps.
+
+        Parameters
+        ----------
+        progress : callable
+            Callback invoked as ``progress(status, value)`` to report
+            status text and percent complete.
+        stop_event : threading.Event, optional
+            Event used to signal that the worker should stop early
+            (default None).
+        d_min : float, optional
+            Minimum d-spacing to generate reflections for. If None, it is
+            derived from `params` (default None).
+        params : tuple, optional
+            Lattice constants used to derive `d_min` when it is not given,
+            and to validate that the calculation should proceed
+            (default None).
+
+        Returns
+        -------
+        hkls : numpy.ndarray or None
+            Array of unique HKL indices, or None if stopped or invalid.
+        ds : numpy.ndarray or None
+            Array of d-spacings corresponding to `hkls`.
+        F2s : numpy.ndarray or None
+            Array of squared structure factors corresponding to `hkls`.
+        """
         if self.stop_processing(stop_event):
             return None
 
@@ -269,6 +326,34 @@ class CrystalStructure(NeuXtalVizPresenter):
             self.view.set_equivalents(*result)
 
     def calculate_hkl_process(self, progress, stop_event=None, hkl=None):
+        """
+        Worker task that calculates symmetry equivalents of a reflection.
+
+        Intended to run on a background worker thread, reporting progress
+        and checking for a stop request between steps.
+
+        Parameters
+        ----------
+        progress : callable
+            Callback invoked as ``progress(status, value)`` to report
+            status text and percent complete.
+        stop_event : threading.Event, optional
+            Event used to signal that the worker should stop early
+            (default None).
+        hkl : tuple, optional
+            Miller indices (h, k, l) of the reflection to calculate
+            equivalents for (default None).
+
+        Returns
+        -------
+        hkls : list of V3D or None
+            Symmetry-equivalent HKL reflections, or None if stopped or
+            invalid.
+        d : float or None
+            d-spacing of the reflection.
+        F2 : float or None
+            Squared structure factor of the reflection.
+        """
         if self.stop_processing(stop_event):
             return None
 

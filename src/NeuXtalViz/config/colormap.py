@@ -1,3 +1,13 @@
+"""
+Custom "modified" Matplotlib colormap definition and registration.
+
+Defines the ``custom`` RGB color table (blue -> green -> yellow -> red)
+used to build the "modified" colormap, and provides :func:`add_modified`
+to register it (and its reversed variant) with Matplotlib so it can be
+selected by name elsewhere in NeuXtalViz (e.g. volume slicing and UB
+tool views).
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap

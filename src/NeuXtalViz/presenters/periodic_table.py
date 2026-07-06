@@ -1,4 +1,32 @@
+"""
+PeriodicTable and Atom: Presenter classes for the periodic table and atom
+selection dialogs in NeuXtalViz.
+
+This module defines the PeriodicTable and Atom presenter classes, which
+mediate between the periodic table/atom selection views and their
+underlying models, handling isotope selection and propagating the
+selected atom data back to the calling view/model.
+
+Classes
+-------
+PeriodicTable
+    Presenter for the periodic table dialog, launching atom selection
+    and updating the selection in the calling view/model.
+Atom
+    Presenter for the atom/isotope selection dialog, updating displayed
+    atom and neutron parameters as the isotope selection changes.
+"""
+
+
 class PeriodicTable:
+    """
+    Presenter for the periodic table dialog in NeuXtalViz.
+
+    Connects the periodic table view to its model, launching the atom
+    selection dialog and propagating the selected isotope back to the
+    caller's view/model.
+    """
+
     def __init__(self, view, model):
         """
         Initialize the PeriodicTable presenter.
@@ -59,6 +87,14 @@ class PeriodicTable:
 
 
 class Atom:
+    """
+    Presenter for the atom/isotope selection dialog in NeuXtalViz.
+
+    Connects the atom dialog view to its model, populating the available
+    isotopes and updating the displayed atom/neutron parameters as the
+    selection changes.
+    """
+
     def __init__(self, view, model):
         """
         Initialize the Atom presenter.

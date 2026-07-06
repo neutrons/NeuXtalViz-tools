@@ -28,6 +28,7 @@ class CommandBrowser(QMainWindow):
     """
 
     def __init__(self):
+        """Initialize the command browser window and build the UI."""
         super().__init__()
         self.setWindowTitle("Command Browser")
         self.setGeometry(100, 100, 800, 600)
@@ -38,6 +39,7 @@ class CommandBrowser(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
+        """Build and lay out the widgets, menus, and tooltips for the window."""
         central_widget = QWidget()
         layout = QHBoxLayout()
 
@@ -104,26 +106,46 @@ class CommandBrowser(QMainWindow):
         )
 
     def switch_command(self, command):
+        """
+        Set the active command and update the run button's label.
+
+        Parameters
+        ----------
+        command : str
+            Name of the command to make active (e.g. ``"xprep"``,
+            ``"shelxl"``, ``"shelxt"``, ``"discus_suite"``).
+        """
         self.command = command
         self.run_button.setText(self.command)
 
     def switch_xprep(self):
+        """Set the active command to ``xprep`` with a ``"{} {}"`` template."""
         self.switch_command("xprep")
         self.terminal = "{} {}"
 
     def switch_shelxl(self):
+        """Set the active command to ``shelxl`` with a ``"{} {}"`` template."""
         self.switch_command("shelxl")
         self.terminal = "{} {}"
 
     def switch_shelxt(self):
+        """Set the active command to ``shelxt`` with a ``"{} {}"`` template."""
         self.switch_command("shelxt")
         self.terminal = "{} {}"
 
     def switch_discus(self):
+        """Set the active command to ``discus_suite`` with a ``"{}"`` template."""
         self.switch_command("discus_suite")
         self.terminal = "{}"
 
     def open_directory(self):
+        """
+        Prompt the user to select a directory and load its file list.
+
+        Opens a directory selection dialog; if a directory is chosen,
+        stores it in `directory_path` and populates the file list widget
+        with its contents.
+        """
         self.directory_path = QFileDialog.getExistingDirectory(
             self, "Select Directory"
         )
@@ -131,11 +153,21 @@ class CommandBrowser(QMainWindow):
             self.load_files_in_directory()
 
     def load_files_in_directory(self):
+        """Clear the file list widget and repopulate it from `directory_path`."""
         self.file_list.clear()
         for file_name in os.listdir(self.directory_path):
             self.file_list.addItem(file_name)
 
     def load_file(self, item):
+        """
+        Load the selected file's contents into the text editor.
+
+        Parameters
+        ----------
+        item : QListWidgetItem
+            List item whose text is the file name (relative to
+            `directory_path`) to load.
+        """
         self.current_file_path = os.path.join(self.directory_path, item.text())
         if os.path.isfile(self.current_file_path):
             with open(self.current_file_path, "r") as file:
@@ -143,6 +175,7 @@ class CommandBrowser(QMainWindow):
             self.file_label.setText(f"Editing: {item.text()}")
 
     def save_file(self):
+        """Write the text editor's contents back to the current file, if any."""
         if self.current_file_path:
             with open(self.current_file_path, "w") as file:
                 file.write(self.text_editor.toPlainText())
@@ -152,6 +185,14 @@ class CommandBrowser(QMainWindow):
             )
 
     def run_command(self):
+        """
+        Run the active command on the current file in a system terminal.
+
+        Formats the command using `terminal` and `command`, then tries a
+        series of common terminal emulators until one successfully
+        launches. Shows a status bar message if no suitable terminal is
+        found.
+        """
         if self.current_file_path:
             command = self.terminal.format(
                 self.command, self.current_file_path

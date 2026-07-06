@@ -39,6 +39,16 @@ class SampleView(NeuXtalVizWidget):
     """
 
     def __init__(self, parent=None):
+        """
+        Initialize the sample view and build the sample tab.
+
+        Parameters
+        ----------
+        parent : QWidget, optional
+            Parent widget (default None).
+
+        """
+
         super().__init__(parent)
 
         self.tab_widget = QTabWidget(self)
@@ -48,6 +58,16 @@ class SampleView(NeuXtalVizWidget):
         self.layout().addWidget(self.tab_widget, stretch=1)
 
     def sample_tab(self):
+        """
+        Build the "Sample" tab layout and widgets.
+
+        Constructs the sample shape selector, sample dimension fields,
+        material/chemical formula fields, scattering/absorption fields,
+        face-indexing fields, and the goniometer table, and adds them to
+        the tab widget.
+
+        """
+
         samp_tab = QWidget()
         self.tab_widget.addTab(samp_tab, "Sample")
 
@@ -406,6 +426,18 @@ class SampleView(NeuXtalVizWidget):
         )
 
     def connect_sample_parameters(self, update_parameters):
+        """
+        Connect sample shape and dimension changes to a handler.
+
+        Parameters
+        ----------
+        update_parameters : callable
+            Slot invoked when the sample shape combo box is activated or
+            when editing of any of the three dimension line edits
+            finishes.
+
+        """
+
         self.sample_combo.activated.connect(update_parameters)
 
         self.param1_line.editingFinished.connect(update_parameters)
@@ -413,12 +445,44 @@ class SampleView(NeuXtalVizWidget):
         self.param3_line.editingFinished.connect(update_parameters)
 
     def connect_row_highligter(self, highlight_row):
+        """
+        Connect goniometer table row selection to a handler.
+
+        Parameters
+        ----------
+        highlight_row : callable
+            Slot invoked when the selected item in the goniometer table
+            changes.
+
+        """
+
         self.gon_table.itemSelectionChanged.connect(highlight_row)
 
     def connect_load_UB(self, load_UB):
+        """
+        Connect the load UB button to a handler.
+
+        Parameters
+        ----------
+        load_UB : callable
+            Slot invoked when the load UB button is clicked.
+
+        """
+
         self.load_UB_button.clicked.connect(load_UB)
 
     def connect_goniometer_table(self, set_gonioneter_table):
+        """
+        Connect goniometer field edits to a handler.
+
+        Parameters
+        ----------
+        set_gonioneter_table : callable
+            Slot invoked when editing finishes on any of the name, x, y,
+            z, sense, or angle line edits for the goniometer.
+
+        """
+
         self.name_line.editingFinished.connect(set_gonioneter_table)
         self.x_line.editingFinished.connect(set_gonioneter_table)
         self.y_line.editingFinished.connect(set_gonioneter_table)
@@ -427,9 +491,30 @@ class SampleView(NeuXtalVizWidget):
         self.angle_line.editingFinished.connect(set_gonioneter_table)
 
     def connect_add_sample(self, add_sample):
+        """
+        Connect the add sample button to a handler.
+
+        Parameters
+        ----------
+        add_sample : callable
+            Slot invoked when the add sample button is clicked.
+
+        """
+
         self.add_sample_button.clicked.connect(add_sample)
 
     def load_UB_file_dialog(self):
+        """
+        Open a file dialog to select a UB-matrix file.
+
+        Returns
+        -------
+        filename : str
+            Path to the selected ``.mat`` file, or an empty string if
+            the dialog was cancelled.
+
+        """
+
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
@@ -450,14 +535,46 @@ class SampleView(NeuXtalVizWidget):
         return filename
 
     def get_sample_shape(self):
+        """
+        Current sample shape selection.
+
+        Returns
+        -------
+        shape : str
+            Selected sample shape, one of "Sphere", "Cylinder", or
+            "Plate".
+
+        """
+
         return self.sample_combo.currentText()
 
     def set_sample_constants(self, params):
+        """
+        Populate the sample dimension fields.
+
+        Parameters
+        ----------
+        params : list of float
+            Width, height, and thickness values (in cm), in that order.
+
+        """
+
         self.param1_line.setText("{:.2f}".format(params[0]))
         self.param2_line.setText("{:.2f}".format(params[1]))
         self.param3_line.setText("{:.2f}".format(params[2]))
 
     def get_sample_constants(self):
+        """
+        Sample dimension values entered by the user.
+
+        Returns
+        -------
+        params : list of float or None
+            Width, height, and thickness values (in cm), or None if any
+            field has invalid input.
+
+        """
+
         params = self.param1_line, self.param2_line, self.param3_line
 
         valid_params = all([param.hasAcceptableInput() for param in params])
@@ -466,23 +583,69 @@ class SampleView(NeuXtalVizWidget):
             return [float(param.text()) for param in params]
 
     def constrain_size(self, const):
+        """
+        Enable or disable dimension fields based on the sample shape.
+
+        Parameters
+        ----------
+        const : list of bool
+            Flags indicating, for each of width, height, and thickness,
+            whether the corresponding field should be disabled (fixed)
+            because it is dependent on another dimension.
+
+        """
+
         params = self.param1_line, self.param2_line, self.param3_line
 
         for fixed, param in zip(const, params):
             param.setDisabled(fixed)
 
     def set_goniometer(self, row, goniometer):
+        """
+        Populate a row of the goniometer table.
+
+        Parameters
+        ----------
+        row : int
+            Row index in the goniometer table.
+        goniometer : list
+            Values for name, x, y, z, sense, and angle columns, in that
+            order.
+
+        """
+
         for col, val in enumerate(goniometer):
             item = QTableWidgetItem(str(val))
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             self.gon_table.setItem(row, col, item)
 
     def get_goniometer(self):
+        """
+        Goniometer values for the currently selected table row.
+
+        Returns
+        -------
+        goniometer : list or None
+            Name, x, y, z, sense, and angle values for the selected row,
+            or None if no row is selected.
+
+        """
+
         row = self.gon_table.currentRow()
         if row is not None:
             return self.get_goniometer_angle(row)
 
     def set_angle(self, goniometer):
+        """
+        Populate the goniometer edit fields.
+
+        Parameters
+        ----------
+        goniometer : list
+            Name, x, y, z, sense, and angle values, in that order.
+
+        """
+
         self.name_line.setText(goniometer[0])
         self.x_line.setText(str(goniometer[1]))
         self.y_line.setText(str(goniometer[2]))
@@ -491,6 +654,22 @@ class SampleView(NeuXtalVizWidget):
         self.angle_line.setText(str(goniometer[5]))
 
     def get_goniometer_angle(self, row):
+        """
+        Goniometer values from a specific table row.
+
+        Parameters
+        ----------
+        row : int
+            Row index in the goniometer table.
+
+        Returns
+        -------
+        goniometer : list
+            Name (str), x, y, z, sense (int), and angle (float) values
+            for the given row.
+
+        """
+
         name = self.gon_table.item(row, 0).text()
         x = self.gon_table.item(row, 1).text()
         y = self.gon_table.item(row, 2).text()
@@ -503,6 +682,17 @@ class SampleView(NeuXtalVizWidget):
         return goniometer
 
     def get_goniometers(self):
+        """
+        Goniometer values for all rows of the goniometer table.
+
+        Returns
+        -------
+        goniometers : list of list
+            Goniometer values (name, x, y, z, sense, angle) for each row
+            of the table.
+
+        """
+
         n = self.gon_table.rowCount()
 
         goniometers = []
@@ -513,6 +703,15 @@ class SampleView(NeuXtalVizWidget):
         return goniometers
 
     def set_goniometer_table(self):
+        """
+        Apply the goniometer edit fields to the currently selected row.
+
+        Reads the name, x, y, z, sense, and angle line edits and, if
+        they all contain valid input and a row is selected, writes the
+        values into that row of the goniometer table.
+
+        """
+
         row = self.gon_table.currentRow()
 
         params = (
@@ -536,9 +735,30 @@ class SampleView(NeuXtalVizWidget):
             self.set_goniometer(row, goniometer)
 
     def set_unit_cell_volume(self, vol):
+        """
+        Populate the unit cell volume field.
+
+        Parameters
+        ----------
+        vol : float
+            Unit cell volume (Å^3).
+
+        """
+
         self.V_line.setText("{:.4f}".format(vol))
 
     def get_material_paremters(self):
+        """
+        Material parameters entered by the user.
+
+        Returns
+        -------
+        vals : list or None
+            Chemical formula (str), Z (float), and unit cell volume
+            (float), or None if any field has invalid input.
+
+        """
+
         params = (
             self.chem_line,
             self.Z_line,
@@ -557,6 +777,20 @@ class SampleView(NeuXtalVizWidget):
             return vals
 
     def add_sample(self, sample_mesh):
+        """
+        Draw the sample mesh in the 3D view.
+
+        Clears the current scene, adds the sample as a collection of
+        triangles, and resets the view.
+
+        Parameters
+        ----------
+        sample_mesh : iterable of array-like
+            Triangle vertex coordinates describing the sample surface
+            mesh.
+
+        """
+
         self.plotter.clear_actors()
 
         triangles = []
@@ -582,6 +816,20 @@ class SampleView(NeuXtalVizWidget):
         self.reset_view()
 
     def set_absortion_parameters(self, abs_dict):
+        """
+        Populate the scattering/absorption and material property fields.
+
+        Parameters
+        ----------
+        abs_dict : dict
+            Dictionary with keys "sigma_a", "sigma_s", "mu_a", "mu_s",
+            "N", "M", "n", "rho", "V", and "m" giving the absorption and
+            scattering cross sections, linear coefficients, number of
+            atoms, molar mass, number density, mass density, volume,
+            and mass, respectively.
+
+        """
+
         self.sigma_a_line.setText("{:.4f}".format(abs_dict["sigma_a"]))
         self.sigma_s_line.setText("{:.4f}".format(abs_dict["sigma_s"]))
 
@@ -596,6 +844,20 @@ class SampleView(NeuXtalVizWidget):
         self.m_line.setText("{:.4f}".format(abs_dict["m"]))
 
     def get_face_indexing(self):
+        """
+        Face-indexing vectors entered by the user.
+
+        Returns
+        -------
+        along_thickness : list of float
+            Reciprocal lattice indices (h, k, l) of the direction along
+            the sample thickness (the face normal).
+        in_plane_lateral : list of float
+            Reciprocal lattice indices (h, k, l) of an in-plane lateral
+            direction.
+
+        """
+
         params = (
             self.hu_line,
             self.ku_line,

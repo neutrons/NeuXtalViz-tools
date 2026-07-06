@@ -1,10 +1,45 @@
+"""
+Sample: Presenter class for the sample tools window in NeuXtalViz.
+
+This module defines the Sample presenter class, which mediates between
+the sample tools view and its model, handling goniometer configuration,
+UB matrix loading, and sample shape/material definition, including
+updating the view with the resulting absorption parameters and mesh.
+
+Classes
+-------
+Sample
+    Presenter for the sample tools window, connecting view events to
+    model logic for goniometers, UB matrices, and sample definition.
+"""
+
 import numpy as np
 
 from NeuXtalViz.presenters.base_presenter import NeuXtalVizPresenter
 
 
 class Sample(NeuXtalVizPresenter):
+    """
+    Presenter for the sample tools window in NeuXtalViz.
+
+    Connects goniometer, UB matrix, and sample shape/material events
+    in the view to the model, updating the view with the resulting
+    absorption parameters, unit cell volume, and sample mesh.
+    """
+
     def __init__(self, view, model):
+        """
+        Initialize the presenter and connect view signals to presenter
+        methods.
+
+        Parameters
+        ----------
+        view : object
+            The view/UI instance.
+        model : object
+            The model instance containing data and logic.
+        """
+
         super(Sample, self).__init__(view, model)
 
         self.view.connect_row_highligter(self.highlight_row)

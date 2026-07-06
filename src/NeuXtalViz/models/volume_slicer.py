@@ -15,6 +15,15 @@ from NeuXtalViz.models.utilities import SaveMDToAscii
 
 
 class VolumeSlicerModel(NeuXtalVizModel):
+    """
+    Model for slicing and cutting reciprocal-space MD histogram volumes.
+
+    Wraps Mantid MD histogram workspaces (``histo``/``volume``) to load
+    and downsample 3D reciprocal-space data, and to produce 2D slices and
+    1D cuts of that data along axes aligned with the UB/W orientation
+    matrices for visualization.
+    """
+
     def __init__(self):
         """
         Initialize the VolumeSlicerModel.
@@ -409,14 +418,18 @@ class VolumeSlicerModel(NeuXtalVizModel):
         Parameters
         ----------
         trans : np.ndarray
-            Array of values to calculate limits for.
+            Signal array to calculate color limits for (clipped in place
+            and also returned).
         method : str, optional
-            Method for calculation: 'normal', 'boxplot', or 'minmax'.
+            Method for calculation: 'normal' (mean +/- 3 sigma), 'boxplot'
+            (quartiles +/- 1.5 IQR), or any other value for plain min/max
+            (default 'normal').
 
         Returns
         -------
-        np.ndarray
-            Array with values clipped to the calculated color limits.
+        trans : np.ndarray
+            The input array with values clipped to the calculated color
+            limits.
         """
         trans[~np.isfinite(trans)] = np.nan
 
@@ -457,10 +470,13 @@ class VolumeSlicerModel(NeuXtalVizModel):
         """
         Compute the orientation matrix for the current UB and W matrices.
 
+        Overrides :meth:`NeuXtalVizModel.orientation_matrix` to account
+        for the additional W matrix (projection into the slicing basis).
+
         Returns
         -------
-        np.ndarray
-            Orientation matrix.
+        U : np.ndarray
+            3x3 orientation matrix combining the UB and W matrices.
         """
         Bp = np.dot(self.UB, self.W)
 
@@ -476,15 +492,21 @@ class VolumeSlicerModel(NeuXtalVizModel):
         """
         Get the transformation matrix for the current UB and W matrices.
 
+        Overrides :meth:`NeuXtalVizModel.get_transform` to account for
+        the additional W matrix (projection into the slicing basis).
+        Returns None if no UB matrix is set.
+
         Parameters
         ----------
         reciprocal : bool, optional
-            If True, return reciprocal transformation; else real space.
+            If True, return reciprocal transformation; else real space
+            (default True).
 
         Returns
         -------
-        np.ndarray
-            Transformation matrix.
+        T : np.ndarray or None
+            Normalized 3x3 transformation matrix, or None if no UB
+            matrix has been set.
         """
         if self.UB is not None:
             b = self.UB / np.linalg.norm(self.UB, axis=0)
@@ -516,8 +538,14 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         Returns
         -------
-        tuple
-            (projection, transform, scale) matrices.
+        p : np.ndarray
+            Projection matrix, normalized so its first diagonal element
+            is 1.
+        t : np.ndarray
+            Transform matrix, normalized by the column norms of the
+            Cholesky factor.
+        s : np.ndarray
+            Scale factors (column norms of `p`).
         """
         Bp = np.dot(self.UB, self.W)
 
@@ -540,12 +568,14 @@ class VolumeSlicerModel(NeuXtalVizModel):
         Parameters
         ----------
         ind : array-like
-            Index vector for the plane.
+            One-hot index vector (e.g. ``[1, 0, 0]``) selecting the
+            slicing axis in the W-projected basis.
 
         Returns
         -------
-        np.ndarray
-            Normal vector for the plane.
+        vec : np.ndarray or None
+            Normal vector for the plane in Cartesian coordinates, or
+            None if no UB matrix has been set.
         """
         if self.UB is not None:
             Bp = np.dot(self.UB, self.W)

@@ -4,7 +4,28 @@ import functools
 
 
 class Experiment(NeuXtalVizPresenter):
+    """
+    Presenter for the experiment planner in NeuXtalViz.
+
+    Connects the experiment-planner view's signals to model logic for
+    goniometer/instrument setup, peak coverage calculation and
+    visualization, plane/mesh scan generation, coverage optimization,
+    and experiment plan save/load.
+    """
+
     def __init__(self, view, model):
+        """
+        Wire up the experiment planner view signals and initialize state.
+
+        Parameters
+        ----------
+        view : object
+            The experiment planner view/UI instance.
+        model : object
+            The experiment planner model instance containing data and
+            logic.
+        """
+
         super(Experiment, self).__init__(view, model)
 
         self.view.connect_load_UB(self.load_UB)
@@ -140,6 +161,15 @@ class Experiment(NeuXtalVizPresenter):
         self.model.remove_instrument()
 
     def switch_crystal(self):
+        """
+        Update available point groups when the crystal system changes.
+
+        Slot for the crystal system combo box's activation signal.
+        Fetches the point groups compatible with the selected crystal
+        system, updates the view, and refreshes the lattice centering
+        list via :meth:`switch_group`.
+        """
+
         cs = self.view.get_crystal_system()
 
         point_groups = self.model.get_crystal_system_point_groups(cs)
@@ -149,6 +179,14 @@ class Experiment(NeuXtalVizPresenter):
         self.switch_group()
 
     def switch_group(self):
+        """
+        Update available lattice centerings when the point group changes.
+
+        Slot for the point group combo box's activation signal. Fetches
+        the lattice centerings compatible with the selected point group,
+        updates the view, and triggers a re-visualization.
+        """
+
         pg = self.view.get_point_group()
 
         centerings = self.model.get_point_group_centering(pg)
@@ -158,15 +196,35 @@ class Experiment(NeuXtalVizPresenter):
         self.visualize()
 
     def switch_centering(self):
+        """
+        Re-visualize the coverage when the lattice centering changes.
+
+        Slot for the lattice centering combo box's activation signal.
+        """
+
         self.visualize()
 
     def update_hkl_limits(self):
+        """
+        Recompute and display HKL limits from the current d-min and UB.
+
+        Slot for the d-min line edit's ``editingFinished`` signal (and
+        called after loading a UB matrix). Does nothing if no d-min is
+        set or no UB matrix has been loaded.
+        """
+
         d_min = self.view.get_d_min()
         if d_min is not None and self.model.has_UB():
             hkl_limits = self.model.calculate_hkl_limits(d_min)
             self.view.set_hkl_limits(*hkl_limits)
 
     def update_goniometer(self):
+        """
+        Refresh the goniometer/motor tables for the selected mode.
+
+        Slot for the goniometer mode combo box's activation signal.
+        """
+
         instrument = self.view.get_instrument()
         mode = self.view.get_mode()
 
@@ -177,10 +235,27 @@ class Experiment(NeuXtalVizPresenter):
         self.view.update_tables(title, goniometers, motors)
 
     def update_wavelength(self):
+        """
+        Update the derived wavelength display from the minimum wavelength.
+
+        Slot for the minimum wavelength line edit's ``editingFinished``
+        signal.
+        """
+
         wl_min, _ = self.view.get_wavelength()
         self.view.update_wavelength(wl_min)
 
     def show_instrument(self):
+        """
+        Launch a background worker to render the instrument geometry.
+
+        Slot for the "Show Instrument" button. Gathers the current
+        instrument/motor/calibration settings from the view and runs
+        :meth:`show_instrument_process` in a worker thread, updating the
+        view with the result via :meth:`show_instrument_complete` and
+        refreshing the HKL limits when finished.
+        """
+
         instrument = self.view.get_instrument()
         motors = self.view.get_motors()
         cal = self.view.get_detector_calibration()
@@ -204,6 +279,18 @@ class Experiment(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def show_instrument_complete(self, result):
+        """
+        Add the computed instrument geometry to the 3D view.
+
+        Parameters
+        ----------
+        result : dict or None
+            Instrument mesh dictionary from
+            :meth:`show_instrument_process` (as returned by
+            ``model.extract_instrument_view``), or None if the
+            calculation was cancelled or failed.
+        """
+
         if result is not None:
             self.view.add_instrument(result)
 
@@ -217,6 +304,35 @@ class Experiment(NeuXtalVizPresenter):
         gon=None,
         mask=None,
     ):
+        """
+        Worker task: initialize the instrument and extract its geometry.
+
+        Parameters
+        ----------
+        progress : callable
+            Callback ``progress(status, percent)`` used to report status
+            messages and progress percentage back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that the worker should stop early.
+        instrument : str, optional
+            Instrument identifier.
+        motors : list, optional
+            Auxiliary motor ``(name, value)`` settings.
+        cal : str, optional
+            Detector calibration file path.
+        gon : str, optional
+            Goniometer calibration file path.
+        mask : str, optional
+            Detector mask file path.
+
+        Returns
+        -------
+        inst_dict : dict or None
+            Instrument mesh dictionary with ``"points"``, ``"faces"``,
+            and ``"radius"`` keys, or None if the worker was stopped
+            early.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -239,6 +355,14 @@ class Experiment(NeuXtalVizPresenter):
         return inst_dict
 
     def create_instrument(self):
+        """
+        Initialize the instrument workspace with the current view settings.
+
+        Reads the instrument, motors, and calibration/mask files from
+        the view and initializes the model's instrument workspace
+        synchronously (not run in a background worker).
+        """
+
         instrument = self.view.get_instrument()
         motors = self.view.get_motors()
         cal = self.view.get_detector_calibration()
@@ -248,14 +372,38 @@ class Experiment(NeuXtalVizPresenter):
         self.model.initialize_instrument(instrument, motors, cal, gon, mask)
 
     def calculate_single(self):
+        """
+        Calculate peak coverage for the first (primary) input HKL.
+
+        Slot for the "Calculate Single" button. Selects the primary
+        HKL input and delegates to :meth:`calculate_single_hkl`.
+        """
+
         self.alt_hkl = False
         self.calculate_single_hkl()
 
     def calculate_single_alt(self):
+        """
+        Calculate peak coverage for the second (alternate) input HKL.
+
+        Slot for the alternate "Calculate Single" button. Selects the
+        alternate HKL input and delegates to :meth:`calculate_single_hkl`.
+        """
+
         self.alt_hkl = True
         self.calculate_single_hkl()
 
     def calculate_single_hkl(self):
+        """
+        Launch a background worker to calculate a single reflection's
+        detector coverage across all goniometer settings.
+
+        Gathers the HKL, wavelength, symmetry, and instrument settings
+        from the view and runs :meth:`calculate_single_process` in a
+        worker thread, plotting the result via
+        :meth:`calculate_single_complete` when finished.
+        """
+
         hkl_1, hkl_2 = self.view.get_input_hkls()
         wavelength = self.view.get_wavelength()
         equiv = self.view.use_equivalents()
@@ -292,6 +440,19 @@ class Experiment(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def calculate_single_complete(self, result):
+        """
+        Plot the single-reflection coverage on the instrument view.
+
+        Parameters
+        ----------
+        result : tuple or None
+            ``(gamma, nu, lamda, d)`` from
+            :meth:`calculate_single_process`, giving the detector
+            gamma/nu angles (degrees), wavelength, and d-spacing
+            (Angstrom) of the matching goniometer settings, or None if
+            the calculation was cancelled or invalid.
+        """
+
         if result is not None:
             inst_background = self.model.get_instrument_background()
             gamma, nu, lamda, _ = result
@@ -314,6 +475,53 @@ class Experiment(NeuXtalVizPresenter):
         gon=None,
         mask=None,
     ):
+        """
+        Worker task: compute detector coverage for a single reflection.
+
+        Uses ``hkl_1`` unless :attr:`alt_hkl` is set, in which case
+        ``hkl_2`` is used.
+
+        Parameters
+        ----------
+        progress : callable
+            Callback ``progress(status, percent)`` used to report status
+            messages and progress percentage back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that the worker should stop early.
+        hkl_1 : array-like, optional
+            Primary Miller index input.
+        hkl_2 : array-like, optional
+            Alternate Miller index input.
+        wavelength : 2-tuple of float, optional
+            Minimum and maximum wavelength (Angstrom).
+        equiv : bool, optional
+            Whether to include symmetry-equivalent HKLs in the search.
+        pg : str, optional
+            Point group symbol used to generate symmetry equivalents.
+        instrument : str, optional
+            Instrument identifier.
+        mode : str, optional
+            Goniometer mode name.
+        limits : sequence of (float, float), optional
+            Per-axis (min, max) goniometer angle limits, in degrees.
+        instr_motors : list, optional
+            Auxiliary motor ``(name, value)`` settings.
+        cal : str, optional
+            Detector calibration file path.
+        gon : str, optional
+            Goniometer calibration file path.
+        mask : str, optional
+            Detector mask file path.
+
+        Returns
+        -------
+        gamma, nu, lamda, d : ndarray or None
+            Detector gamma/nu angles (degrees), wavelength (Angstrom),
+            and d-spacing (Angstrom) of matching goniometer settings, or
+            None if the HKL is invalid, no UB matrix is loaded, or the
+            worker was stopped early.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -361,6 +569,17 @@ class Experiment(NeuXtalVizPresenter):
                 progress("Invalid parameters for single peak calculation.", 0)
 
     def calculate_double(self):
+        """
+        Launch a background worker to calculate simultaneous coverage of
+        two reflections.
+
+        Slot for the "Calculate Double" button. Gathers the two input
+        HKLs, wavelength, symmetry, and instrument settings from the
+        view and runs :meth:`calculate_double_process` in a worker
+        thread, plotting the result via
+        :meth:`calculate_double_complete` when finished.
+        """
+
         hkl_1, hkl_2 = self.view.get_input_hkls()
         wavelength = self.view.get_wavelength()
         equiv = self.view.use_equivalents()
@@ -397,6 +616,21 @@ class Experiment(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def calculate_double_complete(self, result):
+        """
+        Plot the simultaneous two-reflection coverage on the instrument
+        view.
+
+        Parameters
+        ----------
+        result : tuple or None
+            ``(gamma_1, nu_1, lamda_1, d_1, gamma_2, nu_2, lamda_2,
+            d_2)`` from :meth:`calculate_double_process`, giving the
+            detector gamma/nu angles (degrees), wavelength, and
+            d-spacing (Angstrom) for the first and second reflection at
+            each matching goniometer setting, or None if the
+            calculation was cancelled or invalid.
+        """
+
         if result is not None:
             inst_background = self.model.get_instrument_background()
             gamma_1, nu_1, lamda_1, _, gamma_2, nu_2, lamda_2, _ = result
@@ -421,6 +655,54 @@ class Experiment(NeuXtalVizPresenter):
         gon=None,
         mask=None,
     ):
+        """
+        Worker task: compute detector coverage for two simultaneous
+        reflections.
+
+        Parameters
+        ----------
+        progress : callable
+            Callback ``progress(status, percent)`` used to report status
+            messages and progress percentage back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that the worker should stop early.
+        hkl_1 : array-like, optional
+            Miller index of the first reflection.
+        hkl_2 : array-like, optional
+            Miller index of the second reflection.
+        wavelength : 2-tuple of float, optional
+            Minimum and maximum wavelength (Angstrom).
+        equiv : bool, optional
+            Whether to include symmetry-equivalent HKLs in the search.
+        pg : str, optional
+            Point group symbol used to generate symmetry equivalents.
+        instrument : str, optional
+            Instrument identifier.
+        mode : str, optional
+            Goniometer mode name.
+        limits : sequence of (float, float), optional
+            Per-axis (min, max) goniometer angle limits, in degrees.
+        instr_motors : list, optional
+            Auxiliary motor ``(name, value)`` settings.
+        cal : str, optional
+            Detector calibration file path.
+        gon : str, optional
+            Goniometer calibration file path.
+        mask : str, optional
+            Detector mask file path.
+
+        Returns
+        -------
+        gamma_1, nu_1, lamda_1, d_1 : ndarray
+            Detector gamma/nu angles (degrees), wavelength (Angstrom),
+            and d-spacing (Angstrom) for the first reflection.
+        gamma_2, nu_2, lamda_2, d_2 : ndarray
+            Same quantities for the second reflection, at goniometer
+            settings where both reflections are simultaneously visible.
+            The full 8-tuple is None instead if either HKL is missing,
+            no UB matrix is loaded, or the worker was stopped early.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -465,6 +747,20 @@ class Experiment(NeuXtalVizPresenter):
                 progress("Invalid parameters for double peak calculation.", 0)
 
     def update_peaks(self, visualize=True):
+        """
+        Refresh the peaks table and Laue plot for the selected orientation.
+
+        Slot for the orientations combo box's ``activated`` signal, and
+        called directly (with ``visualize=False``) after orientations
+        are added, deleted, reordered, or reconfigured.
+
+        Parameters
+        ----------
+        visualize : bool, optional
+            If True (default), also trigger a full coverage
+            re-visualization via :meth:`visualize`.
+        """
+
         row = self.view.get_peak_list()
         if row is not None:
             peak_list = self.model.generate_table(row)
@@ -476,6 +772,21 @@ class Experiment(NeuXtalVizPresenter):
                 self.visualize()
 
     def lookup_angle(self, gamma, nu):
+        """
+        Look up and display the goniometer setting nearest a clicked
+        instrument-view detector position.
+
+        Slot for the view's ``roi_ready`` signal, emitted with the
+        (gamma, nu) coordinates of a mouse click on the instrument
+        coverage plot.
+
+        Parameters
+        ----------
+        gamma : float
+            Detector gamma angle (degrees) of the clicked position.
+        nu : float
+            Detector nu angle (degrees) of the clicked position.
+        """
 
         vals = self.model.get_angles(gamma, nu)
         if vals is not None:
@@ -503,6 +814,15 @@ class Experiment(NeuXtalVizPresenter):
             self.view.update_inst()
 
     def calculate_harmonics(self):
+        """
+        Plot harmonic reflections overlapping the selected peak(s).
+
+        Slot for the view's ``harm_ready`` signal, emitted when the
+        instrument plot is updated. Computes and plots harmonics for
+        the primary reflection and, if present, the alternate
+        (simultaneous) reflection.
+        """
+
         band = self.view.get_wavelength()
         wavelength = self.view.get_intersect()
         hkl = self.model.hkl
@@ -520,6 +840,19 @@ class Experiment(NeuXtalVizPresenter):
             self.view.plot_harmonics_alternate(*harmonics)
 
     def select_peak(self, gamma, nu):
+        """
+        Select and highlight the peak nearest a clicked Laue-plot position.
+
+        Slot for the view's ``sel_ready`` signal, emitted with the
+        (gamma, nu) coordinates of a mouse click on the Laue plot.
+
+        Parameters
+        ----------
+        gamma : float
+            Detector gamma angle (degrees) of the clicked position.
+        nu : float
+            Detector nu angle (degrees) of the clicked position.
+        """
 
         vals = self.model.get_peak_selection(gamma, nu)
         if vals is not None:
@@ -528,6 +861,12 @@ class Experiment(NeuXtalVizPresenter):
             self.view.highlight_peak(row)
 
     def highlight_peak(self):
+        """
+        Update the Laue plot for the peak selected in the peaks table.
+
+        Slot for the peaks table's ``itemSelectionChanged`` signal.
+        """
+
         row = self.view.get_peak()
 
         vals = self.model.get_peak_index(row)
@@ -536,6 +875,14 @@ class Experiment(NeuXtalVizPresenter):
             self.view.update_laue(gamma, nu, lamdas, hkl, wl)
 
     def move_orientation_up(self):
+        """
+        Move the selected orientation up one row in the plan table.
+
+        Slot for the "Move Up" button. Swaps the selected orientation
+        with the one above it, in both the model and the view, then
+        refreshes the peaks table without a full re-visualization.
+        """
+
         row = self.view.get_selected_angle()
         no = self.view.get_number_of_orientations()
         if row is not None and row > 0:
@@ -544,6 +891,14 @@ class Experiment(NeuXtalVizPresenter):
             self.update_peaks(True)
 
     def move_orientation_down(self):
+        """
+        Move the selected orientation down one row in the plan table.
+
+        Slot for the "Move Down" button. Swaps the selected orientation
+        with the one below it, in both the model and the view, then
+        refreshes the peaks table without a full re-visualization.
+        """
+
         row = self.view.get_selected_angle()
         no = self.view.get_number_of_orientations()
         if row is not None and row < no - 1:
@@ -552,6 +907,15 @@ class Experiment(NeuXtalVizPresenter):
             self.update_peaks(True)
 
     def delete_angles(self):
+        """
+        Launch a background worker to delete the selected orientations.
+
+        Slot for the "Delete" button. Gathers the rows selected for
+        deletion from the view and runs :meth:`delete_angles_process`
+        in a worker thread, updating the view via
+        :meth:`delete_angles_complete` when finished.
+        """
+
         rows = self.view.get_angles_to_delete()
 
         worker = self.view.worker(
@@ -564,11 +928,41 @@ class Experiment(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def delete_angles_complete(self, rows):
+        """
+        Remove the deleted orientation rows from the plan table.
+
+        Parameters
+        ----------
+        rows : list of int or None
+            Row indices that were deleted, as returned by
+            :meth:`delete_angles_process`, or None if no rows were
+            selected.
+        """
+
         if rows is not None:
             self.view.delete_angles(rows)
             self.update_peaks(False)
 
     def delete_angles_process(self, progress, stop_event=None, rows=None):
+        """
+        Worker task: delete orientation rows from the model.
+
+        Parameters
+        ----------
+        progress : callable
+            Callback ``progress(status, percent)`` used to report status
+            messages and progress percentage back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that the worker should stop early.
+        rows : list of int, optional
+            Row indices to delete.
+
+        Returns
+        -------
+        rows : list of int or None
+            The same ``rows`` passed in, if deletion was performed, or
+            None if no rows were selected.
+        """
 
         if rows is not None:
             self.model.delete_angles(rows)
@@ -581,6 +975,15 @@ class Experiment(NeuXtalVizPresenter):
             progress("No rows selected for deletion.", 0)
 
     def add_orientation(self):
+        """
+        Launch a background worker to add a manually entered orientation.
+
+        Slot for the "Add" button. Gathers the manually entered angles
+        and current instrument settings from the view and runs
+        :meth:`add_orientation_process` in a worker thread, updating the
+        plan table via :meth:`add_orientation_complete` when finished.
+        """
+
         angles = self.view.get_angles()
         free_angles = self.view.get_free_angles()
         all_angles = self.view.get_all_angles()
@@ -606,6 +1009,19 @@ class Experiment(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def add_orientation_complete(self, result):
+        """
+        Add the newly calculated orientation as a row in the plan table.
+
+        Parameters
+        ----------
+        result : tuple or None
+            ``(angles, all_angles, free_angles)`` from
+            :meth:`add_orientation_process`, giving the full per-axis
+            angle setting, the names of all goniometer axes, and the
+            names of the free (variable) axes, or None if no
+            orientation was added.
+        """
+
         if result is None:
             return
         angles, all_angles, free_angles = result
@@ -631,6 +1047,39 @@ class Experiment(NeuXtalVizPresenter):
         d_min=None,
         rows=None,
     ):
+        """
+        Worker task: predict reflections for a manually entered
+        orientation.
+
+        Parameters
+        ----------
+        progress : callable
+            Callback ``progress(status, percent)`` used to report status
+            messages and progress percentage back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that the worker should stop early.
+        angles : list of float, optional
+            Full per-axis goniometer angle setting.
+        free_angles : list of str, optional
+            Names of the goniometer axes that are free (variable).
+        all_angles : list of str, optional
+            Names of all goniometer axes.
+        wavelength : 2-tuple of float, optional
+            Minimum and maximum wavelength (Angstrom).
+        d_min : float, optional
+            Minimum d-spacing (Angstrom).
+        rows : int, optional
+            Row index at which to add the new orientation's predicted
+            peaks workspace.
+
+        Returns
+        -------
+        angles, all_angles, free_angles : tuple or None
+            The same ``angles``, ``all_angles``, and ``free_angles``
+            passed in, if reflections were predicted, or None if
+            ``angles`` was empty.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -650,6 +1099,16 @@ class Experiment(NeuXtalVizPresenter):
             progress("No angles provided for orientation.", 0)
 
     def mesh_scan(self):
+        """
+        Launch a background worker to add orientations from a mesh scan.
+
+        Slot for the "Mesh Scan" button. Gathers the mesh axis limits
+        and step counts along with the current instrument settings from
+        the view and runs :meth:`mesh_scan_process` in a worker thread,
+        updating the plan table via :meth:`mesh_scan_complete` when
+        finished.
+        """
+
         mesh_angles = self.view.get_mesh_angles()
         free_angles = self.view.get_free_angles()
         all_angles = self.view.get_all_angles()
@@ -687,6 +1146,17 @@ class Experiment(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def mesh_scan_complete(self, result):
+        """
+        Add the mesh-scan orientations as rows in the plan table.
+
+        Parameters
+        ----------
+        result : list of ndarray or None
+            Per-orientation free-axis angle values from
+            :meth:`mesh_scan_process`, or None if the mesh scan was
+            cancelled or invalid.
+        """
+
         title = self.view.get_title()
         if result is not None:
             self.view.add_orientations(title, "Mesh Scan", result)
@@ -709,6 +1179,52 @@ class Experiment(NeuXtalVizPresenter):
         gon=None,
         mask=None,
     ):
+        """
+        Worker task: predict reflections for each orientation in a mesh
+        of goniometer settings.
+
+        Parameters
+        ----------
+        progress : callable
+            Callback ``progress(status, percent)`` used to report status
+            messages and progress percentage back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that the worker should stop early.
+        mesh_angles : tuple, optional
+            ``(limits, ns)`` -- per-axis [min, max] angle limits and
+            number of steps to sample for each goniometer axis.
+        free_angles : list of str, optional
+            Names of the goniometer axes that are free (variable).
+        all_angles : list of str, optional
+            Names of all goniometer axes.
+        wavelength : 2-tuple of float, optional
+            Minimum and maximum wavelength (Angstrom).
+        d_min : float, optional
+            Minimum d-spacing (Angstrom).
+        rows : int, optional
+            Row index at which to start adding the new orientations'
+            predicted peaks workspaces.
+        instrument : str, optional
+            Instrument identifier.
+        mode : str, optional
+            Goniometer mode name.
+        instr_motors : list, optional
+            Auxiliary motor ``(name, value)`` settings.
+        cal : str, optional
+            Detector calibration file path.
+        gon : str, optional
+            Goniometer calibration file path.
+        mask : str, optional
+            Detector mask file path.
+
+        Returns
+        -------
+        angles : list of ndarray or None
+            Per-orientation free-axis angle values, one entry per mesh
+            grid point, or None if ``mesh_angles`` was not provided or
+            the worker was stopped early.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -742,6 +1258,19 @@ class Experiment(NeuXtalVizPresenter):
             progress("No mesh angles provided for mesh scan.", 0)
 
     def calculate_plane(self):
+        """
+        Launch a background worker to preview coverage of a scattering
+        plane.
+
+        Slot for the "Calculate Plane" button. No-op if a previous
+        HKL-conversion/plane calculation is still running (guarded by
+        :attr:`convert_idle`). Gathers the plane's HKL vectors,
+        projection, slice, and instrument settings from the view and
+        runs :meth:`calculate_plane_process` in a worker thread,
+        updating the slice view via :meth:`convert_to_hkl_complete`
+        when finished.
+        """
+
         if not self.convert_idle:
             return
 
@@ -820,6 +1349,65 @@ class Experiment(NeuXtalVizPresenter):
         gon=None,
         mask=None,
     ):
+        """
+        Worker task: preview the coverage slice for a scattering plane.
+
+        Parameters
+        ----------
+        progress : callable
+            Callback ``progress(status, percent)`` used to report status
+            messages and progress percentage back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that the worker should stop early.
+        hkl_1, hkl_2 : array-like, optional
+            Miller-index vectors defining the scattering plane.
+        max_deg : float, optional
+            Maximum rotation angle (degrees) to scan about the plane
+            normal.
+        n_steps : int, optional
+            Number of steps to scan over ``max_deg``.
+        instrument : str, optional
+            Instrument identifier.
+        mode : str, optional
+            Goniometer mode name.
+        limits : sequence of (float, float), optional
+            Per-axis (min, max) goniometer angle limits, in degrees.
+        proj : array-like, optional
+            Flattened 3x3 HKL projection matrix.
+        value : float, optional
+            Slice position along the slice normal.
+        thickness : float, optional
+            Slice half-thickness.
+        d_min : float, optional
+            Minimum d-spacing (Angstrom).
+        symm : bool, optional
+            Whether to apply point-group symmetry when computing
+            coverage.
+        point_group : str, optional
+            Point group symbol used when ``symm`` is True.
+        wavelength : 2-tuple of float, optional
+            Minimum and maximum wavelength (Angstrom).
+        norm : list of int, optional
+            One-hot vector selecting the slice normal axis.
+        instr_motors : list, optional
+            Auxiliary motor ``(name, value)`` settings.
+        cal : str, optional
+            Detector calibration file path.
+        gon : str, optional
+            Goniometer calibration file path.
+        mask : str, optional
+            Detector mask file path.
+
+        Returns
+        -------
+        result : dict or None
+            Slice dictionary from ``model.calculate_rotations`` (with
+            keys such as ``"x"``, ``"y"``, ``"signal"``, ``"transform"``)
+            for the requested plane, or None if the HKL vectors,
+            projection, or other parameters are invalid, no plane
+            orientations were found, or the worker was stopped early.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -886,6 +1474,16 @@ class Experiment(NeuXtalVizPresenter):
         return result
 
     def plane_scan(self):
+        """
+        Launch a background worker to add orientations spanning a plane.
+
+        Slot for the "Add Plane" button. Gathers the plane's HKL
+        vectors, scan range, and current instrument settings from the
+        view and runs :meth:`plane_scan_process` in a worker thread,
+        updating the plan table via :meth:`plane_scan_complete` when
+        finished.
+        """
+
         hkl_1 = self.view.get_plane_hkl_1()
         hkl_2 = self.view.get_plane_hkl_2()
         max_deg = self.view.get_plane_max_angle()
@@ -931,6 +1529,17 @@ class Experiment(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def plane_scan_complete(self, result):
+        """
+        Add the plane-scan orientations as rows in the plan table.
+
+        Parameters
+        ----------
+        result : list of ndarray or None
+            Per-orientation free-axis angle values from
+            :meth:`plane_scan_process`, or None if the plane scan was
+            cancelled or invalid.
+        """
+
         title = self.view.get_title()
         if result is not None:
             self.view.add_orientations(title, "Plane Scan", result)
@@ -957,6 +1566,58 @@ class Experiment(NeuXtalVizPresenter):
         gon=None,
         mask=None,
     ):
+        """
+        Worker task: add orientations spanning a scattering plane.
+
+        Parameters
+        ----------
+        progress : callable
+            Callback ``progress(status, percent)`` used to report status
+            messages and progress percentage back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that the worker should stop early.
+        hkl_1, hkl_2 : array-like, optional
+            Miller-index vectors defining the scattering plane.
+        max_deg : float, optional
+            Maximum rotation angle (degrees) to scan about the plane
+            normal.
+        n_steps : int, optional
+            Number of steps to scan over ``max_deg``.
+        free_angles : list of str, optional
+            Names of the goniometer axes that are free (variable).
+        all_angles : list of str, optional
+            Names of all goniometer axes.
+        wavelength : 2-tuple of float, optional
+            Minimum and maximum wavelength (Angstrom).
+        d_min : float, optional
+            Minimum d-spacing (Angstrom).
+        rows : int, optional
+            Row-number offset at which to start adding the new
+            orientations' predicted peaks.
+        instrument : str, optional
+            Instrument identifier.
+        mode : str, optional
+            Goniometer mode name.
+        limits : sequence of (float, float), optional
+            Per-axis (min, max) goniometer angle limits, in degrees.
+        instr_motors : list, optional
+            Auxiliary motor ``(name, value)`` settings.
+        cal : str, optional
+            Detector calibration file path.
+        gon : str, optional
+            Goniometer calibration file path.
+        mask : str, optional
+            Detector mask file path.
+
+        Returns
+        -------
+        angles : list of ndarray or None
+            Per-orientation free-axis angle values, one entry per
+            selected plane orientation, or None if the HKL vectors are
+            invalid, no plane orientations were found, or the worker
+            was stopped early.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -1006,16 +1667,45 @@ class Experiment(NeuXtalVizPresenter):
         self.convert_to_hkl()
 
     def convert_mesh_to_hkl(self):
+        """
+        Recompute coverage from the mesh-scan angles and slice to HKL.
+
+        Slot for the "Convert Mesh" button. Sets the presenter to use
+        the mesh-angle grid (rather than the plan's discrete
+        orientations) as the source of goniometer settings, then
+        delegates to :meth:`convert_to_hkl`.
+        """
+
         self.slice_only = False
         self.mesh = True
         self.convert_to_hkl()
 
     def convert_plan_to_hkl(self):
+        """
+        Recompute coverage from the plan's orientations and slice to HKL.
+
+        Slot for the "Convert Plan" button. Sets the presenter to use
+        the discrete orientations in the plan table (rather than the
+        mesh-angle grid) as the source of goniometer settings, then
+        delegates to :meth:`convert_to_hkl`.
+        """
+
         self.slice_only = False
         self.mesh = False
         self.convert_to_hkl()
 
     def convert_to_hkl(self):
+        """
+        Launch a background worker to compute/re-slice HKL coverage.
+
+        No-op if a previous HKL-conversion is still running (guarded by
+        :attr:`convert_idle`). Gathers the projection, slice, and
+        instrument settings from the view, along with either the mesh
+        angles or the plan angles depending on :attr:`mesh`, and runs
+        :meth:`convert_to_hkl_process` in a worker thread, updating the
+        slice view via :meth:`convert_to_hkl_complete` when finished.
+        """
+
         if self.convert_idle:
             instrument = self.view.get_instrument()
             mode = self.view.get_mode()
@@ -1063,6 +1753,16 @@ class Experiment(NeuXtalVizPresenter):
             self.view.start_worker_pool(worker)
 
     def convert_to_hkl_complete(self, result):
+        """
+        Update the slice view with the newly computed HKL coverage.
+
+        Parameters
+        ----------
+        result : dict or None
+            Slice dictionary from :meth:`convert_to_hkl_process`, or
+            None if the conversion was invalid or produced no coverage.
+        """
+
         if result is not None:
             self.view.update_slice(result)
         self.convert_idle = True
@@ -1087,6 +1787,67 @@ class Experiment(NeuXtalVizPresenter):
         gon=None,
         mask=None,
     ):
+        """
+        Worker task: compute or re-slice the HKL coverage for a plan.
+
+        If :attr:`slice_only` is set, re-slices the most recently
+        computed coverage without recomputing the footprint (see
+        :meth:`reslice`). Otherwise, initializes the instrument, builds
+        the footprint, and computes the coverage for ``angles`` (either
+        a mesh grid or a list of plan orientations, depending on
+        :attr:`mesh`), then slices it onto the requested HKL plane.
+
+        Parameters
+        ----------
+        progress : callable
+            Callback ``progress(status, percent)`` used to report status
+            messages and progress percentage back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that the worker should stop early.
+        instrument : str, optional
+            Instrument identifier.
+        mode : str, optional
+            Goniometer mode name.
+        proj : array-like, optional
+            Flattened 3x3 HKL projection matrix.
+        value : float, optional
+            Slice position along the slice normal.
+        thickness : float, optional
+            Slice half-thickness.
+        d_min : float, optional
+            Minimum d-spacing (Angstrom).
+        symm : bool, optional
+            Whether to apply point-group symmetry when computing
+            coverage.
+        point_group : str, optional
+            Point group symbol used when ``symm`` is True.
+        norm : list of int, optional
+            One-hot vector selecting the slice normal axis.
+        angles : array-like, optional
+            Either a list of goniometer angle tuples (plan
+            orientations) or ``(limits, ns)`` describing a mesh grid,
+            depending on :attr:`mesh`.
+        wavelength : 2-tuple of float, optional
+            Minimum and maximum wavelength (Angstrom).
+        instr_motors : list, optional
+            Auxiliary motor ``(name, value)`` settings.
+        cal : str, optional
+            Detector calibration file path.
+        gon : str, optional
+            Goniometer calibration file path.
+        mask : str, optional
+            Detector mask file path.
+
+        Returns
+        -------
+        result : dict or None
+            Slice dictionary from ``model.calculate_rotations`` or
+            ``model.reslice_last`` (with keys such as ``"x"``, ``"y"``,
+            ``"signal"``, ``"transform"``), or None if the parameters
+            or projection are invalid, no angles were provided, there
+            is no coverage to reslice, or the worker was stopped early.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -1157,6 +1918,18 @@ class Experiment(NeuXtalVizPresenter):
             progress("Invalid parameters.", 0)
 
     def get_normal(self):
+        """
+        Get the one-hot slice-normal vector for the selected slice plane.
+
+        Returns
+        -------
+        norm : list of int
+            One-hot vector selecting which of the projection basis
+            vectors (U, V, W) is the slice normal: ``[0, 0, 1]`` for
+            "Axis 1/2", ``[0, 1, 0]`` for "Axis 1/3", or ``[1, 0, 0]``
+            for "Axis 2/3".
+        """
+
         slice_plane = self.view.get_slice()
 
         if slice_plane == "Axis 1/2":
@@ -1169,6 +1942,19 @@ class Experiment(NeuXtalVizPresenter):
         return norm
 
     def visualize(self):
+        """
+        Recompute statistics and coverage, and refresh the plots.
+
+        Slot connected to several view signals (combined-peaks
+        checkbox, color scheme, lattice centering, point group,
+        visualization-ready) and called after orientations are added,
+        deleted, or reconfigured. No-op if a previous visualization is
+        still running (guarded by :attr:`draw_idle`). Computes
+        completeness/redundancy statistics and, if a UB matrix is
+        loaded, the reciprocal-space coverage point cloud, then updates
+        the corresponding plots in the view.
+        """
+
         if not self.draw_idle:
             return
 
@@ -1218,6 +2004,16 @@ class Experiment(NeuXtalVizPresenter):
             self.draw_idle = True
 
     def optimize_coverage(self):
+        """
+        Launch a background worker to optimize coverage via CrystalPlan.
+
+        Slot for the "Optimize" button. Gathers the symmetry, coverage,
+        and instrument settings from the view and runs
+        :meth:`optimize_coverage_process` (a genetic-algorithm search
+        over orientations) in a worker thread, updating the plan table
+        via :meth:`optimize_coverage_complete` when finished.
+        """
+
         point_group = self.view.get_point_group()
         lattice_centering = self.view.get_lattice_centering()
         use = self.view.get_orientations_to_use()
@@ -1259,6 +2055,18 @@ class Experiment(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def optimize_coverage_complete(self, result):
+        """
+        Add the CrystalPlan-optimized orientations as rows in the plan
+        table.
+
+        Parameters
+        ----------
+        result : list of ndarray or None
+            Per-orientation free-axis angle values from
+            :meth:`optimize_coverage_process`, or None if no UB matrix
+            was loaded or the optimization was cancelled.
+        """
+
         title = self.view.get_title()
         if result is not None:
             self.view.add_orientations(title, "CrystalPlan", result)
@@ -1283,6 +2091,56 @@ class Experiment(NeuXtalVizPresenter):
         gon=None,
         mask=None,
     ):
+        """
+        Worker task: optimize orientation coverage with a genetic
+        algorithm.
+
+        Parameters
+        ----------
+        progress : callable
+            Callback ``progress(status, percent)`` used to report status
+            messages and progress percentage back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that the worker should stop early.
+        point_group : str, optional
+            Point group symbol.
+        lattice_centering : str, optional
+            Lattice centering symbol.
+        use : list of bool, optional
+            Per-row flag indicating whether that plan orientation
+            should be included in the optimization.
+        opt : list of bool, optional
+            Per-row flag indicating whether that plan orientation is
+            free to be optimized.
+        d_min : float, optional
+            Minimum d-spacing (Angstrom).
+        wavelength : 2-tuple of float, optional
+            Minimum and maximum wavelength (Angstrom).
+        n_orient : int, optional
+            Number of orientations to optimize.
+        instrument : str, optional
+            Instrument identifier.
+        mode : str, optional
+            Goniometer mode name.
+        limits : sequence of (float, float), optional
+            Per-axis (min, max) goniometer angle limits, in degrees.
+        instr_motors : list, optional
+            Auxiliary motor ``(name, value)`` settings.
+        cal : str, optional
+            Detector calibration file path.
+        gon : str, optional
+            Goniometer calibration file path.
+        mask : str, optional
+            Detector mask file path.
+
+        Returns
+        -------
+        values : list or None
+            Best per-orientation goniometer settings found by the
+            genetic algorithm (see ``CrystalPlan.optimize``), or None
+            if no UB matrix is loaded or the worker was stopped early.
+        """
+
         if self.stop_processing(stop_event):
             return None
 
@@ -1330,6 +2188,18 @@ class Experiment(NeuXtalVizPresenter):
             progress("No UB matrix loaded for optimization.", 0)
 
     def update_plan(self):
+        """
+        Push the current view state into the model's plan and sample.
+
+        Gathers the full plan table, instrument/goniometer settings,
+        UB matrix, and crystal symmetry from the view and passes them
+        to :meth:`model.create_plan`, :meth:`model.create_sample`,
+        :meth:`model.update_sample`, and
+        :meth:`model.update_goniometer_motors` so they are recorded on
+        the ``plan``/``sample`` workspaces before saving. Called by
+        :meth:`save_CSV` and :meth:`save_experiment`.
+        """
+
         instrument = self.view.get_instrument()
         cal = self.view.get_detector_calibration()
         gon = self.view.get_goniometer_calibration()
@@ -1358,6 +2228,18 @@ class Experiment(NeuXtalVizPresenter):
         self.model.update_goniometer_motors(limits, motors, cal, gon, mask)
 
     def save_CSV(self):
+        """
+        Save the active plan rows to a CSV file and copy it to the
+        instrument PC.
+
+        Slot for the "Save CSV" button. Prompts for a destination file,
+        updates the model's plan/sample from the current view state,
+        writes the active (used) rows to CSV, and copies the file to
+        the instrument PC share if applicable (see
+        :meth:`model.copy_to_instrument_pc`). No-op if the file dialog
+        is cancelled.
+        """
+
         filename = self.view.save_CSV_file_dialog()
 
         if filename:
@@ -1366,6 +2248,17 @@ class Experiment(NeuXtalVizPresenter):
             self.model.copy_to_instrument_pc(filename)
 
     def save_experiment(self):
+        """
+        Save the full experiment plan and sample to a Nexus file.
+
+        Slot for the "Save Experiment" button. Prompts for a
+        destination file (defaulting to the current instrument's
+        directory), updates the model's plan/sample from the current
+        view state, saves them to Nexus, and remembers the file's
+        directory as the default for future dialogs. No-op if the file
+        dialog is cancelled.
+        """
+
         instrument = self.view.get_instrument()
         path = self.model.get_instrument_directory(instrument)
         filename = self.view.save_experiment_file_dialog(path)
@@ -1376,6 +2269,20 @@ class Experiment(NeuXtalVizPresenter):
             self.model.set_path(filename)
 
     def load_experiment(self):
+        """
+        Load a previously saved experiment plan and sample from Nexus.
+
+        Slot for the "Load Experiment" button. Prompts for a source
+        file (defaulting to the current instrument's directory) and, if
+        one is selected, restores the instrument, goniometer mode,
+        wavelength, d-min, goniometer limits, motor values, calibration
+        and mask files, crystal system, point group, lattice centering,
+        and plan table rows from the file, then re-adds the restored
+        settings via :meth:`add_settings` and remembers the file's
+        directory as the default for future dialogs. No-op if the file
+        dialog is cancelled.
+        """
+
         instrument = self.view.get_instrument()
         path = self.model.get_instrument_directory(instrument)
         filename = self.view.load_experiment_file_dialog(path)
@@ -1412,6 +2319,16 @@ class Experiment(NeuXtalVizPresenter):
             self.model.set_path(filename)
 
     def add_settings(self):
+        """
+        Launch a background worker to recompute peaks for all plan rows.
+
+        Slot for the "Reset" button, and called after loading an
+        experiment. Gathers the per-row angle settings and current
+        instrument settings from the view and runs
+        :meth:`add_settings_process` in a worker thread, updating the
+        peaks table via :meth:`add_settings_complete` when finished.
+        """
+
         wavelength = self.view.get_wavelength()
         d_min = self.view.get_d_min()
         rows = self.view.get_number_of_orientations()
@@ -1449,6 +2366,17 @@ class Experiment(NeuXtalVizPresenter):
         self.view.start_worker_pool(worker)
 
     def add_settings_complete(self, result):
+        """
+        Refresh the peaks table after recomputing all plan row settings.
+
+        Parameters
+        ----------
+        result : int or None
+            Number of rows processed, as returned by
+            :meth:`add_settings_process`, or None if the worker was
+            stopped early.
+        """
+
         if result is not None:
             self.update_peaks(False)
 
@@ -1468,6 +2396,50 @@ class Experiment(NeuXtalVizPresenter):
         mask=None,
         angle_settings=None,
     ):
+        """
+        Worker task: recompute peaks for every orientation in the plan.
+
+        Clears the ``combined`` peaks workspace and, for each plan row,
+        combines its free-axis angle settings with the fixed-limit
+        angles and predicts peaks for the resulting orientation.
+
+        Parameters
+        ----------
+        progress : callable
+            Callback ``progress(status, percent)`` used to report status
+            messages and progress percentage back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that the worker should stop early.
+        wavelength : 2-tuple of float, optional
+            Minimum and maximum wavelength (Angstrom).
+        d_min : float, optional
+            Minimum d-spacing (Angstrom).
+        rows : int, optional
+            Number of plan rows to recompute.
+        instrument : str, optional
+            Instrument identifier.
+        mode : str, optional
+            Goniometer mode name.
+        limits : sequence of (float, float), optional
+            Per-axis (min, max) goniometer angle limits, in degrees.
+        instr_motors : list, optional
+            Auxiliary motor ``(name, value)`` settings.
+        cal : str, optional
+            Detector calibration file path.
+        gon : str, optional
+            Goniometer calibration file path.
+        mask : str, optional
+            Detector mask file path.
+        angle_settings : list, optional
+            Per-row free-axis angle values, one entry per plan row.
+
+        Returns
+        -------
+        rows : int or None
+            The same ``rows`` passed in, if processing completed, or
+            None if the worker was stopped early.
+        """
+
         if self.stop_processing(stop_event):
             return None
 

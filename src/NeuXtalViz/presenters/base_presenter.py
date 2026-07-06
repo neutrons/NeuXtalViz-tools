@@ -296,6 +296,11 @@ class NeuXtalVizPresenter:
         self._apply_camera_rotation(self.model.rotate_camera_azimuth, angle)
 
     def calculate_camera_parameters(self):
+        """
+        Compute and display the camera's roll, elevation, azimuth, and
+        view/up directions in the view.
+        """
+
         roll, dir = self.view.get_camera_roll_direction()
         roll, elevation, azimuth = self.model.calculate_camera_parameters(
             dir, roll

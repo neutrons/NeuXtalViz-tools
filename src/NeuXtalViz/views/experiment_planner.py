@@ -59,6 +59,18 @@ class ExperimentView(NeuXtalVizWidget):
     harm_ready = Signal()
 
     def __init__(self, parent=None):
+        """
+        Initialize the experiment planner view.
+
+        Builds the coverage, peak, and mesh tabs, wires up internal
+        table-change signals, and initializes peak/scale caches.
+
+        Parameters
+        ----------
+        parent : QWidget, optional
+            Parent widget.
+
+        """
         super().__init__(parent)
 
         self.tab_widget = QTabWidget(self)
@@ -82,6 +94,16 @@ class ExperimentView(NeuXtalVizWidget):
         self.scale_laue = None
 
     def coverage_tab(self):
+        """
+        Build the "Coverage" tab.
+
+        Creates the instrument/wavelength/symmetry selection widgets,
+        UB-loading and instrument-display controls, the goniometer,
+        motor, and plan tables, experiment save/load buttons, and the
+        resolution/cumulative coverage plots. Adds the resulting tab to
+        the main tab widget.
+
+        """
         cov_tab = QWidget()
         self.tab_widget.addTab(cov_tab, "Coverage")
 
@@ -494,6 +516,16 @@ class ExperimentView(NeuXtalVizWidget):
         cov_tab.setLayout(planner_layout)
 
     def mesh_tab(self):
+        """
+        Build the "Mesh" tab.
+
+        Creates the shared slice controls (axis selection, slice value
+        and thickness), the mesh-angle and scattering-plane definition
+        sub-tabs, the coverage-slice plot canvas, and the projection
+        matrix entry grid used to convert a mesh or plane scan into an
+        HKL slice. Adds the resulting tab to the main tab widget.
+
+        """
         inst_tab = QWidget()
         self.tab_widget.addTab(inst_tab, "Mesh")
 
@@ -764,6 +796,17 @@ class ExperimentView(NeuXtalVizWidget):
         inst_tab.setLayout(mesh_layout)
 
     def peak_tab(self):
+        """
+        Build the "Peaks" tab.
+
+        Creates the single/double HKL peak calculators, the read-only
+        result fields for the primary and alternate peaks, the
+        instrument-coverage and Laue-view plot canvases, the
+        orientation/comment controls used to add a peak setting to the
+        plan, and the calculated-peaks table. Adds the resulting tab to
+        the main tab widget.
+
+        """
         inst_tab = QWidget()
         self.tab_widget.addTab(inst_tab, "Peaks")
 
@@ -1039,83 +1082,318 @@ class ExperimentView(NeuXtalVizWidget):
         inst_tab.setLayout(peak_layout)
 
     def set_default_symmetry(self):
+        """
+        Reset the crystal system, point group, and lattice centering
+        combo boxes to their default selections.
+
+        """
         self.crystal_combo.setCurrentIndex(0)
         self.point_group_combo.setCurrentIndex(1)
         self.lattice_centering_combo.setCurrentIndex(0)
 
     def connect_convert_mesh_to_hkl(self, convert_to_hkl):
+        """
+        Connect the "Calculate Mesh" button to convert a mesh scan to HKL.
+
+        Parameters
+        ----------
+        convert_to_hkl : callable
+            Handler invoked when the mesh-to-HKL conversion is requested.
+
+        """
         self.coverage_mesh_button.clicked.connect(convert_to_hkl)
 
     def connect_convert_plan_to_hkl(self, convert_to_hkl):
+        """
+        Connect the "Calculate Plan" button to convert a plane scan to HKL.
+
+        Parameters
+        ----------
+        convert_to_hkl : callable
+            Handler invoked when the plan-to-HKL conversion is requested.
+
+        """
         self.coverage_plan_button.clicked.connect(convert_to_hkl)
 
     def connect_slice_thickness_line(self, update_slice):
+        """
+        Connect editing of the slice thickness field to a slice update.
+
+        Parameters
+        ----------
+        update_slice : callable
+            Handler invoked when the slice thickness value is edited.
+
+        """
         self.slice_thickness_line.editingFinished.connect(update_slice)
 
     def connect_slice_line(self, update_slice):
+        """
+        Connect editing of the slice value field to a slice update.
+
+        Parameters
+        ----------
+        update_slice : callable
+            Handler invoked when the slice value is edited.
+
+        """
         self.slice_line.editingFinished.connect(update_slice)
 
     def connect_slice_combo(self, update_slice):
+        """
+        Connect the slice axis combo box to a slice update.
+
+        Parameters
+        ----------
+        update_slice : callable
+            Handler invoked when the slice axis selection changes.
+
+        """
         self.slice_combo.currentIndexChanged.connect(update_slice)
 
     def connect_combined(self, update_combined):
+        """
+        Connect the "Combine All" checkbox to the visualization update.
+
+        Parameters
+        ----------
+        update_combined : callable
+            Handler invoked when the combined-peaks toggle changes.
+
+        """
         self.combined_box.toggled.connect(update_combined)
 
     def connect_peak_table(self, update_table):
+        """
+        Connect selecting an orientation in the settings combo box to
+        updating the peaks table.
+
+        Parameters
+        ----------
+        update_table : callable
+            Handler invoked when an orientation is selected.
+
+        """
         self.angles_combo.activated.connect(update_table)
 
     def connect_add_orientation(self, add_orientation):
+        """
+        Connect the "Add Orientation" button to adding a peak orientation.
+
+        Parameters
+        ----------
+        add_orientation : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.add_button.clicked.connect(add_orientation)
 
     def connect_delete_angles(self, delete_angles):
+        """
+        Connect the "Delete Highlighted" button to removing plan rows.
+
+        Parameters
+        ----------
+        delete_angles : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.delete_button.clicked.connect(delete_angles)
 
     def connect_highlight_angles(self, highlight_angles):
+        """
+        Connect the "Highlight All" button to selecting all plan rows.
+
+        Parameters
+        ----------
+        highlight_angles : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.highlight_button.clicked.connect(highlight_angles)
 
     def connect_update(self, update):
+        """
+        Connect the "Update Highlighted" button to refreshing counting values.
+
+        Parameters
+        ----------
+        update : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.update_button.clicked.connect(update)
 
     def connect_calculate_single(self, calculate_single):
+        """
+        Connect the "Individual" button for the first peak to a single
+        HKL calculation.
+
+        Parameters
+        ----------
+        calculate_single : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.calculate_single_button.clicked.connect(calculate_single)
 
     def connect_calculate_double(self, calculate_double):
+        """
+        Connect the "Simultaneous" button to a two-peak calculation.
+
+        Parameters
+        ----------
+        calculate_double : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.calculate_double_button.clicked.connect(calculate_double)
 
     def connect_calculate_single_alt(self, calculate_single):
+        """
+        Connect the "Individual" button for the second peak to a single
+        HKL calculation.
+
+        Parameters
+        ----------
+        calculate_single : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.calculate_single_alt_button.clicked.connect(calculate_single)
 
     def connect_switch_crystal(self, switch_crystal):
+        """
+        Connect the crystal system combo box to updating point groups.
+
+        Parameters
+        ----------
+        switch_crystal : callable
+            Handler invoked when the crystal system selection changes.
+
+        """
         self.crystal_combo.activated.connect(switch_crystal)
 
     def connect_switch_point_group(self, switch_group):
+        """
+        Connect the point group combo box to updating lattice centerings.
+
+        Parameters
+        ----------
+        switch_group : callable
+            Handler invoked when the point group selection changes.
+
+        """
         self.point_group_combo.activated.connect(switch_group)
 
     def connect_switch_lattice_centering(self, switch_centering):
+        """
+        Connect the lattice centering combo box to a visualization refresh.
+
+        Parameters
+        ----------
+        switch_centering : callable
+            Handler invoked when the lattice centering selection changes.
+
+        """
         self.lattice_centering_combo.activated.connect(switch_centering)
 
     def connect_switch_instrument(self, switch_instrument):
+        """
+        Connect the instrument combo box to updating instrument parameters.
+
+        Parameters
+        ----------
+        switch_instrument : callable
+            Handler invoked when the instrument selection changes.
+
+        """
         self.instrument_combo.activated.connect(switch_instrument)
 
     def connect_update_goniometer(self, update_goniometer):
+        """
+        Connect the goniometer mode combo box to updating the goniometer
+        and motor tables.
+
+        Parameters
+        ----------
+        update_goniometer : callable
+            Handler invoked when the mode selection changes.
+
+        """
         self.mode_combo.activated.connect(update_goniometer)
 
     def connect_optimize(self, optimize):
+        """
+        Connect the "Optimize Coverage" button to the coverage optimizer.
+
+        Parameters
+        ----------
+        optimize : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.optimize_button.clicked.connect(optimize)
 
     def connect_mesh(self, mesh):
+        """
+        Connect the "Add Mesh" button to adding a mesh scan to the plan.
+
+        Parameters
+        ----------
+        mesh : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.mesh_button.clicked.connect(mesh)
 
     def connect_load_UB(self, load_UB):
+        """
+        Connect the "Load UB" button to loading a UB matrix file.
+
+        Parameters
+        ----------
+        load_UB : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.load_UB_button.clicked.connect(load_UB)
 
     def connect_calculate_plane(self, calculate_plane):
+        """
+        Connect the "Calculate Plane" button to previewing plane coverage.
+
+        Parameters
+        ----------
+        calculate_plane : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.coverage_plane_button.clicked.connect(calculate_plane)
 
     def connect_add_plane(self, add_plane):
+        """
+        Connect the "Add Plane" button to adding a plane scan to the plan.
+
+        Parameters
+        ----------
+        add_plane : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.plane_button.clicked.connect(add_plane)
 
     def get_plane_hkl_1(self):
+        """
+        Get the first (u) in-plane HKL vector for the scattering plane.
+
+        Returns
+        -------
+        hkl_1 : list of float or None
+            The [h, k, l] components of the u vector, or None if the
+            fields do not contain valid numbers.
+
+        """
         try:
             return [
                 float(self.plane_u1_line.text()),
@@ -1126,6 +1404,16 @@ class ExperimentView(NeuXtalVizWidget):
             return None
 
     def get_plane_hkl_2(self):
+        """
+        Get the second (v) in-plane HKL vector for the scattering plane.
+
+        Returns
+        -------
+        hkl_2 : list of float or None
+            The [h, k, l] components of the v vector, or None if the
+            fields do not contain valid numbers.
+
+        """
         try:
             return [
                 float(self.plane_v1_line.text()),
@@ -1136,86 +1424,325 @@ class ExperimentView(NeuXtalVizWidget):
             return None
 
     def get_plane_max_angle(self):
+        """
+        Get the total angular coverage to sweep about the plane normal.
+
+        Returns
+        -------
+        max_deg : float
+            Angular coverage in degrees, or 360.0 if the field does not
+            contain a valid number.
+
+        """
         try:
             return float(self.plane_max_angle_line.text())
         except ValueError:
             return 360.0
 
     def get_plane_n_steps(self):
+        """
+        Get the number of orientations to sample across the plane coverage.
+
+        Returns
+        -------
+        n_steps : int
+            Number of orientations, or 360 if the field does not contain
+            a valid number.
+
+        """
         try:
             return int(self.plane_n_steps_line.text())
         except ValueError:
             return 360
 
     def connect_reset(self, reset):
+        """
+        Connect the "Recalculate Coverage" button to resetting settings.
+
+        Parameters
+        ----------
+        reset : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.reset_button.clicked.connect(reset)
 
     def connect_show_instrument(self, show):
+        """
+        Connect the "Show Instrument" button to displaying the instrument.
+
+        Parameters
+        ----------
+        show : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.instrument_button.clicked.connect(show)
 
     def connect_save_CSV(self, save_CSV):
+        """
+        Connect the "Save CSV" button to saving the experiment plan.
+
+        Parameters
+        ----------
+        save_CSV : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.save_plan_button.clicked.connect(save_CSV)
 
     def connect_load_experiment(self, load_experiment):
+        """
+        Connect the "Load Experiment" button to loading a saved experiment.
+
+        Parameters
+        ----------
+        load_experiment : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.load_experiment_button.clicked.connect(load_experiment)
 
     def connect_save_experiment(self, save_experiment):
+        """
+        Connect the "Save Experiment" button to saving the experiment.
+
+        Parameters
+        ----------
+        save_experiment : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.save_experiment_button.clicked.connect(save_experiment)
 
     def connect_wavelength(self, update_wavelength):
+        """
+        Connect editing of the minimum wavelength field to a wavelength update.
+
+        Parameters
+        ----------
+        update_wavelength : callable
+            Handler invoked when the minimum wavelength value is edited.
+
+        """
         self.wl_min_line.editingFinished.connect(update_wavelength)
 
     def connect_move_up(self, move_up):
+        """
+        Connect the "Move Up" button to moving an orientation up in the plan.
+
+        Parameters
+        ----------
+        move_up : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.move_up_button.clicked.connect(move_up)
 
     def connect_move_down(self, move_down):
+        """
+        Connect the "Move Down" button to moving an orientation down in
+        the plan.
+
+        Parameters
+        ----------
+        move_down : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.move_down_button.clicked.connect(move_down)
 
     def connect_load_mask(self, load_mask):
+        """
+        Connect the "Mask" browse button to loading a detector mask file.
+
+        Parameters
+        ----------
+        load_mask : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.mask_browse_button.clicked.connect(load_mask)
 
     def connect_load_detector(self, load_detector_cal):
+        """
+        Connect the "Detector" browse button to loading a detector
+        calibration file.
+
+        Parameters
+        ----------
+        load_detector_cal : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.cal_browse_button.clicked.connect(load_detector_cal)
 
     def connect_load_goniometer(self, load_goniometer_cal):
+        """
+        Connect the "Goniometer" browse button to loading a goniometer
+        calibration file.
+
+        Parameters
+        ----------
+        load_goniometer_cal : callable
+            Handler invoked when the button is clicked.
+
+        """
         self.gon_browse_button.clicked.connect(load_goniometer_cal)
 
     def connect_peak_row_highlighter(self, highlight_row):
+        """
+        Connect peaks-table row selection to highlighting the peak.
+
+        Parameters
+        ----------
+        highlight_row : callable
+            Handler invoked when the table selection changes.
+
+        """
         self.peaks_table.itemSelectionChanged.connect(highlight_row)
 
     def connect_color_scheme(self, update_color_scheme):
+        """
+        Connect the color scheme combo box to a visualization refresh.
+
+        Parameters
+        ----------
+        update_color_scheme : callable
+            Handler invoked when the color scheme selection changes.
+
+        """
         self.color_combo.currentIndexChanged.connect(update_color_scheme)
 
     def connect_hkl_limits(self, update_hkl_limits):
+        """
+        Connect editing of the minimum d-spacing field to updating the
+        HKL limits.
+
+        Parameters
+        ----------
+        update_hkl_limits : callable
+            Handler invoked when the minimum d-spacing value is edited.
+
+        """
         self.d_min_line.editingFinished.connect(update_hkl_limits)
 
     def get_color_scheme(self):
+        """
+        Get the selected coverage color scheme.
+
+        Returns
+        -------
+        color : str
+            Selected color scheme ("Sphere" or "Redundancy").
+
+        """
         return self.color_combo.currentText()
 
     def set_hkl_limits(self, h_max, k_max, l_max):
+        """
+        Display the maximum h, k, l indices reachable at the current
+        minimum d-spacing.
+
+        Parameters
+        ----------
+        h_max, k_max, l_max : float
+            Maximum Miller indices.
+
+        """
         self.h_max_line.setText(str(h_max))
         self.k_max_line.setText(str(k_max))
         self.l_max_line.setText(str(l_max))
 
     def get_detector_calibration(self):
+        """
+        Get the path to the detector calibration file.
+
+        Returns
+        -------
+        filename : str
+            Path to the detector calibration file.
+
+        """
         return self.cal_line.text()
 
     def set_detector_calibration(self, filename):
+        """
+        Set the path to the detector calibration file.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the detector calibration file.
+
+        """
         return self.cal_line.setText(filename)
 
     def get_goniometer_calibration(self):
+        """
+        Get the path to the goniometer calibration file.
+
+        Returns
+        -------
+        filename : str
+            Path to the goniometer calibration file.
+
+        """
         return self.gon_line.text()
 
     def set_goniometer_calibration(self, filename):
+        """
+        Set the path to the goniometer calibration file.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the goniometer calibration file.
+
+        """
         return self.gon_line.setText(filename)
 
     def get_mask(self):
+        """
+        Get the path to the detector mask file.
+
+        Returns
+        -------
+        filename : str
+            Path to the detector mask file.
+
+        """
         return self.mask_line.text()
 
     def set_mask(self, filename):
+        """
+        Set the path to the detector mask file.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the detector mask file.
+
+        """
         self.mask_line.setText(filename)
 
     def load_detector_cal_dialog(self, path=""):
+        """
+        Open a file dialog to select a detector calibration file.
+
+        Parameters
+        ----------
+        path : str, optional
+            Initial directory for the dialog. If empty, the last used
+            directory is used.
+
+        Returns
+        -------
+        filename : str
+            Selected file path, or an empty string if the dialog was
+            canceled.
+
+        """
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
@@ -1238,6 +1765,22 @@ class ExperimentView(NeuXtalVizWidget):
         return filename
 
     def load_goniometer_cal_dialog(self, path=""):
+        """
+        Open a file dialog to select a goniometer calibration file.
+
+        Parameters
+        ----------
+        path : str, optional
+            Initial directory for the dialog. If empty, the last used
+            directory is used.
+
+        Returns
+        -------
+        filename : str
+            Selected file path, or an empty string if the dialog was
+            canceled.
+
+        """
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
@@ -1260,6 +1803,22 @@ class ExperimentView(NeuXtalVizWidget):
         return filename
 
     def load_mask_dialog(self, path=""):
+        """
+        Open a file dialog to select a detector mask file.
+
+        Parameters
+        ----------
+        path : str, optional
+            Initial directory for the dialog. If empty, the last used
+            directory is used.
+
+        Returns
+        -------
+        filename : str
+            Selected file path, or an empty string if the dialog was
+            canceled.
+
+        """
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
@@ -1282,6 +1841,22 @@ class ExperimentView(NeuXtalVizWidget):
         return filename
 
     def load_UB_file_dialog(self, path=""):
+        """
+        Open a file dialog to select a UB matrix file.
+
+        Parameters
+        ----------
+        path : str, optional
+            Initial directory for the dialog. If empty, the last used
+            directory is used.
+
+        Returns
+        -------
+        filename : str
+            Selected file path, or an empty string if the dialog was
+            canceled.
+
+        """
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
@@ -1302,6 +1877,23 @@ class ExperimentView(NeuXtalVizWidget):
         return filename
 
     def save_CSV_file_dialog(self, path=""):
+        """
+        Open a file dialog to choose where to save the experiment plan
+        as a CSV file.
+
+        Parameters
+        ----------
+        path : str, optional
+            Initial directory for the dialog. If empty, the last used
+            directory is used.
+
+        Returns
+        -------
+        filename : str
+            Selected file path (with a ".csv" extension appended if
+            missing), or an empty string if the dialog was canceled.
+
+        """
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
@@ -1324,6 +1916,22 @@ class ExperimentView(NeuXtalVizWidget):
         return filename
 
     def load_experiment_file_dialog(self, path=""):
+        """
+        Open a file dialog to select a saved experiment (NeXus) file.
+
+        Parameters
+        ----------
+        path : str, optional
+            Initial directory for the dialog. If empty, the last used
+            directory is used.
+
+        Returns
+        -------
+        filename : str
+            Selected file path, or an empty string if the dialog was
+            canceled.
+
+        """
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
@@ -1344,6 +1952,23 @@ class ExperimentView(NeuXtalVizWidget):
         return filename
 
     def save_experiment_file_dialog(self, path=""):
+        """
+        Open a file dialog to choose where to save the experiment as a
+        NeXus file.
+
+        Parameters
+        ----------
+        path : str, optional
+            Initial directory for the dialog. If empty, the last used
+            directory is used.
+
+        Returns
+        -------
+        filename : str
+            Selected file path (with a ".nxs" extension appended if
+            missing), or an empty string if the dialog was canceled.
+
+        """
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
@@ -1366,16 +1991,53 @@ class ExperimentView(NeuXtalVizWidget):
         return filename
 
     def get_d_min(self):
+        """
+        Get the minimum d-spacing.
+
+        Returns
+        -------
+        d_min : float or None
+            Minimum d-spacing in Angstrom, or None if the field does not
+            contain a valid, acceptable value.
+
+        """
         if self.d_min_line.hasAcceptableInput():
             return float(self.d_min_line.text())
 
     def set_d_min(self, d_min):
+        """
+        Set the minimum d-spacing field.
+
+        Parameters
+        ----------
+        d_min : float
+            Minimum d-spacing in Angstrom.
+
+        """
         self.d_min_line.setText(str(d_min))
 
     def get_crystal_system(self):
+        """
+        Get the selected crystal system.
+
+        Returns
+        -------
+        crystal_system : str
+            Selected crystal system.
+
+        """
         return self.crystal_combo.currentText()
 
     def set_crystal_system(self, crystal_system):
+        """
+        Select a crystal system in the crystal system combo box.
+
+        Parameters
+        ----------
+        crystal_system : str
+            Crystal system to select.
+
+        """
         index = self.crystal_combo.findText(crystal_system)
         if index >= 0:
             self.crystal_combo.blockSignals(True)
@@ -1383,15 +2045,42 @@ class ExperimentView(NeuXtalVizWidget):
             self.crystal_combo.blockSignals(False)
 
     def set_point_groups(self, groups):
+        """
+        Populate the point group combo box.
+
+        Parameters
+        ----------
+        groups : list of str
+            Point group names available for the current crystal system.
+
+        """
         self.point_group_combo.clear()
         for group in groups:
             self.point_group_combo.addItem(group)
         self.auto_scale_dropdown(self.point_group_combo)
 
     def get_point_group(self):
+        """
+        Get the selected point group.
+
+        Returns
+        -------
+        point_group : str
+            Selected point group.
+
+        """
         return self.point_group_combo.currentText()
 
     def set_point_group(self, point_group):
+        """
+        Select a point group in the point group combo box.
+
+        Parameters
+        ----------
+        point_group : str
+            Point group to select.
+
+        """
         index = self.point_group_combo.findText(point_group)
         if index >= 0:
             self.point_group_combo.blockSignals(True)
@@ -1399,15 +2088,42 @@ class ExperimentView(NeuXtalVizWidget):
             self.point_group_combo.blockSignals(False)
 
     def set_lattice_centerings(self, centerings):
+        """
+        Populate the lattice centering combo box.
+
+        Parameters
+        ----------
+        centerings : list of str
+            Lattice centering options available for the current point group.
+
+        """
         self.lattice_centering_combo.clear()
         for centering in centerings:
             self.lattice_centering_combo.addItem(centering)
         self.auto_scale_dropdown(self.lattice_centering_combo)
 
     def get_lattice_centering(self):
+        """
+        Get the selected lattice centering.
+
+        Returns
+        -------
+        lattice_centering : str
+            Selected lattice centering.
+
+        """
         return self.lattice_centering_combo.currentText()
 
     def set_lattice_centering(self, lattice_centering):
+        """
+        Select a lattice centering in the lattice centering combo box.
+
+        Parameters
+        ----------
+        lattice_centering : str
+            Lattice centering to select.
+
+        """
         index = self.lattice_centering_combo.findText(lattice_centering)
         if index >= 0:
             self.lattice_centering_combo.blockSignals(True)
@@ -1415,9 +2131,27 @@ class ExperimentView(NeuXtalVizWidget):
             self.lattice_centering_combo.blockSignals(False)
 
     def get_mode(self):
+        """
+        Get the selected goniometer mode.
+
+        Returns
+        -------
+        mode : str
+            Selected goniometer mode.
+
+        """
         return self.mode_combo.currentText()
 
     def set_mode(self, mode):
+        """
+        Select a goniometer mode in the mode combo box.
+
+        Parameters
+        ----------
+        mode : str
+            Goniometer mode to select.
+
+        """
         index = self.mode_combo.findText(mode)
         if index >= 0:
             self.mode_combo.blockSignals(True)
@@ -1425,31 +2159,89 @@ class ExperimentView(NeuXtalVizWidget):
             self.mode_combo.blockSignals(False)
 
     def set_modes(self, modes):
+        """
+        Populate the goniometer mode combo box.
+
+        Parameters
+        ----------
+        modes : list of str
+            Goniometer modes available for the current instrument.
+
+        """
         self.mode_combo.clear()
         for mode in modes:
             self.mode_combo.addItem(mode)
         self.auto_scale_dropdown(self.mode_combo)
 
     def set_counting_options(self, options):
+        """
+        Populate the counting method combo box.
+
+        Parameters
+        ----------
+        options : list of str
+            Counting method options available for the current instrument.
+
+        """
         self.count_combo.clear()
         for option in options:
             self.count_combo.addItem(option)
         self.auto_scale_dropdown(self.count_combo)
 
     def get_counting_options(self):
+        """
+        Get all counting method options currently in the combo box.
+
+        Returns
+        -------
+        options : list of str
+            Counting method options.
+
+        """
         return [
             self.count_combo.itemText(i)
             for i in range(self.count_combo.count())
         ]
 
     def get_counting_index(self):
+        """
+        Get the index of the selected counting method.
+
+        Returns
+        -------
+        index : int
+            Index of the selected item in the counting method combo box.
+
+        """
         return self.count_combo.currentIndex()
 
     def get_count_value(self):
+        """
+        Get the counting value (e.g., time or monitor count).
+
+        Returns
+        -------
+        value : float or None
+            Counting value, or None if the field does not contain a
+            valid, acceptable value.
+
+        """
         if self.count_line.hasAcceptableInput():
             return float(self.count_line.text())
 
     def set_peak_list(self, rows):
+        """
+        Repopulate the orientation selection combo box for the plan.
+
+        Adds a "Missing" placeholder entry followed by one numbered
+        entry ("#1", "#2", ...) per plan row, and selects the last entry.
+
+        Parameters
+        ----------
+        rows : int
+            Number of orientations currently in the plan.
+
+        """
         self.angles_combo.blockSignals(True)
         self.angles_combo.clear()
         self.angles_combo.addItem("Missing")
@@ -1460,6 +2252,16 @@ class ExperimentView(NeuXtalVizWidget):
         self.auto_scale_dropdown(self.angles_combo)
 
     def get_peak_list(self):
+        """
+        Get the plan row index selected in the orientation combo box.
+
+        Returns
+        -------
+        row : int or None
+            Zero-based plan row index, -1 if the "Missing" placeholder
+            is selected, or None if the combo box has no current text.
+
+        """
         val = self.angles_combo.currentText()
         if val is not None:
             if val.split(":")[0].lstrip("#").isdigit():
@@ -1468,6 +2270,17 @@ class ExperimentView(NeuXtalVizWidget):
                 return -1
 
     def set_wavelength(self, wavelength):
+        """
+        Set the minimum and maximum wavelength fields.
+
+        Parameters
+        ----------
+        wavelength : float or list of float
+            Single wavelength value (monochromatic instrument, sets both
+            fields and disables the maximum field) or a two-element
+            [min, max] wavelength band (enables the maximum field).
+
+        """
         self.wl_min_line.blockSignals(True)
         self.wl_max_line.blockSignals(True)
         if type(wavelength) is list:
@@ -1482,6 +2295,16 @@ class ExperimentView(NeuXtalVizWidget):
         self.wl_max_line.blockSignals(False)
 
     def get_wavelength(self):
+        """
+        Get the wavelength band.
+
+        Returns
+        -------
+        wavelength : list of float or None
+            [min, max] wavelength band in Angstrom, or None if either
+            field does not contain a valid, acceptable value.
+
+        """
         params = self.wl_min_line, self.wl_max_line
 
         valid_params = all([param.hasAcceptableInput() for param in params])
@@ -1490,10 +2313,40 @@ class ExperimentView(NeuXtalVizWidget):
             return [float(param.text()) for param in params]
 
     def update_wavelength(self, lamda_min):
+        """
+        Mirror the minimum wavelength into the maximum wavelength field
+        when the instrument is monochromatic.
+
+        Parameters
+        ----------
+        lamda_min : float
+            Minimum wavelength in Angstrom.
+
+        """
         if not self.wl_max_line.isEnabled():
             self.wl_max_line.setText(str(lamda_min))
 
     def update_tables(self, title, goniometers, motors):
+        """
+        Rebuild the goniometer, motor, plan, and mesh tables.
+
+        Populates the goniometer table with the axis names and limits,
+        marks fixed axes (equal min/max) as read only, populates the
+        motor table with fixed motor values, resizes the plan table
+        columns to match the free (non-fixed) goniometer axes plus the
+        comment/counting/value/use columns, and rebuilds the mesh table
+        rows for the free axes.
+
+        Parameters
+        ----------
+        title : str
+            Scan log title used for the first plan table column header.
+        goniometers : list of tuple
+            Sequence of (angle_name, min, max) goniometer axis definitions.
+        motors : list of tuple
+            Sequence of (setting_name, value) fixed motor/calibration values.
+
+        """
         self.goniometer_table.clearContents()
         self.goniometer_table.setRowCount(0)
         self.goniometer_table.setRowCount(len(goniometers))
@@ -1584,6 +2437,15 @@ class ExperimentView(NeuXtalVizWidget):
         self.mesh_table.blockSignals(False)
 
     def update_limits(self, item):
+        """
+        Propagate an edited goniometer limit to the matching mesh table row.
+
+        Parameters
+        ----------
+        item : QTableWidgetItem
+            Edited cell in the goniometer table.
+
+        """
         text = item.text()
         row, col = item.row(), item.column()
 
@@ -1604,7 +2466,16 @@ class ExperimentView(NeuXtalVizWidget):
                     self.mesh_table.setItem(row, col, text)
 
     def calculate_mesh_step(self, item):
-        """Automatically calculate step size based on min, max, and angle."""
+        """
+        Automatically calculate step size based on min, max, and angle.
+
+        Parameters
+        ----------
+        item : QTableWidgetItem
+            Edited cell in the mesh table (min, max, or number-of-angles
+            column) that triggered the recalculation.
+
+        """
         row = item.row()
         col = item.column()
 
@@ -1643,6 +2514,22 @@ class ExperimentView(NeuXtalVizWidget):
         self.mesh_table.blockSignals(False)
 
     def get_mesh_angles(self):
+        """
+        Get the goniometer limits and number of angle steps for the mesh scan.
+
+        Reads the free-axis rows from the mesh table and overrides the
+        corresponding entries in the full goniometer limits/step-count
+        lists with the mesh-table values.
+
+        Returns
+        -------
+        limits : list of list of float
+            [min, max] limits for each goniometer axis.
+        angles : list of int
+            Number of steps to sample for each goniometer axis (1 for
+            axes not present in the mesh table).
+
+        """
         rows = self.mesh_table.rowCount()
 
         all_angles = self.get_all_angles()
@@ -1659,6 +2546,19 @@ class ExperimentView(NeuXtalVizWidget):
         return limits, angles
 
     def get_plan_angles(self):
+        """
+        Get the full goniometer angle settings for each plan row marked "in use".
+
+        For each row in the plan table whose "Use" checkbox is checked,
+        combines the fixed goniometer axis values with the row's free
+        (variable) angle settings into one complete angle list.
+
+        Returns
+        -------
+        settings : list of list of float
+            Complete goniometer angle settings, one list per used plan row.
+
+        """
         col = self.plan_table.columnCount() - 1
 
         all_angles = self.get_all_angles()
@@ -1686,6 +2586,19 @@ class ExperimentView(NeuXtalVizWidget):
         return settings
 
     def get_angles_to_delete(self):
+        """
+        Prepare the plan table for row deletion and get the selected rows.
+
+        Blocks signals and disables updates/sorting on the plan table so
+        the subsequent deletion is not disrupted, then reads the
+        currently selected rows.
+
+        Returns
+        -------
+        rows : list of int
+            Sorted, unique row indices selected in the plan table.
+
+        """
         self.plan_table.blockSignals(True)
         self.plan_table.setUpdatesEnabled(False)
         self.plan_table.setSortingEnabled(False)
@@ -1693,11 +2606,29 @@ class ExperimentView(NeuXtalVizWidget):
         return rows
 
     def get_selected_plan_rows(self):
+        """
+        Get the row indices currently selected in the plan table.
+
+        Returns
+        -------
+        rows : list of int
+            Sorted, unique row indices.
+
+        """
         return sorted(
             set(index.row() for index in self.plan_table.selectedIndexes())
         )
 
     def delete_angles(self, rows):
+        """
+        Remove the given rows from the plan table.
+
+        Parameters
+        ----------
+        rows : list of int
+            Row indices to remove from the plan table.
+
+        """
         self.plan_table.blockSignals(True)
         self.plan_table.setUpdatesEnabled(False)
         self.plan_table.setSortingEnabled(False)
@@ -1713,6 +2644,21 @@ class ExperimentView(NeuXtalVizWidget):
         self.plan_table.blockSignals(False)
 
     def get_selected_angle(self):
+        """
+        Get the single selected plan row, preparing the table for an update.
+
+        Blocks signals and disables updates/sorting on the plan table.
+        If exactly one row is selected, the table is left in that state
+        for the caller to perform an update (e.g. a row swap); otherwise
+        the blocked state is immediately restored.
+
+        Returns
+        -------
+        row : int or None
+            Selected row index, or None if zero or more than one rows
+            are selected.
+
+        """
         self.plan_table.blockSignals(True)
         self.plan_table.setUpdatesEnabled(False)
         self.plan_table.setSortingEnabled(False)
@@ -1725,6 +2671,20 @@ class ExperimentView(NeuXtalVizWidget):
             self.plan_table.setSortingEnabled(True)
 
     def swap_angles(self, rows):
+        """
+        Swap the contents of two rows in the plan table.
+
+        Swaps cell items and, for combo-box cell widgets (e.g. the
+        counting method column), rebuilds equivalent combo boxes with
+        the swapped selections. Re-enables updates/sorting/signals on
+        the plan table afterward.
+
+        Parameters
+        ----------
+        rows : list of int
+            Two-element list of the row indices to swap.
+
+        """
         if rows[0] == rows[1]:
             self.plan_table.setSortingEnabled(True)
             self.plan_table.setUpdatesEnabled(True)
@@ -1791,13 +2751,36 @@ class ExperimentView(NeuXtalVizWidget):
         self.plan_table.blockSignals(False)
 
     def highlight_angles(self):
+        """
+        Select all rows in the plan table and give it keyboard focus.
+
+        """
         self.plan_table.selectAll()
         self.plan_table.setFocus()
 
     def get_title(self):
+        """
+        Get the scan title.
+
+        Returns
+        -------
+        title : str
+            Scan title text.
+
+        """
         return self.title_line.text()
 
     def update_counting(self):
+        """
+        Apply the current title, counting method, and count value to the
+        selected plan rows.
+
+        Returns
+        -------
+        rows : list of int
+            Row indices that were updated.
+
+        """
         self.plan_table.blockSignals(True)
         self.plan_table.setUpdatesEnabled(False)
         self.plan_table.setSortingEnabled(False)
@@ -1828,6 +2811,15 @@ class ExperimentView(NeuXtalVizWidget):
         return rows
 
     def get_all_angles(self):
+        """
+        Get the names of all goniometer axes.
+
+        Returns
+        -------
+        angles : list of str
+            Goniometer axis names, in table row order.
+
+        """
         rows = self.goniometer_table.rowCount()
 
         angles = [
@@ -1837,6 +2829,17 @@ class ExperimentView(NeuXtalVizWidget):
         return angles
 
     def get_free_angles(self):
+        """
+        Get the names of the free (non-fixed) goniometer axes shown as
+        plan table columns.
+
+        Returns
+        -------
+        angles : list of str
+            Full axis names stored as header tooltip data for each free
+            angle column.
+
+        """
         cols = self.plan_table.columnCount() - 5
 
         angles = [
@@ -1847,9 +2850,27 @@ class ExperimentView(NeuXtalVizWidget):
         return angles
 
     def get_number_of_orientations(self):
+        """
+        Get the number of orientations currently in the plan.
+
+        Returns
+        -------
+        rows : int
+            Number of rows in the plan table.
+
+        """
         return self.plan_table.rowCount()
 
     def get_orientations_to_use(self):
+        """
+        Get the "Use" checkbox state for every plan row.
+
+        Returns
+        -------
+        use : list of bool
+            True for each plan row whose "Use" checkbox is checked.
+
+        """
         col = self.plan_table.columnCount() - 1
 
         use = []
@@ -1860,6 +2881,15 @@ class ExperimentView(NeuXtalVizWidget):
         return use
 
     def get_all_titles(self):
+        """
+        Get the scan title of every plan row.
+
+        Returns
+        -------
+        title : list of str
+            Title text for each plan row.
+
+        """
         title = []
         for row in range(self.get_number_of_orientations()):
             item = self.plan_table.item(row, 0).text()
@@ -1868,6 +2898,15 @@ class ExperimentView(NeuXtalVizWidget):
         return title
 
     def get_all_values(self):
+        """
+        Get the counting value of every plan row.
+
+        Returns
+        -------
+        value : list of float
+            Counting value for each plan row (0.0 if not a valid number).
+
+        """
         col = self.plan_table.columnCount() - 2
 
         value = []
@@ -1879,6 +2918,16 @@ class ExperimentView(NeuXtalVizWidget):
         return value
 
     def get_all_countings(self):
+        """
+        Get the selected counting method of every plan row.
+
+        Returns
+        -------
+        count : list of str
+            Counting method text for each plan row (empty string if the
+            row has no counting combo box widget).
+
+        """
         col = self.plan_table.columnCount() - 3
 
         count = []
@@ -1892,6 +2941,15 @@ class ExperimentView(NeuXtalVizWidget):
         return count
 
     def get_all_comments(self):
+        """
+        Get the comment text of every plan row.
+
+        Returns
+        -------
+        comment : list of str
+            Comment text for each plan row.
+
+        """
         col = self.plan_table.columnCount() - 4
 
         comment = []
@@ -1901,6 +2959,15 @@ class ExperimentView(NeuXtalVizWidget):
         return comment
 
     def get_all_settings(self):
+        """
+        Get the full goniometer angle settings of every plan row.
+
+        Returns
+        -------
+        settings : list of list of float
+            Free-axis angle settings for each plan row.
+
+        """
         settings = []
         for row in range(self.get_number_of_orientations()):
             setting = self.get_angle_setting(row)
@@ -1909,10 +2976,30 @@ class ExperimentView(NeuXtalVizWidget):
         return settings
 
     def get_settings(self):
+        """
+        Get the number of settings requested for coverage optimization.
+
+        Returns
+        -------
+        n_orient : int or None
+            Requested number of orientations/settings, or None if the
+            field does not contain a valid, acceptable value.
+
+        """
         if self.settings_line.hasAcceptableInput():
             return int(self.settings_line.text())
 
     def get_optimized_settings(self):
+        """
+        Get whether each plan row originated from the CrystalPlan optimizer.
+
+        Returns
+        -------
+        opt : list of bool
+            True for each plan row whose title/source column reads
+            "CrystalPlan".
+
+        """
         col = self.plan_table.columnCount() - 5
 
         opt = []
@@ -1923,6 +3010,20 @@ class ExperimentView(NeuXtalVizWidget):
         return opt
 
     def get_angle_setting(self, row):
+        """
+        Get the free-axis angle values for a plan row.
+
+        Parameters
+        ----------
+        row : int
+            Plan table row index.
+
+        Returns
+        -------
+        setting : list of float
+            Angle value for each free goniometer axis column.
+
+        """
         cols = self.plan_table.columnCount() - 5
 
         setting = []
@@ -1932,6 +3033,24 @@ class ExperimentView(NeuXtalVizWidget):
         return setting
 
     def add_orientations(self, title, comment, angles_list):
+        """
+        Append new orientation rows to the plan table.
+
+        Adds one row per entry in `angles_list`, filling in the title,
+        angle values, comment, a counting-method combo box (matching the
+        current selection), the current count value, and a checked "Use"
+        checkbox.
+
+        Parameters
+        ----------
+        title : str
+            Scan title for the new rows.
+        comment : str
+            Comment text for the new rows.
+        angles_list : list of list of float
+            One list of free-axis angle values per new row.
+
+        """
         rows = self.get_number_of_orientations()
         self.plan_table.blockSignals(True)
         self.plan_table.setUpdatesEnabled(False)
@@ -1988,6 +3107,30 @@ class ExperimentView(NeuXtalVizWidget):
         self.set_peak_list(self.get_number_of_orientations())
 
     def add_settings(self, titles, settings, comments, counts, values, use):
+        """
+        Replace the plan table contents with a full set of loaded settings.
+
+        Used when restoring a saved experiment plan: clears the table
+        and repopulates it row by row with the given titles, angle
+        settings, comments, counting methods, count values, and
+        "Use" checkbox states.
+
+        Parameters
+        ----------
+        titles : list of str
+            Scan title for each row.
+        settings : list of list of float
+            Free-axis angle values for each row.
+        comments : list of str
+            Comment text for each row.
+        counts : list of str
+            Counting method for each row.
+        values : list of float
+            Counting value for each row.
+        use : list of bool
+            "Use" checkbox state for each row.
+
+        """
         self.plan_table.setUpdatesEnabled(False)
         self.plan_table.setSortingEnabled(False)
         self.plan_table.blockSignals(True)
@@ -2041,6 +3184,19 @@ class ExperimentView(NeuXtalVizWidget):
         self.set_peak_list(self.get_number_of_orientations())
 
     def handle_item_changed(self, item):
+        """
+        Propagate a checkbox change to all selected rows in the plan table.
+
+        Slot for the plan table's ``itemChanged`` signal. When the
+        changed item is in the "use" checkbox column, applies its new
+        check state to every selected row and emits ``viz_ready``.
+
+        Parameters
+        ----------
+        item : QTableWidgetItem
+            The table item that changed.
+        """
+
         self.plan_table.blockSignals(True)
         self.plan_table.setUpdatesEnabled(False)
         self.plan_table.setSortingEnabled(False)
@@ -2065,12 +3221,40 @@ class ExperimentView(NeuXtalVizWidget):
         self.plan_table.blockSignals(False)
 
     def connect_visualization_ready(self, visualize):
+        """
+        Connect a slot to the view's ``viz_ready`` signal.
+
+        Parameters
+        ----------
+        visualize : callable
+            Slot to invoke when the visualization should be refreshed.
+        """
+
         self.viz_ready.connect(visualize)
 
     def get_instrument(self):
+        """
+        Get the currently selected instrument.
+
+        Returns
+        -------
+        instrument : str
+            Name of the instrument selected in the instrument combo box.
+        """
+
         return self.instrument_combo.currentText()
 
     def set_instrument(self, instrument):
+        """
+        Set the selected instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Name of the instrument to select. Ignored if not found in
+            the instrument combo box.
+        """
+
         index = self.instrument_combo.findText(instrument)
         if index >= 0:
             self.instrument_combo.blockSignals(True)
@@ -2078,6 +3262,15 @@ class ExperimentView(NeuXtalVizWidget):
             self.instrument_combo.blockSignals(False)
 
     def get_motors(self):
+        """
+        Get the current motor/log settings from the motor table.
+
+        Returns
+        -------
+        logs : dict
+            Mapping of motor/log name to its current float value.
+        """
+
         logs = {}
         for row in range(self.motor_table.rowCount()):
             setting = self.motor_table.item(row, 0).text()
@@ -2086,10 +3279,30 @@ class ExperimentView(NeuXtalVizWidget):
         return logs
 
     def set_motors(self, values):
+        """
+        Set the motor/log values in the motor table.
+
+        Parameters
+        ----------
+        values : list
+            Motor/log values, in row order, to populate into the
+            motor table's value column.
+        """
+
         for row, value in enumerate(values):
             self.motor_table.setItem(row, 1, self.set_item_value(str(value)))
 
     def get_goniometer_limits(self):
+        """
+        Get the goniometer axis limits from the goniometer table.
+
+        Returns
+        -------
+        limits : list
+            List of ``[min, max]`` angle limits (degrees), one pair per
+            goniometer axis row.
+        """
+
         limits = []
         for row in range(self.goniometer_table.rowCount()):
             amin = float(self.goniometer_table.item(row, 1).text())
@@ -2099,12 +3312,37 @@ class ExperimentView(NeuXtalVizWidget):
         return limits
 
     def set_goniometer_limits(self, limits):
+        """
+        Set the goniometer axis limits in the goniometer table.
+
+        Parameters
+        ----------
+        limits : list
+            List of ``[min, max]`` angle limits (degrees), one pair per
+            goniometer axis row.
+        """
+
         for row, limit in enumerate(limits):
             amin, amax = str(limit[0]), str(limit[1])
             self.goniometer_table.setItem(row, 1, self.set_item_value(amin))
             self.goniometer_table.setItem(row, 2, self.set_item_value(amax))
 
     def add_instrument(self, inst_dict):
+        """
+        Render the instrument geometry in the 3D scene.
+
+        Clears the scene and draws the instrument mesh along with
+        coordinate axis lines, an arrow indicating the beam direction,
+        and a legend scale.
+
+        Parameters
+        ----------
+        inst_dict : dict
+            Dictionary with keys ``"points"`` and ``"faces"`` describing
+            the instrument mesh geometry, and ``"radius"`` giving the
+            ``(rx, ry, rz)`` extents of the axis lines.
+        """
+
         self.clear_scene()
 
         points = inst_dict["points"]
@@ -2151,6 +3389,23 @@ class ExperimentView(NeuXtalVizWidget):
         self.reset_view()
 
     def add_peaks(self, peak_dict):
+        """
+        Render the reciprocal-space coverage point cloud in the 3D scene.
+
+        Clears the scene and, if data is given, plots the peak/coverage
+        points colored per ``peak_dict``, the (100)/(010)/(001) axis
+        arrows and a central sphere, and reciprocal-space axis lines
+        scaled to ``axis_limit``.
+
+        Parameters
+        ----------
+        peak_dict : dict or None
+            Dictionary with keys ``"coords"``, ``"colors"``, ``"type"``,
+            ``"axis_coords"``, ``"axis_colors"``, and ``"axis_limit"``
+            as produced by the model's coverage calculation. If None,
+            the scene is simply reset.
+        """
+
         self.clear_scene()
 
         if peak_dict is None:
@@ -2220,6 +3475,16 @@ class ExperimentView(NeuXtalVizWidget):
         self.reset_view()
 
     def update_peaks_table(self, peaks):
+        """
+        Repopulate the peaks table.
+
+        Parameters
+        ----------
+        peaks : list
+            List of ``(h, k, l, d, lamda)`` tuples, one per peak, to
+            display in the peaks table.
+        """
+
         self.peaks_table.blockSignals(True)
         self.peaks_table.clearSelection()
         self.peaks_table.setRowCount(0)
@@ -2231,6 +3496,17 @@ class ExperimentView(NeuXtalVizWidget):
         self.peaks_table.blockSignals(False)
 
     def set_peak(self, row, peak):
+        """
+        Populate a single row of the peaks table.
+
+        Parameters
+        ----------
+        row : int
+            Row index in the peaks table to populate.
+        peak : tuple
+            ``(h, k, l, d, lamda)`` values for the peak.
+        """
+
         h, k, l, d, lamda = peak
         h = "{:.3f}".format(h)
         k = "{:.3f}".format(k)
@@ -2244,12 +3520,43 @@ class ExperimentView(NeuXtalVizWidget):
         self.peaks_table.setItem(row, 4, self.set_item_value(lamda, row))
 
     def set_item_value(self, value, row=0):
+        """
+        Build a numeric table item tagged with its originating row.
+
+        Parameters
+        ----------
+        value : str or float
+            Numeric value to display.
+        row : int, optional
+            Row number to store as the item's user-role data, used to
+            associate the item back to its source row. Default is 0.
+
+        Returns
+        -------
+        item : QTableWidgetItem
+            Table item with ``Qt.DisplayRole`` set to the float value
+            and ``Qt.UserRole`` set to ``row``.
+        """
+
         item = QTableWidgetItem()
         item.setData(Qt.DisplayRole, float(value))
         item.setData(Qt.UserRole, row)
         return item
 
     def get_input_hkls(self):
+        """
+        Get the two user-entered HKL triplets.
+
+        Returns
+        -------
+        params_1 : list of float or None
+            ``[h, k, l]`` from the first HKL entry fields, or None if
+            the input is not valid/complete.
+        params_2 : list of float or None
+            ``[h, k, l]`` from the second HKL entry fields, or None if
+            the input is not valid/complete.
+        """
+
         params_1 = self.h1_line, self.k1_line, self.l1_line
         params_2 = self.h2_line, self.k2_line, self.l2_line
 
@@ -2270,6 +3577,30 @@ class ExperimentView(NeuXtalVizWidget):
         return params_1, params_2
 
     def plot_statistics(self, sym, asym, cumsym, cumasym):
+        """
+        Plot per-shell and cumulative completeness/redundancy statistics.
+
+        Draws grouped bar charts (per-resolution-shell completeness,
+        redundancy, and unique-reflection count, with and without
+        symmetry) and line plots (cumulative versions as a function of
+        orientation number).
+
+        Parameters
+        ----------
+        sym : tuple
+            ``(shel, comp, mult, refl)`` -- per-shell labels,
+            completeness (%), redundancy, and unique-reflection counts
+            with point-group symmetry applied.
+        asym : tuple
+            Same layout as ``sym`` but without symmetry applied.
+        cumsym : tuple
+            ``(x, comp, mult, refl)`` -- orientation numbers and
+            cumulative completeness/redundancy/unique counts with
+            symmetry applied.
+        cumasym : tuple
+            Same layout as ``cumsym`` but without symmetry applied.
+        """
+
         self.ax_cov[0].clear()
         self.ax_cov[1].clear()
         self.ax_cov[2].clear()
@@ -2372,6 +3703,17 @@ class ExperimentView(NeuXtalVizWidget):
         self.canvas_cum.draw_idle()
 
     def _plot_instrument_background(self, inst_background):
+        """
+        Draw the instrument's masked/active detector background image.
+
+        Parameters
+        ----------
+        inst_background : dict or None
+            Dictionary with keys ``"img"`` (2D array of pixel status),
+            ``"xedges"``, and ``"yedges"`` (bin edges for gamma and nu).
+            If None, nothing is drawn.
+        """
+
         if inst_background is None:
             return
 
@@ -2392,6 +3734,27 @@ class ExperimentView(NeuXtalVizWidget):
         )
 
     def plot_instrument(self, inst_background, gamma, nu, lamda):
+        """
+        Plot single-reflection coverage on the instrument view.
+
+        Clears and redraws the wavelength-band and instrument-coverage
+        axes, scattering the detector positions colored by wavelength,
+        and wires up the click handler for picking a goniometer setting.
+
+        Parameters
+        ----------
+        inst_background : dict or None
+            Detector background image data, see
+            :meth:`_plot_instrument_background`.
+        gamma : array_like
+            Detector gamma angles (degrees) of the covered reflections.
+        nu : array_like
+            Detector nu angles (degrees) of the covered reflections.
+        lamda : array_like
+            Wavelengths (Angstrom) of the covered reflections, used to
+            color the scatter points.
+        """
+
         if self.cb_inst is not None:
             self.cb_inst.remove()
             self.cb_inst = None
@@ -2459,6 +3822,33 @@ class ExperimentView(NeuXtalVizWidget):
         nu_2,
         lamda_2,
     ):
+        """
+        Plot simultaneous two-reflection coverage on the instrument view.
+
+        Clears and redraws the wavelength-band and instrument-coverage
+        axes, scattering the detector positions for both reflections
+        (in distinct colormaps) and wiring up the click handler for
+        picking a goniometer setting.
+
+        Parameters
+        ----------
+        inst_background : dict or None
+            Detector background image data, see
+            :meth:`_plot_instrument_background`.
+        gamma_1 : array_like
+            Detector gamma angles (degrees) for the primary reflection.
+        nu_1 : array_like
+            Detector nu angles (degrees) for the primary reflection.
+        lamda_1 : array_like
+            Wavelengths (Angstrom) for the primary reflection.
+        gamma_2 : array_like
+            Detector gamma angles (degrees) for the alternate reflection.
+        nu_2 : array_like
+            Detector nu angles (degrees) for the alternate reflection.
+        lamda_2 : array_like
+            Wavelengths (Angstrom) for the alternate reflection.
+        """
+
         if self.cb_inst is not None:
             self.cb_inst.remove()
             self.cb_inst = None
@@ -2531,87 +3921,297 @@ class ExperimentView(NeuXtalVizWidget):
         self.canvas_inst.draw_idle()
 
     def get_intersect(self):
+        """
+        Get the primary reflection's intersecting wavelength.
+
+        Returns
+        -------
+        val : float or None
+            Wavelength (Angstrom) entered in the intersect field, or
+            None if the field does not contain valid input.
+        """
+
         if self.intersect_line.hasAcceptableInput():
             return float(self.intersect_line.text())
 
     def set_intersect(self, val):
+        """
+        Set the primary reflection's intersecting wavelength.
+
+        Parameters
+        ----------
+        val : float
+            Wavelength (Angstrom) to display, rounded to 2 decimals.
+        """
+
         self.intersect_line.setText(str(round(val, 2)))
 
     def get_intersect_alternate(self):
+        """
+        Get the alternate reflection's intersecting wavelength.
+
+        Returns
+        -------
+        val : float or None
+            Wavelength (Angstrom) entered in the alternate intersect
+            field, or None if the field is empty or does not contain
+            valid input.
+        """
+
         if self.intersect_alt_line.hasAcceptableInput():
             if self.intersect_alt_line.text() != "":
                 return float(self.intersect_alt_line.text())
 
     def set_intersect_alternate(self, val):
+        """
+        Set the alternate reflection's intersecting wavelength.
+
+        Parameters
+        ----------
+        val : float or None
+            Wavelength (Angstrom) to display, rounded to 2 decimals.
+            If None, the field is cleared.
+        """
+
         value = str(round(val, 2)) if val is not None else ""
         self.intersect_alt_line.setText(value)
 
     def get_horizontal(self):
+        """
+        Get the primary reflection's horizontal (gamma) detector angle.
+
+        Returns
+        -------
+        val : float or None
+            Gamma angle (degrees) entered in the horizontal field, or
+            None if the field does not contain valid input.
+        """
+
         if self.horizontal_line.hasAcceptableInput():
             return float(self.horizontal_line.text())
 
     def get_vertical(self):
+        """
+        Get the primary reflection's vertical (nu) detector angle.
+
+        Returns
+        -------
+        val : float or None
+            Nu angle (degrees) entered in the vertical field, or None
+            if the field does not contain valid input.
+        """
+
         if self.vertical_line.hasAcceptableInput():
             return float(self.vertical_line.text())
 
     def get_d(self):
+        """
+        Get the primary reflection's d-spacing.
+
+        Returns
+        -------
+        val : float or None
+            d-spacing (Angstrom) entered in the d-spacing field, or
+            None if the field does not contain valid input.
+        """
+
         if self.d_spacing_line.hasAcceptableInput():
             return float(self.d_spacing_line.text())
 
     def set_horizontal(self, val):
+        """
+        Set the primary reflection's horizontal (gamma) detector angle.
+
+        Parameters
+        ----------
+        val : float
+            Gamma angle (degrees) to display, rounded to 2 decimals.
+        """
+
         self.horizontal_line.setText(str(round(val, 2)))
 
     def set_vertical(self, val):
+        """
+        Set the primary reflection's vertical (nu) detector angle.
+
+        Parameters
+        ----------
+        val : float
+            Nu angle (degrees) to display, rounded to 2 decimals.
+        """
+
         self.vertical_line.setText(str(round(val, 2)))
 
     def set_d(self, val):
+        """
+        Set the primary reflection's d-spacing.
+
+        Parameters
+        ----------
+        val : float
+            d-spacing (Angstrom) to display, rounded to 4 decimals.
+        """
+
         self.d_spacing_line.setText(str(round(val, 4)))
 
     def get_horizontal_alternate(self):
+        """
+        Get the alternate reflection's horizontal (gamma) detector angle.
+
+        Returns
+        -------
+        val : float or None
+            Gamma angle (degrees) entered in the alternate horizontal
+            field, or None if the field is empty or does not contain
+            valid input.
+        """
+
         if self.horizontal_alt_line.hasAcceptableInput():
             if self.horizontal_alt_line.text() != "":
                 return float(self.horizontal_alt_line.text())
 
     def get_vertical_alternate(self):
+        """
+        Get the alternate reflection's vertical (nu) detector angle.
+
+        Returns
+        -------
+        val : float or None
+            Nu angle (degrees) entered in the alternate vertical field,
+            or None if the field is empty or does not contain valid
+            input.
+        """
+
         if self.vertical_alt_line.hasAcceptableInput():
             if self.vertical_alt_line.text() != "":
                 return float(self.vertical_alt_line.text())
 
     def get_d_alternate(self):
+        """
+        Get the alternate reflection's d-spacing.
+
+        Returns
+        -------
+        val : float or None
+            d-spacing (Angstrom) entered in the alternate d-spacing
+            field, or None if the field is empty or does not contain
+            valid input.
+        """
+
         if self.d_spacing_alt_line.hasAcceptableInput():
             if self.d_spacing_alt_line.text() != "":
                 return float(self.d_spacing_alt_line.text())
 
     def set_horizontal_alternate(self, val):
+        """
+        Set the alternate reflection's horizontal (gamma) detector angle.
+
+        Parameters
+        ----------
+        val : float or None
+            Gamma angle (degrees) to display, rounded to 2 decimals.
+            If None, the field is cleared.
+        """
+
         value = str(round(val, 2)) if val is not None else ""
         self.horizontal_alt_line.setText(value)
 
     def set_vertical_alternate(self, val):
+        """
+        Set the alternate reflection's vertical (nu) detector angle.
+
+        Parameters
+        ----------
+        val : float or None
+            Nu angle (degrees) to display, rounded to 2 decimals. If
+            None, the field is cleared.
+        """
+
         value = str(round(val, 2)) if val is not None else ""
         self.vertical_alt_line.setText(value)
 
     def set_d_alternate(self, val):
+        """
+        Set the alternate reflection's d-spacing.
+
+        Parameters
+        ----------
+        val : float or None
+            d-spacing (Angstrom) to display, rounded to 4 decimals. If
+            None, the field is cleared.
+        """
+
         value = str(round(val, 4)) if val is not None else ""
         self.d_spacing_alt_line.setText(value)
 
     def set_angles(self, values):
+        """
+        Display the goniometer angles for the looked-up setting.
+
+        Parameters
+        ----------
+        values : array_like
+            Goniometer angles (degrees) to display, formatted as a
+            comma-separated tuple string.
+        """
+
         ang = "(" + ", ".join(np.array(values).astype(str)) + ")"
 
         self.angles_line.setText(ang)
 
     def set_comment(self, values):
+        """
+        Display the comment/label associated with the looked-up setting.
+
+        Parameters
+        ----------
+        values : str
+            Comment text to display.
+        """
+
         self.comment_line.setText(str(values))
 
     def get_comment(self):
+        """
+        Get the currently displayed comment/label.
+
+        Returns
+        -------
+        comment : str
+            Text currently shown in the comment field.
+        """
+
         return self.comment_line.text()
 
     def get_angles(self):
+        """
+        Get the currently displayed goniometer angles.
+
+        Returns
+        -------
+        angles : list of float
+            Goniometer angles (degrees) parsed from the angles field.
+        """
+
         ang = self.angles_line.text()
         ang = ang.strip("(").strip(")").split(",")
 
         return [float(val) for val in ang if val != ""]
 
     def on_press_inst(self, event):
+        """
+        Handle a mouse click on the instrument coverage plot.
+
+        Matplotlib ``button_press_event`` callback. When the click
+        occurs inside the instrument axes with no toolbar mode active,
+        emits ``roi_ready`` with the clicked (gamma, nu) coordinates.
+
+        Parameters
+        ----------
+        event : matplotlib.backend_bases.MouseEvent
+            The mouse press event.
+        """
+
         if (
             event.inaxes == self.ax_inst
             and self.fig_inst.canvas.toolbar.mode == ""
@@ -2621,6 +4221,22 @@ class ExperimentView(NeuXtalVizWidget):
             self.roi_ready.emit(horz, vert)
 
     def plot_harmonics(self, hkls, lamdas):
+        """
+        Plot harmonic reflections for the primary reflection.
+
+        Clears any existing harmonic markers on the wavelength-band
+        axis and draws a vertical line (and HKL label, when available)
+        for each harmonic wavelength.
+
+        Parameters
+        ----------
+        hkls : list
+            HKL triplets (or None) for each harmonic, aligned with
+            ``lamdas``.
+        lamdas : list of float
+            Wavelengths (Angstrom) at which each harmonic occurs.
+        """
+
         for line in self.ax_band.lines[:]:
             line.remove()
         for text in self.ax_band.texts:
@@ -2647,6 +4263,22 @@ class ExperimentView(NeuXtalVizWidget):
         self.canvas_inst.draw_idle()
 
     def plot_harmonics_alternate(self, hkls, lamdas):
+        """
+        Plot harmonic reflections for the alternate reflection.
+
+        Draws a vertical line (and HKL label, when available) for
+        each harmonic wavelength of the alternate reflection, without
+        clearing the primary reflection's existing harmonic markers.
+
+        Parameters
+        ----------
+        hkls : list
+            HKL triplets (or None) for each harmonic, aligned with
+            ``lamdas``.
+        lamdas : list of float
+            Wavelengths (Angstrom) at which each harmonic occurs.
+        """
+
         for hkl, lamda in zip(hkls, lamdas):
             self.ax_band.axvline(x=lamda, color="C1", linestyle="--")
             if hkl is not None:
@@ -2666,6 +4298,16 @@ class ExperimentView(NeuXtalVizWidget):
         self.canvas_inst.draw_idle()
 
     def update_inst(self):
+        """
+        Redraw the crosshair markers on the instrument coverage plot.
+
+        Clears existing crosshair lines and harmonic markers, emits
+        ``harm_ready`` to trigger a harmonics recalculation, and draws
+        a crosshair (or connecting box, if both a primary and alternate
+        setting are present) at the current horizontal/vertical
+        reflection positions.
+        """
+
         for line in self.ax_inst.lines[:]:
             line.remove()
 
@@ -2735,21 +4377,89 @@ class ExperimentView(NeuXtalVizWidget):
         self.canvas_inst.draw_idle()
 
     def connect_roi_ready(self, lookup):
+        """
+        Connect a slot to the view's ``roi_ready`` signal.
+
+        Parameters
+        ----------
+        lookup : callable
+            Slot to invoke with the ``(gamma, nu)`` coordinates of a
+            click on the instrument coverage plot.
+        """
+
         self.roi_ready.connect(lookup)
 
     def connect_harmonic_ready(self, lookup):
+        """
+        Connect a slot to the view's ``harm_ready`` signal.
+
+        Parameters
+        ----------
+        lookup : callable
+            Slot to invoke when the harmonics should be recalculated.
+        """
+
         self.harm_ready.connect(lookup)
 
     def use_equivalents(self):
+        """
+        Get whether symmetry-equivalent HKLs should be included.
+
+        Returns
+        -------
+        use : bool
+            True if the "Equivalents" checkbox is checked.
+        """
+
         return self.equivalents_box.isChecked()
 
     def use_symmetry(self):
+        """
+        Get whether symmetry should be applied.
+
+        Returns
+        -------
+        use : bool
+            True if the symmetry checkbox is checked.
+        """
+
         return self.symmetry_box.isChecked()
 
     def draw_all(self):
+        """
+        Get whether all active orientations should be combined for display.
+
+        Returns
+        -------
+        use : bool
+            True if the "Combine All" checkbox is checked.
+        """
+
         return self.combined_box.isChecked()
 
     def plot_laue(self, gamma_laue, nu_laue, gamma, nu, lamda, d):
+        """
+        Plot the Laue-diffraction peak positions.
+
+        Parameters
+        ----------
+        gamma_laue : array_like
+            Detector gamma angles (degrees) of the full detector
+            coverage, drawn as a light gray background scatter.
+        nu_laue : array_like
+            Detector nu angles (degrees) of the full detector
+            coverage, drawn as a light gray background scatter.
+        gamma : array_like
+            Detector gamma angles (degrees) of the peaks.
+        nu : array_like
+            Detector nu angles (degrees) of the peaks.
+        lamda : array_like
+            Wavelengths (Angstrom) of the peaks, used to color the
+            scatter points.
+        d : array_like
+            d-spacings (Angstrom) of the peaks.
+        """
+
         if self.cb_laue is not None:
             self.cb_laue.remove()
             self.cb_laue = None
@@ -2812,6 +4522,19 @@ class ExperimentView(NeuXtalVizWidget):
         self.canvas_laue.draw_idle()
 
     def on_press_laue(self, event):
+        """
+        Handle a mouse click on the Laue diffraction plot.
+
+        Matplotlib ``button_press_event`` callback. When the click
+        occurs inside the Laue axes with no toolbar mode active, emits
+        ``sel_ready`` with the clicked (gamma, nu) coordinates.
+
+        Parameters
+        ----------
+        event : matplotlib.backend_bases.MouseEvent
+            The mouse press event.
+        """
+
         if (
             event.inaxes == self.ax_laue
             and self.fig_laue.canvas.toolbar.mode == ""
@@ -2820,6 +4543,28 @@ class ExperimentView(NeuXtalVizWidget):
             self.sel_ready.emit(horz, vert)
 
     def update_laue(self, horz, vert, lamdas, hkl, lamda_0):
+        """
+        Highlight the selected peak on the Laue and harmonics plots.
+
+        Draws a crosshair at the selected peak's detector position and
+        vertical markers at each harmonic wavelength on the harmonics
+        axis.
+
+        Parameters
+        ----------
+        horz : float
+            Detector gamma angle (degrees) of the selected peak.
+        vert : float
+            Detector nu angle (degrees) of the selected peak.
+        lamdas : array_like
+            Harmonic wavelengths (Angstrom) to mark on the harmonics
+            axis.
+        hkl : tuple
+            HKL of the selected peak.
+        lamda_0 : float
+            Fundamental wavelength (Angstrom) of the selected peak.
+        """
+
         for line in self.ax_laue.lines[:]:
             line.remove()
 
@@ -2841,9 +4586,29 @@ class ExperimentView(NeuXtalVizWidget):
         self.canvas_laue.draw_idle()
 
     def connect_selection_ready(self, lookup):
+        """
+        Connect a slot to the view's ``sel_ready`` signal.
+
+        Parameters
+        ----------
+        lookup : callable
+            Slot to invoke with the ``(gamma, nu)`` coordinates of a
+            click on the Laue diffraction plot.
+        """
+
         self.sel_ready.connect(lookup)
 
     def highlight_peak(self, row):
+        """
+        Select the peaks-table row corresponding to a given peak index.
+
+        Parameters
+        ----------
+        row : int
+            Peak index (as stored in the table items' user-role data)
+            to select.
+        """
+
         self.peaks_table.blockSignals(True)
         self.peaks_table.clearSelection()
         self.peaks_table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -2853,10 +4618,30 @@ class ExperimentView(NeuXtalVizWidget):
         self.peaks_table.blockSignals(False)
 
     def get_peak(self):
+        """
+        Get the peak index of the currently selected peaks-table row.
+
+        Returns
+        -------
+        row : int
+            Peak index stored in the current row's user-role data.
+        """
+
         row = self.peaks_table.currentRow()
         return self.peaks_table.item(row, 0).data(Qt.UserRole)
 
     def get_projection_matrix(self):
+        """
+        Get the user-entered U/V/W projection matrix.
+
+        Returns
+        -------
+        params : list of float or None
+            Flattened ``[U1, U2, U3, V1, V2, V3, W1, W2, W3]``
+            projection vector components, or None if any field does
+            not contain valid input.
+        """
+
         params = (
             self.U1_line,
             self.U2_line,
@@ -2876,20 +4661,78 @@ class ExperimentView(NeuXtalVizWidget):
             return params
 
     def get_slice_value(self):
+        """
+        Get the slice position along the slice normal.
+
+        Returns
+        -------
+        value : float or None
+            Slice position (reciprocal-lattice units) entered in the
+            slice-value field, or None if the field does not contain
+            valid input.
+        """
+
         if self.slice_line.hasAcceptableInput():
             return float(self.slice_line.text())
 
     def get_slice_thickness(self):
+        """
+        Get the slice thickness along the slice normal.
+
+        Returns
+        -------
+        thickness : float or None
+            Slice thickness (reciprocal-lattice units) entered in the
+            slice-thickness field, or None if the field does not
+            contain valid input.
+        """
+
         if self.slice_thickness_line.hasAcceptableInput():
             return float(self.slice_thickness_line.text())
 
     def get_slice(self):
+        """
+        Get the selected slice plane.
+
+        Returns
+        -------
+        plane : str
+            Name of the slice plane selected in the slice combo box.
+        """
+
         return self.slice_combo.currentText()
 
     def use_symmetry_mesh(self):
+        """
+        Get whether symmetry should be applied to the mesh scan/plane.
+
+        Returns
+        -------
+        use : bool
+            True if the mesh "Use Symmetry" checkbox is checked.
+        """
+
         return self.mesh_symmetry_box.isChecked()
 
     def update_slice(self, slice_dict):
+        """
+        Redraw the reciprocal-space slice plot.
+
+        Rebuilds the slice axes using a curvilinear grid helper
+        derived from the slice transform, and plots the slice's signal
+        as a pseudocolor mesh.
+
+        Parameters
+        ----------
+        slice_dict : dict
+            Dictionary with keys ``"x"``, ``"y"`` (grid coordinates),
+            ``"labels"`` (axis labels), ``"title"`` (plot title),
+            ``"signal"`` (2D intensity array), ``"z"`` (out-of-plane
+            coordinate), ``"W"`` (projection matrix), ``"transform"``
+            (2D affine transform matrix), and ``"aspect"`` (axes
+            aspect ratio).
+        """
+
         x = slice_dict["x"]
         y = slice_dict["y"]
 
@@ -2965,14 +4808,76 @@ class ExperimentView(NeuXtalVizWidget):
         self.ax_slice.format_coord = self.__format_hkl_coord
 
     def __format_hkl_coord(self, x, y):
+        """
+        Format the HKL cursor-position readout for the slice plot.
+
+        Matplotlib ``format_coord`` override: converts the display
+        coordinates back through the slice's inverse transform and
+        projection matrix to give the HKL at the cursor position.
+
+        Parameters
+        ----------
+        x : float
+            Cursor x data coordinate in the slice's transformed axes.
+        y : float
+            Cursor y data coordinate in the slice's transformed axes.
+
+        Returns
+        -------
+        text : str
+            Formatted string showing the HKL at the cursor position.
+        """
+
         x, y, _ = np.dot(self.T_inv, [x, y, 1])
         h, k, l = np.dot(self.W, [x, y, self.z])
         return "hkl = ({:.3f}, {:.3f}, {:.3f})".format(h, k, l)
 
     def __format_inst_coord(self, x, y):
+        """
+        Format the gamma/nu cursor-position readout for detector plots.
+
+        Matplotlib ``format_coord`` override used by the instrument
+        and Laue coverage axes.
+
+        Parameters
+        ----------
+        x : float
+            Cursor gamma coordinate (degrees).
+        y : float
+            Cursor nu coordinate (degrees).
+
+        Returns
+        -------
+        text : str
+            Formatted string showing the gamma and nu angles at the
+            cursor position.
+        """
+
         return "γ = {:.1f}°, ν = {:.1f}°".format(x, y)
 
     def __format_band_coord(self, x, _y):
+        """
+        Format the wavelength cursor-position readout for the band plot.
+
+        Matplotlib ``format_coord`` override for the wavelength-band
+        axis. Reports the wavelength and, when available, the HKL(s)
+        and d-spacing(s) of the reflection(s) scaled to the cursor
+        wavelength.
+
+        Parameters
+        ----------
+        x : float
+            Cursor wavelength coordinate (Angstrom).
+        _y : float
+            Cursor y data coordinate (unused).
+
+        Returns
+        -------
+        text : str
+            Formatted string showing the wavelength and associated
+            HKL/d-spacing information at the cursor position.
+        """
+
         wl = "λ = {:.3f} Å, ".format(x)
         if self.bragg_band_alt is not None:
             if self.hkl is not None or self.hkl_alt is not None:
@@ -2996,6 +4901,29 @@ class ExperimentView(NeuXtalVizWidget):
             return wl + hkl + d
 
     def __format_harm_coord(self, x, _y):
+        """
+        Format the wavelength cursor-position readout for the Laue
+        harmonics plot.
+
+        Matplotlib ``format_coord`` override for the harmonics axis
+        of the Laue plot. Reports the wavelength and, when available,
+        the HKL and d-spacing of the selected peak scaled to the
+        cursor wavelength.
+
+        Parameters
+        ----------
+        x : float
+            Cursor wavelength coordinate (Angstrom).
+        _y : float
+            Cursor y data coordinate (unused).
+
+        Returns
+        -------
+        text : str
+            Formatted string showing the wavelength and associated
+            HKL/d-spacing information at the cursor position.
+        """
+
         wl = "λ = {:.3f} Å, ".format(x)
         if self.hkl_laue is not None:
             hkl = self.hkl_laue / x * self.scale_laue
@@ -3007,6 +4935,25 @@ class ExperimentView(NeuXtalVizWidget):
         return wl + hkl + d
 
     def __scale_inst(self, horz, vert):
+        """
+        Compute the d-spacing-to-wavelength scale factor for a detector
+        position.
+
+        Parameters
+        ----------
+        horz : float or None
+            Detector gamma angle (degrees).
+        vert : float or None
+            Detector nu angle (degrees).
+
+        Returns
+        -------
+        scale : float or None
+            Factor such that ``d = scale * wavelength`` for a
+            reflection detected at ``(horz, vert)``, or None if both
+            ``horz`` and ``vert`` are None.
+        """
+
         if horz is not None or vert is not None:
             horz = np.deg2rad(horz)
             vert = np.deg2rad(vert)

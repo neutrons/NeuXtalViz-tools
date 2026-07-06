@@ -1,3 +1,38 @@
+"""
+Static periodic-table reference data for element lookup and rendering.
+
+This module holds plain dictionaries keyed by element symbol (plus "D"
+for deuterium and "XX" for an unknown/default element in ``colors``)
+that back the periodic table widgets and crystal structure viewer.
+
+Attributes
+----------
+names : dict[str, str]
+    Full element name for each atomic symbol, e.g. ``names["H"]`` is
+    ``"Hydrogen"``. Used by :class:`NeuXtalViz.models.periodic_table.AtomModel`
+    to look up a human-readable name for a selected element.
+isotopes : dict[str, list[int]]
+    Mass numbers of the isotopes available for each element symbol. An
+    empty list means no isotope data is available, which the periodic
+    table view uses to disable selection of that element.
+colors : dict[str, tuple[float, float, float]]
+    RGB color (each channel in the range 0-1) used to render each atom,
+    e.g. in the crystal structure viewer.
+radii : dict[str, tuple[float, float, float]]
+    Per-element radii in angstroms, roughly ordered as (covalent,
+    ionic/calculated, van der Waals), where a value of ``0.0``
+    indicates the radius is undefined/unavailable for that element.
+    Only index 0 is currently used elsewhere, as the base atom
+    rendering radius in the crystal structure viewer.
+indexing : dict[str, tuple[int, int]]
+    ``(row, column)`` position of each element in the periodic table
+    grid layout, used to place the corresponding button widget.
+groups : dict[str, str]
+    Element family/category name (e.g. "Alkali Metals", "Noble Gases")
+    for each element symbol, used to color-code periodic table buttons
+    by group.
+"""
+
 names = {
     "H": "Hydrogen",
     "He": "Helium",

@@ -56,10 +56,36 @@ opacities = {
 
 
 class VolumeSlicerView(NeuXtalVizWidget):
+    """
+    View for the volume slicer tool.
+
+    Provides the UI for loading a NeXus MDHisto workspace, rendering it as
+    a 3D clipped volume, slicing it into a 2D plane, and cutting a 1D line
+    profile through that slice, together with controls for scaling,
+    colormaps, opacity, and display/color limits.
+
+    Attributes
+    ----------
+    slice_ready : qtpy.QtCore.Signal
+        Emitted when the slice position/parameters are ready to be
+        recomputed (e.g. after dragging the 3D clip plane or slider).
+    cut_ready : qtpy.QtCore.Signal
+        Emitted when the cut position/parameters are ready to be
+        recomputed (e.g. after dragging the line cut on the slice plot).
+    """
+
     slice_ready = Signal()
     cut_ready = Signal()
 
     def __init__(self, parent=None):
+        """
+        Initialize the volume slicer view and its internal state.
+
+        Parameters
+        ----------
+        parent : QWidget, optional
+            Parent widget (default None).
+        """
         super().__init__(parent)
 
         self.tab_widget = QTabWidget(self)
@@ -83,6 +109,14 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self._volume_nbins = None
 
     def slicer_tab(self):
+        """
+        Build the "Slicer" tab, its widgets, and its layouts.
+
+        Creates the volume/opacity/colormap controls, slice and cut
+        position/thickness controls, axis limit fields, the 2D slice and
+        1D cut matplotlib canvases, and wires up the toggle/auto-zoom
+        checkboxes.
+        """
         slice_tab = QWidget()
         self.tab_widget.addTab(slice_tab, "Slicer")
 
@@ -395,52 +429,184 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.auto_zoom_box.toggled.connect(self._handle_auto_zoom_toggle)
 
     def toggle_container(self, state):
+        """
+        Show or hide the collapsible cut section and its line overlay.
+
+        Parameters
+        ----------
+        state : bool
+            Whether the collapsible container (cut plot and controls)
+            should be visible, and the alpha state passed to
+            `update_lines` for the line-cut overlay.
+        """
         self.container.setVisible(state)
         self.update_lines(state)
 
     def connect_save_slice(self, save_slice):
+        """
+        Connect a handler to the "Save Slice" button click.
+
+        Parameters
+        ----------
+        save_slice : callable
+            Slot invoked when the "Save Slice" button is clicked.
+        """
         self.save_slice_button.clicked.connect(save_slice)
 
     def connect_save_cut(self, save_cut):
+        """
+        Connect a handler to the "Save Cut" button click.
+
+        Parameters
+        ----------
+        save_cut : callable
+            Slot invoked when the "Save Cut" button is clicked.
+        """
         self.save_cut_button.clicked.connect(save_cut)
 
     def connect_vol_scale_combo(self, update_vol):
+        """
+        Connect a handler to changes in the volume scale combo box.
+
+        Parameters
+        ----------
+        update_vol : callable
+            Slot invoked when the volume scale selection changes.
+        """
         self.vol_scale_combo.currentIndexChanged.connect(update_vol)
 
     def connect_opacity_combo(self, update_opacity):
+        """
+        Connect a handler to changes in the opacity mapping combo box.
+
+        Parameters
+        ----------
+        update_opacity : callable
+            Slot invoked when the opacity mapping selection changes.
+        """
         self.opacity_combo.currentIndexChanged.connect(update_opacity)
 
     def connect_range_combo(self, update_range):
+        """
+        Connect a handler to changes in the opacity/color range combo box.
+
+        Parameters
+        ----------
+        update_range : callable
+            Slot invoked when the range direction selection changes.
+        """
         self.range_combo.currentIndexChanged.connect(update_range)
 
     def connect_clim_combo(self, update_clim):
+        """
+        Connect a handler to changes in the 3D volume color-limit combo box.
+
+        Parameters
+        ----------
+        update_clim : callable
+            Slot invoked when the volume color-limit method selection
+            changes.
+        """
         self.clim_combo.currentIndexChanged.connect(update_clim)
 
     def connect_vlim_combo(self, update_clim):
+        """
+        Connect a handler to changes in the 2D slice value-limit combo box.
+
+        Parameters
+        ----------
+        update_clim : callable
+            Slot invoked when the slice value-limit method selection
+            changes.
+        """
         self.vlim_combo.currentIndexChanged.connect(update_clim)
 
     def connect_cbar_combo(self, update_cbar):
+        """
+        Connect a handler to changes in the colormap combo box.
+
+        Parameters
+        ----------
+        update_cbar : callable
+            Slot invoked when the colormap selection changes.
+        """
         self.cbar_combo.currentIndexChanged.connect(update_cbar)
 
     def connect_slice_thickness_line(self, update_slice):
+        """
+        Connect a handler to editing of the slice thickness field.
+
+        Parameters
+        ----------
+        update_slice : callable
+            Slot invoked when editing of the slice thickness line finishes.
+        """
         self.slice_thickness_line.editingFinished.connect(update_slice)
 
     def connect_cut_thickness_line(self, update_cut):
+        """
+        Connect a handler to editing of the cut thickness field.
+
+        Parameters
+        ----------
+        update_cut : callable
+            Slot invoked when editing of the cut thickness line finishes.
+        """
         self.cut_thickness_line.editingFinished.connect(update_cut)
 
     def connect_slice_line(self, update_slice):
+        """
+        Connect a handler to editing of the slice position field.
+
+        Parameters
+        ----------
+        update_slice : callable
+            Slot invoked when editing of the slice position line finishes.
+        """
         self.slice_line.editingFinished.connect(update_slice)
 
     def connect_cut_line(self, update_cut):
+        """
+        Connect a handler to editing of the cut position field.
+
+        Parameters
+        ----------
+        update_cut : callable
+            Slot invoked when editing of the cut position line finishes.
+        """
         self.cut_line.editingFinished.connect(update_cut)
 
     def connect_slice_scale_combo(self, update_slice):
+        """
+        Connect a handler to changes in the slice display scale combo box.
+
+        Parameters
+        ----------
+        update_slice : callable
+            Slot invoked when the slice scale (Linear/Log) selection
+            changes.
+        """
         self.slice_scale_combo.currentIndexChanged.connect(update_slice)
 
     def connect_cut_scale_combo(self, update_cut):
+        """
+        Connect a handler to changes in the cut display scale combo box.
+
+        Parameters
+        ----------
+        update_cut : callable
+            Slot invoked when the cut scale (Linear/Log) selection changes.
+        """
         self.cut_scale_combo.currentIndexChanged.connect(update_cut)
 
     def _reset_slice_to_zero(self):
+        """
+        Reset the slice position field to zero and re-init the slider.
+
+        Blocks signals while resetting the text so the change does not
+        trigger a redraw, then rebuilds the slider range for the newly
+        selected slice plane using the cached volume limits/bin counts.
+        """
         self.slice_line.blockSignals(True)
         self.slice_line.setText("0.0")
         self.slice_line.blockSignals(False)
@@ -453,43 +619,157 @@ class VolumeSlicerView(NeuXtalVizWidget):
             )
 
     def connect_slice_combo(self, update_slice):
+        """
+        Connect handlers to changes in the slice plane combo box.
+
+        Also connects an internal handler that resets the slice position
+        to zero and reconfigures the slider whenever the plane changes.
+
+        Parameters
+        ----------
+        update_slice : callable
+            Slot invoked when the slice plane selection changes.
+        """
         self.slice_combo.currentIndexChanged.connect(self._reset_slice_to_zero)
         self.slice_combo.currentIndexChanged.connect(update_slice)
 
     def connect_cut_combo(self, update_cut):
+        """
+        Connect a handler to changes in the cut axis combo box.
+
+        Parameters
+        ----------
+        update_cut : callable
+            Slot invoked when the cut axis selection changes.
+        """
         self.cut_combo.currentIndexChanged.connect(update_cut)
 
     def connect_min_slider(self, update_colorbar):
+        """
+        No-op placeholder for connecting a minimum colorbar slider.
+
+        This view does not expose a minimum colorbar slider widget; the
+        method exists to satisfy the interface expected by the presenter.
+
+        Parameters
+        ----------
+        update_colorbar : callable
+            Slot that would be invoked on slider changes (unused).
+        """
         pass
 
     def connect_max_slider(self, update_colorbar):
+        """
+        No-op placeholder for connecting a maximum colorbar slider.
+
+        This view does not expose a maximum colorbar slider widget; the
+        method exists to satisfy the interface expected by the presenter.
+
+        Parameters
+        ----------
+        update_colorbar : callable
+            Slot that would be invoked on slider changes (unused).
+        """
         pass
 
     def connect_vmin_line(self, update_vals):
+        """
+        Connect a handler to editing of the colorbar minimum field.
+
+        Parameters
+        ----------
+        update_vals : callable
+            Slot invoked when editing of the vmin line finishes.
+        """
         self.vmin_line.editingFinished.connect(update_vals)
 
     def connect_vmax_line(self, update_vals):
+        """
+        Connect a handler to editing of the colorbar maximum field.
+
+        Parameters
+        ----------
+        update_vals : callable
+            Slot invoked when editing of the vmax line finishes.
+        """
         self.vmax_line.editingFinished.connect(update_vals)
 
     def connect_auto_limits(self, update_limits):
+        """
+        Connect a handler to toggling of the "Auto Limits" checkbox.
+
+        Parameters
+        ----------
+        update_limits : callable
+            Slot invoked when the auto limits checkbox is toggled.
+        """
         self.auto_limits_box.toggled.connect(update_limits)
 
     def connect_auto_zoom(self, update_zoom):
+        """
+        Connect a handler to toggling of the "Auto Zoom" checkbox.
+
+        Parameters
+        ----------
+        update_zoom : callable
+            Slot invoked when the auto zoom checkbox is toggled.
+        """
         self.auto_zoom_box.toggled.connect(update_zoom)
 
     def connect_xmin_line(self, update_vals):
+        """
+        Connect a handler to editing of the X-axis minimum field.
+
+        Parameters
+        ----------
+        update_vals : callable
+            Slot invoked when editing of the xmin line finishes.
+        """
         self.xmin_line.editingFinished.connect(update_vals)
 
     def connect_xmax_line(self, update_vals):
+        """
+        Connect a handler to editing of the X-axis maximum field.
+
+        Parameters
+        ----------
+        update_vals : callable
+            Slot invoked when editing of the xmax line finishes.
+        """
         self.xmax_line.editingFinished.connect(update_vals)
 
     def connect_ymin_line(self, update_vals):
+        """
+        Connect a handler to editing of the Y-axis minimum field.
+
+        Parameters
+        ----------
+        update_vals : callable
+            Slot invoked when editing of the ymin line finishes.
+        """
         self.ymin_line.editingFinished.connect(update_vals)
 
     def connect_ymax_line(self, update_vals):
+        """
+        Connect a handler to editing of the Y-axis maximum field.
+
+        Parameters
+        ----------
+        update_vals : callable
+            Slot invoked when editing of the ymax line finishes.
+        """
         self.ymax_line.editingFinished.connect(update_vals)
 
     def save_file_dialog(self):
+        """
+        Prompt the user for a CSV file path to save to.
+
+        Returns
+        -------
+        filename : str
+            Selected file path, or an empty string if the dialog was
+            cancelled.
+        """
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
@@ -510,12 +790,32 @@ class VolumeSlicerView(NeuXtalVizWidget):
         return filename
 
     def update_colorbar_min(self):
+        """
+        No-op placeholder for updating the minimum colorbar slider.
+
+        This view does not expose a minimum colorbar slider widget; the
+        method exists to satisfy the interface expected elsewhere.
+        """
         pass
 
     def update_colorbar_max(self):
+        """
+        No-op placeholder for updating the maximum colorbar slider.
+
+        This view does not expose a maximum colorbar slider widget; the
+        method exists to satisfy the interface expected elsewhere.
+        """
         pass
 
     def update_slice_color(self):
+        """
+        Recompute and apply colorbar limits from the color-bar slider values.
+
+        Uses `get_color_bar_values` (percentages of the [vmin, vmax] range)
+        to derive new display limits and applies them via
+        `update_colorbar_vlims`. Does nothing if the colorbar has not been
+        created yet.
+        """
         if self.cb is not None:
             min_slider, max_slider = self.get_color_bar_values()
 
@@ -525,6 +825,21 @@ class VolumeSlicerView(NeuXtalVizWidget):
             self.update_colorbar_vlims(vmin, vmax)
 
     def update_colorbar_vlims(self, vmin, vmax):
+        """
+        Apply new color limits to the slice image and colorbar.
+
+        Updates the vmin/vmax display fields, sets the new color limits on
+        the slice image, refreshes the colorbar, and redraws the canvas.
+        Does nothing if the colorbar or slice image has not been created
+        yet.
+
+        Parameters
+        ----------
+        vmin : float
+            New lower color limit.
+        vmax : float
+            New upper color limit.
+        """
         if self.cb is not None and self.slice_im is not None:
             self.set_vmin_value(vmin)
             self.set_vmax_value(vmax)
@@ -536,6 +851,25 @@ class VolumeSlicerView(NeuXtalVizWidget):
             self.canvas_slice.draw_idle()
 
     def _create_norm(self, scale, vmin, vmax):
+        """
+        Build a matplotlib color normalization for the given scale.
+
+        Parameters
+        ----------
+        scale : str
+            Display scale, 'log' (case-insensitive) for logarithmic
+            normalization or any other value for linear normalization.
+        vmin : float
+            Lower color limit. Clamped to the smallest positive finite
+            float when `scale` is 'log'.
+        vmax : float
+            Upper color limit.
+
+        Returns
+        -------
+        norm : matplotlib.colors.Normalize or matplotlib.colors.LogNorm
+            Normalization object for the slice image.
+        """
         scale = scale.lower()
 
         if scale == "log":
@@ -545,6 +879,23 @@ class VolumeSlicerView(NeuXtalVizWidget):
         return mcolors.Normalize(vmin=vmin, vmax=vmax)
 
     def update_slice_display(self, cmap_key, scale, vmin, vmax):
+        """
+        Update the slice image's colormap, normalization, and colorbar.
+
+        Does nothing if no slice image has been drawn yet.
+
+        Parameters
+        ----------
+        cmap_key : str
+            Key into the module-level `cmaps` mapping identifying the
+            colormap to apply (e.g. 'Sequential', 'Rainbow').
+        scale : str
+            Display scale, 'log' or 'linear', passed to `_create_norm`.
+        vmin : float
+            Lower display/color limit.
+        vmax : float
+            Upper display/color limit.
+        """
         if self.slice_im is None:
             return
 
@@ -561,15 +912,51 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.canvas_slice.draw_idle()
 
     def get_color_bar_values(self):
+        """
+        Get the colorbar slider percentages used by `update_slice_color`.
+
+        This view does not expose interactive colorbar sliders, so a
+        fixed full-range value is always returned.
+
+        Returns
+        -------
+        min_slider : int
+            Lower slider percentage (always 0).
+        max_slider : int
+            Upper slider percentage (always 100).
+        """
         return 0, 100
 
     def reset_slider(self):
+        """
+        No-op placeholder for resetting a colorbar slider.
+
+        This view does not expose colorbar slider widgets; the method
+        exists to satisfy the interface expected elsewhere.
+        """
         pass
 
     def connect_load_NXS(self, load_NXS):
+        """
+        Connect a handler to the "Load NXS" button click.
+
+        Parameters
+        ----------
+        load_NXS : callable
+            Slot invoked when the "Load NXS" button is clicked.
+        """
         self.load_NXS_button.clicked.connect(load_NXS)
 
     def load_NXS_file_dialog(self):
+        """
+        Prompt the user for a NeXus (.nxs) file path to load.
+
+        Returns
+        -------
+        filename : str
+            Selected file path, or an empty string if the dialog was
+            cancelled.
+        """
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
@@ -590,6 +977,35 @@ class VolumeSlicerView(NeuXtalVizWidget):
         return filename
 
     def add_histo(self, histo_dict, normal, norm, value):
+        """
+        Render the 3D clipped volume for the loaded histogram.
+
+        Builds a PyVista `ImageData` grid from the histogram signal,
+        applies the current opacity/colormap/scale settings, adds a
+        clipped volume actor with a movable clip plane at the given
+        origin/normal, configures the bounding-box axes with the
+        crystallographic transform, and resets the camera to fit the
+        scene. Also (re)configures the slice position slider range for
+        the newly selected plane and registers a callback so that
+        interactively moving the clip plane updates the slice position.
+
+        Parameters
+        ----------
+        histo_dict : dict
+            Histogram information dictionary (as returned by the model's
+            `get_histo_info`) containing 'signal', 'labels', 'min_lim',
+            'max_lim', 'spacing', 'projection', 'transform', and 'scales'.
+        normal : numpy.ndarray
+            Plane normal vector (in Cartesian/plot space) used to orient
+            the volume clip plane.
+        norm : array-like
+            Normal vector identifying the selected slice plane in
+            crystallographic axis space (e.g. [0, 0, 1]); mutated in
+            place to build the clip plane origin.
+        value : float
+            Position along `norm` at which to place the initial clip
+            plane / slice.
+        """
         opacity = opacities[self.get_opacity()][self.get_range()]
 
         log_scale = True if self.get_vol_scale() == "Log" else False
@@ -725,6 +1141,22 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.P_inv = np.linalg.inv(P)
 
     def interaction_callback(self, caller, event):
+        """
+        VTK observer callback fired while the 3D clip plane is dragged.
+
+        Converts the clip plane's current origin back into slice-position
+        units, updates the slice position field without re-triggering its
+        edit signal, and emits `slice_ready` to request a re-slice.
+
+        Parameters
+        ----------
+        caller : vtkImplicitPlaneWidget or similar
+            The VTK widget/actor that raised the interaction event; its
+            `GetOrigin()` is used to obtain the new clip plane origin.
+        event : str
+            The VTK event name (unused, required by the observer
+            signature).
+        """
         orig = caller.GetOrigin()
 
         ind = np.abs(self.norm).tolist().index(1)
@@ -738,6 +1170,18 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.slice_ready.emit()
 
     def update_clip(self, origin=None, normal=None):
+        """
+        Update the 3D volume clip plane's origin and/or normal.
+
+        Parameters
+        ----------
+        origin : array-like, optional
+            New origin point for the clip plane (default None, meaning
+            unchanged).
+        normal : array-like, optional
+            New normal vector for the clip plane (default None, meaning
+            unchanged).
+        """
         if origin is not None:
             self.clip.SetOrigin(*origin)
         if normal is not None:
@@ -746,14 +1190,61 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.plotter.update()
 
     def connect_slice_ready(self, reslice):
+        """
+        Connect a handler to the `slice_ready` signal.
+
+        Parameters
+        ----------
+        reslice : callable
+            Slot invoked when `slice_ready` is emitted.
+        """
         self.slice_ready.connect(reslice)
 
     def __format_axis_coord(self, x, y):
+        """
+        Format slice-plot display coordinates as an HKL string.
+
+        Used as the matplotlib Axes `format_coord` callback to show the
+        crystallographic HKL indices under the cursor in the slice plot's
+        status readout.
+
+        Parameters
+        ----------
+        x : float
+            X display coordinate on the slice axes.
+        y : float
+            Y display coordinate on the slice axes.
+
+        Returns
+        -------
+        coord_str : str
+            Formatted string of the form
+            ``"hkl = (h, k, l)"`` with values to three decimal places.
+        """
         x, y, _ = np.dot(self.T_inv, [x, y, 1])
         h, k, l = np.dot(self.W, [x, y, self.z])
         return "hkl = ({:.3f}, {:.3f}, {:.3f})".format(h, k, l)
 
     def add_slice(self, slice_dict):
+        """
+        Draw the 2D slice plot from newly computed slice data.
+
+        Rebuilds the slice axes with a curvilinear grid helper so that
+        the (possibly non-orthogonal) crystallographic axes are drawn
+        correctly, plots the signal with `pcolormesh`, updates/creates
+        the colorbar, restores or resets the zoom/pan limits depending on
+        the "Auto Zoom" setting and prior view state, and reconnects the
+        axis limit-change callbacks used to keep the min/max fields in
+        sync.
+
+        Parameters
+        ----------
+        slice_dict : dict
+            Slice information dictionary (as returned by the model's
+            `get_slice_info`) containing 'x', 'y', 'labels', 'title',
+            'signal', 'z', 'W', 'transform', 'aspect', and optionally
+            'vmin'/'vmax'.
+        """
         prev_xlim = (
             self.ax_slice.get_xlim() if self.slice_im is not None else None
         )
@@ -922,6 +1413,15 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.ymax_line.blockSignals(False)
 
     def update_lines(self, alpha):
+        """
+        Set the transparency of the line-cut overlay on the slice plot.
+
+        Parameters
+        ----------
+        alpha : bool or float
+            Alpha value applied to the cut overlay lines (0/False hides
+            them, 1/True shows them fully opaque).
+        """
         lines = (
             self._cut_lines
             if self._cut_lines is not None
@@ -932,6 +1432,23 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.canvas_slice.draw_idle()
 
     def add_cut(self, cut_dict):
+        """
+        Draw the 1D cut plot and its overlay lines on the slice plot.
+
+        Updates or creates the pair of dashed lines on the slice image
+        marking the extent of the cut band, redraws the 1D error-bar cut
+        plot, restores the appropriate axis limits, and (re)connects the
+        mouse callbacks that allow interactively dragging the cut lines
+        as well as the axis limit-change callbacks. Does nothing if no
+        slice has been drawn yet.
+
+        Parameters
+        ----------
+        cut_dict : dict
+            Cut information dictionary (as returned by the model's
+            `get_cut_info`) containing 'x', 'y', 'e', 'value', 'label',
+            and 'title'.
+        """
         if self.xlim is None or self.ylim is None or self.slice_im is None:
             return
 
@@ -1049,6 +1566,18 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.ymax_line.blockSignals(False)
 
     def on_press(self, event):
+        """
+        Matplotlib button-press handler that begins dragging the cut line.
+
+        Starts a drag only if the click is inside the slice axes, no
+        toolbar navigation mode (zoom/pan) is active, and the line-cut
+        overlay is currently shown.
+
+        Parameters
+        ----------
+        event : matplotlib.backend_bases.MouseEvent
+            The mouse button-press event.
+        """
         if (
             event.inaxes == self.ax_slice
             and self.fig_slice.canvas.toolbar.mode == ""
@@ -1057,14 +1586,46 @@ class VolumeSlicerView(NeuXtalVizWidget):
             self.linecut["is_dragging"] = True
 
     def on_release(self, event):
+        """
+        Matplotlib button-release handler that ends dragging the cut line.
+
+        Clears the dragging flag and emits `cut_ready` to request that the
+        cut be recomputed at its final dragged position.
+
+        Parameters
+        ----------
+        event : matplotlib.backend_bases.MouseEvent
+            The mouse button-release event.
+        """
         self.linecut["is_dragging"] = False
 
         self.cut_ready.emit()
 
     def connect_cut_ready(self, recut):
+        """
+        Connect a handler to the `cut_ready` signal.
+
+        Parameters
+        ----------
+        recut : callable
+            Slot invoked when `cut_ready` is emitted.
+        """
         self.cut_ready.connect(recut)
 
     def on_motion(self, event):
+        """
+        Matplotlib motion-notify handler that drags the cut line overlay.
+
+        While dragging, converts the cursor position from display space
+        into crystallographic axis coordinates, updates the cut position
+        field (without re-triggering its edit signal), and moves the
+        overlay lines to follow the cursor.
+
+        Parameters
+        ----------
+        event : matplotlib.backend_bases.MouseEvent
+            The mouse motion event.
+        """
         if self.linecut["is_dragging"] and event.inaxes == self.ax_slice:
             xlim, ylim, delta, direction = self.linecut["line_cut"]
 
@@ -1103,26 +1664,99 @@ class VolumeSlicerView(NeuXtalVizWidget):
             self.canvas_slice.draw_idle()
 
     def get_vol_scale(self):
+        """
+        Get the currently selected 3D volume display scale.
+
+        Returns
+        -------
+        scale : str
+            'Linear' or 'Log', as displayed in the volume scale combo box.
+        """
         return self.vol_scale_combo.currentText()
 
     def get_opacity(self):
+        """
+        Get the currently selected opacity mapping type.
+
+        Returns
+        -------
+        opacity : str
+            One of 'Linear', 'Geometric', or 'Sigmoid'.
+        """
         return self.opacity_combo.currentText()
 
     def get_range(self):
+        """
+        Get the currently selected opacity/color range direction.
+
+        Returns
+        -------
+        range_dir : str
+            'Low->High' or 'High->Low'.
+        """
         return self.range_combo.currentText()
 
     def get_colormap(self):
+        """
+        Get the currently selected colormap name.
+
+        Returns
+        -------
+        cmap_key : str
+            Key into the module-level `cmaps` mapping (e.g. 'Sequential',
+            'Rainbow', 'Binary', 'Diverging', 'Modified').
+        """
         return self.cbar_combo.currentText()
 
     def get_slice_value(self):
+        """
+        Get the current slice position value, if valid.
+
+        Returns
+        -------
+        value : float or None
+            Slice position parsed from the slice line edit, or None if
+            the field does not currently contain acceptable input.
+        """
         if self.slice_line.hasAcceptableInput():
             return float(self.slice_line.text())
 
     def get_cut_value(self):
+        """
+        Get the current cut position value, if valid.
+
+        Returns
+        -------
+        value : float or None
+            Cut position parsed from the cut line edit, or None if the
+            field does not currently contain acceptable input.
+        """
         if self.cut_line.hasAcceptableInput():
             return float(self.cut_line.text())
 
     def eventFilter(self, obj, event):
+        """
+        Qt event filter handling arrow-key stepping of the slice slider.
+
+        While the slice canvas has focus, Left/Right key presses step the
+        slice slider by one position; the corresponding key release emits
+        `slice_ready` to trigger a re-slice. All other events are passed
+        to the base class implementation.
+
+        Parameters
+        ----------
+        obj : QObject
+            The object the event is being filtered for (the slice canvas
+            or the slice slider).
+        event : QEvent
+            The Qt event being processed.
+
+        Returns
+        -------
+        handled : bool
+            True if the event was handled here, otherwise the result of
+            the base class `eventFilter`.
+        """
         if event.type() == QEvent.KeyPress:
             if obj is self.canvas_slice and event.key() in (
                 Qt.Key_Left,
@@ -1150,6 +1784,27 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
     @staticmethod
     def _nice_step(span, n_bins):
+        """
+        Compute a "nice" round step size for the slice slider.
+
+        Chooses a step of the form ``m * 10**exp`` with ``m`` in
+        {1, 2, 5, 10} that is close to `span` divided evenly across
+        `n_bins`, so that slider positions land on human-friendly values.
+
+        Parameters
+        ----------
+        span : float
+            Total span the slider must cover.
+        n_bins : int
+            Number of histogram bins along the slider's axis, used as the
+            target number of steps.
+
+        Returns
+        -------
+        step : float
+            Rounded step size, at least as small as 0.01 if `span` is
+            non-positive.
+        """
         raw = span / max(n_bins, 1)
         if raw <= 0:
             return 0.01
@@ -1166,6 +1821,23 @@ class VolumeSlicerView(NeuXtalVizWidget):
         return m * 10**exp
 
     def _setup_slice_slider(self, smin, smax, n_bins):
+        """
+        Configure the slice slider's range and step for a new volume axis.
+
+        Rescales the slider to a symmetric range around zero based on the
+        larger of `smin`/`smax` in magnitude, snapped to a "nice" step
+        size from `_nice_step`, and repositions the slider handle to
+        match the current slice value if one is set.
+
+        Parameters
+        ----------
+        smin : float
+            Minimum extent of the current slice axis.
+        smax : float
+            Maximum extent of the current slice axis.
+        n_bins : int
+            Number of histogram bins along the current slice axis.
+        """
         extent = max(abs(smin), abs(smax)) or 1.0
         smin, smax = -extent, extent
         span = smax - smin
@@ -1187,6 +1859,14 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.slice_slider.blockSignals(False)
 
     def _on_slice_slider_changed(self, pos):
+        """
+        Update the slice position field when the slider handle moves.
+
+        Parameters
+        ----------
+        pos : int
+            New slider position (in slider steps).
+        """
         val = self._slice_smin + pos * self._slice_step
         decimals = max(0, -int(np.floor(np.log10(self._slice_step))))
         self.slice_line.blockSignals(True)
@@ -1194,6 +1874,14 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.slice_line.blockSignals(False)
 
     def set_slice_value(self, val):
+        """
+        Set the slice position field and move the slider to match.
+
+        Parameters
+        ----------
+        val : float
+            New slice position value.
+        """
         self.slice_line.setText(str(round(val, 4)))
         if self._slice_smax != self._slice_smin:
             pos = int(round((val - self._slice_smin) / self._slice_step))
@@ -1202,89 +1890,306 @@ class VolumeSlicerView(NeuXtalVizWidget):
             self.slice_slider.blockSignals(False)
 
     def set_cut_value(self, val):
+        """
+        Set the cut position field.
+
+        Parameters
+        ----------
+        val : float
+            New cut position value.
+        """
         self.cut_line.setText(str(round(val, 4)))
 
     def get_slice_thickness(self):
+        """
+        Get the current slice thickness value, if valid.
+
+        Returns
+        -------
+        thickness : float or None
+            Slice thickness parsed from the field, or None if the field
+            does not currently contain acceptable input.
+        """
         if self.slice_thickness_line.hasAcceptableInput():
             return float(self.slice_thickness_line.text())
 
     def get_cut_thickness(self):
+        """
+        Get the current cut thickness value, if valid.
+
+        Returns
+        -------
+        thickness : float or None
+            Cut thickness parsed from the field, or None if the field
+            does not currently contain acceptable input.
+        """
         if self.cut_thickness_line.hasAcceptableInput():
             return float(self.cut_thickness_line.text())
 
     def set_slice_thickness(self, val):
+        """
+        Set the slice thickness field.
+
+        Parameters
+        ----------
+        val : float
+            New slice thickness value.
+        """
         self.slice_thickness_line.setText(str(val))
 
     def set_cut_thickness(self, val):
+        """
+        Set the cut thickness field.
+
+        Parameters
+        ----------
+        val : float
+            New cut thickness value.
+        """
         self.cut_thickness_line.setText(str(val))
 
     def get_clim_clip_type(self):
+        """
+        Get the currently selected color-limit clipping method for the
+        3D volume display.
+
+        Returns
+        -------
+        clip_type : str
+            One of 'Min/Max', 'μ±3×σ', or 'Q₃/Q₁±1.5×IQR'.
+        """
         return self.clim_combo.currentText()
 
     def get_vlim_clip_type(self):
+        """
+        Get the currently selected value-limit clipping method for the
+        2D slice display.
+
+        Returns
+        -------
+        clip_type : str
+            One of 'Min/Max', 'μ±3×σ', or 'Q₃/Q₁±1.5×IQR'.
+        """
         return self.vlim_combo.currentText()
 
     def get_slice(self):
+        """
+        Get the currently selected slice plane.
+
+        Returns
+        -------
+        slice_plane : str
+            One of 'Axis 1/2', 'Axis 1/3', or 'Axis 2/3'.
+        """
         return self.slice_combo.currentText()
 
     def get_cut(self):
+        """
+        Get the currently selected line-cut axis.
+
+        Returns
+        -------
+        line_cut : str
+            'Axis 1' or 'Axis 2'.
+        """
         return self.cut_combo.currentText()
 
     def get_slice_scale(self):
+        """
+        Get the currently selected slice display scale, lower-cased.
+
+        Returns
+        -------
+        scale : str
+            'linear' or 'log'.
+        """
         return self.slice_scale_combo.currentText().lower()
 
     def get_cut_scale(self):
+        """
+        Get the currently selected cut display scale, lower-cased.
+
+        Returns
+        -------
+        scale : str
+            'linear' or 'log'.
+        """
         return self.cut_scale_combo.currentText().lower()
 
     def get_vmin_value(self):
+        """
+        Get the current colorbar minimum value, if valid.
+
+        Returns
+        -------
+        vmin : float or None
+            Colorbar minimum parsed from the field, or None if the field
+            does not currently contain acceptable input.
+        """
         if self.vmin_line.hasAcceptableInput():
             return float(self.vmin_line.text())
 
     def get_vmax_value(self):
+        """
+        Get the current colorbar maximum value, if valid.
+
+        Returns
+        -------
+        vmax : float or None
+            Colorbar maximum parsed from the field, or None if the field
+            does not currently contain acceptable input.
+        """
         if self.vmax_line.hasAcceptableInput():
             return float(self.vmax_line.text())
 
     def get_auto_limits(self):
+        """
+        Get whether automatic display limit calculation is enabled.
+
+        Returns
+        -------
+        auto_limits : bool
+            True if the "Auto Limits" checkbox is checked.
+        """
         return self.auto_limits_box.isChecked()
 
     def get_auto_zoom(self):
+        """
+        Get whether automatic zoom reset on redraw is enabled.
+
+        Returns
+        -------
+        auto_zoom : bool
+            True if the "Auto Zoom" checkbox is checked.
+        """
         return self.auto_zoom_box.isChecked()
 
     def set_vmin_value(self, val):
+        """
+        Set the colorbar minimum field.
+
+        Parameters
+        ----------
+        val : float
+            New colorbar minimum value.
+        """
         self.vmin_line.setText(str(round(val, 5)))
 
     def set_vmax_value(self, val):
+        """
+        Set the colorbar maximum field.
+
+        Parameters
+        ----------
+        val : float
+            New colorbar maximum value.
+        """
         self.vmax_line.setText(str(round(val, 5)))
 
     def get_xmin_value(self):
+        """
+        Get the current X-axis minimum value, if valid.
+
+        Returns
+        -------
+        xmin : float or None
+            X-axis minimum parsed from the field, or None if the field
+            does not currently contain acceptable input.
+        """
         if self.xmin_line.hasAcceptableInput():
             return float(self.xmin_line.text())
 
     def get_xmax_value(self):
+        """
+        Get the current X-axis maximum value, if valid.
+
+        Returns
+        -------
+        xmax : float or None
+            X-axis maximum parsed from the field, or None if the field
+            does not currently contain acceptable input.
+        """
         if self.xmax_line.hasAcceptableInput():
             return float(self.xmax_line.text())
 
     def set_xmin_value(self, val):
+        """
+        Set the X-axis minimum field.
+
+        Parameters
+        ----------
+        val : float
+            New X-axis minimum value.
+        """
         self.xmin_line.setText(str(round(val, 4)))
 
     def set_xmax_value(self, val):
+        """
+        Set the X-axis maximum field.
+
+        Parameters
+        ----------
+        val : float
+            New X-axis maximum value.
+        """
         self.xmax_line.setText(str(round(val, 4)))
 
     def get_ymin_value(self):
+        """
+        Get the current Y-axis minimum value, if valid.
+
+        Returns
+        -------
+        ymin : float or None
+            Y-axis minimum parsed from the field, or None if the field
+            does not currently contain acceptable input.
+        """
         if self.ymin_line.hasAcceptableInput():
             return float(self.ymin_line.text())
 
     def get_ymax_value(self):
+        """
+        Get the current Y-axis maximum value, if valid.
+
+        Returns
+        -------
+        ymax : float or None
+            Y-axis maximum parsed from the field, or None if the field
+            does not currently contain acceptable input.
+        """
         if self.ymax_line.hasAcceptableInput():
             return float(self.ymax_line.text())
 
     def set_ymin_value(self, val):
+        """
+        Set the Y-axis minimum field.
+
+        Parameters
+        ----------
+        val : float
+            New Y-axis minimum value.
+        """
         self.ymin_line.setText(str(round(val, 4)))
 
     def set_ymax_value(self, val):
+        """
+        Set the Y-axis maximum field.
+
+        Parameters
+        ----------
+        val : float
+            New Y-axis maximum value.
+        """
         self.ymax_line.setText(str(round(val, 4)))
 
     def reset_slice_cut(self):
+        """
+        Clear the X/Y axis limit fields and any cached zoom state.
+
+        Blocks signals while clearing the fields so no update handlers
+        fire, then clears the remembered slice zoom limits so the next
+        slice draw recomputes the view extent from scratch.
+        """
         self.xmin_line.blockSignals(True)
         self.xmax_line.blockSignals(True)
         self.ymin_line.blockSignals(True)
@@ -1301,6 +2206,16 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self._slice_zoom_ylim = None
 
     def _handle_auto_zoom_toggle(self, checked):
+        """
+        Reset the view to the full slice extent when auto zoom is enabled.
+
+        Parameters
+        ----------
+        checked : bool
+            New checked state of the "Auto Zoom" checkbox. When True (and
+            a slice has already been drawn), the X/Y limit fields and
+            slice plot view are reset to the full data extent.
+        """
         if (
             checked
             and self.slice_im is not None
@@ -1314,6 +2229,19 @@ class VolumeSlicerView(NeuXtalVizWidget):
             self.set_slice_lim(self.xlim, self.ylim)
 
     def slice_limits(self, ax):
+        """
+        Matplotlib callback that syncs the X/Y fields to the slice zoom.
+
+        Invoked when the slice axes' x/y limits change (e.g. via toolbar
+        pan/zoom); converts the new display-space limits back into
+        crystallographic axis coordinates and writes them into the
+        min/max fields without re-triggering their edit signals.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            The slice axes whose limits changed.
+        """
         self.xmin_line.blockSignals(True)
         self.xmax_line.blockSignals(True)
         self.ymin_line.blockSignals(True)
@@ -1334,6 +2262,19 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.ymax_line.blockSignals(False)
 
     def cut_limits(self, ax):
+        """
+        Matplotlib callback that syncs the X/Y fields to the cut zoom.
+
+        Invoked when the cut axes' x limits change (e.g. via toolbar
+        pan/zoom); writes the new limits into the X or Y min/max fields
+        depending on which axis is currently being cut, without
+        re-triggering their edit signals.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            The cut axes whose limits changed.
+        """
         self.xmin_line.blockSignals(True)
         self.xmax_line.blockSignals(True)
         self.ymin_line.blockSignals(True)
@@ -1353,6 +2294,21 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.ymax_line.blockSignals(False)
 
     def set_slice_lim(self, xlim, ylim):
+        """
+        Apply new X/Y limits to the slice plot and remember them as the
+        current zoom state.
+
+        Converts the given crystallographic-axis limits into display
+        space via the current transform before applying them. Does
+        nothing if no slice has been drawn yet (no colorbar).
+
+        Parameters
+        ----------
+        xlim : sequence of float
+            New (xmin, xmax) limits in crystallographic axis coordinates.
+        ylim : sequence of float
+            New (ymin, ymax) limits in crystallographic axis coordinates.
+        """
         if self.cb is not None:
             xmin, xmax = xlim
             ymin, ymax = ylim
@@ -1365,6 +2321,16 @@ class VolumeSlicerView(NeuXtalVizWidget):
             self.canvas_slice.draw_idle()
 
     def set_cut_lim(self, lim):
+        """
+        Apply new X-axis limits to the cut plot.
+
+        Does nothing if no slice has been drawn yet (no colorbar).
+
+        Parameters
+        ----------
+        lim : sequence of float
+            New (min, max) limits for the cut plot's X axis.
+        """
         if self.cb is not None:
             self.ax_cut.set_xlim(*lim)
             self.canvas_cut.draw_idle()

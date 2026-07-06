@@ -7,14 +7,16 @@ def SaveMDToAscii(workspace, filename, exclude_integrated=True, format="%.6e"):
     """
     Save an MDHistoToWorkspace to an ASCII file (column format).
 
+    Parameters
+    ----------
     workspace : str
       Name of workspace as string.
     filename : str
       Path to output file.
     exclude_integrated : bool, optional
       Exclude integrated dimensions with bin size of one. Default is `True`.
-    format : str
-      Column format.
+    format : str, optional
+      Column format. Default is `"%.6e"`.
 
     """
 
@@ -57,11 +59,50 @@ def SaveMDToAscii(workspace, filename, exclude_integrated=True, format="%.6e"):
 
 
 class ParallelTasks:
+    """
+    Run a function over chunks of values in parallel worker processes.
+
+    Parameters
+    ----------
+    function : callable
+        Function to execute in each worker process. It is called as
+        ``function(chunk, *args, proc)`` where ``chunk`` is a subset of
+        the values to process and ``proc`` is the worker/process index.
+    args : tuple
+        Additional positional arguments passed to `function` after the
+        chunk of values and before the process index.
+
+    """
+
     def __init__(self, function, args):
+        """
+        Store the function and extra arguments to be used by `run_tasks`.
+
+        Parameters
+        ----------
+        function : callable
+            Function to execute in each worker process.
+        args : tuple
+            Additional positional arguments passed to `function`.
+
+        """
+
         self.function = function
         self.args = args
 
     def run_tasks(self, values, n_proc):
+        """
+        Split values into chunks and run the stored function in parallel.
+
+        Parameters
+        ----------
+        values : array_like
+            Values to distribute across worker processes.
+        n_proc : int
+            Number of worker processes (and chunks) to use.
+
+        """
+
         split = [split.tolist() for split in np.array_split(values, n_proc)]
 
         join_args = [(s, *self.args, proc) for proc, s in enumerate(split)]

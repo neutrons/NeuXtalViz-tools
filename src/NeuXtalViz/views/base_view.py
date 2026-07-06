@@ -48,12 +48,35 @@ class NeuXtalVizWidget(QWidget):
     """
     Base widget for all NeuXtalViz views, providing shared functionality
     and interface for user-facing widgets.
+
+    This widget assembles the common 3D visualization panel shared by
+    all feature-specific views: a PyVista/VTK plotter, camera and view
+    controls, axis and reciprocal/real lattice toggles, theming
+    controls, an information console, and a status/progress bar with a
+    stop button. Feature-specific views subclass or embed this widget
+    and add their own controls alongside it.
+
+    Attributes
+    ----------
+    log_output : Signal(str)
+        Signal emitted to relay log/console text.
+    cam_ready : Signal()
+        Signal emitted whenever the camera state has been updated.
     """
 
     log_output = Signal(str)
     cam_ready = Signal()
 
     def __init__(self, parent=None):
+        """
+        Build the shared visualization panel and its controls.
+
+        Parameters
+        ----------
+        parent : QWidget, optional
+            Parent widget, by default None.
+        """
+
         super().__init__(parent)
         self._worker_running = False
 
@@ -264,7 +287,14 @@ class NeuXtalVizWidget(QWidget):
 
         This keeps the drop-down (and closed state) wide enough for the
         longest item label while leaving extra room for icons or check
-        indicators drawn on the left-hand side.
+        indicators drawn on the left-hand side. Also assigns a
+        representative icon to each item (based on item text, e.g. a
+        gem icon for "TOPAZ") before measuring the required width.
+
+        Parameters
+        ----------
+        combo : QComboBox
+            Combo box to resize and decorate with icons.
         """
 
         combo.setSizeAdjustPolicy(QComboBox.AdjustToContents)
@@ -312,6 +342,22 @@ class NeuXtalVizWidget(QWidget):
             combo.setMinimumWidth(max_width + padding)
 
     def __init_view_tab(self):
+        """
+        Build the view-control tab widget.
+
+        Creates the "Direction View" (axis-aligned and reciprocal/real
+        lattice snap buttons), "Manual View" (typed [hkl]/[uvw] view
+        and up-direction entry), and "Rotate View" (roll/elevate/
+        azimuth stepping and camera orientation readout) sub-tabs, and
+        wires their internal signal connections.
+
+        Returns
+        -------
+        view_tab : QTabWidget
+            Tab widget containing the direction, manual, and rotate
+            view-control tabs.
+        """
+
         view_tab = QTabWidget()
 
         self.view_combo = QComboBox(self)
@@ -583,6 +629,20 @@ class NeuXtalVizWidget(QWidget):
         return view_tab
 
     def __init_info_tab(self):
+        """
+        Build the lattice/orientation info tab widget.
+
+        Creates the "Lattice Parameters" (read-only a, b, c, alpha,
+        beta, gamma) and "Sample Orientation" (read-only u and v
+        vectors) sub-tabs displaying the current oriented lattice.
+
+        Returns
+        -------
+        info_tab : QTabWidget
+            Tab widget containing the lattice parameters and sample
+            orientation display tabs.
+        """
+
         info_tab = QTabWidget()
 
         ub_a_label = QLabel("a:", self)
@@ -663,6 +723,15 @@ class NeuXtalVizWidget(QWidget):
         return info_tab
 
     def append_to_console(self, text):
+        """
+        Append a line of text to the console output widget.
+
+        Parameters
+        ----------
+        text : str
+            Text to append to the console.
+        """
+
         self.console.appendPlainText(text)
 
     def _init_axis_icons(self):
@@ -701,19 +770,62 @@ class NeuXtalVizWidget(QWidget):
         self.c_star_button.setIcon(qta.icon("fa6s.right-long", color=c_color))
 
     def toggle_console(self, state):
+        """
+        Show or hide the console output widget.
+
+        Connected to the "Expand Console" checkbox's ``stateChanged``
+        signal.
+
+        Parameters
+        ----------
+        state : int or Qt.CheckState
+            Checkbox state; truthy (checked) shows the console,
+            falsy (unchecked) hides it.
+        """
+
         self.console.setVisible(bool(state))
 
     def start_worker_pool(self, worker):
         """
-        Create a worker pool and connect output to console.
+        Connect a worker's output to the console and start it.
+
+        Wires ``worker.signals.output`` to :meth:`append_to_console`
+        so any captured stdout/stderr/logging text produced while the
+        task runs is streamed live to the console, then hands the
+        worker off to the shared :class:`ThreadPool` for execution.
+
+        Parameters
+        ----------
+        worker : NeuXtalViz.views.utilities.Worker
+            Worker to run, typically created via :meth:`worker` with
+            its ``result``/``finished``/``progress`` signals already
+            connected by the presenter.
         """
+
         worker.signals.output.connect(self.append_to_console)
         self.threadpool.start_worker_pool(worker)
 
     def worker(self, task):
         """
-        Worker task.
+        Wrap a callable as a background :class:`Worker` task.
 
+        The returned worker calls ``task`` on a thread-pool thread,
+        automatically injecting ``progress`` and ``stop_event``
+        keyword arguments so the task can report progress and check
+        for cooperative cancellation.
+
+        Parameters
+        ----------
+        task : callable
+            Function (or `functools.partial`-bound method) to run in
+            the background, e.g. a presenter processing method.
+
+        Returns
+        -------
+        worker : NeuXtalViz.views.utilities.Worker
+            Worker object wrapping ``task``, ready to have its
+            signals connected and be passed to
+            :meth:`start_worker_pool`.
         """
 
         return Worker(task)
@@ -761,6 +873,8 @@ class NeuXtalVizWidget(QWidget):
             Lattice constants.
         alpha, beta, gamma : float
             Lattice angles.
+        u, v : 3-element 1d array-like
+            Sample orientation vectors.
 
         """
 
@@ -792,7 +906,7 @@ class NeuXtalVizWidget(QWidget):
 
     def connect_manual_up_axis(self, view_manual):
         """
-        Manual axis upv iew connection.
+        Manual axis up view connection.
 
         Parameters
         ----------
@@ -842,19 +956,43 @@ class NeuXtalVizWidget(QWidget):
         self.c_button.clicked.connect(view_c)
 
     def connect_rotate(self, cww, cw):
-        """Connect Roll to presenter handler."""
+        """Connect Roll to presenter handler.
+
+        Parameters
+        ----------
+        cww : function
+            Handler for rolling counter-clockwise.
+        cw : function
+            Handler for rolling clockwise.
+        """
 
         self.rotate_ccw_button.clicked.connect(cww)
         self.rotate_cw_button.clicked.connect(cw)
 
     def connect_elev(self, up, down):
-        """Connect Elevate to presenter handler."""
+        """Connect Elevate to presenter handler.
+
+        Parameters
+        ----------
+        up : function
+            Handler for tilting the camera up.
+        down : function
+            Handler for tilting the camera down.
+        """
 
         self.elev_up_button.clicked.connect(up)
         self.elev_down_button.clicked.connect(down)
 
     def connect_az(self, left, right):
-        """Connect Azimuth to presenter handler."""
+        """Connect Azimuth to presenter handler.
+
+        Parameters
+        ----------
+        left : function
+            Handler for rotating the camera left (azimuth).
+        right : function
+            Handler for rotating the camera right (azimuth).
+        """
 
         self.az_left_button.clicked.connect(left)
         self.az_right_button.clicked.connect(right)
@@ -909,7 +1047,16 @@ class NeuXtalVizWidget(QWidget):
 
     def reset_view(self, negative=False):
         """
-        Reset the view.
+        Reset the view to the default isometric orientation.
+
+        Also caches the resulting camera position and emits
+        ``cam_ready``.
+
+        Parameters
+        ----------
+        negative : bool, optional
+            If True, view from the opposite isometric direction, by
+            default False.
 
         """
 
@@ -928,6 +1075,15 @@ class NeuXtalVizWidget(QWidget):
         self.cam_ready.emit()
 
     def clear_scene(self):
+        """
+        Clear plane widgets and actors from the plotter.
+
+        Uses ``clear_actors()`` (not ``clear()``) so that scene lights
+        are preserved and shading is not flattened. Also caches the
+        current camera position (if one is already stored) so it can
+        be restored later by :meth:`reset_scene`.
+        """
+
         self.plotter.clear_plane_widgets()
         self.plotter.clear_actors()
 
@@ -935,6 +1091,16 @@ class NeuXtalVizWidget(QWidget):
             self.camera_position = self.plotter.camera_position
 
     def reset_scene(self):
+        """
+        Restore the cached camera position, or reset the view.
+
+        If a camera position was previously cached (see
+        :meth:`clear_scene`/:meth:`reset_view`), it is reapplied to
+        the plotter; otherwise the view is reset to the default
+        isometric orientation via :meth:`reset_view`. Emits
+        ``cam_ready`` when done.
+        """
+
         if self.camera_position is not None:
             self.plotter.camera_position = self.camera_position
         else:
@@ -955,12 +1121,37 @@ class NeuXtalVizWidget(QWidget):
         self.plotter.screenshot(filename)
 
     _FILE_DIALOG_MAX_DEPTH = 3
+    """int: Maximum number of path components remembered for the
+    screenshot save-file dialog's starting directory."""
 
     def _get_file_dialog_dir(self):
+        """
+        Retrieve the last-used directory for the screenshot save dialog.
+
+        Returns
+        -------
+        directory : str
+            Previously remembered directory path, or an empty string
+            if none has been stored yet.
+        """
+
         settings = QSettings("NeuXtalViz", "NeuXtalViz")
         return settings.value("file_dialog_last_dir", "")
 
     def _remember_file_dialog_dir(self, path):
+        """
+        Persist a directory as the last-used screenshot dialog location.
+
+        The path is truncated to at most
+        ``_FILE_DIALOG_MAX_DEPTH + 1`` components before being stored,
+        to avoid saving overly long paths.
+
+        Parameters
+        ----------
+        path : str
+            Directory path to remember. If falsy, nothing is stored.
+        """
+
         if not path:
             return
         parts = pathlib.Path(path).parts
@@ -970,6 +1161,20 @@ class NeuXtalVizWidget(QWidget):
         settings.setValue("file_dialog_last_dir", path)
 
     def save_screenshot_file_dialog(self):
+        """
+        Prompt the user to choose a PNG file path for a screenshot.
+
+        Opens a "Save PNG file" dialog seeded with the last
+        remembered directory, and remembers the chosen directory for
+        next time.
+
+        Returns
+        -------
+        filename : str
+            Selected file path, or an empty string if the user
+            cancelled the dialog.
+        """
+
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
@@ -1009,11 +1214,27 @@ class NeuXtalVizWidget(QWidget):
         """
         State of reciprocal lattice vectors.
 
+        Returns
+        -------
+        checked : bool
+            True if the reciprocal lattice toggle is checked (axes
+            should be labeled a*/b*/c*), False otherwise (a/b/c).
+
         """
 
         return self.recip_box.isChecked()
 
     def show_axes(self):
+        """
+        Show or hide the coordinate axes actor in the plotter.
+
+        If the axes checkbox is unchecked, the axes are hidden.
+        Otherwise, if a transform :attr:`T` has been set, the axes
+        actor is (re)drawn with labels chosen according to
+        :meth:`reciprocal_lattice` (a*/b*/c* vs a/b/c) and oriented
+        using the current transform matrix.
+        """
+
         if not self.axes_show():
             self.plotter.hide_axes()
         elif self.T is not None:
@@ -1035,6 +1256,12 @@ class NeuXtalVizWidget(QWidget):
     def axes_show(self):
         """
         State of axes.
+
+        Returns
+        -------
+        checked : bool
+            True if the "Show Axes" checkbox is checked, False
+            otherwise.
 
         """
 
@@ -1074,7 +1301,17 @@ class NeuXtalVizWidget(QWidget):
         self.cam_ready.emit()
 
     def get_camera_state(self):
-        """Return the current camera position, focal point, and up vectors."""
+        """Return the current camera position, focal point, and up vectors.
+
+        Returns
+        -------
+        position : 3-element ndarray of float
+            Camera position in Cartesian coordinates.
+        focal_point : 3-element ndarray of float
+            Camera focal point in Cartesian coordinates.
+        up : 3-element ndarray of float
+            Camera up direction in Cartesian coordinates.
+        """
 
         cam = self.plotter.camera
         position = np.array(cam.position, dtype=float)
@@ -1083,7 +1320,19 @@ class NeuXtalVizWidget(QWidget):
         return position, focal_point, up
 
     def set_camera_state(self, position, focal_point, up):
-        """Apply a new camera state to the underlying plotter and refresh."""
+        """Apply a new camera state to the underlying plotter and refresh.
+
+        Re-renders the plotter and emits ``cam_ready`` afterward.
+
+        Parameters
+        ----------
+        position : 3-element 1d array-like
+            Camera position in Cartesian coordinates.
+        focal_point : 3-element 1d array-like
+            Camera focal point in Cartesian coordinates.
+        up : 3-element 1d array-like
+            Camera up direction in Cartesian coordinates.
+        """
 
         cam = self.plotter.camera
         cam.position = tuple(position)
@@ -1094,7 +1343,14 @@ class NeuXtalVizWidget(QWidget):
         self.cam_ready.emit()
 
     def get_rotate_step(self):
-        """Return the rotation step in degrees from the rotate tab."""
+        """Return the rotation step in degrees from the rotate tab.
+
+        Returns
+        -------
+        step : float
+            Rotation step in degrees entered in the rotate tab, or
+            5.0 if the current text is not a valid value.
+        """
 
         if self.rotate_step_line.hasAcceptableInput():
             return float(self.rotate_step_line.text())
@@ -1102,15 +1358,49 @@ class NeuXtalVizWidget(QWidget):
             return 5.0
 
     def connect_camera_ready(self, calculate):
+        """
+        Connect a callback to the ``cam_ready`` signal.
+
+        The ``cam_ready`` signal is emitted whenever the camera state
+        changes (e.g. after a view/up vector change or a camera
+        reset). Presenters typically connect this to a handler that
+        recomputes and displays roll/elevation/azimuth.
+
+        Parameters
+        ----------
+        calculate : callable
+            Slot to invoke whenever the camera is ready/updated.
+        """
+
         self.cam_ready.connect(calculate)
 
     def get_camera_roll_direction(self):
+        """
+        Get the current camera roll angle and view direction.
+
+        Returns
+        -------
+        roll : float
+            Camera roll angle in degrees.
+        direction : 3-element tuple of float
+            Camera view direction vector.
+        """
+
         return self.plotter.camera.roll, self.plotter.camera.direction
 
     def update_camera_display(self, roll, elevation, azimuth):
         """Update the read-only camera orientation display, if present.
 
         This shows the camera's roll, elevation, azimuth in degrees.
+
+        Parameters
+        ----------
+        roll : float
+            Camera roll angle in degrees.
+        elevation : float
+            Camera elevation angle in degrees.
+        azimuth : float
+            Camera azimuth angle in degrees.
         """
 
         text = "{:.1f},{:.1f},{:.1f}".format(roll, elevation, azimuth)
@@ -1118,9 +1408,29 @@ class NeuXtalVizWidget(QWidget):
         self.camera_pos_line.setText(text)
 
     _CAMERA_INFO_FIELD_WIDTH = 6
+    """int: Minimum character width used to right-align each
+    component when formatting camera view/up vectors for display."""
 
     @classmethod
     def _format_vector(cls, vec, decimals):
+        """
+        Format a 3-element vector as a fixed-width Cartesian tuple string.
+
+        Parameters
+        ----------
+        vec : 3-element 1d array-like or None
+            Vector to format. If None, placeholder dashes are shown.
+        decimals : int
+            Number of decimal places to display.
+
+        Returns
+        -------
+        text : str
+            Formatted string of the form ``"(x,y,z)"`` with each
+            component right-aligned to
+            :attr:`_CAMERA_INFO_FIELD_WIDTH`.
+        """
+
         width = cls._CAMERA_INFO_FIELD_WIDTH
         if vec is None:
             field = "{:>{width}}".format("--", width=width)
@@ -1139,6 +1449,24 @@ class NeuXtalVizWidget(QWidget):
         against the smallest of them by trying denominators up to
         ``max_index``. Falls back to plain rounding if nothing rationalizes
         cleanly (e.g. an irrational direction).
+
+        Parameters
+        ----------
+        vec : 3-element 1d array-like
+            Direction vector to snap to small integer ratios.
+        tol : float, optional
+            Relative tolerance (fraction of the largest component)
+            below which a component is treated as zero, and used as
+            the rationalization error threshold, by default 0.03.
+        max_index : int, optional
+            Largest denominator tried when rationalizing the vector,
+            by default 9.
+
+        Returns
+        -------
+        ints : 3-element ndarray of int
+            Integer vector approximating the direction of ``vec``,
+            reduced by their greatest common divisor.
         """
 
         v = np.asarray(vec, dtype=float)
@@ -1167,6 +1495,26 @@ class NeuXtalVizWidget(QWidget):
 
     @classmethod
     def _format_hkl_vector(cls, vec):
+        """
+        Format a direction vector as a fixed-width [hkl]-style tuple string.
+
+        The vector is snapped to small integer ratios via
+        :meth:`_snap_to_integers` before formatting, since only the
+        ratio between [hkl] components is meaningful.
+
+        Parameters
+        ----------
+        vec : 3-element 1d array-like or None
+            Vector to format. If None, placeholder dashes are shown.
+
+        Returns
+        -------
+        text : str
+            Formatted string of the form ``"(h,k,l)"`` with each
+            component right-aligned to
+            :attr:`_CAMERA_INFO_FIELD_WIDTH`.
+        """
+
         width = cls._CAMERA_INFO_FIELD_WIDTH
         if vec is None:
             field = "{:>{width}}".format("--", width=width)
@@ -1183,6 +1531,17 @@ class NeuXtalVizWidget(QWidget):
         small integers, since only the ratio is meaningful).
         View and Up are shown in separate grid columns of equal width
         so they stay aligned regardless of value or label length.
+
+        Parameters
+        ----------
+        view_xyz : 3-element 1d array-like or None
+            Camera view direction in Cartesian coordinates.
+        up_xyz : 3-element 1d array-like or None
+            Camera up direction in Cartesian coordinates.
+        view_hkl : 3-element 1d array-like or None
+            Camera view direction in [hkl] coordinates.
+        up_hkl : 3-element 1d array-like or None
+            Camera up direction in [hkl] coordinates.
         """
 
         self.view_xyz_label.setText(
@@ -1199,6 +1558,15 @@ class NeuXtalVizWidget(QWidget):
         )
 
     def update_theme(self):
+        """
+        Apply the selected PyVista plot theme to the plotter.
+
+        Reads the current selection from the theme combo box,
+        applies it as the global PyVista plot theme, updates the
+        plotter background, re-renders, refreshes the axes actor, and
+        refreshes the axis button icon colors to match the new theme.
+        """
+
         theme = self.theme_combo.currentText()
         pv.set_plot_theme(theme)
         bg = pv.global_theme.background
@@ -1211,6 +1579,16 @@ class NeuXtalVizWidget(QWidget):
         self._init_axis_icons()
 
     def update_ui_theme(self):
+        """
+        Switch the application between light and dark Qt stylesheets.
+
+        Reads the current selection from the UI theme combo box and
+        applies the corresponding qdarkstyle palette
+        (:data:`_DarkPalette` or :data:`_LightPalette`) to the whole
+        application, also recording the active mode on the
+        `QApplication` instance's ``ui_dark`` property.
+        """
+
         mode = self.ui_combo.currentText()
         app = QApplication.instance()
         qt_api = os.environ.get("QT_API")
@@ -1264,6 +1642,10 @@ class NeuXtalVizWidget(QWidget):
             Miller index or fractional coordinate.
         ind : 3-element 1d array-like
             Indices.
+        None
+            Returned (implicitly) instead of the tuple above if any
+            of the three axis line edits currently holds invalid
+            input.
 
         """
 
@@ -1291,6 +1673,10 @@ class NeuXtalVizWidget(QWidget):
             Miller index or fractional coordinate.
         ind : 3-element 1d array-like
             Indices.
+        None
+            Returned (implicitly) instead of the tuple above if any
+            of the three up-axis line edits currently holds invalid
+            input.
 
         """
 

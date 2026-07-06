@@ -41,6 +41,16 @@ class CrystalStructureView(NeuXtalVizWidget):
     """
 
     def __init__(self, parent=None):
+        """
+        Initialize the crystal structure view and build its tabs.
+
+        Parameters
+        ----------
+        parent : QWidget, optional
+            Parent widget (default None).
+
+        """
+
         super().__init__(parent)
 
         self.tab_widget = QTabWidget(self)
@@ -51,6 +61,16 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.layout().addWidget(self.tab_widget, stretch=1)
 
     def structure_tab(self):
+        """
+        Build the "Structure" tab layout and widgets.
+
+        Constructs the lattice parameter fields, crystal system/space
+        group/setting combo boxes, CIF load/INS save buttons, the atom
+        site table, atom entry fields, and chemical formula display, and
+        adds them to the tab widget.
+
+        """
+
         struct_tab = QWidget()
         self.tab_widget.addTab(struct_tab, "Structure")
 
@@ -281,6 +301,16 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.V_line.setToolTip("Unit cell volume (Å³).")
 
     def factors_tab(self):
+        """
+        Build the "Factors" tab layout and widgets.
+
+        Constructs the minimum d-spacing field and calculate button, the
+        table of calculated structure factors, and the individual hkl
+        entry fields with their calculate button, and adds them to the
+        tab widget.
+
+        """
+
         fact_tab = QWidget()
         self.tab_widget.addTab(fact_tab, "Factors")
 
@@ -376,24 +406,97 @@ class CrystalStructureView(NeuXtalVizWidget):
         )
 
     def connect_save_INS(self, save_INS):
+        """
+        Connect the save INS button to a handler.
+
+        Parameters
+        ----------
+        save_INS : callable
+            Slot invoked when the save INS button is clicked.
+
+        """
+
         self.save_INS_button.clicked.connect(save_INS)
 
     def connect_group_generator(self, generate_groups):
+        """
+        Connect crystal system selection to a handler.
+
+        Parameters
+        ----------
+        generate_groups : callable
+            Slot invoked when the crystal system combo box is activated.
+
+        """
+
         self.crystal_system_combo.activated.connect(generate_groups)
 
     def connect_setting_generator(self, generate_settings):
+        """
+        Connect space group selection to a handler.
+
+        Parameters
+        ----------
+        generate_settings : callable
+            Slot invoked when the space group combo box is activated.
+
+        """
+
         self.space_group_combo.activated.connect(generate_settings)
 
     def connect_F2_calculator(self, calculate_F2):
+        """
+        Connect the structure factor calculate button to a handler.
+
+        Parameters
+        ----------
+        calculate_F2 : callable
+            Slot invoked when the calculate button is clicked.
+
+        """
+
         self.calculate_button.clicked.connect(calculate_F2)
 
     def connect_hkl_calculator(self, calculate_hkl):
+        """
+        Connect the individual hkl calculate button to a handler.
+
+        Parameters
+        ----------
+        calculate_hkl : callable
+            Slot invoked when the individual calculate button is
+            clicked.
+
+        """
+
         self.individual_button.clicked.connect(calculate_hkl)
 
     def connect_row_highligter(self, highlight_row):
+        """
+        Connect atom table row selection to a handler.
+
+        Parameters
+        ----------
+        highlight_row : callable
+            Slot invoked when the selected item in the atom table
+            changes.
+
+        """
+
         self.atm_table.itemSelectionChanged.connect(highlight_row)
 
     def connect_lattice_parameters(self, update_parameters):
+        """
+        Connect lattice parameter edits to a handler.
+
+        Parameters
+        ----------
+        update_parameters : callable
+            Slot invoked when editing finishes on any of the a, b, c,
+            alpha, beta, or gamma line edits.
+
+        """
+
         self.a_line.editingFinished.connect(update_parameters)
         self.b_line.editingFinished.connect(update_parameters)
         self.c_line.editingFinished.connect(update_parameters)
@@ -402,6 +505,17 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.gamma_line.editingFinished.connect(update_parameters)
 
     def connect_atom_table(self, set_atom_table):
+        """
+        Connect atom site field edits to a handler.
+
+        Parameters
+        ----------
+        set_atom_table : callable
+            Slot invoked when editing finishes on any of the x, y, z,
+            occupancy, or Uiso line edits for the current atom.
+
+        """
+
         self.x_line.editingFinished.connect(set_atom_table)
         self.y_line.editingFinished.connect(set_atom_table)
         self.z_line.editingFinished.connect(set_atom_table)
@@ -409,12 +523,43 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.Uiso_line.editingFinished.connect(set_atom_table)
 
     def connect_load_CIF(self, load_CIF):
+        """
+        Connect the load CIF button to a handler.
+
+        Parameters
+        ----------
+        load_CIF : callable
+            Slot invoked when the load CIF button is clicked.
+
+        """
+
         self.load_CIF_button.clicked.connect(load_CIF)
 
     def connect_select_isotope(self, select_isotope):
+        """
+        Connect the atom/isotope button to a handler.
+
+        Parameters
+        ----------
+        select_isotope : callable
+            Slot invoked when the atom selection button is clicked.
+
+        """
+
         self.atm_button.clicked.connect(select_isotope)
 
     def draw_cell(self, A):
+        """
+        Draw the unit cell as a wireframe box in the 3D view.
+
+        Parameters
+        ----------
+        A : 3x3 array-like
+            Transformation matrix mapping the unit cube to the unit
+            cell edges.
+
+        """
+
         T = np.eye(4)
         T[:3, :3] = A
 
@@ -426,6 +571,17 @@ class CrystalStructureView(NeuXtalVizWidget):
         )
 
     def load_CIF_file_dialog(self):
+        """
+        Open a file dialog to select a CIF file to load.
+
+        Returns
+        -------
+        filename : str
+            Path to the selected ``.cif`` file, or an empty string if
+            the dialog was cancelled.
+
+        """
+
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
@@ -446,6 +602,17 @@ class CrystalStructureView(NeuXtalVizWidget):
         return filename
 
     def save_INS_file_dialog(self):
+        """
+        Open a file dialog to select a destination INS file.
+
+        Returns
+        -------
+        filename : str
+            Path to the selected ``.ins`` file, or an empty string if
+            the dialog was cancelled.
+
+        """
+
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
@@ -466,40 +633,131 @@ class CrystalStructureView(NeuXtalVizWidget):
         return filename
 
     def get_crystal_system(self):
+        """
+        Current crystal system selection.
+
+        Returns
+        -------
+        crystal_system : str
+            Selected crystal system name (e.g. "Triclinic", "Cubic").
+
+        """
+
         return self.crystal_system_combo.currentText()
 
     def set_crystal_system(self, crystal_system):
+        """
+        Select a crystal system in the combo box.
+
+        Parameters
+        ----------
+        crystal_system : str
+            Name of the crystal system to select.
+
+        """
+
         index = self.crystal_system_combo.findText(crystal_system)
         if index >= 0:
             self.crystal_system_combo.setCurrentIndex(index)
 
     def update_space_groups(self, nos):
+        """
+        Repopulate the space group combo box.
+
+        Parameters
+        ----------
+        nos : iterable of str
+            Space group identifiers to add to the combo box.
+
+        """
+
         self.space_group_combo.clear()
         for no in nos:
             self.space_group_combo.addItem(no)
 
     def get_space_group(self):
+        """
+        Current space group selection.
+
+        Returns
+        -------
+        space_group : str
+            Selected space group identifier.
+
+        """
+
         return self.space_group_combo.currentText()
 
     def set_space_group(self, space_group):
+        """
+        Select a space group in the combo box.
+
+        Parameters
+        ----------
+        space_group : str
+            Space group identifier to select.
+
+        """
+
         index = self.space_group_combo.findText(space_group)
         if index >= 0:
             self.space_group_combo.setCurrentIndex(index)
 
     def update_settings(self, settings):
+        """
+        Repopulate the space group setting combo box.
+
+        Parameters
+        ----------
+        settings : iterable of str
+            Space group setting identifiers to add to the combo box.
+
+        """
+
         self.setting_combo.clear()
         for setting in settings:
             self.setting_combo.addItem(setting)
 
     def get_setting(self):
+        """
+        Current space group setting selection.
+
+        Returns
+        -------
+        setting : str
+            Selected space group setting identifier.
+
+        """
+
         return self.setting_combo.currentText()
 
     def set_setting(self, setting):
+        """
+        Select a space group setting in the combo box.
+
+        Parameters
+        ----------
+        setting : str
+            Space group setting identifier to select.
+
+        """
+
         index = self.setting_combo.findText(setting)
         if index >= 0:
             self.setting_combo.setCurrentIndex(index)
 
     def set_lattice_constants(self, params):
+        """
+        Populate the lattice parameter fields.
+
+        Parameters
+        ----------
+        params : list of float
+            Lattice constants a, b, c (Å) and angles alpha, beta, gamma
+            (degrees), in that order.
+
+        """
+
         self.a_line.setText("{:.4f}".format(params[0]))
         self.b_line.setText("{:.4f}".format(params[1]))
         self.c_line.setText("{:.4f}".format(params[2]))
@@ -509,6 +767,17 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.gamma_line.setText("{:.4f}".format(params[5]))
 
     def get_lattice_constants(self):
+        """
+        Lattice parameter values entered by the user.
+
+        Returns
+        -------
+        params : list of float or None
+            Lattice constants a, b, c (Å) and angles alpha, beta, gamma
+            (degrees), or None if any field has invalid input.
+
+        """
+
         params = (
             self.a_line,
             self.b_line,
@@ -524,9 +793,30 @@ class CrystalStructureView(NeuXtalVizWidget):
             return [float(param.text()) for param in params]
 
     def set_unit_cell_volume(self, vol):
+        """
+        Populate the unit cell volume field.
+
+        Parameters
+        ----------
+        vol : float
+            Unit cell volume (Å^3).
+
+        """
+
         self.V_line.setText("{:.4f}".format(vol))
 
     def set_scatterers(self, scatterers):
+        """
+        Repopulate the atom site table.
+
+        Parameters
+        ----------
+        scatterers : list
+            List of atom site entries, each as accepted by
+            :meth:`set_scatterer`.
+
+        """
+
         self.atm_table.clearSelection()
         self.atm_table.setRowCount(0)
         self.atm_table.setRowCount(len(scatterers))
@@ -535,6 +825,19 @@ class CrystalStructureView(NeuXtalVizWidget):
             self.set_scatterer(row, scatterer)
 
     def set_scatterer(self, row, scatterer):
+        """
+        Populate a row of the atom site table.
+
+        Parameters
+        ----------
+        row : int
+            Row index in the atom site table.
+        scatterer : list
+            Atom label followed by x, y, z, occupancy, and Uiso values,
+            in that order.
+
+        """
+
         atm, *xyz, occ, Uiso = scatterer
         xyz = ["{:.4f}".format(val) for val in xyz]
         occ = "{:.4f}".format(occ)
@@ -547,11 +850,38 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.atm_table.setItem(row, 5, QTableWidgetItem(Uiso))
 
     def get_scatterer(self):
+        """
+        Atom site values for the currently selected table row.
+
+        Returns
+        -------
+        scatterer : list or None
+            Atom label and x, y, z, occupancy, and Uiso values for the
+            selected row, or None if no row is selected.
+
+        """
+
         row = self.atm_table.currentRow()
         if row is not None:
             return self.get_atom_site(row)
 
     def get_atom_site(self, row):
+        """
+        Atom site values from a specific table row.
+
+        Parameters
+        ----------
+        row : int
+            Row index in the atom site table.
+
+        Returns
+        -------
+        scatterer : list
+            Atom label (str) followed by x, y, z, occupancy, and Uiso
+            values (float) for the given row.
+
+        """
+
         atm = self.atm_table.item(row, 0).text()
         x = self.atm_table.item(row, 1).text()
         y = self.atm_table.item(row, 2).text()
@@ -563,6 +893,17 @@ class CrystalStructureView(NeuXtalVizWidget):
         return scatterer
 
     def get_scatterers(self):
+        """
+        Atom site values for all rows of the atom site table.
+
+        Returns
+        -------
+        scatterers : list of list
+            Atom site values (label, x, y, z, occupancy, Uiso) for each
+            row of the table.
+
+        """
+
         n = self.atm_table.rowCount()
 
         scatterers = []
@@ -573,12 +914,43 @@ class CrystalStructureView(NeuXtalVizWidget):
         return scatterers
 
     def set_isotope(self, isotope):
+        """
+        Set the isotope/atom button label.
+
+        Parameters
+        ----------
+        isotope : str
+            Isotope or element label to display on the button.
+
+        """
+
         self.atm_button.setText(isotope)
 
     def get_isotope(self):
+        """
+        Current isotope/atom button label.
+
+        Returns
+        -------
+        isotope : str
+            Isotope or element label currently shown on the button.
+
+        """
+
         return self.atm_button.text()
 
     def set_atom(self, scatterer):
+        """
+        Populate the atom entry fields.
+
+        Parameters
+        ----------
+        scatterer : list
+            Atom label followed by x, y, z, occupancy, and Uiso values,
+            in that order.
+
+        """
+
         self.atm_button.setText(scatterer[0])
         self.x_line.setText(str(scatterer[1]))
         self.y_line.setText(str(scatterer[2]))
@@ -587,6 +959,16 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.Uiso_line.setText(str(scatterer[5]))
 
     def set_atom_table(self):
+        """
+        Apply the atom entry fields to the currently selected row.
+
+        Reads the x, y, z, occupancy, and Uiso line edits and, if they
+        all contain valid input and a row is selected, writes the
+        values, together with the current isotope button label, into
+        that row of the atom site table.
+
+        """
+
         row = self.atm_table.currentRow()
 
         params = (
@@ -608,14 +990,49 @@ class CrystalStructureView(NeuXtalVizWidget):
             self.set_scatterer(row, scatterer)
 
     def set_formula_z(self, chemical_formula, z_parameter):
+        """
+        Populate the chemical formula and Z fields.
+
+        Parameters
+        ----------
+        chemical_formula : str
+            Chemical formula of the unit cell.
+        z_parameter : int or float
+            Number of formula units per unit cell (Z).
+
+        """
+
         self.chem_line.setText(chemical_formula)
         self.Z_line.setText(str(z_parameter))
 
     def get_minimum_d_spacing(self):
+        """
+        Minimum d-spacing entered by the user.
+
+        Returns
+        -------
+        d_min : float or None
+            Minimum d-spacing (Å) for structure factor calculation, or
+            None if the field has invalid input.
+
+        """
+
         if self.dmin_line.hasAcceptableInput():
             return float(self.dmin_line.text())
 
     def constrain_parameters(self, const):
+        """
+        Enable or disable lattice parameter fields based on constraints.
+
+        Parameters
+        ----------
+        const : list of bool
+            Flags indicating, for each of a, b, c, alpha, beta, and
+            gamma, whether the corresponding field should be disabled
+            (fixed) due to the crystal system's symmetry constraints.
+
+        """
+
         params = (
             self.a_line,
             self.b_line,
@@ -629,6 +1046,27 @@ class CrystalStructureView(NeuXtalVizWidget):
             param.setDisabled(fixed)
 
     def add_atoms(self, atom_dict):
+        """
+        Draw atom sites as spheres in the 3D view.
+
+        Merges symmetry-equivalent atoms that fall on the same fractional
+        coordinate (within rounding) into a single occupancy-weighted
+        sphere whose color, radius, and opacity reflect the blended
+        contributions, then enables block picking so atoms can be
+        selected in the 3D view.
+
+        Parameters
+        ----------
+        atom_dict : dict
+            Mapping of atom/element label to a tuple of (coordinates,
+            occupancies, indices), where ``coordinates`` is an iterable
+            of fractional (x, y, z) positions, ``occupancies`` is an
+            iterable of site occupancy factors, and ``indices`` is an
+            iterable of row indices into the atom site table
+            corresponding to each coordinate.
+
+        """
+
         self.plotter.clear_actors()
 
         T = np.eye(4)
@@ -724,7 +1162,22 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.reset_view()
 
     def highlight(self, index, dataset):
-        """Toggle highlight color while preserving original atom color."""
+        """Toggle highlight color while preserving original atom color.
+
+        Callback for block picking on the 3D view: recolors the picked
+        atom block pink (or restores its original color if already
+        highlighted) and synchronizes the atom table selection.
+
+        Parameters
+        ----------
+        index : int
+            Picked block index (1-based) within the composite mesh's
+            block attributes.
+        dataset : pyvista.DataSet
+            Picked dataset block, as provided by the block-picking
+            callback (unused).
+
+        """
 
         current_color = self.mapper.block_attr[index].color
         base_color = self._block_colors.get(index, current_color)
@@ -749,6 +1202,20 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.atm_table.selectRow(ind)
 
     def set_factors(self, hkls, ds, F2s):
+        """
+        Repopulate the structure factor table.
+
+        Parameters
+        ----------
+        hkls : iterable of array-like
+            Miller indices (h, k, l) for each reflection.
+        ds : iterable of float
+            d-spacing (Å) for each reflection.
+        F2s : iterable of float
+            Squared structure factor for each reflection.
+
+        """
+
         self.f2_table.setRowCount(0)
         self.f2_table.setRowCount(len(hkls))
 
@@ -763,6 +1230,17 @@ class CrystalStructureView(NeuXtalVizWidget):
             self.f2_table.setItem(row, 4, QTableWidgetItem(F2))
 
     def get_hkl(self):
+        """
+        Individual hkl indices entered by the user.
+
+        Returns
+        -------
+        hkl : list of float or None
+            Miller indices (h, k, l), or None if any field has invalid
+            input.
+
+        """
+
         params = self.h_line, self.k_line, self.l_line
 
         valid_params = all([param.hasAcceptableInput() for param in params])
@@ -771,6 +1249,26 @@ class CrystalStructureView(NeuXtalVizWidget):
             return [float(param.text()) for param in params]
 
     def set_equivalents(self, hkls, d, F2):
+        """
+        Repopulate the structure factor table with symmetry equivalents.
+
+        Unlike :meth:`set_factors`, all rows share the same d-spacing
+        and squared structure factor since they are symmetry equivalents
+        of a single reflection.
+
+        Parameters
+        ----------
+        hkls : iterable of array-like
+            Miller indices (h, k, l) for each symmetry-equivalent
+            reflection.
+        d : float
+            d-spacing (Å) shared by all the equivalent reflections.
+        F2 : float
+            Squared structure factor shared by all the equivalent
+            reflections.
+
+        """
+
         self.f2_table.setRowCount(0)
         self.f2_table.setRowCount(len(hkls))
 
@@ -786,4 +1284,14 @@ class CrystalStructureView(NeuXtalVizWidget):
             self.f2_table.setItem(row, 4, QTableWidgetItem(F2))
 
     def get_periodic_table(self):
+        """
+        Create a periodic table dialog view.
+
+        Returns
+        -------
+        view : NeuXtalViz.views.periodic_table.PeriodicTableView
+            New periodic table view instance for isotope selection.
+
+        """
+
         return PeriodicTableView()

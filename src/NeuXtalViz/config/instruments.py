@@ -1,3 +1,74 @@
+"""
+Static per-instrument (beamline) configuration for SNS and HFIR.
+
+Provides the ``beamlines`` dictionary consumed by the UB and experiment
+planning models/views to look up instrument-specific defaults such as
+wavelength range, detector geometry, goniometer definitions, and data
+file naming conventions.
+
+Attributes
+----------
+beamlines : dict[str, dict]
+    Mapping of instrument key (e.g. "SNAP", "CORELLI", "TOPAZ", "MANDI",
+    "IMAGINE", "WAND²", "DEMAND") to a dictionary of settings. Common
+    keys found in the per-instrument dictionaries:
+
+    Name : str
+        Short display/identifier name for the beamline.
+    InstrumentName : str
+        Mantid instrument name, used e.g. with ``MaskBTP``.
+    Facility : str
+        Facility the instrument belongs to ("SNS" or "HFIR").
+    Wavelength : float or list[float]
+        Incident wavelength in angstroms, or a
+        ``[min, max]`` wavelength band for white-beam/Laue instruments.
+    MinD : float
+        Minimum d-spacing in angstroms usable for peak indexing/search.
+    Grouping : str
+        Default detector pixel grouping/binning as a "columns x rows"
+        string (e.g. "2x2"), parsed and passed to Mantid's grouping
+        algorithms.
+    PixelSize : list[float]
+        Detector pixel size in meters as ``[width, height]``.
+    BankPixels : list[int]
+        Number of pixels per detector bank as ``[columns, rows]``.
+    MaskEdges : list[int]
+        Number of pixels to mask at each tube/bank edge as
+        ``[columns, rows]``, to exclude noisy edge pixels.
+    MaskBanks : list[int]
+        Bank numbers to mask entirely for this instrument.
+    MaskLost : list[list], optional
+        Additional bank/tube/pixel regions to mask, each entry as
+        ``[bank, [tube_min, tube_max], [pixel_min, pixel_max]]``.
+    Goniometers : list[str]
+        Goniometer axis definitions as comma-separated strings
+        ``"name,x,y,z,sense"`` (motor/log name and rotation axis
+        vector components and sense), passed directly to Mantid's
+        ``SetGoniometer`` algorithm.
+    Goniometer : dict[str, dict]
+        Named goniometer configurations (e.g. different sample
+        environments or angle conventions) mapping each motor/log
+        name to ``[x, y, z, sense, min, max]``: rotation axis vector
+        components, rotation sense, and allowed angle range in
+        degrees.
+    GoniometerNames : str
+        Display string of goniometer axis symbols (e.g. "ω,χ,φ").
+    Motor : dict[str, float], optional
+        Default fixed motor positions (e.g. detector arc/translation
+        or two-theta) used when planning or simulating an experiment.
+    RawFile : str
+        Template file path (relative to an IPTS directory) for the
+        instrument's raw event/histogram file, with a ``{}``
+        placeholder for the run number.
+    Counting : list[str]
+        Available run-duration counting/normalization options: a
+        proton-charge log/PV name and/or ``"seconds"`` for time-based
+        counting.
+    Title : str
+        EPICS PV name providing the run/scan title, used to read or
+        display the current run's title.
+"""
+
 beamlines = {
     "SNAP": {
         "Name": "SNAP",
