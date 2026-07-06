@@ -12,7 +12,7 @@ jobs:
     - name: Set up Miniconda with nxv environment
       uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: 3.11
+        python-version: 3.12
         environment-file: environment.yml
         activate-environment: nxv
 
