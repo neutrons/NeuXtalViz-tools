@@ -50,6 +50,12 @@ jobs:
         shell: bash -l {0}
         run: conda install -y conda-build anaconda-client
 
+      - name: Compute package version
+        shell: bash -l {0}
+        run: |
+          pip install versioningit
+          echo "PKG_VERSION=$(versioningit .)" >> "$GITHUB_ENV"
+
       - name: Build conda package
         shell: bash -l {0}
         run: |
