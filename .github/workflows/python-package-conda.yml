@@ -53,8 +53,15 @@ jobs:
       - name: Compute package version
         shell: bash -l {0}
         run: |
+          set -e
           pip install versioningit
-          echo "PKG_VERSION=$(versioningit .)" >> "$GITHUB_ENV"
+          PKG_VERSION=$(python -m versioningit .)
+          echo "Computed package version: ${PKG_VERSION}"
+          if [ -z "${PKG_VERSION}" ]; then
+            echo "Failed to compute package version with versioningit" >&2
+            exit 1
+          fi
+          echo "PKG_VERSION=${PKG_VERSION}" >> "$GITHUB_ENV"
 
       - name: Build conda package
         shell: bash -l {0}
