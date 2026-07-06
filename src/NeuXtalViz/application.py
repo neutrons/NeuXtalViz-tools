@@ -31,7 +31,7 @@ QSettings.setPath(
     QSettings.Format.NativeFormat, QSettings.Scope.UserScope, _local_cfg
 )
 
-from NeuXtalViz._version import __version__
+from NeuXtalViz import __version__
 
 import pyvista
 
