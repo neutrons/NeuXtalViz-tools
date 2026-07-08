@@ -204,6 +204,22 @@ class NeuXtalViz(QMainWindow):
 
         # self.showMaximized()
 
+    def closeEvent(self, event):
+        """
+        Explicitly close each tool's PyVista plotter before the window
+        and its child widgets are destroyed.
+
+        ``BasePlotter.__del__`` calls ``close()`` on garbage collection
+        if a plotter was never explicitly closed. If that happens after
+        Qt has already destroyed the underlying C++ ``QtInteractor``
+        object (e.g. as part of normal window teardown), it raises a
+        shiboken "already deleted" ``RuntimeError``. Closing each
+        plotter here, while the widgets are still alive, avoids that.
+        """
+        for presenter in (self.ub, self.ep, self.vs, self.cs):
+            presenter.view.plotter.close()
+        super().closeEvent(event)
+
     def show_about_dialog(self):
         """
         Display the "About NeuXtalViz" information dialog.

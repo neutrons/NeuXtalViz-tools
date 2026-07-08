@@ -1,6 +1,8 @@
 import os
 import pathlib
 
+import matplotlib.pyplot as plt
+
 from qtpy.QtWidgets import (
     QWidget,
     QFrame,
@@ -42,6 +44,13 @@ from pyvistaqt import QtInteractor
 from NeuXtalViz.views.utilities import Worker, ThreadPool
 
 import qtawesome as qta
+
+_MPL_STYLE_BY_THEME = {
+    "default": "default",
+    "document": "default",
+    "dark": "dark_background",
+    "paraview": "Solarize_Light2",
+}
 
 
 class NeuXtalVizWidget(QWidget):
@@ -85,15 +94,6 @@ class NeuXtalVizWidget(QWidget):
         self.proj_box.setToolTip("Toggle parallel projection for the 3D view.")
         self.proj_box.clicked.connect(self.change_projection)
 
-        self.joystick_box = QCheckBox("Disable Joystick", self)
-        self.joystick_box.setChecked(True)
-        self.joystick_box.setToolTip(
-            "Uncheck to use joystick-style camera interaction "
-            "(hold mouse button for continuous motion) "
-            "instead of the default trackball style."
-        )
-        self.joystick_box.clicked.connect(self.change_interactor_style)
-
         self.reset_button = QPushButton("Reset View", self)
         self.reset_button.setToolTip(
             "Reset the view to the default orientation."
@@ -133,21 +133,15 @@ class NeuXtalVizWidget(QWidget):
         self.theme_combo.addItem("document")
         self.theme_combo.addItem("dark")
         self.theme_combo.addItem("paraview")
-        self.theme_combo.setToolTip("Select 3D view theme.")
-        self.theme_combo.currentIndexChanged.connect(self.update_theme)
-        self.auto_scale_dropdown(self.theme_combo)
-
-        self.ui_combo = QComboBox(self)
-        self.ui_combo.addItem("Light")
-        self.ui_combo.addItem("Dark")
         _app = QApplication.instance()
         _is_dark = bool(_app.property("ui_dark")) if _app else False
-        self.ui_combo.setCurrentText("Dark" if _is_dark else "Light")
-        self.ui_combo.setToolTip(
-            "Switch the application between light and dark mode."
+        self.theme_combo.setCurrentText("dark" if _is_dark else "default")
+        self.theme_combo.setToolTip(
+            'Select 3D view theme. Selecting "dark" also switches the '
+            "application to dark mode."
         )
-        self.ui_combo.currentIndexChanged.connect(self.update_ui_theme)
-        self.auto_scale_dropdown(self.ui_combo)
+        self.theme_combo.currentIndexChanged.connect(self.update_theme)
+        self.auto_scale_dropdown(self.theme_combo)
 
         self.frame = QFrame()
 
@@ -165,50 +159,15 @@ class NeuXtalVizWidget(QWidget):
         left_layout.addWidget(self.reset_button)
         left_layout.addWidget(self.camera_button)
         left_layout.addWidget(self.theme_combo)
-        left_layout.addWidget(self.ui_combo)
 
         right_layout.addWidget(self.recip_box)
         right_layout.addWidget(self.axes_box)
         right_layout.addWidget(self.proj_box)
-        right_layout.addWidget(self.joystick_box)
         right_layout.addWidget(self.cons_box)
 
         view_tab = self.__init_view_tab()
 
-        camera_info_font = QFont("Courier New")
-        camera_info_font.setStyleHint(QFont.Monospace)
-        camera_info_font.setPointSize(9)
-        camera_info_tip = (
-            "Current camera view/up direction in Cartesian and [hkl] "
-            "coordinates (unscaled)."
-        )
-
-        self.view_xyz_label = QLabel(self)
-        self.up_xyz_label = QLabel(self)
-        self.view_hkl_label = QLabel(self)
-        self.up_hkl_label = QLabel(self)
-
-        camera_info_layout = QGridLayout()
-        camera_info_layout.setContentsMargins(0, 0, 0, 0)
-        camera_info_layout.setColumnStretch(0, 1)
-        camera_info_layout.setColumnStretch(1, 1)
-        for label in (
-            self.view_xyz_label,
-            self.up_xyz_label,
-            self.view_hkl_label,
-            self.up_hkl_label,
-        ):
-            label.setFont(camera_info_font)
-            label.setToolTip(camera_info_tip)
-        camera_info_layout.addWidget(self.view_xyz_label, 0, 0)
-        camera_info_layout.addWidget(self.up_xyz_label, 0, 1)
-        camera_info_layout.addWidget(self.view_hkl_label, 1, 0)
-        camera_info_layout.addWidget(self.up_hkl_label, 1, 1)
-
-        self.update_camera_info(None, None, None, None)
-
         middle_layout.addWidget(view_tab)
-        middle_layout.addLayout(camera_info_layout)
 
         camera_layout.addLayout(left_layout)
         camera_layout.addLayout(middle_layout)
@@ -1034,17 +993,6 @@ class NeuXtalVizWidget(QWidget):
         else:
             self.plotter.disable_parallel_projection()
 
-    def change_interactor_style(self):
-        """
-        Enable or disable joystick-style camera interaction.
-
-        """
-
-        if self.joystick_box.isChecked():
-            self.plotter.enable_trackball_style()
-        else:
-            self.plotter.enable_joystick_style()
-
     def reset_view(self, negative=False):
         """
         Reset the view to the default isometric orientation.
@@ -1407,164 +1355,32 @@ class NeuXtalVizWidget(QWidget):
 
         self.camera_pos_line.setText(text)
 
-    _CAMERA_INFO_FIELD_WIDTH = 6
-    """int: Minimum character width used to right-align each
-    component when formatting camera view/up vectors for display."""
-
-    @classmethod
-    def _format_vector(cls, vec, decimals):
-        """
-        Format a 3-element vector as a fixed-width Cartesian tuple string.
-
-        Parameters
-        ----------
-        vec : 3-element 1d array-like or None
-            Vector to format. If None, placeholder dashes are shown.
-        decimals : int
-            Number of decimal places to display.
-
-        Returns
-        -------
-        text : str
-            Formatted string of the form ``"(x,y,z)"`` with each
-            component right-aligned to
-            :attr:`_CAMERA_INFO_FIELD_WIDTH`.
-        """
-
-        width = cls._CAMERA_INFO_FIELD_WIDTH
-        if vec is None:
-            field = "{:>{width}}".format("--", width=width)
-            return "({0},{0},{0})".format(field)
-        fmt = "({{:>{1}.{0}f}},{{:>{1}.{0}f}},{{:>{1}.{0}f}})".format(
-            decimals, width
-        )
-        return fmt.format(*vec)
-
-    @staticmethod
-    def _snap_to_integers(vec, tol=0.03, max_index=9):
-        """Best-effort snap of a direction vector to small integer ratios.
-
-        Components under ``tol`` (relative to the largest component) are
-        treated as zero, then the remaining components are rationalized
-        against the smallest of them by trying denominators up to
-        ``max_index``. Falls back to plain rounding if nothing rationalizes
-        cleanly (e.g. an irrational direction).
-
-        Parameters
-        ----------
-        vec : 3-element 1d array-like
-            Direction vector to snap to small integer ratios.
-        tol : float, optional
-            Relative tolerance (fraction of the largest component)
-            below which a component is treated as zero, and used as
-            the rationalization error threshold, by default 0.03.
-        max_index : int, optional
-            Largest denominator tried when rationalizing the vector,
-            by default 9.
-
-        Returns
-        -------
-        ints : 3-element ndarray of int
-            Integer vector approximating the direction of ``vec``,
-            reduced by their greatest common divisor.
-        """
-
-        v = np.asarray(vec, dtype=float)
-        scale = np.max(np.abs(v))
-        if scale < 1e-8:
-            return np.zeros(3, dtype=int)
-
-        v = v / scale
-        mask = np.abs(v) >= tol
-        v = np.where(mask, v, 0.0)
-        if not np.any(mask):
-            return np.zeros(3, dtype=int)
-
-        base = np.min(np.abs(v[mask]))
-        for d in range(1, max_index + 1):
-            candidate = v / base * d
-            rounded = np.round(candidate)
-            err = np.max(np.abs(candidate - rounded)[mask])
-            if err < tol:
-                ints = rounded.astype(int)
-                nz = np.abs(ints[ints != 0])
-                g = max(int(np.gcd.reduce(nz)), 1) if nz.size else 1
-                return ints // g
-
-        return np.round(v / base).astype(int)
-
-    @classmethod
-    def _format_hkl_vector(cls, vec):
-        """
-        Format a direction vector as a fixed-width [hkl]-style tuple string.
-
-        The vector is snapped to small integer ratios via
-        :meth:`_snap_to_integers` before formatting, since only the
-        ratio between [hkl] components is meaningful.
-
-        Parameters
-        ----------
-        vec : 3-element 1d array-like or None
-            Vector to format. If None, placeholder dashes are shown.
-
-        Returns
-        -------
-        text : str
-            Formatted string of the form ``"(h,k,l)"`` with each
-            component right-aligned to
-            :attr:`_CAMERA_INFO_FIELD_WIDTH`.
-        """
-
-        width = cls._CAMERA_INFO_FIELD_WIDTH
-        if vec is None:
-            field = "{:>{width}}".format("--", width=width)
-            return "({0},{0},{0})".format(field)
-        ints = cls._snap_to_integers(vec)
-        fmt = "({{:>{0}d}},{{:>{0}d}},{{:>{0}d}})".format(width)
-        return fmt.format(*ints.tolist())
-
-    def update_camera_info(self, view_xyz, up_xyz, view_hkl, up_hkl):
-        """Update the read-only camera view/up direction display.
-
-        Shows the camera view and up vectors in Cartesian coordinates
-        and, when a UB matrix is set, in [hkl] coordinates (snapped to
-        small integers, since only the ratio is meaningful).
-        View and Up are shown in separate grid columns of equal width
-        so they stay aligned regardless of value or label length.
-
-        Parameters
-        ----------
-        view_xyz : 3-element 1d array-like or None
-            Camera view direction in Cartesian coordinates.
-        up_xyz : 3-element 1d array-like or None
-            Camera up direction in Cartesian coordinates.
-        view_hkl : 3-element 1d array-like or None
-            Camera view direction in [hkl] coordinates.
-        up_hkl : 3-element 1d array-like or None
-            Camera up direction in [hkl] coordinates.
-        """
-
-        self.view_xyz_label.setText(
-            "View(xyz)={}".format(self._format_vector(view_xyz, 3))
-        )
-        self.up_xyz_label.setText(
-            "Up(xyz)={}".format(self._format_vector(up_xyz, 3))
-        )
-        self.view_hkl_label.setText(
-            "View(hkl)={}".format(self._format_hkl_vector(view_hkl))
-        )
-        self.up_hkl_label.setText(
-            "Up(hkl)={}".format(self._format_hkl_vector(up_hkl))
-        )
+    _MPL_CANVAS_NAMES = (
+        "canvas_slice",
+        "canvas_cut",
+        "canvas_inst",
+        "canvas_scan",
+        "canvas_clust",
+        "canvas_align",
+    )
+    """tuple of str: Matplotlib canvas attribute names to refresh in
+    :meth:`update_theme`. Different tool views define different
+    subsets of these; missing ones are skipped."""
 
     def update_theme(self):
         """
-        Apply the selected PyVista plot theme to the plotter.
+        Apply the selected PyVista/matplotlib plot theme to the view.
 
         Reads the current selection from the theme combo box,
         applies it as the global PyVista plot theme, updates the
         plotter background, re-renders, refreshes the axes actor, and
         refreshes the axis button icon colors to match the new theme.
+        Selecting the "dark" theme also switches the whole application
+        to a dark Qt stylesheet; any other theme selection switches
+        back to the light stylesheet. Also applies a corresponding
+        matplotlib style ("default" for "default"/"document", "dark"
+        -> "dark_background", "paraview" -> "Solarize_Light2") and
+        re-styles any matplotlib canvases already drawn on this view.
         """
 
         theme = self.theme_combo.currentText()
@@ -1578,31 +1394,59 @@ class NeuXtalVizWidget(QWidget):
         # Refresh axis button colors to match the active theme.
         self._init_axis_icons()
 
-    def update_ui_theme(self):
-        """
-        Switch the application between light and dark Qt stylesheets.
-
-        Reads the current selection from the UI theme combo box and
-        applies the corresponding qdarkstyle palette
-        (:data:`_DarkPalette` or :data:`_LightPalette`) to the whole
-        application, also recording the active mode on the
-        `QApplication` instance's ``ui_dark`` property.
-        """
-
-        mode = self.ui_combo.currentText()
+        is_dark = theme == "dark"
         app = QApplication.instance()
         qt_api = os.environ.get("QT_API")
         kwargs = {"qt_api": qt_api} if qt_api else {}
-        if mode == "Dark":
-            app.setStyleSheet(
-                qdarkstyle.load_stylesheet(**kwargs, palette=_DarkPalette)
+        app.setStyleSheet(
+            qdarkstyle.load_stylesheet(
+                **kwargs, palette=_DarkPalette if is_dark else _LightPalette
             )
-            app.setProperty("ui_dark", True)
-        else:
-            app.setStyleSheet(
-                qdarkstyle.load_stylesheet(**kwargs, palette=_LightPalette)
-            )
-            app.setProperty("ui_dark", False)
+        )
+        app.setProperty("ui_dark", is_dark)
+
+        plt.style.use(_MPL_STYLE_BY_THEME.get(theme, "default"))
+        self._refresh_mpl_canvases()
+
+    def _refresh_mpl_canvases(self):
+        """
+        Re-apply the current matplotlib style to already-drawn canvases.
+
+        ``matplotlib.pyplot.style.use`` only affects figures/axes
+        created afterward; existing ``Figure``/``Axes`` objects keep
+        the colors they were created with. This re-applies the
+        properties that make a style switch visible (face colors,
+        spines, ticks, labels, and legends) to every matplotlib canvas
+        already built on this view (see :attr:`_MPL_CANVAS_NAMES`),
+        then redraws it.
+        """
+
+        face = plt.rcParams["figure.facecolor"]
+        axes_face = plt.rcParams["axes.facecolor"]
+        edge = plt.rcParams["axes.edgecolor"]
+        label_color = plt.rcParams["axes.labelcolor"]
+        tick_color = plt.rcParams["xtick.color"]
+        text_color = plt.rcParams["text.color"]
+
+        for name in self._MPL_CANVAS_NAMES:
+            canvas = getattr(self, name, None)
+            if canvas is None:
+                continue
+            figure = canvas.figure
+            figure.set_facecolor(face)
+            for ax in figure.axes:
+                ax.set_facecolor(axes_face)
+                for spine in ax.spines.values():
+                    spine.set_color(edge)
+                ax.tick_params(colors=tick_color, labelcolor=label_color)
+                ax.xaxis.label.set_color(label_color)
+                ax.yaxis.label.set_color(label_color)
+                ax.title.set_color(text_color)
+                legend = ax.get_legend()
+                if legend is not None:
+                    legend.get_frame().set_facecolor(axes_face)
+                    legend.get_frame().set_edgecolor(edge)
+            canvas.draw_idle()
 
     def update_labels(self):
         """

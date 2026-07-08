@@ -55,6 +55,45 @@ opacities = {
 }
 
 
+class _SliceNavigationToolbar(NavigationToolbar2QT):
+    """
+    Slice-plot toolbar that flags interactive use of the "Home" button.
+
+    The toolbar's actions are bound to ``self.home`` (etc.) at
+    construction time, so intercepting the click requires overriding
+    the method itself rather than reassigning it on the instance
+    afterward. ``view._slice_home_clicked`` is set for the duration of
+    the reset so :meth:`VolumeSlicerView.slice_limits` can tell it
+    apart from an interactive pan/zoom.
+
+    ``update_slice`` rebuilds ``ax_slice`` from scratch on every
+    redraw (required for its curvilinear grid), which orphans
+    matplotlib's own navigation stack -- it is keyed to specific
+    ``Axes`` instances, so ``NavigationToolbar2.home()`` silently does
+    nothing once any redraw has happened since the stack was last
+    populated. To keep "Home" reliable regardless, this also directly
+    resets the view to the full data extent via the view's own
+    "Auto Zoom" logic rather than depending on that stack.
+    """
+
+    def __init__(self, canvas, parent, view):
+        super().__init__(canvas, parent)
+        self._view = view
+
+    def home(self, *args, **kwargs):
+        view = self._view
+        view._slice_home_clicked = True
+        try:
+            super().home(*args, **kwargs)
+        finally:
+            view._slice_home_clicked = False
+
+        view.auto_zoom_box.blockSignals(True)
+        view.auto_zoom_box.setChecked(True)
+        view.auto_zoom_box.blockSignals(False)
+        view._handle_auto_zoom_toggle(True)
+
+
 class VolumeSlicerView(NeuXtalVizWidget):
     """
     View for the volume slicer tool.
@@ -99,6 +138,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self._cx = None
         self._sx = None
         self._sy = None
+        self._slice_home_clicked = False
         self.slice_im = None
         self.xlim = None
         self.ylim = None
@@ -395,7 +435,10 @@ class VolumeSlicerView(NeuXtalVizWidget):
         fig_2d_layout = QVBoxLayout()
         fig_1d_layout = QVBoxLayout()
 
-        fig_2d_layout.addWidget(NavigationToolbar2QT(self.canvas_slice, self))
+        self.slice_toolbar = _SliceNavigationToolbar(
+            self.canvas_slice, self, self
+        )
+        fig_2d_layout.addWidget(self.slice_toolbar)
         fig_2d_layout.addWidget(self.canvas_slice)
 
         fig_1d_layout.addWidget(NavigationToolbar2QT(self.canvas_cut, self))
@@ -2235,13 +2278,20 @@ class VolumeSlicerView(NeuXtalVizWidget):
         Invoked when the slice axes' x/y limits change (e.g. via toolbar
         pan/zoom); converts the new display-space limits back into
         crystallographic axis coordinates and writes them into the
-        min/max fields without re-triggering their edit signals.
+        min/max fields without re-triggering their edit signals. Also
+        toggles "Auto Zoom": resetting the view via the toolbar's
+        "Home" button re-enables it, while any other interactive
+        pan/zoom disables it.
 
         Parameters
         ----------
         ax : matplotlib.axes.Axes
             The slice axes whose limits changed.
         """
+        self.auto_zoom_box.blockSignals(True)
+        self.auto_zoom_box.setChecked(self._slice_home_clicked)
+        self.auto_zoom_box.blockSignals(False)
+
         self.xmin_line.blockSignals(True)
         self.xmax_line.blockSignals(True)
         self.ymin_line.blockSignals(True)
@@ -2314,8 +2364,25 @@ class VolumeSlicerView(NeuXtalVizWidget):
             ymin, ymax = ylim
             xmin, ymin, _ = np.dot(self.T, [xmin, ymin, 1])
             xmax, ymax, _ = np.dot(self.T, [xmax, ymax, 1])
+
+            # Disconnect while setting limits programmatically so this
+            # doesn't get misread by slice_limits as an interactive
+            # toolbar pan/zoom (which toggles "Auto Zoom" off).
+            if self._sx is not None:
+                self.ax_slice.callbacks.disconnect(self._sx)
+            if self._sy is not None:
+                self.ax_slice.callbacks.disconnect(self._sy)
+
             self.ax_slice.set_xlim(xmin, xmax)
             self.ax_slice.set_ylim(ymin, ymax)
+
+            self._sx = self.ax_slice.callbacks.connect(
+                "xlim_changed", self.slice_limits
+            )
+            self._sy = self.ax_slice.callbacks.connect(
+                "ylim_changed", self.slice_limits
+            )
+
             self._slice_zoom_xlim = self.ax_slice.get_xlim()
             self._slice_zoom_ylim = self.ax_slice.get_ylim()
             self.canvas_slice.draw_idle()

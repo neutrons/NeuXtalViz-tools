@@ -324,41 +324,6 @@ class NeuXtalVizModel:
 
             return vec
 
-    def get_indices(self, axes_type, vec):
-        """
-        Crystallographic indices corresponding to a Cartesian vector.
-
-        Inverse of :meth:`get_vector`.
-
-        Parameters
-        ----------
-        axes_type : str, [hkl] or [uvw]
-            Miller index or fractional coordinate.
-        vec : 3-element 1d array-like
-            Cartesian vector.
-
-        Returns
-        -------
-        ind : 3 element 1d array
-            Indices.
-
-        """
-
-        if self.UB is not None:
-            if axes_type == "[hkl]":
-                matrix = self.orientation_matrix()
-            else:
-                matrix = np.cross(
-                    np.dot(
-                        self.orientation_matrix(), np.roll(np.eye(3), 2, 1)
-                    ).T,
-                    np.dot(
-                        self.orientation_matrix(), np.roll(np.eye(3), 1, 1)
-                    ).T,
-                ).T
-
-            return np.linalg.solve(matrix, vec)
-
     # ------------------------------------------------------------------
     # Camera rotation helpers
     # ------------------------------------------------------------------

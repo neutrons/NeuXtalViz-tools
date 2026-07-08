@@ -194,11 +194,14 @@ class VolumeSlicer(NeuXtalVizPresenter):
         Update colorbar value limits in the view based on user input.
 
         Uses vmin, vmax from the view and sets colorbar limits if valid.
+        Manually editing either value disables automatic color limits.
 
         Parameters
         ----------
         None
         """
+        self.view.auto_limits_box.setChecked(False)
+
         vmin = self.view.get_vmin_value()
         vmax = self.view.get_vmax_value()
         if vmin is not None and vmax is not None:
@@ -253,10 +256,17 @@ class VolumeSlicer(NeuXtalVizPresenter):
         """
         Refresh the slice display using the current color limit settings.
 
+        Connected to the slice view's color-limit method combo box.
+        Selecting a method re-enables automatic color limits.
+
         Parameters
         ----------
         None
         """
+        self.view.auto_limits_box.blockSignals(True)
+        self.view.auto_limits_box.setChecked(True)
+        self.view.auto_limits_box.blockSignals(False)
+
         self.update_slice_display()
 
     def update_slice_display(self):

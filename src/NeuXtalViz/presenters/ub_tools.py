@@ -89,7 +89,7 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_instrument_scale_combo(
             self.update_instrument_display
         )
-        self.view.connect_vlim_combo(self.update_instrument_view_autoscaled)
+        self.view.connect_vlim_combo(self.update_instrument_clim)
         self.view.connect_vbar_combo(self.update_instrument_display)
         self.view.connect_inst_vmin_line(self.update_inst_cvals)
         self.view.connect_inst_vmax_line(self.update_inst_cvals)
@@ -118,7 +118,7 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_slice_thickness_line(self.reslice)
         self.view.connect_slice_width_line(self.reslice)
 
-        self.view.connect_clim_combo(self.update_slice_display)
+        self.view.connect_clim_combo(self.update_slice_clim)
         self.view.connect_cbar_combo(self.update_slice_display)
 
         self.view.connect_slice_scale_combo(self.update_slice_display)
@@ -244,9 +244,12 @@ class UB(NeuXtalVizPresenter):
         line-edit values.
 
         Connected to the slice view's vmin/vmax line-edit signals.
-        Adjusts the lower limit upward when it is non-positive and the
-        slice scale is logarithmic.
+        Manually editing either value disables automatic color
+        limits. Adjusts the lower limit upward when it is
+        non-positive and the slice scale is logarithmic.
         """
+
+        self.view.slice_auto_limits_box.setChecked(False)
 
         vmin = self.view.get_vmin_value()
         vmax = self.view.get_vmax_value()
@@ -263,9 +266,12 @@ class UB(NeuXtalVizPresenter):
         vmin/vmax line-edit values.
 
         Connected to the instrument view's vmin/vmax line-edit
-        signals. Adjusts the lower limit upward when it is
+        signals. Manually editing either value disables automatic
+        color limits. Adjusts the lower limit upward when it is
         non-positive and the instrument scale is logarithmic.
         """
+
+        self.view.instrument_auto_limits_box.setChecked(False)
 
         vmin = self.view.get_inst_vmin_value()
         vmax = self.view.get_inst_vmax_value()
@@ -316,9 +322,16 @@ class UB(NeuXtalVizPresenter):
     def update_instrument_clim(self):
         """
         Refresh the instrument display using the current color limits.
+
+        Connected to the instrument view's vlim-combo signal.
+        Selecting a method re-enables automatic color limits.
         """
 
-        self.update_instrument_display()
+        self.view.instrument_auto_limits_box.blockSignals(True)
+        self.view.instrument_auto_limits_box.setChecked(True)
+        self.view.instrument_auto_limits_box.blockSignals(False)
+
+        self.update_instrument_view_autoscaled()
 
     def update_instrument_display(self):
         """
@@ -354,7 +367,14 @@ class UB(NeuXtalVizPresenter):
     def update_slice_clim(self):
         """
         Refresh the slice display using the current color limits.
+
+        Connected to the slice view's color-limit method combo box.
+        Selecting a method re-enables automatic color limits.
         """
+
+        self.view.slice_auto_limits_box.blockSignals(True)
+        self.view.slice_auto_limits_box.setChecked(True)
+        self.view.slice_auto_limits_box.blockSignals(False)
 
         self.update_slice_display()
 
