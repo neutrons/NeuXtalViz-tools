@@ -1,5 +1,6 @@
 import os
 import pathlib
+import re
 
 import matplotlib.pyplot as plt
 
@@ -27,6 +28,9 @@ from qtpy.QtGui import (
     QFont,
     QColor,
     QPalette,
+    QPixmap,
+    QPainter,
+    QIcon,
 )
 from qtpy.QtCore import Qt, Signal, QSettings
 
@@ -268,6 +272,7 @@ class NeuXtalVizWidget(QWidget):
         for i in range(combo.count()):
             text = combo.itemText(i)
             icon = qta.icon("fa6s.hashtag" if digit else "fa6s.minus")
+            space_group_match = re.match(r"^(\d+):", text)
             if text == "TOPAZ":
                 icon = qta.icon("fa6s.gem")
             elif text == "CORELLI":
@@ -282,6 +287,17 @@ class NeuXtalVizWidget(QWidget):
                 icon = qta.icon("fa6s.weight-scale")
             elif text == "IMAGINE":
                 icon = qta.icon("fa6s.lightbulb")
+            elif space_group_match:
+                no = space_group_match.group(1)
+                pixmap = QPixmap(64, 64)
+                pixmap.fill(Qt.GlobalColor.transparent)
+                painter = QPainter(pixmap)
+                painter.setFont(QFont("Arial", 32))
+                painter.drawText(
+                    pixmap.rect(), Qt.AlignmentFlag.AlignCenter, no
+                )
+                painter.end()
+                icon = QIcon(pixmap)
             combo.setItemIcon(i, icon)
 
         for i in range(combo.count()):

@@ -92,9 +92,16 @@ class CrystalStructureModel(NeuXtalVizModel):
             },
         )
 
-    def generate_space_groups_from_crystal_system(self, system):
+    @staticmethod
+    def generate_space_groups_from_crystal_system(system):
         """
         Generate the list of space groups belonging to a crystal system.
+
+        A static method (uses no instance state) so it can be reused
+        by other tools (e.g. the Volume Slicer's delta-PDF Transform
+        tab) without instantiating a full ``CrystalStructureModel``,
+        which would create/clobber its own ``"crystal"`` sample
+        workspace.
 
         Parameters
         ----------
@@ -124,9 +131,13 @@ class CrystalStructureModel(NeuXtalVizModel):
 
         return space_group
 
-    def generate_settings_from_space_group(self, sg):
+    @staticmethod
+    def generate_settings_from_space_group(sg):
         """
         Generate the list of alternative settings (symbols) for a space group.
+
+        A static method (uses no instance state) -- see
+        :meth:`generate_space_groups_from_crystal_system`.
 
         Parameters
         ----------

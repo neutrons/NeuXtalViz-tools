@@ -13,6 +13,9 @@ from qtpy.QtWidgets import (
     QFileDialog,
     QCheckBox,
     QSlider,
+    QListWidget,
+    QMessageBox,
+    QInputDialog,
 )
 
 from qtpy.QtGui import QDoubleValidator
@@ -129,7 +132,8 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         self.tab_widget = QTabWidget(self)
 
-        self.slicer_tab()
+        self.slice_tab()
+        self.transform_tab()
 
         self.layout().addWidget(self.tab_widget, stretch=1)
 
@@ -138,6 +142,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self._cx = None
         self._sx = None
         self._sy = None
+        self.space = "reciprocal"
         self._slice_home_clicked = False
         self.slice_im = None
         self.xlim = None
@@ -148,9 +153,9 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self._volume_limits = None
         self._volume_nbins = None
 
-    def slicer_tab(self):
+    def slice_tab(self):
         """
-        Build the "Slicer" tab, its widgets, and its layouts.
+        Build the "Slice" tab, its widgets, and its layouts.
 
         Creates the volume/opacity/colormap controls, slice and cut
         position/thickness controls, axis limit fields, the 2D slice and
@@ -158,7 +163,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         checkboxes.
         """
         slice_tab = QWidget()
-        self.tab_widget.addTab(slice_tab, "Slicer")
+        self.tab_widget.addTab(slice_tab, "Slice")
 
         notation = QDoubleValidator.StandardNotation
 
@@ -226,10 +231,12 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.cbar_combo.addItem("Sequential")
         self.cbar_combo.addItem("Rainbow")
         self.cbar_combo.addItem("Binary")
-        self.cbar_combo.addItem("Diverging")
         self.cbar_combo.addItem("Modified")
+        self.cbar_combo.addItem("Diverging")
         self.cbar_combo.setToolTip(
-            "Select the colormap for the slice visualization."
+            "Select the colormap for the slice visualization. "
+            '"Diverging" is a good fit for signed data centered about '
+            "zero, e.g. a 3D-ΔPDF result."
         )
         self.auto_scale_dropdown(self.cbar_combo)
 
@@ -239,12 +246,22 @@ class VolumeSlicerView(NeuXtalVizWidget):
         )
         self.load_NXS_button.setIcon(qta.icon("fa6s.folder-open"))
 
+        self.workspace_combo = QComboBox(self)
+        self.workspace_combo.setToolTip(
+            "The workspace currently being sliced/cut. Load new "
+            "workspaces, rename/delete them, and derive new ones "
+            '(arithmetic, Bragg punch, 3D-ΔPDF) from the "3D-ΔPDF" '
+            "tab."
+        )
+        self.auto_scale_dropdown(self.workspace_combo)
+
         draw_layout.addWidget(self.vol_scale_combo)
         draw_layout.addWidget(self.opacity_combo)
         draw_layout.addWidget(self.range_combo)
         draw_layout.addWidget(self.clim_combo)
         draw_layout.addWidget(self.cbar_combo)
         draw_layout.addWidget(self.load_NXS_button)
+        draw_layout.addWidget(self.workspace_combo)
 
         self.slice_combo = QComboBox(self)
         self.slice_combo.addItem("Axis 1/2")
@@ -305,16 +322,21 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.slice_scale_combo = QComboBox(self)
         self.slice_scale_combo.addItem("Linear")
         self.slice_scale_combo.addItem("Log")
+        self.slice_scale_combo.addItem("Symlog")
         self.slice_scale_combo.setToolTip(
-            "Select the scale for the slice plot (Linear or Logarithmic)."
+            "Select the scale for the slice plot (Linear, Logarithmic, "
+            'or "Symlog": linear near zero, logarithmic away from it -- '
+            "a good fit for signed data such as a 3D-ΔPDF result)."
         )
         self.auto_scale_dropdown(self.slice_scale_combo)
 
         self.cut_scale_combo = QComboBox(self)
         self.cut_scale_combo.addItem("Linear")
         self.cut_scale_combo.addItem("Log")
+        self.cut_scale_combo.addItem("Symlog")
         self.cut_scale_combo.setToolTip(
-            "Select the scale for the cut plot (Linear or Logarithmic)."
+            "Select the scale for the cut plot (Linear, Logarithmic, "
+            "or Symlog)."
         )
         self.auto_scale_dropdown(self.cut_scale_combo)
 
@@ -385,6 +407,14 @@ class VolumeSlicerView(NeuXtalVizWidget):
             "Show or hide the line cut overlay on the slice plot."
         )
 
+        self.symmetric_zero_box = QCheckBox("Symmetric About Zero")
+        self.symmetric_zero_box.setChecked(False)
+        self.symmetric_zero_box.setToolTip(
+            "Force the colorbar limits to be symmetric about zero "
+            "(vmax = -vmin). Useful for signed data such as a "
+            "3D-ΔPDF result."
+        )
+
         slice_params_layout.addWidget(self.slice_combo)
         slice_params_layout.addWidget(slice_label)
         slice_params_layout.addWidget(self.slice_line)
@@ -410,6 +440,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         view_params_layout.addWidget(self.vmin_line, 1, 6)
         view_params_layout.addWidget(vmax_label, 0, 5)
         view_params_layout.addWidget(self.vmax_line, 0, 6)
+        view_params_layout.addWidget(self.symmetric_zero_box, 0, 7)
 
         cut_params_layout.addWidget(self.cut_combo)
         cut_params_layout.addWidget(cut_label)
@@ -470,6 +501,231 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         self.toggle_line_box.toggled.connect(self.toggle_container)
         self.auto_zoom_box.toggled.connect(self._handle_auto_zoom_toggle)
+
+    def transform_tab(self):
+        """
+        Build the "3D-ΔPDF" tab, its widgets, and its layouts.
+
+        Creates the workspace management list (rename/delete), the
+        arithmetic panel (``a*ws_a - b*ws_b``), the crystal-system/
+        space-group cascade, the Bragg-punch controls, the blur
+        controls, and the 3D-ΔPDF calculation controls.
+        """
+        transform_tab = QWidget()
+        self.tab_widget.addTab(transform_tab, "Transform")
+
+        notation = QDoubleValidator.StandardNotation
+        coeff_validator = QDoubleValidator(-1e6, 1e6, 6, notation=notation)
+        q_validator = QDoubleValidator(0, 1e6, 6, notation=notation)
+
+        layout = QVBoxLayout()
+
+        # --- Workspace management -----------------------------------
+        manage_layout = QVBoxLayout()
+
+        self.workspace_list_widget = QListWidget(self)
+        self.workspace_list_widget.setToolTip(
+            "All loaded/derived workspaces. Select one to rename or "
+            "delete it."
+        )
+
+        manage_button_layout = QHBoxLayout()
+        self.rename_workspace_button = QPushButton("Rename", self)
+        self.rename_workspace_button.setToolTip(
+            "Rename the selected workspace."
+        )
+        self.rename_workspace_button.setIcon(qta.icon("fa6s.pen"))
+        self.delete_workspace_button = QPushButton("Delete", self)
+        self.delete_workspace_button.setToolTip(
+            "Delete the selected workspace."
+        )
+        self.delete_workspace_button.setIcon(qta.icon("fa6s.trash"))
+        manage_button_layout.addWidget(self.rename_workspace_button)
+        manage_button_layout.addWidget(self.delete_workspace_button)
+        manage_button_layout.addStretch(1)
+
+        manage_layout.addWidget(self.workspace_list_widget)
+        manage_layout.addLayout(manage_button_layout)
+
+        # --- Arithmetic ------------------------------------------------
+        combine_layout = QHBoxLayout()
+
+        self.combine_ws_a_combo = QComboBox(self)
+        self.combine_ws_a_combo.setToolTip("Workspace A.")
+        self.combine_coeff_a_line = QLineEdit("1.0", self)
+        self.combine_coeff_a_line.setValidator(coeff_validator)
+        self.combine_coeff_a_line.setToolTip("Coefficient a.")
+
+        self.combine_ws_b_combo = QComboBox(self)
+        self.combine_ws_b_combo.setToolTip("Workspace B.")
+        self.combine_coeff_b_line = QLineEdit("1.0", self)
+        self.combine_coeff_b_line.setValidator(coeff_validator)
+        self.combine_coeff_b_line.setToolTip("Coefficient b.")
+
+        self.combine_output_line = QLineEdit(self)
+        self.combine_output_line.setPlaceholderText("output name")
+        self.combine_output_line.setToolTip(
+            "Display name for the combined result."
+        )
+
+        self.combine_button = QPushButton("Subtract", self)
+        self.combine_button.setToolTip(
+            "Compute a×A − b×B and register the result as a "
+            "new workspace. The two workspaces must share common "
+            "binning."
+        )
+        self.combine_button.setIcon(qta.icon("fa6s.calculator"))
+
+        combine_layout.addWidget(self.combine_coeff_a_line)
+        combine_layout.addWidget(QLabel("×", self))
+        combine_layout.addWidget(self.combine_ws_a_combo)
+        combine_layout.addWidget(QLabel("-", self))
+        combine_layout.addWidget(self.combine_coeff_b_line)
+        combine_layout.addWidget(QLabel("×", self))
+        combine_layout.addWidget(self.combine_ws_b_combo)
+        combine_layout.addWidget(QLabel("=", self))
+        combine_layout.addWidget(self.combine_output_line)
+        combine_layout.addWidget(self.combine_button)
+
+        # --- Crystal system / space group / setting ---------------------
+        crystal_layout = QHBoxLayout()
+
+        self.pdf_crystal_system_combo = QComboBox(self)
+        self.pdf_crystal_system_combo.addItem("Triclinic")
+        self.pdf_crystal_system_combo.addItem("Monoclinic")
+        self.pdf_crystal_system_combo.addItem("Orthorhombic")
+        self.pdf_crystal_system_combo.addItem("Tetragonal")
+        self.pdf_crystal_system_combo.addItem("Trigonal")
+        self.pdf_crystal_system_combo.addItem("Hexagonal")
+        self.pdf_crystal_system_combo.addItem("Cubic")
+        self.pdf_crystal_system_combo.setToolTip(
+            "Select the crystal system for the Bragg punch."
+        )
+
+        self.pdf_space_group_combo = QComboBox(self)
+        self.pdf_space_group_combo.setToolTip(
+            "Select the space group for the Bragg punch."
+        )
+
+        self.auto_scale_dropdown(self.pdf_crystal_system_combo)
+        self.auto_scale_dropdown(self.pdf_space_group_combo)
+
+        crystal_layout.addWidget(self.pdf_crystal_system_combo)
+        crystal_layout.addWidget(self.pdf_space_group_combo)
+        crystal_layout.addStretch(1)
+
+        # --- Bragg punch / Blur / Calculate 3D-ΔPDF ---------------------
+        # One shared grid so the input combo, fields, units, "->", output
+        # name, and button line up in columns across all three steps.
+        steps_layout = QGridLayout()
+
+        self.punch_input_combo = QComboBox(self)
+        self.punch_input_combo.setToolTip("Workspace to punch.")
+
+        self.punch_output_line = QLineEdit("punched", self)
+        self.punch_output_line.setToolTip(
+            "Display name for the punched result."
+        )
+
+        self.punch_q_size_line = QLineEdit("0.15", self)
+        self.punch_q_size_line.setValidator(q_validator)
+        self.punch_q_size_line.setToolTip(
+            "Radius (Å⁻¹) of the region punched out around "
+            "each allowed reflection."
+        )
+
+        self.punch_q_inner_line = QLineEdit("0.5", self)
+        self.punch_q_inner_line.setValidator(q_validator)
+        self.punch_q_inner_line.setToolTip(
+            "Inner radius (Å⁻¹) below which low-Q signal " "is removed."
+        )
+
+        self.run_punch_button = QPushButton("Run Punch", self)
+        self.run_punch_button.setToolTip(
+            "Punch out allowed reflections and remove the low-Q "
+            "region, producing a new, separately inspectable "
+            "workspace."
+        )
+        self.run_punch_button.setIcon(qta.icon("fa6s.bullseye"))
+
+        steps_layout.addWidget(self.punch_input_combo, 0, 0)
+        steps_layout.addWidget(QLabel("Size:", self), 0, 1)
+        steps_layout.addWidget(self.punch_q_size_line, 0, 2)
+        steps_layout.addWidget(QLabel("Inner:", self), 0, 3)
+        steps_layout.addWidget(self.punch_q_inner_line, 0, 4)
+        steps_layout.addWidget(QLabel("Å⁻¹", self), 0, 5)
+        steps_layout.addWidget(QLabel("→", self), 0, 6)
+        steps_layout.addWidget(self.punch_output_line, 0, 7)
+        steps_layout.addWidget(self.run_punch_button, 0, 8)
+
+        self.blur_input_combo = QComboBox(self)
+        self.blur_input_combo.setToolTip(
+            "Workspace to blur (typically a Bragg-punch result)."
+        )
+
+        self.blur_output_line = QLineEdit("blurred", self)
+        self.blur_output_line.setToolTip(
+            "Display name for the blurred result."
+        )
+
+        self.blur_q_blur_line = QLineEdit("0.05", self)
+        self.blur_q_blur_line.setValidator(q_validator)
+        self.blur_q_blur_line.setToolTip(
+            "Gaussian blur size (Å⁻¹) used to fill in "
+            "punched/cut regions before the transform."
+        )
+
+        self.run_blur_button = QPushButton("Run Blur", self)
+        self.run_blur_button.setToolTip(
+            "NaN-Gaussian-blur the gaps closed, producing a new, "
+            "separately inspectable workspace."
+        )
+        self.run_blur_button.setIcon(qta.icon("fa6s.droplet"))
+
+        steps_layout.addWidget(self.blur_input_combo, 1, 0)
+        steps_layout.addWidget(QLabel("Blur:", self), 1, 1)
+        steps_layout.addWidget(self.blur_q_blur_line, 1, 2)
+        steps_layout.addWidget(QLabel("Å⁻¹", self), 1, 5)
+        steps_layout.addWidget(QLabel("→", self), 1, 6)
+        steps_layout.addWidget(self.blur_output_line, 1, 7)
+        steps_layout.addWidget(self.run_blur_button, 1, 8)
+
+        self.pdf_input_combo = QComboBox(self)
+        self.pdf_input_combo.setToolTip(
+            "Workspace to transform (typically a blurred result)."
+        )
+
+        self.pdf_output_line = QLineEdit("pdf", self)
+        self.pdf_output_line.setToolTip("Display name for the 3D-ΔPDF result.")
+
+        self.pdf_q_outer_line = QLineEdit("5", self)
+        self.pdf_q_outer_line.setValidator(q_validator)
+        self.pdf_q_outer_line.setToolTip(
+            "Padding extent (Å⁻¹) applied before the "
+            "Fourier transform to real space."
+        )
+
+        self.calculate_pdf_button = QPushButton("Calculate 3D-ΔPDF", self)
+        self.calculate_pdf_button.setToolTip(
+            "Run the pad/FFT step, producing a real-space 3D-ΔPDF " "result."
+        )
+        self.calculate_pdf_button.setIcon(qta.icon("fa6s.wave-square"))
+
+        steps_layout.addWidget(self.pdf_input_combo, 2, 0)
+        steps_layout.addWidget(QLabel("Outer:", self), 2, 1)
+        steps_layout.addWidget(self.pdf_q_outer_line, 2, 2)
+        steps_layout.addWidget(QLabel("Å⁻¹", self), 2, 5)
+        steps_layout.addWidget(QLabel("→", self), 2, 6)
+        steps_layout.addWidget(self.pdf_output_line, 2, 7)
+        steps_layout.addWidget(self.calculate_pdf_button, 2, 8)
+
+        layout.addLayout(manage_layout)
+        layout.addLayout(combine_layout)
+        layout.addLayout(crystal_layout)
+        layout.addLayout(steps_layout)
+        layout.addStretch(1)
+
+        transform_tab.setLayout(layout)
 
     def toggle_container(self, state):
         """
@@ -574,6 +830,107 @@ class VolumeSlicerView(NeuXtalVizWidget):
             Slot invoked when the colormap selection changes.
         """
         self.cbar_combo.currentIndexChanged.connect(update_cbar)
+
+    def connect_symmetric_zero(self, update_symmetric_zero):
+        """
+        Connect a handler to toggling of the "Symmetric About Zero" box.
+
+        Parameters
+        ----------
+        update_symmetric_zero : callable
+            Slot invoked when the checkbox is toggled.
+        """
+        self.symmetric_zero_box.toggled.connect(update_symmetric_zero)
+
+    def connect_workspace_combo(self, activate_workspace):
+        """
+        Connect a handler to changes in the active-workspace combo box.
+
+        Parameters
+        ----------
+        activate_workspace : callable
+            Slot invoked when a different loaded/derived workspace is
+            selected for slicing/cutting.
+        """
+        self.workspace_combo.currentIndexChanged.connect(activate_workspace)
+
+    def connect_delete_workspace(self, delete_workspace):
+        """
+        Connect a handler to the "Delete" button click.
+
+        Parameters
+        ----------
+        delete_workspace : callable
+            Slot invoked when the "Delete" button is clicked.
+        """
+        self.delete_workspace_button.clicked.connect(delete_workspace)
+
+    def connect_rename_workspace(self, rename_workspace):
+        """
+        Connect a handler to the "Rename" button click.
+
+        Parameters
+        ----------
+        rename_workspace : callable
+            Slot invoked when the "Rename" button is clicked.
+        """
+        self.rename_workspace_button.clicked.connect(rename_workspace)
+
+    def connect_combine_workspaces(self, combine_workspaces):
+        """
+        Connect a handler to the "Subtract" button click.
+
+        Parameters
+        ----------
+        combine_workspaces : callable
+            Slot invoked when the "Subtract" button is clicked.
+        """
+        self.combine_button.clicked.connect(combine_workspaces)
+
+    def connect_pdf_crystal_system_combo(self, update_space_groups):
+        """
+        Connect a handler to changes in the Transform tab's crystal-system
+        combo box.
+
+        Parameters
+        ----------
+        update_space_groups : callable
+            Slot invoked when the crystal-system selection changes.
+        """
+        self.pdf_crystal_system_combo.activated.connect(update_space_groups)
+
+    def connect_run_bragg_punch(self, run_bragg_punch):
+        """
+        Connect a handler to the "Run Punch" button click.
+
+        Parameters
+        ----------
+        run_bragg_punch : callable
+            Slot invoked when the "Run Punch" button is clicked.
+        """
+        self.run_punch_button.clicked.connect(run_bragg_punch)
+
+    def connect_run_blur(self, run_blur):
+        """
+        Connect a handler to the "Run Blur" button click.
+
+        Parameters
+        ----------
+        run_blur : callable
+            Slot invoked when the "Run Blur" button is clicked.
+        """
+        self.run_blur_button.clicked.connect(run_blur)
+
+    def connect_calculate_pdf(self, calculate_pdf):
+        """
+        Connect a handler to the "Calculate 3D-ΔPDF" button click.
+
+        Parameters
+        ----------
+        calculate_pdf : callable
+            Slot invoked when the "Calculate 3D-ΔPDF" button is clicked.
+        """
+        self.calculate_pdf_button.clicked.connect(calculate_pdf)
 
     def connect_slice_thickness_line(self, update_slice):
         """
@@ -900,8 +1257,11 @@ class VolumeSlicerView(NeuXtalVizWidget):
         Parameters
         ----------
         scale : str
-            Display scale, 'log' (case-insensitive) for logarithmic
-            normalization or any other value for linear normalization.
+            Display scale (case-insensitive): 'log' for logarithmic,
+            'symlog' for symmetric-log (linear near zero, logarithmic
+            away from it -- a good fit for signed data such as a
+            delta-PDF result), or any other value for linear
+            normalization.
         vmin : float
             Lower color limit. Clamped to the smallest positive finite
             float when `scale` is 'log'.
@@ -910,7 +1270,8 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         Returns
         -------
-        norm : matplotlib.colors.Normalize or matplotlib.colors.LogNorm
+        norm : matplotlib.colors.Normalize, matplotlib.colors.LogNorm,
+        or matplotlib.colors.SymLogNorm
             Normalization object for the slice image.
         """
         scale = scale.lower()
@@ -918,6 +1279,15 @@ class VolumeSlicerView(NeuXtalVizWidget):
         if scale == "log":
             vmin = max(vmin, np.finfo(float).tiny)
             return mcolors.LogNorm(vmin=vmin, vmax=vmax)
+
+        if scale == "symlog":
+            # Linear threshold auto-set to 1% of the larger display
+            # limit's magnitude -- a simple default so this doesn't
+            # need its own manual-override field (unlike vmin/vmax).
+            linthresh = max(abs(vmin), abs(vmax), np.finfo(float).tiny) * 0.01
+            return mcolors.SymLogNorm(
+                linthresh=linthresh, vmin=vmin, vmax=vmax
+            )
 
         return mcolors.Normalize(vmin=vmin, vmax=vmax)
 
@@ -1243,13 +1613,51 @@ class VolumeSlicerView(NeuXtalVizWidget):
         """
         self.slice_ready.connect(reslice)
 
+    @staticmethod
+    def _transform_bbox(T, xmin, ymin, xmax, ymax):
+        """
+        Map an axis-aligned bounding box through an affine transform.
+
+        Transforming only the two diagonal corners (xmin, ymin) and
+        (xmax, ymax) is only valid for a transform with no shear --
+        for a skewed/non-orthogonal crystallographic axis transform
+        (e.g. a hexagonal or monoclinic lattice), that maps the
+        rectangle to a parallelogram whose true bounding box depends
+        on all four corners, not just two. Using only two corners
+        silently crops most of the intended view for a large shear.
+
+        Parameters
+        ----------
+        T : np.ndarray
+            3x3 affine transform (as used for ``Affine2D``/``self.T``
+            or its inverse ``self.T_inv``).
+        xmin, ymin, xmax, ymax : float
+            Bounding box corners before the transform.
+
+        Returns
+        -------
+        xmin, xmax, ymin, ymax : float
+            Bounding box of the transformed corners.
+        """
+        corners = np.array(
+            [
+                [xmin, ymin, 1],
+                [xmax, ymin, 1],
+                [xmin, ymax, 1],
+                [xmax, ymax, 1],
+            ]
+        )
+        tx, ty, _ = T @ corners.T
+        return tx.min(), tx.max(), ty.min(), ty.max()
+
     def __format_axis_coord(self, x, y):
         """
-        Format slice-plot display coordinates as an HKL string.
+        Format slice-plot display coordinates as an HKL or UVW string.
 
         Used as the matplotlib Axes `format_coord` callback to show the
-        crystallographic HKL indices under the cursor in the slice plot's
-        status readout.
+        crystallographic indices under the cursor in the slice plot's
+        status readout: HKL for a reciprocal-space workspace, UVW for a
+        real-space (delta-PDF) one.
 
         Parameters
         ----------
@@ -1262,11 +1670,14 @@ class VolumeSlicerView(NeuXtalVizWidget):
         -------
         coord_str : str
             Formatted string of the form
-            ``"hkl = (h, k, l)"`` with values to three decimal places.
+            ``"hkl = (h, k, l)"`` or ``"uvw = (u, v, w)"`` with values
+            to three decimal places.
         """
         x, y, _ = np.dot(self.T_inv, [x, y, 1])
-        h, k, l = np.dot(self.W, [x, y, self.z])
-        return "hkl = ({:.3f}, {:.3f}, {:.3f})".format(h, k, l)
+        i, j, k = np.dot(self.W, [x, y, self.z])
+        if self.space == "real":
+            return "uvw = ({:.3f}, {:.3f}, {:.3f})".format(i, j, k)
+        return "hkl = ({:.3f}, {:.3f}, {:.3f})".format(i, j, k)
 
     def add_slice(self, slice_dict):
         """
@@ -1285,8 +1696,8 @@ class VolumeSlicerView(NeuXtalVizWidget):
         slice_dict : dict
             Slice information dictionary (as returned by the model's
             `get_slice_info`) containing 'x', 'y', 'labels', 'title',
-            'signal', 'z', 'W', 'transform', 'aspect', and optionally
-            'vmin'/'vmax'.
+            'signal', 'z', 'W', 'space', 'transform', 'aspect', and
+            optionally 'vmin'/'vmax'.
         """
         prev_xlim = (
             self.ax_slice.get_xlim() if self.slice_im is not None else None
@@ -1318,6 +1729,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         self.z = slice_dict["z"]
         self.W = slice_dict["W"]
+        self.space = slice_dict.get("space", "reciprocal")
 
         scale = self.get_slice_scale()
 
@@ -1426,8 +1838,9 @@ class VolumeSlicerView(NeuXtalVizWidget):
             xmin, ymin = self.get_xmin_value(), self.get_ymin_value()
             xmax, ymax = self.get_xmax_value(), self.get_ymax_value()
 
-            xmin, ymin, _ = np.dot(self.T, [xmin, ymin, 1])
-            xmax, ymax, _ = np.dot(self.T, [xmax, ymax, 1])
+            xmin, xmax, ymin, ymax = self._transform_bbox(
+                self.T, xmin, ymin, xmax, ymax
+            )
 
             self.ax_slice.set_xlim([xmin, xmax])
             self.ax_slice.set_ylim([ymin, ymax])
@@ -1751,6 +2164,418 @@ class VolumeSlicerView(NeuXtalVizWidget):
         """
         return self.cbar_combo.currentText()
 
+    def set_colormap(self, cmap_key):
+        """
+        Set the currently selected colormap.
+
+        Parameters
+        ----------
+        cmap_key : str
+            Key into the module-level `cmaps` mapping (e.g. 'Diverging').
+        """
+        index = self.cbar_combo.findText(cmap_key)
+        if index >= 0:
+            self.cbar_combo.setCurrentIndex(index)
+
+    def get_symmetric_zero(self):
+        """
+        Get whether the slice colorbar limits should be symmetric about zero.
+
+        Returns
+        -------
+        symmetric_zero : bool
+            True if the "Symmetric About Zero" box is checked.
+        """
+        return self.symmetric_zero_box.isChecked()
+
+    def set_symmetric_zero(self, checked):
+        """
+        Set whether the slice colorbar limits should be symmetric about zero.
+
+        Parameters
+        ----------
+        checked : bool
+            Whether to check the "Symmetric About Zero" box.
+        """
+        self.symmetric_zero_box.setChecked(checked)
+
+    def get_active_workspace(self):
+        """
+        Get the display name of the currently selected workspace.
+
+        Returns
+        -------
+        display_name : str or None
+            Display name selected in the active-workspace combo box, or
+            None if no workspace is loaded.
+        """
+        text = self.workspace_combo.currentText()
+        return text if text else None
+
+    def update_workspace_combos(self, display_names, active_display_name):
+        """
+        Repopulate the active-workspace combo box.
+
+        Parameters
+        ----------
+        display_names : list of str
+            Display names of all currently loaded/derived workspaces.
+        active_display_name : str or None
+            Display name to select after repopulating, if present.
+        """
+        self.workspace_combo.blockSignals(True)
+        self.workspace_combo.clear()
+        self.workspace_combo.addItems(display_names)
+        if active_display_name in display_names:
+            self.workspace_combo.setCurrentIndex(
+                display_names.index(active_display_name)
+            )
+        self.workspace_combo.blockSignals(False)
+        self.auto_scale_dropdown(self.workspace_combo)
+
+        for combo in (
+            self.combine_ws_a_combo,
+            self.combine_ws_b_combo,
+            self.punch_input_combo,
+            self.blur_input_combo,
+            self.pdf_input_combo,
+        ):
+            self._repopulate_preserving_selection(combo, display_names)
+
+    def _repopulate_preserving_selection(self, combo, display_names):
+        """
+        Repopulate a workspace-name combo box, preserving its selection.
+
+        Parameters
+        ----------
+        combo : QComboBox
+            Combo box listing workspace display names.
+        display_names : list of str
+            Display names of all currently loaded/derived workspaces.
+        """
+        current = combo.currentText()
+        combo.blockSignals(True)
+        combo.clear()
+        combo.addItems(display_names)
+        if current in display_names:
+            combo.setCurrentIndex(display_names.index(current))
+        combo.blockSignals(False)
+        self.auto_scale_dropdown(combo)
+
+    def update_workspace_list(self, display_names):
+        """
+        Repopulate the workspace management list (rename/delete).
+
+        Parameters
+        ----------
+        display_names : list of str
+            Display names of all currently loaded/derived workspaces.
+        """
+        current = self.get_selected_workspace_for_management()
+        self.workspace_list_widget.clear()
+        self.workspace_list_widget.addItems(display_names)
+        if current in display_names:
+            items = self.workspace_list_widget.findItems(
+                current, Qt.MatchExactly
+            )
+            if items:
+                self.workspace_list_widget.setCurrentItem(items[0])
+
+    def get_selected_workspace_for_management(self):
+        """
+        Get the display name currently selected in the management list.
+
+        Returns
+        -------
+        display_name : str or None
+            Selected display name, or None if no item is selected.
+        """
+        item = self.workspace_list_widget.currentItem()
+        return item.text() if item is not None else None
+
+    def confirm_delete(self, display_name):
+        """
+        Prompt the user to confirm deleting a workspace.
+
+        Parameters
+        ----------
+        display_name : str
+            Display name of the workspace to be deleted.
+
+        Returns
+        -------
+        confirmed : bool
+            True if the user confirmed the deletion.
+        """
+        answer = QMessageBox.question(
+            self,
+            "Delete Workspace",
+            'Delete workspace "{}"? This cannot be undone.'.format(
+                display_name
+            ),
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        return answer == QMessageBox.Yes
+
+    def prompt_rename(self, old_name):
+        """
+        Prompt the user for a new display name for a workspace.
+
+        Parameters
+        ----------
+        old_name : str
+            Current display name of the workspace being renamed.
+
+        Returns
+        -------
+        new_name : str or None
+            New display name, or None if the user cancelled or entered
+            an empty name.
+        """
+        new_name, ok = QInputDialog.getText(
+            self, "Rename Workspace", "New name:", QLineEdit.Normal, old_name
+        )
+        if not ok or not new_name:
+            return None
+        return new_name
+
+    def show_error(self, title, message):
+        """
+        Show an error dialog.
+
+        Parameters
+        ----------
+        title : str
+            Dialog title.
+        message : str
+            Error message to display.
+        """
+        QMessageBox.critical(self, title, message)
+
+    def get_combine_ws_a(self):
+        """
+        Get the display name selected as workspace A for arithmetic.
+
+        Returns
+        -------
+        display_name : str or None
+            Selected display name, or None if no workspace is loaded.
+        """
+        text = self.combine_ws_a_combo.currentText()
+        return text if text else None
+
+    def get_combine_ws_b(self):
+        """
+        Get the display name selected as workspace B for arithmetic.
+
+        Returns
+        -------
+        display_name : str or None
+            Selected display name, or None if no workspace is loaded.
+        """
+        text = self.combine_ws_b_combo.currentText()
+        return text if text else None
+
+    def get_combine_coeff_a(self):
+        """
+        Get the coefficient ``a`` for the combine operation, if valid.
+
+        Returns
+        -------
+        coeff : float or None
+            Coefficient parsed from the field, or None if the field
+            does not currently contain acceptable input.
+        """
+        if self.combine_coeff_a_line.hasAcceptableInput():
+            return float(self.combine_coeff_a_line.text())
+
+    def get_combine_coeff_b(self):
+        """
+        Get the coefficient ``b`` for the combine operation, if valid.
+
+        Returns
+        -------
+        coeff : float or None
+            Coefficient parsed from the field, or None if the field
+            does not currently contain acceptable input.
+        """
+        if self.combine_coeff_b_line.hasAcceptableInput():
+            return float(self.combine_coeff_b_line.text())
+
+    def get_combine_output_name(self):
+        """
+        Get the requested display name for the combine result.
+
+        Returns
+        -------
+        output_name : str or None
+            Text entered in the output-name field, or None if empty.
+        """
+        text = self.combine_output_line.text().strip()
+        return text if text else None
+
+    def get_pdf_crystal_system(self):
+        """
+        Get the crystal system selected in the Transform tab.
+
+        Returns
+        -------
+        system : str
+            Name of the selected crystal system.
+        """
+        return self.pdf_crystal_system_combo.currentText()
+
+    def get_pdf_space_group(self):
+        """
+        Get the space group selected in the Transform tab.
+
+        Returns
+        -------
+        space_group : str or None
+            Space group formatted as ``"{number}: {symbol}"``, or None
+            if the combo box is currently empty.
+        """
+        text = self.pdf_space_group_combo.currentText()
+        return text if text else None
+
+    def update_pdf_space_groups(self, space_groups):
+        """
+        Repopulate the Transform tab's space-group combo box.
+
+        Parameters
+        ----------
+        space_groups : list of str
+            Space groups formatted as ``"{number}: {symbol}"``.
+        """
+        self.pdf_space_group_combo.clear()
+        self.pdf_space_group_combo.addItems(space_groups)
+        self.auto_scale_dropdown(self.pdf_space_group_combo)
+
+    def get_punch_input_workspace(self):
+        """
+        Get the display name selected as input to the Bragg punch.
+
+        Returns
+        -------
+        display_name : str or None
+            Selected display name, or None if no workspace is loaded.
+        """
+        text = self.punch_input_combo.currentText()
+        return text if text else None
+
+    def get_punch_output_name(self):
+        """
+        Get the requested display name for the Bragg-punch result.
+
+        Returns
+        -------
+        output_name : str or None
+            Text entered in the output-name field, or None if empty.
+        """
+        text = self.punch_output_line.text().strip()
+        return text if text else None
+
+    def get_punch_q_size(self):
+        """
+        Get the Bragg-punch radius, if valid.
+
+        Returns
+        -------
+        Q_size : float or None
+            Punch radius (Å⁻¹) parsed from the field, or None if the
+            field does not currently contain acceptable input.
+        """
+        if self.punch_q_size_line.hasAcceptableInput():
+            return float(self.punch_q_size_line.text())
+
+    def get_punch_q_inner(self):
+        """
+        Get the Bragg-punch step's inner-cut radius, if valid.
+
+        Returns
+        -------
+        Q_inner : float or None
+            Inner-cut radius (Å⁻¹) parsed from the field, or None if
+            the field does not currently contain acceptable input.
+        """
+        if self.punch_q_inner_line.hasAcceptableInput():
+            return float(self.punch_q_inner_line.text())
+
+    def get_blur_input_workspace(self):
+        """
+        Get the display name selected as input to the blur step.
+
+        Returns
+        -------
+        display_name : str or None
+            Selected display name, or None if no workspace is loaded.
+        """
+        text = self.blur_input_combo.currentText()
+        return text if text else None
+
+    def get_blur_output_name(self):
+        """
+        Get the requested display name for the blurred result.
+
+        Returns
+        -------
+        output_name : str or None
+            Text entered in the output-name field, or None if empty.
+        """
+        text = self.blur_output_line.text().strip()
+        return text if text else None
+
+    def get_blur_q_blur(self):
+        """
+        Get the blur step's NaN-Gaussian blur size, if valid.
+
+        Returns
+        -------
+        Q_blur : float or None
+            Blur size (Å⁻¹) parsed from the field, or None if the
+            field does not currently contain acceptable input.
+        """
+        if self.blur_q_blur_line.hasAcceptableInput():
+            return float(self.blur_q_blur_line.text())
+
+    def get_pdf_input_workspace(self):
+        """
+        Get the display name selected as input to the 3D-ΔPDF transform.
+
+        Returns
+        -------
+        display_name : str or None
+            Selected display name, or None if no workspace is loaded.
+        """
+        text = self.pdf_input_combo.currentText()
+        return text if text else None
+
+    def get_pdf_output_name(self):
+        """
+        Get the requested display name for the 3D-ΔPDF result.
+
+        Returns
+        -------
+        output_name : str or None
+            Text entered in the output-name field, or None if empty.
+        """
+        text = self.pdf_output_line.text().strip()
+        return text if text else None
+
+    def get_pdf_q_outer(self):
+        """
+        Get the 3D-ΔPDF padding extent, if valid.
+
+        Returns
+        -------
+        Q_outer : float or None
+            Padding extent (Å⁻¹) parsed from the field, or None if the
+            field does not currently contain acceptable input.
+        """
+        if self.pdf_q_outer_line.hasAcceptableInput():
+            return float(self.pdf_q_outer_line.text())
+
     def get_slice_value(self):
         """
         Get the current slice position value, if valid.
@@ -2044,7 +2869,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         Returns
         -------
         scale : str
-            'linear' or 'log'.
+            'linear', 'log', or 'symlog'.
         """
         return self.slice_scale_combo.currentText().lower()
 
@@ -2300,8 +3125,9 @@ class VolumeSlicerView(NeuXtalVizWidget):
         slice_ylim = ax.get_ylim()
         xmin, xmax = slice_xlim
         ymin, ymax = slice_ylim
-        xmin, ymin, _ = np.dot(self.T_inv, [xmin, ymin, 1])
-        xmax, ymax, _ = np.dot(self.T_inv, [xmax, ymax, 1])
+        xmin, xmax, ymin, ymax = self._transform_bbox(
+            self.T_inv, xmin, ymin, xmax, ymax
+        )
         self.set_xmin_value(xmin)
         self.set_xmax_value(xmax)
         self.set_ymin_value(ymin)
@@ -2362,8 +3188,9 @@ class VolumeSlicerView(NeuXtalVizWidget):
         if self.cb is not None:
             xmin, xmax = xlim
             ymin, ymax = ylim
-            xmin, ymin, _ = np.dot(self.T, [xmin, ymin, 1])
-            xmax, ymax, _ = np.dot(self.T, [xmax, ymax, 1])
+            xmin, xmax, ymin, ymax = self._transform_bbox(
+                self.T, xmin, ymin, xmax, ymax
+            )
 
             # Disconnect while setting limits programmatically so this
             # doesn't get misread by slice_limits as an interactive

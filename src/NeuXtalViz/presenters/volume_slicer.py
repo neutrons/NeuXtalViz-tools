@@ -1,4 +1,5 @@
 from NeuXtalViz.presenters.base_presenter import NeuXtalVizPresenter
+from NeuXtalViz.models.crystal_structure_tools import CrystalStructureModel
 
 import functools
 import numpy as np
@@ -57,8 +58,8 @@ class VolumeSlicer(NeuXtalVizPresenter):
         self.view.connect_slice_ready(self.update_slice)
         self.view.connect_cut_ready(self.update_cut)
 
-        self.view.connect_vmin_line(self.update_cvals)
-        self.view.connect_vmax_line(self.update_cvals)
+        self.view.connect_vmin_line(self.update_vmin)
+        self.view.connect_vmax_line(self.update_vmax)
 
         self.view.connect_xmin_line(self.update_lims)
         self.view.connect_xmax_line(self.update_lims)
@@ -73,10 +74,31 @@ class VolumeSlicer(NeuXtalVizPresenter):
         self.view.connect_save_slice(self.save_slice)
         self.view.connect_save_cut(self.save_cut)
 
+        self.view.connect_workspace_combo(self.activate_workspace)
+        self.view.connect_delete_workspace(self.delete_workspace)
+        self.view.connect_rename_workspace(self.rename_workspace)
+        self.view.connect_combine_workspaces(self.combine_workspaces)
+
+        self.view.connect_pdf_crystal_system_combo(
+            self.update_pdf_space_groups
+        )
+
+        self.view.connect_run_bragg_punch(self.run_bragg_punch)
+        self.view.connect_run_blur(self.run_blur)
+        self.view.connect_calculate_pdf(self.calculate_pdf)
+
+        self.view.connect_symmetric_zero(self.update_slice_display)
+
         self.draw_idle = True
         self.slice_idle = True
         self.cut_idle = True
         self.slice_signal_cache = None
+        self.activate_idle = True
+        self.punch_idle = True
+        self.blur_idle = True
+        self.pdf_idle = True
+
+        self.update_pdf_space_groups()
 
     def _calculate_display_limits(self, data, method, scale):
         """
@@ -118,7 +140,14 @@ class VolumeSlicer(NeuXtalVizPresenter):
         return vmin, vmax
 
     def _resolve_display_limits(
-        self, data, method, scale, auto_limits, current_vmin, current_vmax
+        self,
+        data,
+        method,
+        scale,
+        auto_limits,
+        current_vmin,
+        current_vmax,
+        symmetric_zero=False,
     ):
         """
         Resolve the display color limits to use, preferring manual values.
@@ -134,13 +163,18 @@ class VolumeSlicer(NeuXtalVizPresenter):
         method : str or None
             Clipping method passed to `_calculate_display_limits`.
         scale : str
-            Display scale, either 'log' or 'linear'.
+            Display scale, either 'log', 'linear', or 'symlog'.
         auto_limits : bool
             Whether automatic limit calculation is enabled.
         current_vmin : float or None
             User-supplied lower limit, if any.
         current_vmax : float or None
             User-supplied upper limit, if any.
+        symmetric_zero : bool, optional
+            If True, force the resolved limits to be symmetric about
+            zero (``vmax = max(abs(vmin), abs(vmax))``, ``vmin =
+            -vmax``), for signed data such as a delta-PDF result
+            (default False).
 
         Returns
         -------
@@ -157,9 +191,15 @@ class VolumeSlicer(NeuXtalVizPresenter):
         ):
             if current_vmin <= 0 and scale == "log":
                 current_vmin = current_vmax / 10
-            return current_vmin, current_vmax
+            vmin, vmax = current_vmin, current_vmax
+        else:
+            vmin, vmax = self._calculate_display_limits(data, method, scale)
 
-        return self._calculate_display_limits(data, method, scale)
+        if symmetric_zero:
+            vmax = max(abs(vmin), abs(vmax))
+            vmin = -vmax
+
+        return vmin, vmax
 
     def update_lims(self):
         """
@@ -188,6 +228,40 @@ class VolumeSlicer(NeuXtalVizPresenter):
                 line_cut = self.view.get_cut()
                 lim = xlim if line_cut == "Axis 1" else ylim
                 self.view.set_cut_lim(lim)
+
+    def update_vmin(self):
+        """
+        Handle editing of the colorbar minimum field.
+
+        If "Symmetric About Zero" is enabled, forces the maximum field
+        to the negative of the edited minimum before applying it.
+
+        Parameters
+        ----------
+        None
+        """
+        if self.view.get_symmetric_zero():
+            vmin = self.view.get_vmin_value()
+            if vmin is not None:
+                self.view.set_vmax_value(-vmin)
+        self.update_cvals()
+
+    def update_vmax(self):
+        """
+        Handle editing of the colorbar maximum field.
+
+        If "Symmetric About Zero" is enabled, forces the minimum field
+        to the negative of the edited maximum before applying it.
+
+        Parameters
+        ----------
+        None
+        """
+        if self.view.get_symmetric_zero():
+            vmax = self.view.get_vmax_value()
+            if vmax is not None:
+                self.view.set_vmin_value(-vmax)
+        self.update_cvals()
 
     def update_cvals(self):
         """
@@ -290,6 +364,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
             self.view.get_auto_limits(),
             self.view.get_vmin_value(),
             self.view.get_vmax_value(),
+            self.view.get_symmetric_zero(),
         )
         self.view.update_slice_display(
             self.view.get_colormap(),
@@ -338,6 +413,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
             Result returned by `load_NXS_process` (unused).
         """
         self.update_oriented_lattice()
+        self.refresh_workspace_lists()
 
     def load_NXS_process(self, progress, stop_event=None):
         """
@@ -631,6 +707,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
             auto_limits = self.view.get_auto_limits()
             vmin = self.view.get_vmin_value()
             vmax = self.view.get_vmax_value()
+            symmetric_zero = self.view.get_symmetric_zero()
 
             worker = self.view.worker(
                 functools.partial(
@@ -643,6 +720,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
                     auto_limits=auto_limits,
                     vmin=vmin,
                     vmax=vmax,
+                    symmetric_zero=symmetric_zero,
                 )
             )
             worker.connect_result(self.slice_data_complete)
@@ -680,6 +758,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
         auto_limits=None,
         vmin=None,
         vmax=None,
+        symmetric_zero=False,
     ):
         """
         Worker task that computes a 2D slice through the loaded volume.
@@ -740,7 +819,13 @@ class VolumeSlicer(NeuXtalVizPresenter):
                 data = slice_histo["signal"]
 
                 vmin_out, vmax_out = self._resolve_display_limits(
-                    data, vlim_method, scale, auto_limits, vmin, vmax
+                    data,
+                    vlim_method,
+                    scale,
+                    auto_limits,
+                    vmin,
+                    vmax,
+                    symmetric_zero,
                 )
                 slice_histo["vmin"] = vmin_out
                 slice_histo["vmax"] = vmax_out
@@ -875,3 +960,343 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
             if filename:
                 self.model.save_cut(filename)
+
+    # ------------------------------------------------------------------
+    # Multi-workspace management (Transform tab)
+    # ------------------------------------------------------------------
+
+    def refresh_workspace_lists(self):
+        """
+        Refresh the workspace combo(s) and management list from the model.
+
+        Parameters
+        ----------
+        None
+        """
+        names = list(self.model.workspace_registry.keys())
+        self.view.update_workspace_combos(
+            names, self.model.active_display_name
+        )
+        self.view.update_workspace_list(names)
+
+    def activate_workspace(self):
+        """
+        Make the workspace combo's current selection the active workspace.
+
+        Runs on a worker thread, since activation clones and
+        re-downsamples the workspace for the 3D view (potentially
+        slow for large volumes), then redraws the volume/slice/cut.
+
+        Parameters
+        ----------
+        None
+        """
+        display_name = self.view.get_active_workspace()
+
+        if not display_name or not self.activate_idle:
+            return
+
+        self.activate_idle = False
+
+        worker = self.view.worker(
+            functools.partial(
+                self.model.activate_workspace, display_name=display_name
+            )
+        )
+        worker.connect_result(self.activate_workspace_complete)
+        worker.connect_finished(self.redraw_data)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def activate_workspace_complete(self, result):
+        """
+        Refresh lattice/display state after a new workspace is activated.
+
+        For a real-space (delta-PDF) workspace, defaults the colormap
+        to "Diverging" and checks "Symmetric about Zero" -- these
+        remain normal, user-overridable controls afterward.
+
+        Parameters
+        ----------
+        result : object
+            Return value of `model.activate_workspace` (unused).
+        """
+        self.update_oriented_lattice()
+
+        if self.model.active_space == "real":
+            self.view.set_colormap("Diverging")
+            self.view.set_symmetric_zero(True)
+
+        self.view.update_workspace_combos(
+            list(self.model.workspace_registry.keys()),
+            self.model.active_display_name,
+        )
+
+        self.activate_idle = True
+
+    def delete_workspace(self):
+        """
+        Delete the workspace currently selected in the management list.
+
+        Prompts for confirmation first.
+
+        Parameters
+        ----------
+        None
+        """
+        display_name = self.view.get_selected_workspace_for_management()
+
+        if not display_name:
+            return
+
+        if not self.view.confirm_delete(display_name):
+            return
+
+        self.model.delete_workspace(display_name)
+        self.refresh_workspace_lists()
+
+    def rename_workspace(self):
+        """
+        Rename the workspace currently selected in the management list.
+
+        Prompts for a new display name.
+
+        Parameters
+        ----------
+        None
+        """
+        old_name = self.view.get_selected_workspace_for_management()
+
+        if not old_name:
+            return
+
+        new_name = self.view.prompt_rename(old_name)
+
+        if not new_name:
+            return
+
+        self.model.rename_workspace(old_name, new_name)
+        self.refresh_workspace_lists()
+
+    def combine_workspaces(self):
+        """
+        Compute ``a * ws_a - b * ws_b`` from the arithmetic panel's inputs.
+
+        Shows an error dialog (without raising) if the two workspaces
+        don't share common binning, or if any input is missing/invalid.
+
+        Parameters
+        ----------
+        None
+        """
+        ws_a = self.view.get_combine_ws_a()
+        ws_b = self.view.get_combine_ws_b()
+        coeff_a = self.view.get_combine_coeff_a()
+        coeff_b = self.view.get_combine_coeff_b()
+        output_name = self.view.get_combine_output_name()
+
+        if not ws_a or not ws_b or not output_name:
+            return
+        if coeff_a is None or coeff_b is None:
+            return
+
+        try:
+            self.model.combine_workspaces(
+                ws_a, coeff_a, ws_b, coeff_b, output_name
+            )
+        except ValueError as e:
+            self.view.show_error("Cannot combine workspaces", str(e))
+            return
+
+        self.refresh_workspace_lists()
+
+    # ------------------------------------------------------------------
+    # Delta-PDF (Transform tab)
+    # ------------------------------------------------------------------
+
+    def update_pdf_space_groups(self):
+        """
+        Repopulate the space-group combo for the selected crystal system.
+
+        Connected to the crystal-system combo. Reuses
+        ``CrystalStructureModel``'s (static) space-group generation
+        rather than duplicating it.
+
+        Parameters
+        ----------
+        None
+        """
+        system = self.view.get_pdf_crystal_system()
+        space_groups = (
+            CrystalStructureModel.generate_space_groups_from_crystal_system(
+                system
+            )
+        )
+        self.view.update_pdf_space_groups(space_groups)
+
+    def run_bragg_punch(self):
+        """
+        Punch out allowed-reflection regions and remove the low-Q region.
+
+        Runs on a worker thread (the per-reflection loop can be slow).
+        Produces a new, separately inspectable reciprocal-space
+        workspace -- see `VolumeSlicerModel.run_bragg_punch`.
+
+        Parameters
+        ----------
+        None
+        """
+        input_name = self.view.get_punch_input_workspace()
+        output_name = self.view.get_punch_output_name()
+        space_group = self.view.get_pdf_space_group()
+        Q_size = self.view.get_punch_q_size()
+        Q_inner = self.view.get_punch_q_inner()
+
+        if not input_name or not output_name or not space_group:
+            return
+        if Q_size is None or Q_inner is None or not self.punch_idle:
+            return
+
+        # Space groups are shown as "{number}: {symbol}" (see
+        # CrystalStructureModel.generate_space_groups_from_crystal_system);
+        # SpaceGroupFactory.createSpaceGroup wants just the symbol.
+        symbol = space_group.split(": ", 1)[1]
+
+        self.punch_idle = False
+
+        worker = self.view.worker(
+            functools.partial(
+                self.model.run_bragg_punch,
+                input_display_name=input_name,
+                output_display_name=output_name,
+                space_group=symbol,
+                Q_size=Q_size,
+                Q_inner=Q_inner,
+            )
+        )
+        worker.connect_result(self.run_bragg_punch_complete)
+        worker.connect_finished(self.update_complete)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def run_bragg_punch_complete(self, result):
+        """
+        Refresh the workspace list after a Bragg punch completes.
+
+        Parameters
+        ----------
+        result : str or None
+            Display name of the punched workspace, or None if the
+            worker was stopped or the inputs were invalid.
+        """
+        if result is not None:
+            self.refresh_workspace_lists()
+        self.punch_idle = True
+
+    def run_blur(self):
+        """
+        NaN-Gaussian-blur the selected workspace.
+
+        Runs on a worker thread. Typically run on the output of
+        `run_bragg_punch`, though any registered workspace may be
+        selected directly -- see `VolumeSlicerModel.run_blur`.
+
+        Parameters
+        ----------
+        None
+        """
+        input_name = self.view.get_blur_input_workspace()
+        output_name = self.view.get_blur_output_name()
+        Q_blur = self.view.get_blur_q_blur()
+
+        if not input_name or not output_name:
+            return
+        if Q_blur is None:
+            return
+        if not self.blur_idle:
+            return
+
+        self.blur_idle = False
+
+        worker = self.view.worker(
+            functools.partial(
+                self.model.run_blur,
+                input_display_name=input_name,
+                output_display_name=output_name,
+                Q_blur=Q_blur,
+            )
+        )
+        worker.connect_result(self.run_blur_complete)
+        worker.connect_finished(self.update_complete)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def run_blur_complete(self, result):
+        """
+        Refresh the workspace list after a blur completes.
+
+        Parameters
+        ----------
+        result : str or None
+            Display name of the blurred workspace, or None if the
+            worker was stopped or the inputs were invalid.
+        """
+        if result is not None:
+            self.refresh_workspace_lists()
+        self.blur_idle = True
+
+    def calculate_pdf(self):
+        """
+        Run the pad/FFT stage, producing a 3D-ΔPDF result.
+
+        Runs on a worker thread. Typically run on the output of
+        `run_blur`, though any registered workspace may be selected
+        directly -- see `VolumeSlicerModel.calculate_pdf`.
+
+        Parameters
+        ----------
+        None
+        """
+        input_name = self.view.get_pdf_input_workspace()
+        output_name = self.view.get_pdf_output_name()
+        Q_outer = self.view.get_pdf_q_outer()
+
+        if not input_name or not output_name:
+            return
+        if Q_outer is None:
+            return
+        if not self.pdf_idle:
+            return
+
+        self.pdf_idle = False
+
+        worker = self.view.worker(
+            functools.partial(
+                self.model.calculate_pdf,
+                input_display_name=input_name,
+                output_display_name=output_name,
+                Q_outer=Q_outer,
+            )
+        )
+        worker.connect_result(self.calculate_pdf_complete)
+        worker.connect_finished(self.update_complete)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def calculate_pdf_complete(self, result):
+        """
+        Refresh the workspace list after a 3D-ΔPDF calculation completes.
+
+        Parameters
+        ----------
+        result : str or None
+            Display name of the 3D-ΔPDF result, or None if the worker
+            was stopped or the inputs were invalid.
+        """
+        if result is not None:
+            self.refresh_workspace_lists()
+        self.pdf_idle = True

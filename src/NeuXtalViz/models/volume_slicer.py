@@ -1,12 +1,24 @@
+import re
+
 from mantid.simpleapi import (
     LoadMD,
     IntegrateMDHistoWorkspace,
-    CompactMD,
+    CloneWorkspace,
+    CreateMDWorkspace,
+    CreateSingleValuedWorkspace,
+    BinMD,
+    AddSampleLog,
+    CopySample,
+    MultiplyMD,
+    MinusMD,
+    DeleteWorkspace,
     mtd,
 )
+from mantid.geometry import SpaceGroupFactory
 
 import numpy as np
 import scipy.linalg
+from scipy.ndimage import gaussian_filter
 
 import skimage.measure
 
@@ -32,16 +44,243 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         self.W = np.eye(3)
 
-    def load_md_histo_workspace(self, filename):
+        # Registry of workspaces the Transform tab has loaded/derived,
+        # keyed by the user-facing display name:
+        #   {display_name: {"ws_name": str, "space": "reciprocal"|"real"}}
+        # Only one entry is ever "active" (cloned into "histo") at a
+        # time -- see activate_workspace().
+        self.workspace_registry = {}
+        self.active_space = "reciprocal"
+        self.active_display_name = None
+        self._load_counter = 0
+
+    def register_workspace(self, display_name, ws_name, space="reciprocal"):
         """
-        Load and preprocess a Mantid MD histogram workspace from a file.
+        Register a workspace so it can be selected via the workspace combo.
+
+        Parameters
+        ----------
+        display_name : str
+            User-facing name shown in the workspace combo box.
+        ws_name : str
+            Actual Mantid AnalysisDataService workspace name.
+        space : str, optional
+            Either ``"reciprocal"`` (default) for ordinary Q-space data,
+            or ``"real"`` for a delta-PDF (direct-space) result. Drives
+            which physical basis matrix and axis labeling
+            (hkl vs. uvw) is used when this workspace is active.
+        """
+        self.workspace_registry[display_name] = {
+            "ws_name": ws_name,
+            "space": space,
+        }
+
+    def activate_workspace(
+        self, display_name, progress=None, stop_event=None, **kwargs
+    ):
+        """
+        Make a registered workspace the active one for slicing/cutting.
+
+        Clones the registered workspace into the fixed internal
+        ``"histo"`` slot (deleting any previous ``"histo"``/``"volume"``/
+        ``"slice"``/``"cut"`` first to bound memory use) and re-runs the
+        same setup ``load_md_histo_workspace`` performs after ``LoadMD``,
+        so the existing slice/cut pipeline is otherwise untouched.
+
+        Parameters
+        ----------
+        display_name : str
+            Display name previously passed to :meth:`register_workspace`.
+        progress : callable, optional
+            ``progress(message, percent)`` callback (injected by the
+            worker infrastructure) -- cloning/downsampling can take a
+            while for a large workspace.
+        stop_event : threading.Event, optional
+            Unused; accepted because the presenter runs this on a
+            worker thread, which always passes it (injected by the
+            worker infrastructure).
+        """
+        entry = self.workspace_registry[display_name]
+
+        if progress is not None:
+            progress("Activating workspace", 0)
+
+        for ws in ("histo", "volume", "slice", "cut"):
+            if mtd.doesExist(ws):
+                DeleteWorkspace(Workspace=ws)
+
+        CloneWorkspace(
+            InputWorkspace=entry["ws_name"], OutputWorkspace="histo"
+        )
+
+        self.active_space = entry["space"]
+        self.active_display_name = display_name
+
+        if progress is not None:
+            progress("Cloning workspace", 20)
+
+        self._activate_histo(progress=progress)
+
+        if progress is not None:
+            progress("Done", 100)
+
+    def delete_workspace(self, display_name):
+        """
+        Remove a registered workspace and delete its backing workspace.
+
+        If ``display_name`` is currently active, the active
+        ``"histo"``/``"volume"``/``"slice"``/``"cut"`` scratch
+        workspaces are independent clones and are left as they are --
+        they simply won't correspond to any registry entry until a
+        different workspace is activated.
+
+        Parameters
+        ----------
+        display_name : str
+            Display name to remove.
+        """
+        entry = self.workspace_registry.pop(display_name)
+
+        if mtd.doesExist(entry["ws_name"]):
+            DeleteWorkspace(Workspace=entry["ws_name"])
+
+        if self.active_display_name == display_name:
+            self.active_display_name = None
+
+    def load_md_histo_workspace(self, filename, display_name=None):
+        """
+        Load a Mantid MD histogram workspace from a file, register it,
+        and make it the active workspace.
+
+        The file is loaded into its own stable, registry-backed
+        workspace (not directly into ``"histo"``), so it survives later
+        calls to :meth:`activate_workspace` for *other* registered
+        workspaces -- ``"histo"`` itself is just a scratch slot that
+        gets deleted/recreated on every activation.
 
         Parameters
         ----------
         filename : str
             Path to the Mantid MD histogram file to load.
+        display_name : str, optional
+            User-facing name for the workspace combo. Defaults to a
+            sequential ``"data"``, ``"data_2"``, ``"data_3"``, ... name
+            (the counter never repeats, even across renamed/deleted
+            entries), disambiguated further if it still collides with
+            an already-registered name.
         """
-        LoadMD(Filename=filename, OutputWorkspace="histo")
+        if display_name is None:
+            self._load_counter += 1
+            display_name = (
+                "data"
+                if self._load_counter == 1
+                else "data_{}".format(self._load_counter)
+            )
+        display_name = self._unique_display_name(display_name)
+
+        ws_name = self._unique_ws_name(display_name)
+
+        LoadMD(Filename=filename, OutputWorkspace=ws_name)
+
+        self.register_workspace(display_name, ws_name, space="reciprocal")
+        self.activate_workspace(display_name)
+
+        return display_name
+
+    def rename_workspace(self, old_display_name, new_display_name):
+        """
+        Rename a registered workspace's display name.
+
+        Only the registry entry's key changes -- the underlying Mantid
+        workspace name is left as-is, so this is safe to call whether
+        or not the workspace is currently active.
+
+        Parameters
+        ----------
+        old_display_name : str
+            Current display name (registry key).
+        new_display_name : str
+            New display name. Disambiguated if it collides with
+            another already-registered name.
+
+        Returns
+        -------
+        new_display_name : str
+            The (possibly disambiguated) display name actually used.
+        """
+        new_display_name = self._unique_display_name(
+            new_display_name, exclude=old_display_name
+        )
+        self.workspace_registry[new_display_name] = (
+            self.workspace_registry.pop(old_display_name)
+        )
+        return new_display_name
+
+    def _unique_display_name(self, base, exclude=None):
+        """Disambiguate a display name against the workspace registry."""
+        name = base
+        n = 1
+        while name in self.workspace_registry and name != exclude:
+            n += 1
+            name = "{} ({})".format(base, n)
+        return name
+
+    def _replace_workspace_if_exists(self, display_name, keep_ws_name=None):
+        """
+        Drop any existing registry entry/backing workspace at this name.
+
+        Used by the Bragg-punch/blur/3D-ΔPDF steps so re-running a step
+        (e.g. after tweaking a parameter) overwrites its previous
+        output in place, rather than accumulating "punched (2)",
+        "punched (3)", ... entries.
+
+        Parameters
+        ----------
+        display_name : str
+            Display name about to be (re-)registered.
+        keep_ws_name : str, optional
+            Backing workspace name to leave alone even if it matches
+            the existing entry's (e.g. because it's still needed as an
+            input to the operation replacing it).
+        """
+        entry = self.workspace_registry.pop(display_name, None)
+        if entry is None:
+            return
+        if entry["ws_name"] == keep_ws_name:
+            return
+        if mtd.doesExist(entry["ws_name"]):
+            DeleteWorkspace(Workspace=entry["ws_name"])
+
+    @staticmethod
+    def _unique_ws_name(base):
+        """Sanitize a display name into a fresh, valid ADS workspace name."""
+        safe = re.sub(r"[^0-9A-Za-z_]", "_", base) or "workspace"
+        name = safe
+        n = 1
+        while mtd.doesExist(name):
+            n += 1
+            name = "{}_{}".format(safe, n)
+        return name
+
+    def _activate_histo(self, progress=None):
+        """
+        Prepare the ``"histo"``/``"volume"`` workspaces for slicing.
+
+        Masks non-finite values, downsamples for the 3D volume render,
+        and reads the UB/W matrices. Shared by both
+        :meth:`load_md_histo_workspace` (after ``LoadMD``) and
+        :meth:`activate_workspace` (after cloning a registered
+        workspace into ``"histo"``).
+
+        Parameters
+        ----------
+        progress : callable, optional
+            ``progress(message, percent)`` callback -- masking/
+            compacting/downsampling can take a while for a large
+            workspace.
+        """
+        if progress is not None:
+            progress("Masking non-finite values", 30)
 
         signal = mtd["histo"].getSignalArray().copy()
         signal_var = mtd["histo"].getErrorSquaredArray().copy()
@@ -54,7 +293,18 @@ class VolumeSlicerModel(NeuXtalVizModel):
         mtd["histo"].setSignalArray(signal)
         mtd["histo"].setErrorSquaredArray(signal_var)
 
-        CompactMD(InputWorkspace="histo", OutputWorkspace="volume")
+        if progress is not None:
+            progress("Preparing volume", 50)
+
+        # CompactMD (trimming empty border bins) turned out to be very
+        # slow on a large workspace (bixbyite.nxs: 1+ minute), and the
+        # trim rarely matters -- real datasets are usually dense across
+        # their extent, and the delta-PDF pipeline's own padded output
+        # just ends up with a slightly wider default zoom instead. Keep
+        # a plain clone so "volume" still exists as its own workspace,
+        # independent of "histo" (deleted/recreated on every
+        # activation).
+        CloneWorkspace(InputWorkspace="histo", OutputWorkspace="volume")
 
         signal = mtd["volume"].getSignalArray()
 
@@ -102,6 +352,9 @@ class VolumeSlicerModel(NeuXtalVizModel):
             (scale[0], scale[1], compress[2]),
         ]
 
+        if progress is not None:
+            progress("Downsampling for 3D view", 70)
+
         self.signals = []
         self.spacings = []
         for block in blocks:
@@ -111,6 +364,9 @@ class VolumeSlicerModel(NeuXtalVizModel):
                     signal, block_size=block, func=np.nanmean, cval=np.nan
                 )
             )
+
+        if progress is not None:
+            progress("Reading orientation", 90)
 
         self.set_B()
         self.set_W()
@@ -313,12 +569,16 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         signal = mtd["slice"].getSignalArray().T.copy().squeeze()
 
-        signal[signal <= 0] = np.nan
+        # Real-space (delta-PDF) signal is signed and centered about
+        # zero -- only clamp non-positive values to NaN for ordinary
+        # (non-negative) reciprocal-space intensity data.
+        if self.active_space != "real":
+            signal[signal <= 0] = np.nan
         signal[np.isinf(signal)] = np.nan
 
         slice_dict["signal"] = signal
 
-        Bp = np.dot(self.UB, self.W)
+        Bp = self._basis_matrix()
 
         Q, R = scipy.linalg.qr(Bp)
 
@@ -326,7 +586,17 @@ class VolumeSlicerModel(NeuXtalVizModel):
         i = ind.tolist().index(False)
 
         slice_dict["z"] = value
-        slice_dict["W"] = np.column_stack([self.W[:, ind], self.W[:, i]])
+        slice_dict["space"] = self.active_space
+
+        # hkl for reciprocal-space workspaces; the unitless inv(W).T
+        # factor for real-space (delta-PDF) uvw-style readout. Scale
+        # doesn't matter here (see _basis_matrix), only direction.
+        readout_matrix = (
+            np.linalg.inv(self.W).T if self.active_space == "real" else self.W
+        )
+        slice_dict["W"] = np.column_stack(
+            [readout_matrix[:, ind], readout_matrix[:, i]]
+        )
 
         v = scipy.linalg.cholesky(np.dot(R.T, R)[ind][:, ind], lower=False)
 
@@ -466,6 +736,41 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         return trans
 
+    def _basis_matrix(self):
+        """
+        Physical basis matrix for the active workspace's space.
+
+        Returns ``Bp = UB @ W`` (the reciprocal-space physical basis,
+        Å⁻¹ per W-projected index) for ordinary reciprocal-space
+        workspaces. For a real-space (delta-PDF) active workspace,
+        returns its dual ``Ap = inv(Bp).T`` instead: the FFT used to
+        produce a delta-PDF result lives on the grid conjugate to the
+        input's ``Bp``-scaled index grid (``np.fft.fftfreq`` returns
+        cycles/unit, matching this file's own no-2*pi convention for
+        ``Bp``, so no extra factor is needed here), so by the standard
+        DFT dual-basis relationship its physical basis satisfies
+        ``Bp.T @ Ap = I``, i.e. ``Ap = inv(Bp).T``.
+
+        This is fed into the same QR/Cholesky orthonormal-basis
+        construction used everywhere else in this class -- that
+        construction is invariant to any global scalar on its input
+        (scaling ``Bp`` scales ``R``/the Cholesky factor `v`
+        proportionally, and every consumer normalizes by `v` or
+        `v[0,0]`), so no 2*pi reconciliation between the two
+        conventions is needed here.
+
+        Returns
+        -------
+        Bp : np.ndarray
+            3x3 physical basis matrix for the active workspace's space.
+        """
+        Bp = np.dot(self.UB, self.W)
+
+        if self.active_space == "real":
+            return np.linalg.inv(Bp).T
+
+        return Bp
+
     def orientation_matrix(self):
         """
         Compute the orientation matrix for the current UB and W matrices.
@@ -478,7 +783,7 @@ class VolumeSlicerModel(NeuXtalVizModel):
         U : np.ndarray
             3x3 orientation matrix combining the UB and W matrices.
         """
-        Bp = np.dot(self.UB, self.W)
+        Bp = self._basis_matrix()
 
         Q, R = scipy.linalg.qr(Bp)
 
@@ -511,7 +816,7 @@ class VolumeSlicerModel(NeuXtalVizModel):
         if self.UB is not None:
             b = self.UB / np.linalg.norm(self.UB, axis=0)
 
-            Bp = np.dot(self.UB, self.W)
+            Bp = self._basis_matrix()
 
             Q, R = scipy.linalg.qr(Bp)
 
@@ -547,7 +852,7 @@ class VolumeSlicerModel(NeuXtalVizModel):
         s : np.ndarray
             Scale factors (column norms of `p`).
         """
-        Bp = np.dot(self.UB, self.W)
+        Bp = self._basis_matrix()
 
         Q, R = scipy.linalg.qr(Bp)
 
@@ -578,7 +883,7 @@ class VolumeSlicerModel(NeuXtalVizModel):
             None if no UB matrix has been set.
         """
         if self.UB is not None:
-            Bp = np.dot(self.UB, self.W)
+            Bp = self._basis_matrix()
 
             Q, R = scipy.linalg.qr(Bp)
 
@@ -592,3 +897,683 @@ class VolumeSlicerModel(NeuXtalVizModel):
             vec = np.dot(matrix, ind)
 
             return vec
+
+    # ------------------------------------------------------------------
+    # Delta-PDF pipeline
+    # ------------------------------------------------------------------
+    #
+    # Punch/cut/blur/pad/FFT pipeline: mask out the allowed-Bragg-
+    # reflection regions of reciprocal space (Bragg punch), remove the
+    # low-Q region (inner cut), fill the resulting gaps with a NaN-aware
+    # Gaussian blur, zero-pad to a larger Q-extent, then Fourier-
+    # transform to real space. Ring removal and background subtraction,
+    # present in some delta-PDF workflows, are intentionally not
+    # implemented here.
+    #
+    # Each method below operates on/produces entries in
+    # ``self.workspace_registry`` (by display name), so results can be
+    # selected via ``activate_workspace`` like any other loaded
+    # workspace.
+
+    @staticmethod
+    def _check_common_bins(display_a, ws_a_name, display_b, ws_b_name):
+        """
+        Verify two workspaces share common binning before combining them.
+
+        Parameters
+        ----------
+        display_a, display_b : str
+            Display names, used only to build a readable error message.
+        ws_a_name, ws_b_name : str
+            Mantid workspace names to compare.
+
+        Raises
+        ------
+        ValueError
+            If the workspaces have a different number of dimensions,
+            or any dimension's bin count/extent differs beyond a
+            small numerical tolerance.
+        """
+        ws_a, ws_b = mtd[ws_a_name], mtd[ws_b_name]
+
+        if ws_a.getNumDims() != ws_b.getNumDims():
+            raise ValueError(
+                "'{}' and '{}' have a different number of dimensions "
+                "({} vs. {}) and cannot be combined.".format(
+                    display_a,
+                    display_b,
+                    ws_a.getNumDims(),
+                    ws_b.getNumDims(),
+                )
+            )
+
+        for d in range(ws_a.getNumDims()):
+            dim_a, dim_b = ws_a.getDimension(d), ws_b.getDimension(d)
+
+            if dim_a.getNBins() != dim_b.getNBins() or not (
+                np.isclose(dim_a.getMinimum(), dim_b.getMinimum())
+                and np.isclose(dim_a.getMaximum(), dim_b.getMaximum())
+            ):
+                raise ValueError(
+                    "'{}' and '{}' do not share common binning along "
+                    "dimension {} ({} bins over [{:.4g}, {:.4g}] vs. "
+                    "{} bins over [{:.4g}, {:.4g}]) and cannot be "
+                    "combined.".format(
+                        display_a,
+                        display_b,
+                        d,
+                        dim_a.getNBins(),
+                        dim_a.getMinimum(),
+                        dim_a.getMaximum(),
+                        dim_b.getNBins(),
+                        dim_b.getMinimum(),
+                        dim_b.getMaximum(),
+                    )
+                )
+
+    def combine_workspaces(
+        self, ws_a, coeff_a, ws_b, coeff_b, output_display_name
+    ):
+        """
+        Compute ``coeff_a * ws_a - coeff_b * ws_b`` and register the result.
+
+        Uses explicit Mantid algorithms with explicit output names
+        throughout (a scalar ``WorkspaceSingleValue`` multiplied via
+        ``MultiplyMD``, then ``MinusMD``) rather than Python operator
+        overloads, which infer their output name from the caller's
+        frame and are unreliable to use inside a method.
+
+        Parameters
+        ----------
+        ws_a, ws_b : str
+            Display names of two already-registered workspaces.
+        coeff_a, coeff_b : float
+            Scale factors applied before subtracting.
+        output_display_name : str
+            Display name for the combined result (disambiguated if it
+            collides with an existing one).
+
+        Returns
+        -------
+        display_name : str
+            The (possibly disambiguated) display name actually used.
+
+        Raises
+        ------
+        ValueError
+            If ``ws_a`` and ``ws_b`` do not share common binning (same
+            number of dimensions, bins, and extents per dimension).
+            ``MinusMD`` operates element-wise on the signal arrays, so
+            mismatched binning would silently combine voxels that
+            don't correspond to the same point in reciprocal space.
+        """
+        ws_a_name = self.workspace_registry[ws_a]["ws_name"]
+        ws_b_name = self.workspace_registry[ws_b]["ws_name"]
+
+        self._check_common_bins(ws_a, ws_a_name, ws_b, ws_b_name)
+
+        display_name = self._unique_display_name(output_display_name)
+        output_ws = self._unique_ws_name(display_name)
+
+        scaled_a = self._unique_ws_name(output_ws + "_a")
+        scaled_b = self._unique_ws_name(output_ws + "_b")
+        coeff_a_ws = self._unique_ws_name(output_ws + "_coeff_a")
+        coeff_b_ws = self._unique_ws_name(output_ws + "_coeff_b")
+
+        CreateSingleValuedWorkspace(
+            OutputWorkspace=coeff_a_ws, DataValue=coeff_a
+        )
+        CreateSingleValuedWorkspace(
+            OutputWorkspace=coeff_b_ws, DataValue=coeff_b
+        )
+
+        MultiplyMD(
+            LHSWorkspace=ws_a_name,
+            RHSWorkspace=coeff_a_ws,
+            OutputWorkspace=scaled_a,
+        )
+        MultiplyMD(
+            LHSWorkspace=ws_b_name,
+            RHSWorkspace=coeff_b_ws,
+            OutputWorkspace=scaled_b,
+        )
+        MinusMD(
+            LHSWorkspace=scaled_a,
+            RHSWorkspace=scaled_b,
+            OutputWorkspace=output_ws,
+        )
+
+        for ws in (scaled_a, scaled_b, coeff_a_ws, coeff_b_ws):
+            DeleteWorkspace(Workspace=ws)
+
+        self.register_workspace(display_name, output_ws, space="reciprocal")
+
+        return display_name
+
+    def _attach_ub_w(self, output_ws, source_ws):
+        """
+        Attach the sample UB and the ``W_MATRIX`` log onto a workspace.
+
+        ``CreateMDWorkspace`` produces a workspace with no
+        ``ExperimentInfo`` at all, so ``set_B()``/``set_W()`` (which
+        read ``mtd["histo"].getExperimentInfo(0)``) would silently fall
+        back to no-UB/identity-``W`` if this workspace were later
+        activated. Mirrors the working pattern already used for this
+        in garnet's ``reduction/data.py`` (``add_UBW``): seed an
+        ``ExperimentInfo`` via ``AddSampleLog`` (a no-op MD algorithm
+        that creates one if none exists), copy the sample/lattice from
+        ``source_ws`` via ``CopySample``, then set ``W_MATRIX``
+        directly from the model's own (already-known) ``self.W`` --
+        there is no separate "real-space W", see :meth:`_basis_matrix`.
+
+        Parameters
+        ----------
+        output_ws : str
+            Workspace to attach UB/``W_MATRIX`` onto (e.g. one just
+            built via ``CreateMDWorkspace``/``BinMD``).
+        source_ws : str
+            Workspace to copy the sample/lattice from.
+        """
+        AddSampleLog(
+            Workspace=output_ws,
+            LogName="_seed",
+            LogText="0",
+            LogType="String",
+        )
+        CopySample(
+            InputWorkspace=source_ws,
+            OutputWorkspace=output_ws,
+            CopyName=False,
+            CopyMaterial=False,
+            CopyEnvironment=False,
+            CopyLattice=True,
+            CopyOrientationOnly=False,
+        )
+        run = mtd[output_ws].getExperimentInfo(0).run()
+        run.addProperty("W_MATRIX", list(self.W.flatten() * 1.0), True)
+
+    def _pdf_grid_info(self, ws_name):
+        """
+        Grid geometry for the delta-PDF pipeline, read from a workspace.
+
+        Mirrors the setup done once in the reference ``DeltaPDF``
+        script's constructor, but computed fresh from whichever
+        workspace is being operated on, since that can change between
+        calls (a different active workspace, or a freshly padded one).
+
+        Parameters
+        ----------
+        ws_name : str
+            Mantid workspace name to read dimensions from.
+
+        Returns
+        -------
+        dict
+            ``xs`` (meshgrid of bin-center coordinates), ``mins``,
+            ``maxs``, ``widths`` (per-dimension), and the Miller-index
+            bounding box (``h_min``/``h_max``/``k_min``/``k_max``/
+            ``l_min``/``l_max``) covering the workspace's extent.
+        """
+        ws = mtd[ws_name]
+        dims = [ws.getDimension(i) for i in range(ws.getNumDims())]
+
+        xs = np.meshgrid(
+            *[
+                np.linspace(
+                    dim.getMinimum() + dim.getBinWidth() / 2,
+                    dim.getMaximum() - dim.getBinWidth() / 2,
+                    dim.getNBins(),
+                )
+                for dim in dims
+            ],
+            indexing="ij",
+        )
+
+        mins = [dim.getMinimum() for dim in dims]
+        maxs = [dim.getMaximum() for dim in dims]
+        widths = [dim.getBinWidth() for dim in dims]
+
+        corners = np.array(
+            np.meshgrid(
+                [mins[0], maxs[0]], [mins[1], maxs[1]], [mins[2], maxs[2]]
+            )
+        ).reshape(3, -1)
+
+        hkl = np.einsum("ij,jk->ik", self.W, corners)
+
+        h_max, k_max, l_max = np.max(hkl, axis=1).astype(int).tolist()
+        h_min, k_min, l_min = np.min(hkl, axis=1).astype(int).tolist()
+
+        return {
+            "xs": xs,
+            "mins": mins,
+            "maxs": maxs,
+            "widths": widths,
+            "h_min": h_min,
+            "h_max": h_max,
+            "k_min": k_min,
+            "k_max": k_max,
+            "l_min": l_min,
+            "l_max": l_max,
+        }
+
+    def _low_q_mask(self, grid, Q_inner):
+        """Boolean mask, True within ``Q_inner`` (Å⁻¹) of the origin."""
+        Qx, Qy, Qz = np.einsum(
+            "ij,j...->i...", 2 * np.pi * self.UB @ self.W, grid["xs"]
+        )
+        return (Qx**2 + Qy**2 + Qz**2) / Q_inner**2 < 1
+
+    def run_bragg_punch(
+        self,
+        input_display_name,
+        output_display_name,
+        space_group,
+        Q_size,
+        Q_inner,
+        progress=None,
+        stop_event=None,
+        **kwargs,
+    ):
+        """
+        Mask out the allowed-Bragg-reflection regions and low-Q region.
+
+        For every allowed reflection (per ``space_group``) within the
+        workspace's extent, sets voxels within an ellipsoidal region of
+        half-width ``Q_size`` (in Å⁻¹) of that reflection to NaN, along
+        with the low-Q region within ``Q_inner`` of the origin, and
+        registers the result as a new (still reciprocal-space)
+        workspace. This is a separate, inspectable step -- the result
+        can be sliced/viewed like any ordinary reciprocal-space
+        workspace before running :meth:`run_blur` on it.
+
+        Parameters
+        ----------
+        input_display_name : str
+            Display name of the (already-registered) workspace to punch.
+        output_display_name : str
+            Display name for the punched result.
+        space_group : str
+            Space-group symbol understood by
+            ``mantid.geometry.SpaceGroupFactory.createSpaceGroup``.
+        Q_size : float
+            Punch ellipsoid half-width, in Å⁻¹.
+        Q_inner : float
+            Inner cut radius, in Å⁻¹.
+        progress : callable, optional
+            ``progress(message, percent)`` callback (injected by the
+            worker infrastructure).
+        stop_event : threading.Event, optional
+            Cooperative-cancellation event (injected by the worker
+            infrastructure).
+
+        Returns
+        -------
+        display_name : str
+            ``output_display_name``, unchanged -- re-running this step
+            with the same output name overwrites its previous result
+            in place rather than accumulating new entries.
+        """
+        input_ws = self.workspace_registry[input_display_name]["ws_name"]
+
+        grid = self._pdf_grid_info(input_ws)
+        xs = grid["xs"]
+
+        sg = SpaceGroupFactory.createSpaceGroup(space_group)
+
+        h, k, l = np.einsum("ij,j...->i...", self.W, xs)
+
+        b_inv = np.linalg.inv(self.UB) / (2 * np.pi)
+        h_width, k_width, l_width = np.linalg.norm(b_inv, axis=0) * Q_size
+
+        h_int, k_int, l_int = h.round(), k.round(), l.round()
+
+        mask = ((h - h_int) / h_width) ** 2 + ((k - k_int) / k_width) ** 2 + (
+            (l - l_int) / l_width
+        ) ** 2 < 1
+        mask |= self._low_q_mask(grid, Q_inner)
+
+        h_min, h_max = grid["h_min"], grid["h_max"]
+        k_min, k_max = grid["k_min"], grid["k_max"]
+        l_min, l_max = grid["l_min"], grid["l_max"]
+
+        total = (h_max - h_min + 1) * (k_max - k_min + 1) * (l_max - l_min + 1)
+        n = 0
+        for hh in range(h_min, h_max + 1):
+            for kk in range(k_min, k_max + 1):
+                for ll in range(l_min, l_max + 1):
+                    if stop_event is not None and stop_event.is_set():
+                        return None
+
+                    if not sg.isAllowedReflection([hh, kk, ll]):
+                        h0 = int((hh - 0.5 - h_min) / h_width + 1)
+                        h1 = int((hh + 0.5 - h_min) / h_width)
+                        k0 = int((kk - 0.5 - k_min) / k_width + 1)
+                        k1 = int((kk + 0.5 - k_min) / k_width)
+                        l0 = int((ll - 0.5 - l_min) / l_width + 1)
+                        l1 = int((ll + 0.5 - l_min) / l_width)
+                        mask[h0:h1, k0:k1, l0:l1] = False
+
+                    n += 1
+                    if progress is not None and n % 200 == 0:
+                        # Capped at 50% -- the loop above is only half
+                        # the work. The subsequent clone/setSignalArray
+                        # on the full signal array has no fine-grained
+                        # progress of its own, but is not instant for a
+                        # large workspace, so reporting the loop as
+                        # 0-100% would read as "basically done" long
+                        # before the step actually finishes.
+                        progress("Bragg punch", int(50 * n / total))
+
+        if progress is not None:
+            progress("Bragg punch", 50)
+
+        signal = mtd[input_ws].getSignalArray().copy()
+        signal[mask] = np.nan
+
+        display_name = output_display_name
+        self._replace_workspace_if_exists(display_name, keep_ws_name=input_ws)
+        output_ws = self._unique_ws_name(display_name)
+
+        if progress is not None:
+            progress("Cloning workspace", 75)
+        CloneWorkspace(InputWorkspace=input_ws, OutputWorkspace=output_ws)
+        mtd[output_ws].setSignalArray(signal)
+
+        self.register_workspace(display_name, output_ws, space="reciprocal")
+
+        if progress is not None:
+            progress("Done", 100)
+
+        return display_name
+
+    def run_blur(
+        self,
+        input_display_name,
+        output_display_name,
+        Q_blur,
+        progress=None,
+        stop_event=None,
+        **kwargs,
+    ):
+        """
+        NaN-Gaussian-blur the gaps (e.g. from a Bragg punch) closed.
+
+        Runs, on ``input_display_name`` (typically the output of
+        :meth:`run_bragg_punch`, though any registered workspace may be
+        used directly): a NaN-aware Gaussian blur of scale ``Q_blur``
+        filling the gaps left by the punch/cut. A separate, inspectable
+        step -- the result can be sliced/viewed like any ordinary
+        reciprocal-space workspace before running :meth:`calculate_pdf`
+        on it.
+
+        Parameters
+        ----------
+        input_display_name : str
+            Display name of the (already-registered) workspace to
+            blur.
+        output_display_name : str
+            Display name for the blurred result.
+        Q_blur : float
+            Gaussian blur scale, in Å⁻¹.
+        progress : callable, optional
+            ``progress(message, percent)`` callback (injected by the
+            worker infrastructure).
+        stop_event : threading.Event, optional
+            Cooperative-cancellation event (injected by the worker
+            infrastructure).
+
+        Returns
+        -------
+        display_name : str
+            ``output_display_name``, unchanged -- re-running this step
+            with the same output name overwrites its previous result
+            in place rather than accumulating new entries.
+        """
+        input_ws = self.workspace_registry[input_display_name]["ws_name"]
+
+        if progress is not None:
+            progress("Blurring gaps", 0)
+        grid = self._pdf_grid_info(input_ws)
+        signal = mtd[input_ws].getSignalArray().copy()
+        signal = self._nan_gaussian_blur(signal, grid, Q_blur)
+
+        if stop_event is not None and stop_event.is_set():
+            return None
+
+        display_name = output_display_name
+        self._replace_workspace_if_exists(display_name, keep_ws_name=input_ws)
+        output_ws = self._unique_ws_name(display_name)
+
+        if progress is not None:
+            progress("Cloning workspace", 80)
+        CloneWorkspace(InputWorkspace=input_ws, OutputWorkspace=output_ws)
+        mtd[output_ws].setSignalArray(signal)
+
+        self.register_workspace(display_name, output_ws, space="reciprocal")
+
+        if progress is not None:
+            progress("Done", 100)
+
+        return display_name
+
+    def calculate_pdf(
+        self,
+        input_display_name,
+        output_display_name,
+        Q_outer,
+        progress=None,
+        stop_event=None,
+        **kwargs,
+    ):
+        """
+        Zero-pad and Fourier-transform a (typically blurred) workspace.
+
+        Runs, on ``input_display_name`` (typically the output of
+        :meth:`run_blur`, though any registered workspace may be used
+        directly): a zero-pad out to ``Q_outer``, then an FFT to real
+        space. Registers the result as a new **real-space** workspace
+        (see ``self.workspace_registry``).
+
+        Parameters
+        ----------
+        input_display_name : str
+            Display name of the (already-registered) workspace to
+            transform.
+        output_display_name : str
+            Display name for the delta-PDF result.
+        Q_outer : float
+            Zero-pad extent, in Å⁻¹.
+        progress : callable, optional
+            ``progress(message, percent)`` callback (injected by the
+            worker infrastructure).
+        stop_event : threading.Event, optional
+            Cooperative-cancellation event (injected by the worker
+            infrastructure).
+
+        Returns
+        -------
+        display_name : str
+            ``output_display_name``, unchanged -- re-running this step
+            with the same output name overwrites its previous result
+            in place rather than accumulating new entries.
+        """
+        input_ws = self.workspace_registry[input_display_name]["ws_name"]
+
+        if progress is not None:
+            progress("Padding", 0)
+        grid = self._pdf_grid_info(input_ws)
+        signal = mtd[input_ws].getSignalArray().copy()
+        pad_ws = self._unique_ws_name(input_ws + "_pad")
+        self._pad(input_ws, signal, grid, pad_ws, Q_outer)
+
+        if stop_event is not None and stop_event.is_set():
+            DeleteWorkspace(Workspace=pad_ws)
+            return None
+
+        if progress is not None:
+            progress("Fourier transform", 50)
+        display_name = output_display_name
+        self._replace_workspace_if_exists(display_name, keep_ws_name=input_ws)
+        output_ws = self._unique_ws_name(display_name)
+        self._transform(pad_ws, input_ws, output_ws)
+
+        DeleteWorkspace(Workspace=pad_ws)
+
+        self.register_workspace(display_name, output_ws, space="real")
+
+        if progress is not None:
+            progress("Done", 100)
+
+        return display_name
+
+    def _nan_gaussian_blur(self, signal, grid, Q_size):
+        """NaN-aware Gaussian blur, filling gaps (NaNs) from surrounding data."""
+        bw_inv = np.linalg.inv(2 * np.pi * self.UB @ self.W)
+        sizes = np.linalg.norm(bw_inv, axis=1) * Q_size
+        sigma = np.ceil(sizes / np.array(grid["widths"])).astype(int)
+
+        mask = np.isfinite(signal)
+        filled = np.nan_to_num(signal, nan=0.0)
+        smoothed = gaussian_filter(filled * mask, sigma=sigma)
+        norm = gaussian_filter(mask.astype(float), sigma=sigma)
+        interp = smoothed / np.maximum(norm, 1e-8)
+
+        signal = signal.copy()
+        signal[~mask] = interp[~mask]
+
+        return signal
+
+    def _pad(self, source_ws, signal, grid, output_ws, Q_outer):
+        """Zero-pad ``signal`` out to ``Q_outer`` and build the padded workspace."""
+        bw_inv = np.linalg.inv(2 * np.pi * self.UB @ self.W)
+        lims = np.linalg.norm(bw_inv, axis=1) * Q_outer
+
+        maxs, mins, widths = grid["maxs"], grid["mins"], grid["widths"]
+
+        pad_width = []
+        for i in range(3):
+            before = (
+                int((lims[i] - maxs[i]) / widths[i])
+                if lims[i] > maxs[i]
+                else 0
+            )
+            after = (
+                int((lims[i] + mins[i]) / widths[i])
+                if -lims[i] < mins[i]
+                else 0
+            )
+            pad_width.append([before, after])
+
+        padded = np.pad(
+            signal, pad_width=pad_width, mode="constant", constant_values=0
+        )
+
+        ws = mtd[source_ws]
+
+        names, extents, number_of_bins = [], [], []
+        for d in range(ws.getNumDims()):
+            dim = ws.getDimension(d)
+            names.append(dim.name)
+            number_of_bins.append(dim.getNBins() + sum(pad_width[d]))
+            extents.append(
+                dim.getMinimum() - dim.getBinWidth() * pad_width[d][0]
+            )
+            extents.append(
+                dim.getMaximum() + dim.getBinWidth() * pad_width[d][1]
+            )
+
+        dim_bins = [
+            "{},{},{},{}".format(
+                names[d], extents[2 * d], extents[2 * d + 1], number_of_bins[d]
+            )
+            for d in range(3)
+        ]
+
+        CreateMDWorkspace(
+            Dimensions=3,
+            Extents=extents,
+            Names=names,
+            Units=3 * ["r.l.u."],
+            OutputWorkspace=output_ws,
+        )
+        BinMD(
+            InputWorkspace=output_ws,
+            AlignedDim0=dim_bins[0],
+            AlignedDim1=dim_bins[1],
+            AlignedDim2=dim_bins[2],
+            OutputWorkspace=output_ws,
+        )
+
+        self._attach_ub_w(output_ws, source_ws)
+
+        mtd[output_ws].setSignalArray(padded)
+
+    def _transform(self, pad_ws, source_ws, output_ws):
+        """Fourier-transform a padded workspace's signal to real space."""
+        ws = mtd[pad_ws]
+
+        signal = ws.getSignalArray().copy()
+        signal[np.isnan(signal)] = 0
+        signal[np.isinf(signal)] = 0
+
+        signal = np.fft.fftshift(np.fft.fftn(np.fft.ifftshift(signal)))
+        number_of_bins = signal.shape
+        signal = signal.real
+
+        extents = []
+        for d in range(ws.getNumDims()):
+            dim = ws.getDimension(d)
+            if dim.getNBins() == 1:
+                fft_dim = 0.5 / (dim.getMaximum() - dim.getMinimum())
+                extents += [-fft_dim, fft_dim]
+            else:
+                step = (
+                    dim.getMaximum() - dim.getMinimum() - dim.getBinWidth()
+                ) / dim.getNBins()
+                fft_dim = np.fft.fftshift(np.fft.fftfreq(dim.getNBins(), step))
+                extents += [fft_dim[0], fft_dim[-1]]
+
+        # Unitless naming factor for the real-space axes -- see
+        # _basis_matrix for why this (rather than a separately-derived
+        # "real-space W") is the correct dual of W.
+        w = np.linalg.inv(self.W).T
+        char_dict = {0: "0", 1: "{1}", -1: "-{1}"}
+        chars = ["X", "Y", "Z"]
+        names = [
+            "["
+            + ",".join(
+                char_dict.get(j, "{0}{1}").format(
+                    j, chars[np.argmax(np.abs(w[:, i]))]
+                )
+                for j in w[:, i]
+            )
+            + "]"
+            for i in range(3)
+        ]
+
+        dim_bins = [
+            "{},{},{},{}".format(
+                names[d], extents[2 * d], extents[2 * d + 1], number_of_bins[d]
+            )
+            for d in range(3)
+        ]
+
+        CreateMDWorkspace(
+            Dimensions=3,
+            Extents=extents,
+            Names=names,
+            Units=3 * ["d.l.u."],
+            OutputWorkspace=output_ws,
+        )
+        BinMD(
+            InputWorkspace=output_ws,
+            AlignedDim0=dim_bins[0],
+            AlignedDim1=dim_bins[1],
+            AlignedDim2=dim_bins[2],
+            OutputWorkspace=output_ws,
+        )
+
+        self._attach_ub_w(output_ws, source_ws)
+
+        mtd[output_ws].setSignalArray(signal)
