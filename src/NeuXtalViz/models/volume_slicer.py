@@ -169,13 +169,9 @@ class VolumeSlicerModel(NeuXtalVizModel):
             entries), disambiguated further if it still collides with
             an already-registered name.
         """
+        self._load_counter += 1
         if display_name is None:
-            self._load_counter += 1
-            display_name = (
-                "data"
-                if self._load_counter == 1
-                else "data_{}".format(self._load_counter)
-            )
+            display_name = self._auto_load_name()
         display_name = self._unique_display_name(display_name)
 
         ws_name = self._unique_ws_name(display_name)
@@ -186,6 +182,31 @@ class VolumeSlicerModel(NeuXtalVizModel):
         self.activate_workspace(display_name)
 
         return display_name
+
+    def _auto_load_name(self):
+        """Sequential ``"data"``/``"data_2"``/... name for ``self._load_counter``."""
+        return (
+            "data"
+            if self._load_counter == 1
+            else "data_{}".format(self._load_counter)
+        )
+
+    def next_load_display_name(self):
+        """
+        Preview the display name that would be auto-assigned to the
+        next :meth:`load_md_histo_workspace` call, without consuming
+        the load counter (so the preview stays accurate if the caller
+        doesn't end up loading, e.g. the user cancels a naming prompt).
+
+        Returns
+        -------
+        display_name : str
+            The sequential ``"data"``/``"data_2"``/... name that would
+            be used next, disambiguated against the current registry.
+        """
+        n = self._load_counter + 1
+        base = "data" if n == 1 else "data_{}".format(n)
+        return self._unique_display_name(base)
 
     def rename_workspace(self, old_display_name, new_display_name):
         """
@@ -569,11 +590,10 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         signal = mtd["slice"].getSignalArray().T.copy().squeeze()
 
-        # Real-space (delta-PDF) signal is signed and centered about
-        # zero -- only clamp non-positive values to NaN for ordinary
-        # (non-negative) reciprocal-space intensity data.
-        if self.active_space != "real":
-            signal[signal <= 0] = np.nan
+        # Both reciprocal-space intensity (which can legitimately dip
+        # slightly negative from background subtraction/statistics, or
+        # after Bragg-punch/outlier removal) and real-space (delta-PDF)
+        # signal are signed, so only infinities are clamped.
         signal[np.isinf(signal)] = np.nan
 
         slice_dict["signal"] = signal
@@ -681,7 +701,7 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         return cut_dict
 
-    def calculate_clim(self, trans, method="normal"):
+    def calculate_clim(self, trans, method="normal", symmetric_zero=False):
         """
         Calculate color limits for visualization based on a method.
 
@@ -694,6 +714,12 @@ class VolumeSlicerModel(NeuXtalVizModel):
             Method for calculation: 'normal' (mean +/- 3 sigma), 'boxplot'
             (quartiles +/- 1.5 IQR), or any other value for plain min/max
             (default 'normal').
+        symmetric_zero : bool, optional
+            If True, force the computed limits to be symmetric about
+            zero (``cmax = max(abs(cmin), abs(cmax))``, ``cmin =
+            -cmax``) before clipping -- for signed data (e.g. a
+            delta-PDF result) displayed with a zero-aware transfer
+            function (default False).
 
         Returns
         -------
@@ -728,6 +754,18 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         else:
             cmin, cmax = vmin, vmax
+
+        if cmax <= cmin:
+            # 'normal'/'boxplot' can collapse to a zero-width range on
+            # sparse data (e.g. a mostly-masked/zero-filled reciprocal-
+            # space volume, where >25% exactly-zero voxels gives
+            # Q1 == Q3 == 0) -- fall back to the true min/max rather
+            # than clipping everything to a single flat value.
+            cmin, cmax = vmin, vmax
+
+        if symmetric_zero:
+            cmax = max(abs(cmin), abs(cmax))
+            cmin = -cmax
 
         clim = [cmin if cmin > vmin else vmin, cmax if cmax < vmax else vmax]
 
@@ -1171,21 +1209,32 @@ class VolumeSlicerModel(NeuXtalVizModel):
         space_group,
         Q_size,
         Q_inner,
+        outlier=1.5,
         progress=None,
         stop_event=None,
         **kwargs,
     ):
         """
-        Mask out the allowed-Bragg-reflection regions and low-Q region.
+        Punch Bragg-reflection outliers and mask the low-Q region.
 
         For every allowed reflection (per ``space_group``) within the
-        workspace's extent, sets voxels within an ellipsoidal region of
-        half-width ``Q_size`` (in Å⁻¹) of that reflection to NaN, along
-        with the low-Q region within ``Q_inner`` of the origin, and
-        registers the result as a new (still reciprocal-space)
-        workspace. This is a separate, inspectable step -- the result
-        can be sliced/viewed like any ordinary reciprocal-space
-        workspace before running :meth:`run_blur` on it.
+        workspace's extent, examines an ellipsoidal region of
+        half-width ``Q_size`` (in Å⁻¹) around that reflection and
+        removes (sets to NaN) only the voxels that are statistical
+        outliers *relative to that local region* -- following the
+        interquartile-range (Tukey's fences) approach used by
+        rmc-discord's ``punch``: a voxel is rejected if it falls
+        outside ``[Q1 - outlier*IQR, Q3 + outlier*IQR]``, where
+        ``Q1``/``Q3`` are the 25th/75th percentiles of the ellipsoid's
+        own values and ``IQR = Q3 - Q1``. Unlike unconditionally
+        blanking the whole ellipsoid, this keeps genuine diffuse
+        scattering that happens to sit near a Bragg peak. The low-Q
+        region within ``Q_inner`` of the origin is masked separately
+        (that's a beamstop/forward-scattering cut, not a peak). The
+        result is registered as a new (still reciprocal-space)
+        workspace -- a separate, inspectable step that can be
+        sliced/viewed like any ordinary reciprocal-space workspace
+        before running :meth:`run_blur` on it.
 
         Parameters
         ----------
@@ -1197,9 +1246,13 @@ class VolumeSlicerModel(NeuXtalVizModel):
             Space-group symbol understood by
             ``mantid.geometry.SpaceGroupFactory.createSpaceGroup``.
         Q_size : float
-            Punch ellipsoid half-width, in Å⁻¹.
+            Half-width, in Å⁻¹, of the ellipsoidal region examined
+            around each allowed reflection.
         Q_inner : float
             Inner cut radius, in Å⁻¹.
+        outlier : float, optional
+            Tukey's-fences scale factor applied to each reflection's
+            local IQR (default 1.5, the conventional value).
         progress : callable, optional
             ``progress(message, percent)`` callback (injected by the
             worker infrastructure).
@@ -1217,21 +1270,28 @@ class VolumeSlicerModel(NeuXtalVizModel):
         input_ws = self.workspace_registry[input_display_name]["ws_name"]
 
         grid = self._pdf_grid_info(input_ws)
-        xs = grid["xs"]
 
         sg = SpaceGroupFactory.createSpaceGroup(space_group)
 
-        h, k, l = np.einsum("ij,j...->i...", self.W, xs)
+        # Physical punch radius (Å⁻¹) -> half-width in bins along each
+        # workspace dimension -- same conversion used by
+        # _nan_gaussian_blur/_pad for Q_blur/Q_outer.
+        bw_inv = np.linalg.inv(2 * np.pi * self.UB @ self.W)
+        box = np.maximum(
+            np.ceil(
+                np.linalg.norm(bw_inv, axis=1)
+                * Q_size
+                / np.array(grid["widths"])
+            ).astype(int),
+            1,
+        )
 
-        b_inv = np.linalg.inv(self.UB) / (2 * np.pi)
-        h_width, k_width, l_width = np.linalg.norm(b_inv, axis=0) * Q_size
+        W_inv = np.linalg.inv(self.W)
+        mins = np.array(grid["mins"])
+        widths = np.array(grid["widths"])
 
-        h_int, k_int, l_int = h.round(), k.round(), l.round()
-
-        mask = ((h - h_int) / h_width) ** 2 + ((k - k_int) / k_width) ** 2 + (
-            (l - l_int) / l_width
-        ) ** 2 < 1
-        mask |= self._low_q_mask(grid, Q_inner)
+        signal = mtd[input_ws].getSignalArray().copy()
+        shape = signal.shape
 
         h_min, h_max = grid["h_min"], grid["h_max"]
         k_min, k_max = grid["k_min"], grid["k_max"]
@@ -1245,15 +1305,6 @@ class VolumeSlicerModel(NeuXtalVizModel):
                     if stop_event is not None and stop_event.is_set():
                         return None
 
-                    if not sg.isAllowedReflection([hh, kk, ll]):
-                        h0 = int((hh - 0.5 - h_min) / h_width + 1)
-                        h1 = int((hh + 0.5 - h_min) / h_width)
-                        k0 = int((kk - 0.5 - k_min) / k_width + 1)
-                        k1 = int((kk + 0.5 - k_min) / k_width)
-                        l0 = int((ll - 0.5 - l_min) / l_width + 1)
-                        l1 = int((ll + 0.5 - l_min) / l_width)
-                        mask[h0:h1, k0:k1, l0:l1] = False
-
                     n += 1
                     if progress is not None and n % 200 == 0:
                         # Capped at 50% -- the loop above is only half
@@ -1265,11 +1316,50 @@ class VolumeSlicerModel(NeuXtalVizModel):
                         # before the step actually finishes.
                         progress("Bragg punch", int(50 * n / total))
 
+                    if not sg.isAllowedReflection([hh, kk, ll]):
+                        continue
+
+                    coord = W_inv @ [hh, kk, ll]
+                    idx = np.round((coord - mins) / widths).astype(int)
+
+                    lo = np.maximum(idx - box, 0)
+                    hi = np.minimum(idx + box + 1, shape)
+                    if np.any(lo >= hi):
+                        continue
+
+                    values = signal[
+                        lo[0] : hi[0], lo[1] : hi[1], lo[2] : hi[2]
+                    ]
+
+                    x, y, z = np.meshgrid(
+                        np.arange(lo[0], hi[0]) - idx[0],
+                        np.arange(lo[1], hi[1]) - idx[1],
+                        np.arange(lo[2], hi[2]) - idx[2],
+                        indexing="ij",
+                    )
+                    outside = (
+                        (x / box[0]) ** 2
+                        + (y / box[1]) ** 2
+                        + (z / box[2]) ** 2
+                    ) > 1
+
+                    roi = np.where(outside, np.nan, values)
+
+                    with np.errstate(invalid="ignore"):
+                        Q1 = np.nanpercentile(roi, 25)
+                        Q3 = np.nanpercentile(roi, 75)
+                    iqr = Q3 - Q1
+
+                    with np.errstate(invalid="ignore"):
+                        reject = (roi >= Q3 + outlier * iqr) | (
+                            roi < Q1 - outlier * iqr
+                        )
+                    values[reject & ~outside] = np.nan
+
         if progress is not None:
             progress("Bragg punch", 50)
 
-        signal = mtd[input_ws].getSignalArray().copy()
-        signal[mask] = np.nan
+        signal[self._low_q_mask(grid, Q_inner)] = np.nan
 
         display_name = output_display_name
         self._replace_workspace_if_exists(display_name, keep_ws_name=input_ws)
@@ -1362,6 +1452,7 @@ class VolumeSlicerModel(NeuXtalVizModel):
         input_display_name,
         output_display_name,
         Q_outer,
+        window="None",
         progress=None,
         stop_event=None,
         **kwargs,
@@ -1371,9 +1462,10 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         Runs, on ``input_display_name`` (typically the output of
         :meth:`run_blur`, though any registered workspace may be used
-        directly): a zero-pad out to ``Q_outer``, then an FFT to real
-        space. Registers the result as a new **real-space** workspace
-        (see ``self.workspace_registry``).
+        directly): a zero-pad out to ``Q_outer``, an optional
+        apodization window to suppress FFT series-termination ripples,
+        then an FFT to real space. Registers the result as a new
+        **real-space** workspace (see ``self.workspace_registry``).
 
         Parameters
         ----------
@@ -1384,6 +1476,10 @@ class VolumeSlicerModel(NeuXtalVizModel):
             Display name for the delta-PDF result.
         Q_outer : float
             Zero-pad extent, in Å⁻¹.
+        window : str, optional
+            Apodization window applied before the FFT: ``"None"``
+            (default), ``"Lorch"``, or ``"Hann"`` -- see
+            :meth:`_apodization_window`.
         progress : callable, optional
             ``progress(message, percent)`` callback (injected by the
             worker infrastructure).
@@ -1416,7 +1512,7 @@ class VolumeSlicerModel(NeuXtalVizModel):
         display_name = output_display_name
         self._replace_workspace_if_exists(display_name, keep_ws_name=input_ws)
         output_ws = self._unique_ws_name(display_name)
-        self._transform(pad_ws, input_ws, output_ws)
+        self._transform(pad_ws, input_ws, output_ws, window=window)
 
         DeleteWorkspace(Workspace=pad_ws)
 
@@ -1509,13 +1605,61 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         mtd[output_ws].setSignalArray(padded)
 
-    def _transform(self, pad_ws, source_ws, output_ws):
+    @staticmethod
+    def _apodization_window(shape, window):
+        """
+        Separable 3D apodization window, tapering each axis to zero at
+        its edges to suppress FFT series-termination ripples.
+
+        Parameters
+        ----------
+        shape : tuple of int
+            Shape of the (padded) array to build a window for.
+        window : str
+            ``"None"`` (no taper), ``"Lorch"`` (``sinc`` taper, the
+            conventional PDF choice -- reaches exactly zero at the
+            edge), or ``"Hann"`` (raised-cosine taper).
+
+        Returns
+        -------
+        w : np.ndarray or float
+            3D window array broadcastable against ``shape``, or
+            ``1.0`` if ``window == "None"``.
+        """
+        if window == "None":
+            return 1.0
+
+        axes = []
+        for n in shape:
+            if n <= 1:
+                axes.append(np.ones(n))
+                continue
+            # z runs from -1 (first bin) to +1 (last bin), 0 at center.
+            z = (np.arange(n) - (n - 1) / 2) / ((n - 1) / 2)
+            if window == "Lorch":
+                axes.append(np.sinc(z))
+            elif window == "Hann":
+                axes.append(0.5 * (1 + np.cos(np.pi * z)))
+            else:
+                raise ValueError(
+                    "Unknown apodization window: {}".format(window)
+                )
+
+        return (
+            axes[0][:, None, None]
+            * axes[1][None, :, None]
+            * axes[2][None, None, :]
+        )
+
+    def _transform(self, pad_ws, source_ws, output_ws, window="None"):
         """Fourier-transform a padded workspace's signal to real space."""
         ws = mtd[pad_ws]
 
         signal = ws.getSignalArray().copy()
         signal[np.isnan(signal)] = 0
         signal[np.isinf(signal)] = 0
+
+        signal = signal * self._apodization_window(signal.shape, window)
 
         signal = np.fft.fftshift(np.fft.fftn(np.fft.ifftshift(signal)))
         number_of_bins = signal.shape

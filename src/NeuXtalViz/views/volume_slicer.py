@@ -51,10 +51,24 @@ cmaps = {
     "Modified": "modified",
 }
 
+# V/U-shaped custom transfer functions:
+_z = np.abs(np.linspace(-1, 1, 256))
+_linear_symmetric_opacity = _z * 255
+_sigmoid_symmetric_opacity = 0.5 * (1 - np.cos(np.pi * _z)) * 255
+_geom_symmetric_opacity = np.concatenate(
+    [np.geomspace(255, 1e-6, 128), np.geomspace(1e-6, 255, 128)]
+)
+
 opacities = {
-    "Linear": {"Low->High": "linear", "High->Low": "linear_r"},
-    "Geometric": {"Low->High": "geom", "High->Low": "geom_r"},
-    "Sigmoid": {"Low->High": "sigmoid", "High->Low": "sigmoid_r"},
+    "Linear Ascending": "linear",
+    "Linear Descending": "linear_r",
+    "Geometric Ascending": "geom",
+    "Geometric Descending": "geom_r",
+    "Sigmoid Ascending": "sigmoid",
+    "Sigmoid Descending": "sigmoid_r",
+    "Linear Symmetric": _linear_symmetric_opacity,
+    "Sigmoid Symmetric": _sigmoid_symmetric_opacity,
+    "Geometric Symmetric": _geom_symmetric_opacity,
 }
 
 
@@ -189,23 +203,28 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.auto_scale_dropdown(self.vol_scale_combo)
 
         self.opacity_combo = QComboBox(self)
-        self.opacity_combo.addItem("Linear")
-        self.opacity_combo.addItem("Geometric")
-        self.opacity_combo.addItem("Sigmoid")
+        self.opacity_combo.addItem("Linear Ascending")
+        self.opacity_combo.addItem("Linear Descending")
+        self.opacity_combo.addItem("Linear Symmetric")
+        self.opacity_combo.addItem("Geometric Ascending")
+        self.opacity_combo.addItem("Geometric Descending")
+        self.opacity_combo.addItem("Geometric Symmetric")
+        self.opacity_combo.addItem("Sigmoid Ascending")
+        self.opacity_combo.addItem("Sigmoid Descending")
+        self.opacity_combo.addItem("Sigmoid Symmetric")
         self.opacity_combo.setCurrentIndex(0)
         self.opacity_combo.setToolTip(
-            "Choose the opacity mapping for the volume rendering."
+            "Choose the opacity mapping for the volume rendering. "
+            '"Ascending" is transparent at the minimum and opaque at '
+            'the maximum ("Descending" the reverse). The "Symmetric" '
+            "options are instead fully opaque at both the minimum and "
+            "maximum and transparent in the middle -- useful for "
+            'signed data such as a delta-PDF result -- with "Linear" '
+            'a sharp V-shape, "Sigmoid" a smooth ease in/out, and '
+            '"Geometric" staying low across most of the range before '
+            "rising sharply only very near the extremes."
         )
         self.auto_scale_dropdown(self.opacity_combo)
-
-        self.range_combo = QComboBox(self)
-        self.range_combo.addItem("Low->High")
-        self.range_combo.addItem("High->Low")
-        self.range_combo.setCurrentIndex(0)
-        self.range_combo.setToolTip(
-            "Set the direction of the opacity or color range."
-        )
-        self.auto_scale_dropdown(self.range_combo)
 
         self.clim_combo = QComboBox(self)
         self.clim_combo.addItem("Min/Max")
@@ -255,13 +274,22 @@ class VolumeSlicerView(NeuXtalVizWidget):
         )
         self.auto_scale_dropdown(self.workspace_combo)
 
+        self.redraw_workspace_button = QPushButton(self)
+        self.redraw_workspace_button.setIcon(qta.icon("fa6s.arrows-rotate"))
+        self.redraw_workspace_button.setToolTip(
+            "Redraw the current workspace. Use this if its data "
+            "changed underneath it -- e.g. after re-running Punch, "
+            "Blur, or Calculate 3D-ΔPDF with the same output name "
+            "while it's the active workspace."
+        )
+
         draw_layout.addWidget(self.vol_scale_combo)
         draw_layout.addWidget(self.opacity_combo)
-        draw_layout.addWidget(self.range_combo)
         draw_layout.addWidget(self.clim_combo)
         draw_layout.addWidget(self.cbar_combo)
         draw_layout.addWidget(self.load_NXS_button)
         draw_layout.addWidget(self.workspace_combo)
+        draw_layout.addWidget(self.redraw_workspace_button)
 
         self.slice_combo = QComboBox(self)
         self.slice_combo.addItem("Axis 1/2")
@@ -434,13 +462,13 @@ class VolumeSlicerView(NeuXtalVizWidget):
         view_params_layout.addWidget(ymax_label, 0, 2)
         view_params_layout.addWidget(self.ymax_line, 0, 3)
 
-        view_params_layout.addWidget(self.toggle_line_box, 1, 4)
         view_params_layout.addWidget(self.vlim_combo, 0, 4)
         view_params_layout.addWidget(vmin_label, 1, 5)
         view_params_layout.addWidget(self.vmin_line, 1, 6)
         view_params_layout.addWidget(vmax_label, 0, 5)
         view_params_layout.addWidget(self.vmax_line, 0, 6)
         view_params_layout.addWidget(self.symmetric_zero_box, 0, 7)
+        view_params_layout.addWidget(self.toggle_line_box, 1, 7)
 
         cut_params_layout.addWidget(self.cut_combo)
         cut_params_layout.addWidget(cut_label)
@@ -640,11 +668,27 @@ class VolumeSlicerView(NeuXtalVizWidget):
             "Inner radius (Å⁻¹) below which low-Q signal " "is removed."
         )
 
+        self.punch_outlier_line = QLineEdit("1.5", self)
+        self.punch_outlier_line.setValidator(coeff_validator)
+        self.punch_outlier_line.setToolTip(
+            "Outlier scale factor (unitless) applied to each "
+            "reflection's local interquartile range (IQR): voxels "
+            "within the punch radius are only removed if they fall "
+            "outside [Q1 - factor*IQR, Q3 + factor*IQR] for that "
+            "local region (Tukey's fences; 1.5 is the conventional "
+            "default), so genuine diffuse scattering near a Bragg "
+            "peak is kept."
+        )
+
+        crystal_layout.addWidget(QLabel("Outlier:", self))
+        crystal_layout.addWidget(self.punch_outlier_line)
+
         self.run_punch_button = QPushButton("Run Punch", self)
         self.run_punch_button.setToolTip(
-            "Punch out allowed reflections and remove the low-Q "
-            "region, producing a new, separately inspectable "
-            "workspace."
+            "Punch out statistical outliers (local IQR-based) within "
+            "an ellipsoidal region around each allowed reflection, "
+            "and remove the low-Q region, producing a new, "
+            "separately inspectable workspace."
         )
         self.run_punch_button.setIcon(qta.icon("fa6s.bullseye"))
 
@@ -705,6 +749,17 @@ class VolumeSlicerView(NeuXtalVizWidget):
             "Fourier transform to real space."
         )
 
+        self.pdf_window_combo = QComboBox(self)
+        self.pdf_window_combo.addItem("None")
+        self.pdf_window_combo.addItem("Lorch")
+        self.pdf_window_combo.addItem("Hann")
+        self.pdf_window_combo.setToolTip(
+            "Apodization window applied before the Fourier transform, "
+            "to suppress series-termination ripples from the padded "
+            'cutoff. "Lorch" is the conventional choice for PDF data.'
+        )
+        self.auto_scale_dropdown(self.pdf_window_combo)
+
         self.calculate_pdf_button = QPushButton("Calculate 3D-ΔPDF", self)
         self.calculate_pdf_button.setToolTip(
             "Run the pad/FFT step, producing a real-space 3D-ΔPDF " "result."
@@ -712,8 +767,10 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.calculate_pdf_button.setIcon(qta.icon("fa6s.wave-square"))
 
         steps_layout.addWidget(self.pdf_input_combo, 2, 0)
-        steps_layout.addWidget(QLabel("Outer:", self), 2, 1)
-        steps_layout.addWidget(self.pdf_q_outer_line, 2, 2)
+        steps_layout.addWidget(QLabel("Window:", self), 2, 1)
+        steps_layout.addWidget(self.pdf_window_combo, 2, 2)
+        steps_layout.addWidget(QLabel("Outer:", self), 2, 3)
+        steps_layout.addWidget(self.pdf_q_outer_line, 2, 4)
         steps_layout.addWidget(QLabel("Å⁻¹", self), 2, 5)
         steps_layout.addWidget(QLabel("→", self), 2, 6)
         steps_layout.addWidget(self.pdf_output_line, 2, 7)
@@ -785,17 +842,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
         """
         self.opacity_combo.currentIndexChanged.connect(update_opacity)
 
-    def connect_range_combo(self, update_range):
-        """
-        Connect a handler to changes in the opacity/color range combo box.
-
-        Parameters
-        ----------
-        update_range : callable
-            Slot invoked when the range direction selection changes.
-        """
-        self.range_combo.currentIndexChanged.connect(update_range)
-
     def connect_clim_combo(self, update_clim):
         """
         Connect a handler to changes in the 3D volume color-limit combo box.
@@ -853,6 +899,17 @@ class VolumeSlicerView(NeuXtalVizWidget):
             selected for slicing/cutting.
         """
         self.workspace_combo.currentIndexChanged.connect(activate_workspace)
+
+    def connect_redraw_workspace(self, redraw_workspace):
+        """
+        Connect a handler to the "Redraw" button click.
+
+        Parameters
+        ----------
+        redraw_workspace : callable
+            Slot invoked when the "Redraw" button is clicked.
+        """
+        self.redraw_workspace_button.clicked.connect(redraw_workspace)
 
     def connect_delete_workspace(self, delete_workspace):
         """
@@ -1419,7 +1476,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
             Position along `norm` at which to place the initial clip
             plane / slice.
         """
-        opacity = opacities[self.get_opacity()][self.get_range()]
+        opacity = opacities[self.get_opacity()]
 
         log_scale = True if self.get_vol_scale() == "Log" else False
 
@@ -2137,20 +2194,12 @@ class VolumeSlicerView(NeuXtalVizWidget):
         Returns
         -------
         opacity : str
-            One of 'Linear', 'Geometric', or 'Sigmoid'.
+            One of 'Linear Ascending', 'Linear Descending', 'Geometric
+            Ascending', 'Geometric Descending', 'Sigmoid Ascending',
+            'Sigmoid Descending', 'Linear Symmetric', 'Sigmoid
+            Symmetric', or 'Geometric Symmetric'.
         """
         return self.opacity_combo.currentText()
-
-    def get_range(self):
-        """
-        Get the currently selected opacity/color range direction.
-
-        Returns
-        -------
-        range_dir : str
-            'Low->High' or 'High->Low'.
-        """
-        return self.range_combo.currentText()
 
     def get_colormap(self):
         """
@@ -2340,6 +2389,35 @@ class VolumeSlicerView(NeuXtalVizWidget):
             return None
         return new_name
 
+    def prompt_load_name(self, default_name):
+        """
+        Prompt the user for a display name for a newly loaded workspace.
+
+        Parameters
+        ----------
+        default_name : str
+            Suggested display name, pre-filled in the prompt (the
+            sequential ``"data"``/``"data_2"``/... name that would
+            otherwise be auto-assigned).
+
+        Returns
+        -------
+        display_name : str or None
+            The confirmed display name, or None if the user cancelled
+            or cleared the field (in which case the load should be
+            aborted).
+        """
+        display_name, ok = QInputDialog.getText(
+            self,
+            "Load NXS",
+            "Workspace name:",
+            QLineEdit.Normal,
+            default_name,
+        )
+        if not ok or not display_name:
+            return None
+        return display_name
+
     def show_error(self, title, message):
         """
         Show an error dialog.
@@ -2502,6 +2580,19 @@ class VolumeSlicerView(NeuXtalVizWidget):
         if self.punch_q_inner_line.hasAcceptableInput():
             return float(self.punch_q_inner_line.text())
 
+    def get_punch_outlier(self):
+        """
+        Get the Bragg-punch step's IQR outlier scale factor, if valid.
+
+        Returns
+        -------
+        outlier : float or None
+            Tukey's-fences scale factor parsed from the field, or None
+            if the field does not currently contain acceptable input.
+        """
+        if self.punch_outlier_line.hasAcceptableInput():
+            return float(self.punch_outlier_line.text())
+
     def get_blur_input_workspace(self):
         """
         Get the display name selected as input to the blur step.
@@ -2575,6 +2666,17 @@ class VolumeSlicerView(NeuXtalVizWidget):
         """
         if self.pdf_q_outer_line.hasAcceptableInput():
             return float(self.pdf_q_outer_line.text())
+
+    def get_pdf_window(self):
+        """
+        Get the selected 3D-ΔPDF apodization window.
+
+        Returns
+        -------
+        window : str
+            One of ``"None"``, ``"Lorch"``, or ``"Hann"``.
+        """
+        return self.pdf_window_combo.currentText()
 
     def get_slice_value(self):
         """

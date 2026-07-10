@@ -29,6 +29,7 @@ from mantid.simpleapi import (
     CombinePeaksWorkspaces,
     CreatePeaksWorkspace,
     ConvertQtoHKLMDHisto,
+    CompactMD,
     CopySample,
     CreateSampleWorkspace,
     CloneWorkspace,
@@ -1782,9 +1783,7 @@ class UBModel(NeuXtalVizModel):
             CopyShape=False,
         )
 
-        # CompactMD (trimming empty border bins) was very slow on a
-        # large volume and the trim rarely matters for display, so it
-        # is skipped -- see the same change in VolumeSlicerModel.
+        CompactMD(InputWorkspace="Q3D", OutputWorkspace="Q3D")
 
         signal = mtd["Q3D"].getSignalArray().copy()
 
@@ -2583,9 +2582,7 @@ class UBModel(NeuXtalVizModel):
                 OutputWorkspace="slice",
             )
 
-            # CompactMD (trimming empty border bins) was very slow and
-            # the trim rarely matters for display, so it is skipped --
-            # see the same change in VolumeSlicerModel.
+            CompactMD(InputWorkspace="slice", OutputWorkspace="slice")
 
             i = np.array(normal).tolist().index(1)
 

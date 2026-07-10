@@ -762,6 +762,7 @@ class UBView(NeuXtalVizWidget):
         index_tab_layout = QVBoxLayout()
 
         index_tolerance_label = QLabel("Tolerance:")
+        index_tolerance_unit_label = QLabel("r.l.u.")
 
         notation = QDoubleValidator.StandardNotation
 
@@ -785,6 +786,7 @@ class UBView(NeuXtalVizWidget):
         index_params_layout.addWidget(index_tolerance_label, 0, 0)
         index_params_layout.addWidget(self.index_tolerance_line, 0, 1)
         index_params_layout.addWidget(self.index_sat_tolerance_line, 0, 2)
+        index_params_layout.addWidget(index_tolerance_unit_label, 0, 3)
         index_params_layout.addWidget(self.index_sat_box, 1, 2)
 
         self.round_box = QCheckBox("Round hkl", self)
@@ -1051,6 +1053,7 @@ class UBView(NeuXtalVizWidget):
         ub_tab = QTabWidget()
 
         calculate_tolerance_label = QLabel("Tolerance:")
+        calculate_tolerance_unit_label = QLabel("r.l.u.")
 
         self.calculate_tolerance_line = QLineEdit("0.1")
         self.calculate_tolerance_line.setValidator(validator)
@@ -1073,6 +1076,7 @@ class UBView(NeuXtalVizWidget):
 
         calculate_params_layout.addWidget(calculate_tolerance_label)
         calculate_params_layout.addWidget(self.calculate_tolerance_line)
+        calculate_params_layout.addWidget(calculate_tolerance_unit_label)
         calculate_params_layout.addStretch(1)
         calculate_params_layout.addWidget(max_scalar_error_label)
         calculate_params_layout.addWidget(self.max_scalar_error_line)
@@ -1150,6 +1154,7 @@ class UBView(NeuXtalVizWidget):
         calculate_tab.setLayout(calculate_tab_layout)
 
         transform_tolerance_label = QLabel("Tolerance:")
+        transform_tolerance_unit_label = QLabel("r.l.u.")
 
         self.transform_tolerance_line = QLineEdit("0.1")
         self.transform_tolerance_line.setValidator(validator)
@@ -1222,6 +1227,7 @@ class UBView(NeuXtalVizWidget):
 
         transform_params_layout.addWidget(transform_tolerance_label)
         transform_params_layout.addWidget(self.transform_tolerance_line)
+        transform_params_layout.addWidget(transform_tolerance_unit_label)
         transform_params_layout.addWidget(self.lattice_combo)
         transform_params_layout.addWidget(self.symmetry_combo)
 
@@ -1259,6 +1265,7 @@ class UBView(NeuXtalVizWidget):
         transform_tab.setLayout(transform_tab_layout)
 
         refine_tolerance_label = QLabel("Tolerance:")
+        refine_tolerance_unit_label = QLabel("r.l.u.")
 
         notation = QDoubleValidator.StandardNotation
 
@@ -1300,6 +1307,7 @@ class UBView(NeuXtalVizWidget):
         refine_params_layout = QHBoxLayout()
         refine_params_layout.addWidget(refine_tolerance_label)
         refine_params_layout.addWidget(self.refine_tolerance_line)
+        refine_params_layout.addWidget(refine_tolerance_unit_label)
         refine_params_layout.addWidget(self.optimize_combo)
         refine_params_layout.addStretch(1)
         refine_params_layout.addWidget(self.refine_constraint_label)

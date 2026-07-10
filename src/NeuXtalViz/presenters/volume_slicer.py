@@ -69,12 +69,12 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
         self.view.connect_vol_scale_combo(self.update_volume)
         self.view.connect_opacity_combo(self.update_volume)
-        self.view.connect_range_combo(self.update_volume)
 
         self.view.connect_save_slice(self.save_slice)
         self.view.connect_save_cut(self.save_cut)
 
         self.view.connect_workspace_combo(self.activate_workspace)
+        self.view.connect_redraw_workspace(self.activate_workspace)
         self.view.connect_delete_workspace(self.delete_workspace)
         self.view.connect_rename_workspace(self.rename_workspace)
         self.view.connect_combine_workspaces(self.combine_workspaces)
@@ -386,7 +386,8 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
     def load_NXS(self):
         """
-        Prompt for a NeXus file and load it on a worker thread.
+        Prompt for a NeXus file and a workspace name, then load it on a
+        worker thread.
 
         Parameters
         ----------
@@ -394,14 +395,23 @@ class VolumeSlicer(NeuXtalVizPresenter):
         """
         filename = self.view.load_NXS_file_dialog()
 
-        if filename:
-            self.nxs_file = filename
-            worker = self.view.worker(self.load_NXS_process)
-            worker.connect_result(self.load_NXS_complete)
-            worker.connect_finished(self.redraw_data)
-            worker.connect_progress(self.update_processing)
+        if not filename:
+            return
 
-            self.view.start_worker_pool(worker)
+        default_name = self.model.next_load_display_name()
+        display_name = self.view.prompt_load_name(default_name)
+
+        if not display_name:
+            return
+
+        self.nxs_file = filename
+        self.nxs_display_name = display_name
+        worker = self.view.worker(self.load_NXS_process)
+        worker.connect_result(self.load_NXS_complete)
+        worker.connect_finished(self.redraw_data)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
 
     def load_NXS_complete(self, result):
         """
@@ -444,7 +454,9 @@ class VolumeSlicer(NeuXtalVizPresenter):
         if self.stop_processing(stop_event):
             return None
 
-        self.model.load_md_histo_workspace(self.nxs_file)
+        self.model.load_md_histo_workspace(
+            self.nxs_file, display_name=self.nxs_display_name
+        )
 
         progress("Loading NeXus file...", 50)
 
@@ -565,6 +577,11 @@ class VolumeSlicer(NeuXtalVizPresenter):
             norm = self.get_normal()
             clim_method = self.get_clim_method()
             slice_value = self.view.get_slice_value()
+            symmetric_zero = self.view.get_opacity() in (
+                "Linear Symmetric",
+                "Sigmoid Symmetric",
+                "Geometric Symmetric",
+            )
 
             worker = self.view.worker(
                 functools.partial(
@@ -572,6 +589,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
                     norm=norm,
                     clim_method=clim_method,
                     slice_value=slice_value,
+                    symmetric_zero=symmetric_zero,
                 )
             )
             worker.connect_result(self.redraw_data_complete)
@@ -607,6 +625,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
         norm=None,
         clim_method=None,
         slice_value=None,
+        symmetric_zero=False,
     ):
         """
         Worker task that prepares the 3D volume histogram for display.
@@ -630,6 +649,16 @@ class VolumeSlicer(NeuXtalVizPresenter):
         slice_value : float, optional
             Position along the normal for the current slice plane
             (default None).
+        symmetric_zero : bool, optional
+            If True, force the 3D volume's color/opacity limits to be
+            symmetric about zero (default False) -- needed for the
+            "Linear Symmetric"/"Sigmoid Symmetric"/"Geometric
+            Symmetric" opacity mappings,
+            whose zero-opacity point sits at the midpoint of the clim
+            range: without this, that midpoint generally isn't at the
+            data's true zero, since
+            none of the clim methods (Min/Max, mean +/- 3 sigma,
+            IQR) are otherwise zero-aware.
 
         Returns
         -------
@@ -663,7 +692,9 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
             data = histo["signal"]
 
-            data = self.model.calculate_clim(data, clim_method)
+            data = self.model.calculate_clim(
+                data, clim_method, symmetric_zero=symmetric_zero
+            )
 
             progress("Updating volume...", 50)
 
@@ -1137,7 +1168,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
     def run_bragg_punch(self):
         """
-        Punch out allowed-reflection regions and remove the low-Q region.
+        Punch out Bragg-reflection outliers and remove the low-Q region.
 
         Runs on a worker thread (the per-reflection loop can be slow).
         Produces a new, separately inspectable reciprocal-space
@@ -1152,10 +1183,13 @@ class VolumeSlicer(NeuXtalVizPresenter):
         space_group = self.view.get_pdf_space_group()
         Q_size = self.view.get_punch_q_size()
         Q_inner = self.view.get_punch_q_inner()
+        outlier = self.view.get_punch_outlier()
 
         if not input_name or not output_name or not space_group:
             return
-        if Q_size is None or Q_inner is None or not self.punch_idle:
+        if Q_size is None or Q_inner is None or outlier is None:
+            return
+        if not self.punch_idle:
             return
 
         # Space groups are shown as "{number}: {symbol}" (see
@@ -1173,6 +1207,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
                 space_group=symbol,
                 Q_size=Q_size,
                 Q_inner=Q_inner,
+                outlier=outlier,
             )
         )
         worker.connect_result(self.run_bragg_punch_complete)
@@ -1263,6 +1298,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
         input_name = self.view.get_pdf_input_workspace()
         output_name = self.view.get_pdf_output_name()
         Q_outer = self.view.get_pdf_q_outer()
+        window = self.view.get_pdf_window()
 
         if not input_name or not output_name:
             return
@@ -1279,6 +1315,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
                 input_display_name=input_name,
                 output_display_name=output_name,
                 Q_outer=Q_outer,
+                window=window,
             )
         )
         worker.connect_result(self.calculate_pdf_complete)
