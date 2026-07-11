@@ -1496,7 +1496,7 @@ class VolumeSlicerModel(NeuXtalVizModel):
         input_ws = self.workspace_registry[input_display_name]["ws_name"]
 
         if progress is not None:
-            progress("Running KAREN", 0)
+            progress("Running KAREN", 5)
         grid = self._pdf_grid_info(input_ws)
         signal = mtd[input_ws].getSignalArray().copy()
         signal = self._karen_filter(signal, grid, width, z_score)
