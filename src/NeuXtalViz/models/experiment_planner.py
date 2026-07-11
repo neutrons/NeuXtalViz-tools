@@ -2011,7 +2011,7 @@ class ExperimentModel(NeuXtalVizModel):
                 self.hkl_alt = self.angles_indices_alt[i]
 
                 self.comment += (
-                    ")_#(" + ", ".join(self.hkl_alt.astype(str)) + ")"
+                    "_#(" + ", ".join(self.hkl_alt.astype(str)) + ")"
                 )
 
             return (

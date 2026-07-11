@@ -102,6 +102,8 @@ def CORELLI_Bixbyite_deltaPDF(app, window):
     vs_presenter = window.vs
     vs_view = vs_presenter.view
 
+    SLICE_TAB, TRANSFORM_TAB = 0, 1
+
     # --- Step 1: load the 6 K data ----------------------------------
     vs_presenter.model.load_md_histo_workspace(
         "/SNS/EXAMPLES/CORELLI/IPTS-12345/shared/"
@@ -145,7 +147,7 @@ def CORELLI_Bixbyite_deltaPDF(app, window):
     vs_view.load_NXS_button.setStyleSheet("")
 
     # --- Step 3: subtract the scaled 300 K background ----------------
-    vs_view.tab_widget.setCurrentIndex(1)
+    vs_view.tab_widget.setCurrentIndex(TRANSFORM_TAB)
 
     vs_view.combine_ws_a_combo.setCurrentText("006K")
     vs_view.combine_ws_b_combo.setCurrentText("300K")
@@ -172,6 +174,7 @@ def CORELLI_Bixbyite_deltaPDF(app, window):
     vs_view.combine_button.setStyleSheet("")
 
     # --- Step 4: view the subtracted data -----------------------------
+    vs_view.tab_widget.setCurrentIndex(SLICE_TAB)
     vs_view.workspace_combo.setCurrentText("subtracted")
     QTest.qWait(1000 * 10)
 
@@ -194,6 +197,8 @@ def CORELLI_Bixbyite_deltaPDF(app, window):
     vs_view.vmax_line.setStyleSheet("")
 
     # --- Step 5: punch the Bragg peaks --------------------------------
+    vs_view.tab_widget.setCurrentIndex(TRANSFORM_TAB)
+
     index = vs_view.pdf_crystal_system_combo.findText("Cubic")
     vs_view.pdf_crystal_system_combo.setCurrentIndex(index)
     vs_presenter.update_pdf_space_groups()
@@ -221,7 +226,26 @@ def CORELLI_Bixbyite_deltaPDF(app, window):
     vs_view.punch_q_size_line.setStyleSheet("")
     vs_view.run_punch_button.setStyleSheet("")
 
+    # --- Step 5b: view the punched data --------------------------------
+    vs_view.tab_widget.setCurrentIndex(SLICE_TAB)
+    vs_view.workspace_combo.setCurrentText("punched")
+    QTest.qWait(1000 * 10)
+
+    vs_presenter.update_cvals()
+
+    vs_view.workspace_combo.setStyleSheet("background-color: yellow;")
+
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Bixbyite_deltaPDF_view_punched.png"), "png"
+    )
+
+    vs_view.workspace_combo.setStyleSheet("")
+
     # --- Step 6: fill the punched regions (blur) ----------------------
+    vs_view.tab_widget.setCurrentIndex(TRANSFORM_TAB)
+
     vs_view.blur_input_combo.setCurrentText("punched")
     vs_view.blur_output_line.setText("filled")
     vs_view.blur_q_blur_line.setText("0.1")
@@ -243,7 +267,26 @@ def CORELLI_Bixbyite_deltaPDF(app, window):
     vs_view.blur_q_blur_line.setStyleSheet("")
     vs_view.run_blur_button.setStyleSheet("")
 
+    # --- Step 6b: view the filled data ----------------------------------
+    vs_view.tab_widget.setCurrentIndex(SLICE_TAB)
+    vs_view.workspace_combo.setCurrentText("filled")
+    QTest.qWait(1000 * 10)
+
+    vs_presenter.update_cvals()
+
+    vs_view.workspace_combo.setStyleSheet("background-color: yellow;")
+
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Bixbyite_deltaPDF_view_filled.png"), "png"
+    )
+
+    vs_view.workspace_combo.setStyleSheet("")
+
     # --- Step 7: calculate the 3D-delta PDF ---------------------------
+    vs_view.tab_widget.setCurrentIndex(TRANSFORM_TAB)
+
     vs_view.pdf_input_combo.setCurrentText("filled")
     index = vs_view.pdf_window_combo.findText("Lorch")
     vs_view.pdf_window_combo.setCurrentIndex(index)
@@ -264,8 +307,7 @@ def CORELLI_Bixbyite_deltaPDF(app, window):
     vs_view.calculate_pdf_button.setStyleSheet("")
 
     # --- Step 8: view the 3D-delta PDF --------------------------------
-    vs_view.tab_widget.setCurrentIndex(0)
-
+    vs_view.tab_widget.setCurrentIndex(SLICE_TAB)
     vs_view.workspace_combo.setCurrentText("pdf")
     QTest.qWait(1000 * 10)
 
