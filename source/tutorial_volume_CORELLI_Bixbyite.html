@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>3D-ΔPDF with CORELLI Bixbyite Data &#8212; NeuXtalViz  documentation</title>
+    <title>3D-ΔPDF with Bixbyite Data &#8212; NeuXtalViz  documentation</title>
   
   
   
@@ -344,7 +344,7 @@
 <li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html">UB Tools with Bixbyite Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Natrolite.html">UB Tools with Natrolite Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_crystal_structure_CORELLI_Natrolite.html">Crystal Structure with Natrolite Data</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">3D-ΔPDF with CORELLI Bixbyite Data</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">3D-ΔPDF with Bixbyite Data</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">MANDI Tutorials:</span></p>
 <ul class="nav bd-sidenav">
@@ -393,7 +393,7 @@
     
     <li class="breadcrumb-item"><a href="NeuXtalViz.tutorials.html" class="nav-link">NeuXtalViz tutorials</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">3D-ΔPDF with CORELLI Bixbyite Data</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">3D-ΔPDF with Bixbyite Data</span></li>
   </ul>
 </nav>
 </div>
@@ -410,8 +410,8 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="d-pdf-with-corelli-bixbyite-data">
-<span id="tutorial-corelli-volume-deltapdf"></span><h1>3D-ΔPDF with CORELLI Bixbyite Data<a class="headerlink" href="#d-pdf-with-corelli-bixbyite-data" title="Link to this heading">#</a></h1>
+  <section id="d-pdf-with-bixbyite-data">
+<span id="tutorial-corelli-volume-deltapdf"></span><h1>3D-ΔPDF with Bixbyite Data<a class="headerlink" href="#d-pdf-with-bixbyite-data" title="Link to this heading">#</a></h1>
 <p>This tutorial demonstrates how to use the volume slicer’s Transform tab in NeuXtalViz to calculate a 3D-ΔPDF from normalized CORELLI bixbyite volume data collected at 6 K and 300 K.</p>
 <section id="step-1-load-the-6-k-data">
 <h2>Step 1: Load the 6 K Data<a class="headerlink" href="#step-1-load-the-6-k-data" title="Link to this heading">#</a></h2>
@@ -458,6 +458,7 @@
 <section id="step-4-view-the-subtracted-data">
 <h2>Step 4: View the Subtracted Data<a class="headerlink" href="#step-4-view-the-subtracted-data" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>Switch back to the Slice tab.</p></li>
 <li><p>Select “subtracted” in the workspace combo.</p></li>
 <li><p>Set the color limits to V Min = 0 and V Max = 1e-5.</p></li>
 </ul>
@@ -472,6 +473,7 @@
 <section id="step-5-punch-the-bragg-peaks">
 <h2>Step 5: Punch the Bragg Peaks<a class="headerlink" href="#step-5-punch-the-bragg-peaks" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>Switch back to the Transform tab.</p></li>
 <li><p>Select the “Cubic” crystal system and space group 206.</p></li>
 <li><p>Select “subtracted” as the input workspace, set the punch size to 0.25 (keeping the default inner radius), and run the punch.</p></li>
 </ul>
@@ -483,43 +485,74 @@
 </figcaption>
 </figure>
 </section>
-<section id="step-6-fill-the-punched-regions">
-<h2>Step 6: Fill the Punched Regions<a class="headerlink" href="#step-6-fill-the-punched-regions" title="Link to this heading">#</a></h2>
+<section id="step-6-view-the-punched-data">
+<h2>Step 6: View the Punched Data<a class="headerlink" href="#step-6-view-the-punched-data" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Select “punched” as the input workspace, name the output “filled”, set the blur size to 0.1, and run the blur.</p></li>
+<li><p>Switch back to the Slice tab.</p></li>
+<li><p>Select “punched” in the workspace combo to see the punched-out regions.</p></li>
 </ul>
 <figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="../_images/Bixbyite_deltaPDF_view_punched.png"><img alt="../_images/Bixbyite_deltaPDF_view_punched.png" src="../_images/Bixbyite_deltaPDF_view_punched.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">View the punched reciprocal-space data.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-7-fill-the-punched-regions">
+<h2>Step 7: Fill the Punched Regions<a class="headerlink" href="#step-7-fill-the-punched-regions" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Switch back to the Transform tab.</p></li>
+<li><p>Select “punched” as the input workspace, name the output “filled”, set the blur size to 0.1, and run the blur.</p></li>
+</ul>
+<figure class="align-center" id="id7">
 <a class="reference internal image-reference" href="../_images/Bixbyite_deltaPDF_fill.png"><img alt="../_images/Bixbyite_deltaPDF_fill.png" src="../_images/Bixbyite_deltaPDF_fill.png" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Fill the punched regions with a NaN-Gaussian blur.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+<p><span class="caption-text">Fill the punched regions with a NaN-Gaussian blur.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-7-calculate-the-3d-pdf">
-<h2>Step 7: Calculate the 3D-ΔPDF<a class="headerlink" href="#step-7-calculate-the-3d-pdf" title="Link to this heading">#</a></h2>
+<section id="step-8-view-the-filled-data">
+<h2>Step 8: View the Filled Data<a class="headerlink" href="#step-8-view-the-filled-data" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>Switch back to the Slice tab.</p></li>
+<li><p>Select “filled” in the workspace combo to see the gaps closed in.</p></li>
+</ul>
+<figure class="align-center" id="id8">
+<a class="reference internal image-reference" href="../_images/Bixbyite_deltaPDF_view_filled.png"><img alt="../_images/Bixbyite_deltaPDF_view_filled.png" src="../_images/Bixbyite_deltaPDF_view_filled.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">View the filled reciprocal-space data.</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="step-9-calculate-the-3d-pdf">
+<h2>Step 9: Calculate the 3D-ΔPDF<a class="headerlink" href="#step-9-calculate-the-3d-pdf" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Switch back to the Transform tab.</p></li>
 <li><p>Select “filled” as the input workspace, choose the “Lorch” apodization window (keeping the default outer Q), and calculate the 3D-ΔPDF.</p></li>
 </ul>
-<figure class="align-center" id="id7">
+<figure class="align-center" id="id9">
 <a class="reference internal image-reference" href="../_images/Bixbyite_deltaPDF_transform.png"><img alt="../_images/Bixbyite_deltaPDF_transform.png" src="../_images/Bixbyite_deltaPDF_transform.png" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Calculate the 3D-ΔPDF.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+<p><span class="caption-text">Calculate the 3D-ΔPDF.</span><a class="headerlink" href="#id9" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-8-view-the-3d-pdf">
-<h2>Step 8: View the 3D-ΔPDF<a class="headerlink" href="#step-8-view-the-3d-pdf" title="Link to this heading">#</a></h2>
+<section id="step-10-view-the-3d-pdf">
+<h2>Step 10: View the 3D-ΔPDF<a class="headerlink" href="#step-10-view-the-3d-pdf" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>Switch back to the Slice tab.</p></li>
 <li><p>Select “pdf” in the workspace combo.</p></li>
 <li><p>Set the color limits to V Min = -1 and V Max = 1.</p></li>
 </ul>
-<figure class="align-center" id="id8">
+<figure class="align-center" id="id10">
 <a class="reference internal image-reference" href="../_images/Bixbyite_deltaPDF_view_pdf.png"><img alt="../_images/Bixbyite_deltaPDF_view_pdf.png" src="../_images/Bixbyite_deltaPDF_view_pdf.png" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-text">View the resulting 3D-ΔPDF.</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
+<p><span class="caption-text">View the resulting 3D-ΔPDF.</span><a class="headerlink" href="#id10" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
@@ -577,9 +610,11 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-subtract-the-high-temperature-background">Step 3: Subtract the High-Temperature Background</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-view-the-subtracted-data">Step 4: View the Subtracted Data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-punch-the-bragg-peaks">Step 5: Punch the Bragg Peaks</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-fill-the-punched-regions">Step 6: Fill the Punched Regions</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-calculate-the-3d-pdf">Step 7: Calculate the 3D-ΔPDF</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-8-view-the-3d-pdf">Step 8: View the 3D-ΔPDF</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-view-the-punched-data">Step 6: View the Punched Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-fill-the-punched-regions">Step 7: Fill the Punched Regions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-8-view-the-filled-data">Step 8: View the Filled Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-9-calculate-the-3d-pdf">Step 9: Calculate the 3D-ΔPDF</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-10-view-the-3d-pdf">Step 10: View the 3D-ΔPDF</a></li>
 </ul>
   </nav></div>
 

@@ -1,7 +1,7 @@
 .. _tutorial_corelli_volume_deltapdf:
 
-3D-ΔPDF with CORELLI Bixbyite Data
-===================================
+3D-ΔPDF with Bixbyite Data
+==========================
 
 This tutorial demonstrates how to use the volume slicer's Transform tab in NeuXtalViz to calculate a 3D-ΔPDF from normalized CORELLI bixbyite volume data collected at 6 K and 300 K.
 
@@ -40,6 +40,7 @@ Step 3: Subtract the High-Temperature Background
 
 Step 4: View the Subtracted Data
 ----------------------------------
+- Switch back to the Slice tab.
 - Select "subtracted" in the workspace combo.
 - Set the color limits to V Min = 0 and V Max = 1e-5.
 
@@ -51,6 +52,7 @@ Step 4: View the Subtracted Data
 
 Step 5: Punch the Bragg Peaks
 --------------------------------
+- Switch back to the Transform tab.
 - Select the "Cubic" crystal system and space group 206.
 - Select "subtracted" as the input workspace, set the punch size to 0.25 (keeping the default inner radius), and run the punch.
 
@@ -60,8 +62,20 @@ Step 5: Punch the Bragg Peaks
 
    Punch out the Bragg peaks and low-Q region.
 
-Step 6: Fill the Punched Regions
+Step 6: View the Punched Data
+--------------------------------
+- Switch back to the Slice tab.
+- Select "punched" in the workspace combo to see the punched-out regions.
+
+.. figure:: Bixbyite_deltaPDF_view_punched.png
+   :width: 100%
+   :align: center
+
+   View the punched reciprocal-space data.
+
+Step 7: Fill the Punched Regions
 -----------------------------------
+- Switch back to the Transform tab.
 - Select "punched" as the input workspace, name the output "filled", set the blur size to 0.1, and run the blur.
 
 .. figure:: Bixbyite_deltaPDF_fill.png
@@ -70,8 +84,20 @@ Step 6: Fill the Punched Regions
 
    Fill the punched regions with a NaN-Gaussian blur.
 
-Step 7: Calculate the 3D-ΔPDF
+Step 8: View the Filled Data
+-------------------------------
+- Switch back to the Slice tab.
+- Select "filled" in the workspace combo to see the gaps closed in.
+
+.. figure:: Bixbyite_deltaPDF_view_filled.png
+   :width: 100%
+   :align: center
+
+   View the filled reciprocal-space data.
+
+Step 9: Calculate the 3D-ΔPDF
 --------------------------------
+- Switch back to the Transform tab.
 - Select "filled" as the input workspace, choose the "Lorch" apodization window (keeping the default outer Q), and calculate the 3D-ΔPDF.
 
 .. figure:: Bixbyite_deltaPDF_transform.png
@@ -80,8 +106,9 @@ Step 7: Calculate the 3D-ΔPDF
 
    Calculate the 3D-ΔPDF.
 
-Step 8: View the 3D-ΔPDF
----------------------------
+Step 10: View the 3D-ΔPDF
+----------------------------
+- Switch back to the Slice tab.
 - Select "pdf" in the workspace combo.
 - Set the color limits to V Min = -1 and V Max = 1.
 
