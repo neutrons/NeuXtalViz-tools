@@ -109,7 +109,7 @@ Step 9: Calculate the 3D-ΔPDF
 Step 10: View the 3D-ΔPDF
 ----------------------------
 - Switch back to the Slice tab.
-- Select "pdf" in the workspace combo.
+- Select "transformed" in the workspace combo.
 - Set the color limits to V Min = -1 and V Max = 1.
 
 .. figure:: Bixbyite_deltaPDF_view_pdf.png
