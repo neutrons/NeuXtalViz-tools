@@ -84,6 +84,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
         )
 
         self.view.connect_run_bragg_punch(self.run_bragg_punch)
+        self.view.connect_run_karen(self.run_karen)
         self.view.connect_run_blur(self.run_blur)
         self.view.connect_calculate_pdf(self.calculate_pdf)
 
@@ -95,6 +96,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
         self.slice_signal_cache = None
         self.activate_idle = True
         self.punch_idle = True
+        self.karen_idle = True
         self.blur_idle = True
         self.pdf_idle = True
 
@@ -1229,6 +1231,60 @@ class VolumeSlicer(NeuXtalVizPresenter):
         if result is not None:
             self.refresh_workspace_lists()
         self.punch_idle = True
+
+    def run_karen(self):
+        """
+        Remove Bragg-peak outliers from the selected workspace with KAREN.
+
+        Runs on a worker thread. An alternative to run_bragg_punch +
+        run_blur -- see `VolumeSlicerModel.run_karen`.
+
+        Parameters
+        ----------
+        None
+        """
+        input_name = self.view.get_karen_input_workspace()
+        output_name = self.view.get_karen_output_name()
+        width = self.view.get_karen_width()
+        z_score = self.view.get_karen_z_score()
+
+        if not input_name or not output_name:
+            return
+        if width is None or z_score is None:
+            return
+        if not self.karen_idle:
+            return
+
+        self.karen_idle = False
+
+        worker = self.view.worker(
+            functools.partial(
+                self.model.run_karen,
+                input_display_name=input_name,
+                output_display_name=output_name,
+                width=width,
+                z_score=z_score,
+            )
+        )
+        worker.connect_result(self.run_karen_complete)
+        worker.connect_finished(self.update_complete)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def run_karen_complete(self, result):
+        """
+        Refresh the workspace list after a KAREN filter completes.
+
+        Parameters
+        ----------
+        result : str or None
+            Display name of the filtered workspace, or None if the
+            worker was stopped or the inputs were invalid.
+        """
+        if result is not None:
+            self.refresh_workspace_lists()
+        self.karen_idle = True
 
     def run_blur(self):
         """

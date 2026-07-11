@@ -269,7 +269,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.workspace_combo.setToolTip(
             "The workspace currently being sliced/cut. Load new "
             "workspaces, rename/delete them, and derive new ones "
-            '(arithmetic, Bragg punch, 3D-ΔPDF) from the "3D-ΔPDF" '
+            '(arithmetic, Bragg punch, KAREN, 3D-ΔPDF) from the "3D-ΔPDF" '
             "tab."
         )
         self.auto_scale_dropdown(self.workspace_combo)
@@ -279,7 +279,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.redraw_workspace_button.setToolTip(
             "Redraw the current workspace. Use this if its data "
             "changed underneath it -- e.g. after re-running Punch, "
-            "Blur, or Calculate 3D-ΔPDF with the same output name "
+            "Filter, Blur, or Transform with the same output name "
             "while it's the active workspace."
         )
 
@@ -642,9 +642,9 @@ class VolumeSlicerView(NeuXtalVizWidget):
         crystal_layout.addWidget(self.pdf_space_group_combo)
         crystal_layout.addStretch(1)
 
-        # --- Bragg punch / Blur / Calculate 3D-ΔPDF ---------------------
+        # --- Bragg punch / KAREN / Blur / Calculate 3D-ΔPDF -------------
         # One shared grid so the input combo, fields, units, "->", output
-        # name, and button line up in columns across all three steps.
+        # name, and button line up in columns across all four steps.
         steps_layout = QGridLayout()
 
         self.punch_input_combo = QComboBox(self)
@@ -683,7 +683,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         crystal_layout.addWidget(QLabel("Outlier:", self))
         crystal_layout.addWidget(self.punch_outlier_line)
 
-        self.run_punch_button = QPushButton("Run Punch", self)
+        self.run_punch_button = QPushButton("Punch", self)
         self.run_punch_button.setToolTip(
             "Punch out statistical outliers (local IQR-based) within "
             "an ellipsoidal region around each allowed reflection, "
@@ -702,6 +702,48 @@ class VolumeSlicerView(NeuXtalVizWidget):
         steps_layout.addWidget(self.punch_output_line, 0, 7)
         steps_layout.addWidget(self.run_punch_button, 0, 8)
 
+        self.karen_input_combo = QComboBox(self)
+        self.karen_input_combo.setToolTip("Workspace to filter with KAREN.")
+
+        self.karen_output_line = QLineEdit("filtered", self)
+        self.karen_output_line.setToolTip(
+            "Display name for the KAREN-filtered result."
+        )
+
+        self.karen_width_line = QLineEdit("0.1", self)
+        self.karen_width_line.setValidator(q_validator)
+        self.karen_width_line.setToolTip(
+            "Moving-window size (Å⁻¹) for the median/MAD outlier "
+            "filter -- the same meaning as the blur step's size below."
+        )
+
+        self.karen_z_score_line = QLineEdit("3", self)
+        self.karen_z_score_line.setValidator(q_validator)
+        self.karen_z_score_line.setToolTip(
+            "Outlier cutoff, in estimated standard deviations "
+            "(1.4826*MAD) from the local median (3 is Mantid's "
+            "DeltaPDF3D default)."
+        )
+
+        self.run_karen_button = QPushButton("Filter", self)
+        self.run_karen_button.setToolTip(
+            "Replace Bragg-peak/local outliers with a robust "
+            "median-based estimate (Mantid's KAREN method), producing "
+            "a new, separately inspectable workspace. An alternative "
+            "to Punch + Blur that needs no separate fill step."
+        )
+        self.run_karen_button.setIcon(qta.icon("fa6s.filter"))
+
+        steps_layout.addWidget(self.karen_input_combo, 1, 0)
+        steps_layout.addWidget(QLabel("Width:", self), 1, 1)
+        steps_layout.addWidget(self.karen_width_line, 1, 2)
+        steps_layout.addWidget(QLabel("Z-score:", self), 1, 3)
+        steps_layout.addWidget(self.karen_z_score_line, 1, 4)
+        steps_layout.addWidget(QLabel("Å⁻¹", self), 1, 5)
+        steps_layout.addWidget(QLabel("→", self), 1, 6)
+        steps_layout.addWidget(self.karen_output_line, 1, 7)
+        steps_layout.addWidget(self.run_karen_button, 1, 8)
+
         self.blur_input_combo = QComboBox(self)
         self.blur_input_combo.setToolTip(
             "Workspace to blur (typically a Bragg-punch result)."
@@ -719,27 +761,27 @@ class VolumeSlicerView(NeuXtalVizWidget):
             "punched/cut regions before the transform."
         )
 
-        self.run_blur_button = QPushButton("Run Blur", self)
+        self.run_blur_button = QPushButton("Blur", self)
         self.run_blur_button.setToolTip(
             "NaN-Gaussian-blur the gaps closed, producing a new, "
             "separately inspectable workspace."
         )
         self.run_blur_button.setIcon(qta.icon("fa6s.droplet"))
 
-        steps_layout.addWidget(self.blur_input_combo, 1, 0)
-        steps_layout.addWidget(QLabel("Blur:", self), 1, 1)
-        steps_layout.addWidget(self.blur_q_blur_line, 1, 2)
-        steps_layout.addWidget(QLabel("Å⁻¹", self), 1, 5)
-        steps_layout.addWidget(QLabel("→", self), 1, 6)
-        steps_layout.addWidget(self.blur_output_line, 1, 7)
-        steps_layout.addWidget(self.run_blur_button, 1, 8)
+        steps_layout.addWidget(self.blur_input_combo, 2, 0)
+        steps_layout.addWidget(QLabel("Blur:", self), 2, 1)
+        steps_layout.addWidget(self.blur_q_blur_line, 2, 2)
+        steps_layout.addWidget(QLabel("Å⁻¹", self), 2, 5)
+        steps_layout.addWidget(QLabel("→", self), 2, 6)
+        steps_layout.addWidget(self.blur_output_line, 2, 7)
+        steps_layout.addWidget(self.run_blur_button, 2, 8)
 
         self.pdf_input_combo = QComboBox(self)
         self.pdf_input_combo.setToolTip(
             "Workspace to transform (typically a blurred result)."
         )
 
-        self.pdf_output_line = QLineEdit("pdf", self)
+        self.pdf_output_line = QLineEdit("transformed", self)
         self.pdf_output_line.setToolTip("Display name for the 3D-ΔPDF result.")
 
         self.pdf_q_outer_line = QLineEdit("5", self)
@@ -760,21 +802,21 @@ class VolumeSlicerView(NeuXtalVizWidget):
         )
         self.auto_scale_dropdown(self.pdf_window_combo)
 
-        self.calculate_pdf_button = QPushButton("Calculate 3D-ΔPDF", self)
+        self.calculate_pdf_button = QPushButton("Transform", self)
         self.calculate_pdf_button.setToolTip(
             "Run the pad/FFT step, producing a real-space 3D-ΔPDF " "result."
         )
         self.calculate_pdf_button.setIcon(qta.icon("fa6s.wave-square"))
 
-        steps_layout.addWidget(self.pdf_input_combo, 2, 0)
-        steps_layout.addWidget(QLabel("Window:", self), 2, 1)
-        steps_layout.addWidget(self.pdf_window_combo, 2, 2)
-        steps_layout.addWidget(QLabel("Outer:", self), 2, 3)
-        steps_layout.addWidget(self.pdf_q_outer_line, 2, 4)
-        steps_layout.addWidget(QLabel("Å⁻¹", self), 2, 5)
-        steps_layout.addWidget(QLabel("→", self), 2, 6)
-        steps_layout.addWidget(self.pdf_output_line, 2, 7)
-        steps_layout.addWidget(self.calculate_pdf_button, 2, 8)
+        steps_layout.addWidget(self.pdf_input_combo, 3, 0)
+        steps_layout.addWidget(QLabel("Window:", self), 3, 1)
+        steps_layout.addWidget(self.pdf_window_combo, 3, 2)
+        steps_layout.addWidget(QLabel("Outer:", self), 3, 3)
+        steps_layout.addWidget(self.pdf_q_outer_line, 3, 4)
+        steps_layout.addWidget(QLabel("Å⁻¹", self), 3, 5)
+        steps_layout.addWidget(QLabel("→", self), 3, 6)
+        steps_layout.addWidget(self.pdf_output_line, 3, 7)
+        steps_layout.addWidget(self.calculate_pdf_button, 3, 8)
 
         layout.addLayout(manage_layout)
         layout.addLayout(combine_layout)
@@ -958,34 +1000,45 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
     def connect_run_bragg_punch(self, run_bragg_punch):
         """
-        Connect a handler to the "Run Punch" button click.
+        Connect a handler to the "Punch" button click.
 
         Parameters
         ----------
         run_bragg_punch : callable
-            Slot invoked when the "Run Punch" button is clicked.
+            Slot invoked when the "Punch" button is clicked.
         """
         self.run_punch_button.clicked.connect(run_bragg_punch)
 
+    def connect_run_karen(self, run_karen):
+        """
+        Connect a handler to the "Filter" button click.
+
+        Parameters
+        ----------
+        run_karen : callable
+            Slot invoked when the "Filter" button is clicked.
+        """
+        self.run_karen_button.clicked.connect(run_karen)
+
     def connect_run_blur(self, run_blur):
         """
-        Connect a handler to the "Run Blur" button click.
+        Connect a handler to the "Blur" button click.
 
         Parameters
         ----------
         run_blur : callable
-            Slot invoked when the "Run Blur" button is clicked.
+            Slot invoked when the "Blur" button is clicked.
         """
         self.run_blur_button.clicked.connect(run_blur)
 
     def connect_calculate_pdf(self, calculate_pdf):
         """
-        Connect a handler to the "Calculate 3D-ΔPDF" button click.
+        Connect a handler to the "Transform" button click.
 
         Parameters
         ----------
         calculate_pdf : callable
-            Slot invoked when the "Calculate 3D-ΔPDF" button is clicked.
+            Slot invoked when the "Transform" button is clicked.
         """
         self.calculate_pdf_button.clicked.connect(calculate_pdf)
 
@@ -2286,6 +2339,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
             self.combine_ws_a_combo,
             self.combine_ws_b_combo,
             self.punch_input_combo,
+            self.karen_input_combo,
             self.blur_input_combo,
             self.pdf_input_combo,
         ):
@@ -2592,6 +2646,57 @@ class VolumeSlicerView(NeuXtalVizWidget):
         """
         if self.punch_outlier_line.hasAcceptableInput():
             return float(self.punch_outlier_line.text())
+
+    def get_karen_input_workspace(self):
+        """
+        Get the display name selected as input to the KAREN filter.
+
+        Returns
+        -------
+        display_name : str or None
+            Selected display name, or None if no workspace is loaded.
+        """
+        text = self.karen_input_combo.currentText()
+        return text if text else None
+
+    def get_karen_output_name(self):
+        """
+        Get the requested display name for the KAREN-filtered result.
+
+        Returns
+        -------
+        output_name : str or None
+            Text entered in the output-name field, or None if empty.
+        """
+        text = self.karen_output_line.text().strip()
+        return text if text else None
+
+    def get_karen_width(self):
+        """
+        Get the KAREN step's moving-window size, if valid.
+
+        Returns
+        -------
+        width : float or None
+            Window size (Å⁻¹) parsed from the field, or None if the
+            field does not currently contain acceptable input.
+        """
+        if self.karen_width_line.hasAcceptableInput():
+            return float(self.karen_width_line.text())
+
+    def get_karen_z_score(self):
+        """
+        Get the KAREN step's outlier cutoff, if valid.
+
+        Returns
+        -------
+        z_score : float or None
+            Outlier cutoff (estimated standard deviations from the
+            local median) parsed from the field, or None if the field
+            does not currently contain acceptable input.
+        """
+        if self.karen_z_score_line.hasAcceptableInput():
+            return float(self.karen_z_score_line.text())
 
     def get_blur_input_workspace(self):
         """

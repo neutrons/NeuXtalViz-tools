@@ -308,7 +308,7 @@ def CORELLI_Bixbyite_deltaPDF(app, window):
 
     # --- Step 8: view the 3D-delta PDF --------------------------------
     vs_view.tab_widget.setCurrentIndex(SLICE_TAB)
-    vs_view.workspace_combo.setCurrentText("pdf")
+    vs_view.workspace_combo.setCurrentText("transformed")
     QTest.qWait(1000 * 10)
 
     vs_view.vmin_line.setText("-1")

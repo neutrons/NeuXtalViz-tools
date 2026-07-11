@@ -674,6 +674,8 @@ class UB(NeuXtalVizPresenter):
                 exp,
                 time_stop,
                 force_reload=force_reload,
+                progress=progress,
+                stop_event=stop_event,
             )
 
             if self.stop_processing(stop_event):

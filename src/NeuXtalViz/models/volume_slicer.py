@@ -18,7 +18,7 @@ from mantid.geometry import SpaceGroupFactory
 
 import numpy as np
 import scipy.linalg
-from scipy.ndimage import gaussian_filter
+from scipy.ndimage import gaussian_filter, median_filter
 
 import skimage.measure
 
@@ -1307,13 +1307,6 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
                     n += 1
                     if progress is not None and n % 200 == 0:
-                        # Capped at 50% -- the loop above is only half
-                        # the work. The subsequent clone/setSignalArray
-                        # on the full signal array has no fine-grained
-                        # progress of its own, but is not instant for a
-                        # large workspace, so reporting the loop as
-                        # 0-100% would read as "basically done" long
-                        # before the step actually finishes.
                         progress("Bragg punch", int(50 * n / total))
 
                     if not sg.isAllowedReflection([hh, kk, ll]):
@@ -1447,6 +1440,86 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         return display_name
 
+    def run_karen(
+        self,
+        input_display_name,
+        output_display_name,
+        width,
+        z_score=3.0,
+        progress=None,
+        stop_event=None,
+        **kwargs,
+    ):
+        """
+        Remove Bragg-peak outliers with the KAREN algorithm.
+
+        An alternative to :meth:`run_bragg_punch` + :meth:`run_blur`,
+        following Mantid's ``DeltaPDF3D`` "KAREN" method: a moving-window
+        median filter estimates a local median and median absolute
+        deviation (MAD) at every voxel; voxels more than ``z_score``
+        (robust, MAD-based) standard deviations from the local median
+        are replaced with ``median + 2.2*MAD``. Since this replaces
+        outliers in place rather than punching NaNs out, no separate
+        fill/blur step is needed before :meth:`calculate_pdf`. A
+        separate, inspectable step -- the result can be sliced/viewed
+        like any ordinary reciprocal-space workspace.
+
+        Parameters
+        ----------
+        input_display_name : str
+            Display name of the (already-registered) workspace to
+            filter.
+        output_display_name : str
+            Display name for the KAREN-filtered result.
+        width : float
+            Moving-window size, in Å⁻¹ -- the same meaning as
+            :meth:`run_blur`'s ``Q_blur``, converted per-axis into
+            filter-window bins.
+        z_score : float, optional
+            Outlier cutoff, in estimated standard deviations
+            (1.4826*MAD) from the local median (default 3.0, matching
+            Mantid's ``DeltaPDF3D`` "KAREN" method).
+        progress : callable, optional
+            ``progress(message, percent)`` callback (injected by the
+            worker infrastructure).
+        stop_event : threading.Event, optional
+            Cooperative-cancellation event (injected by the worker
+            infrastructure).
+
+        Returns
+        -------
+        display_name : str
+            ``output_display_name``, unchanged -- re-running this step
+            with the same output name overwrites its previous result
+            in place rather than accumulating new entries.
+        """
+        input_ws = self.workspace_registry[input_display_name]["ws_name"]
+
+        if progress is not None:
+            progress("Running KAREN", 0)
+        grid = self._pdf_grid_info(input_ws)
+        signal = mtd[input_ws].getSignalArray().copy()
+        signal = self._karen_filter(signal, grid, width, z_score)
+
+        if stop_event is not None and stop_event.is_set():
+            return None
+
+        display_name = output_display_name
+        self._replace_workspace_if_exists(display_name, keep_ws_name=input_ws)
+        output_ws = self._unique_ws_name(display_name)
+
+        if progress is not None:
+            progress("Cloning workspace", 80)
+        CloneWorkspace(InputWorkspace=input_ws, OutputWorkspace=output_ws)
+        mtd[output_ws].setSignalArray(signal)
+
+        self.register_workspace(display_name, output_ws, space="reciprocal")
+
+        if progress is not None:
+            progress("Done", 100)
+
+        return display_name
+
     def calculate_pdf(
         self,
         input_display_name,
@@ -1537,6 +1610,38 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         signal = signal.copy()
         signal[~mask] = interp[~mask]
+
+        return signal
+
+    def _karen_filter(self, signal, grid, width, z_score):
+        """
+        Moving-window median/MAD outlier filter (Mantid's KAREN).
+
+        Same median-filter-based sigma estimate (1.4826*MAD) and
+        outlier replacement (median + 2.2*MAD) as ``DeltaPDF3D``'s
+        ``_karen``, but with ``width`` given in Å⁻¹ (like
+        ``_nan_gaussian_blur``'s ``Q_size``) rather than a raw bin
+        count, and ``z_score`` exposed instead of Mantid's hard-coded
+        3.
+        """
+        bw_inv = np.linalg.inv(2 * np.pi * self.UB @ self.W)
+        sizes = np.linalg.norm(bw_inv, axis=1) * width
+        size = np.maximum(
+            np.ceil(sizes / np.array(grid["widths"])).astype(int), 1
+        )
+        # Force odd window sizes -- an even window is asymmetric about
+        # the voxel being filtered (see DeltaPDF3D's KAREN docstring).
+        size += 1 - size % 2
+
+        med = median_filter(signal, size=tuple(size), mode="nearest")
+        mad = median_filter(
+            np.abs(signal - med), size=tuple(size), mode="nearest"
+        )
+        asigma = np.abs(mad * z_score * 1.4826)
+        mask = np.logical_or(signal < med - asigma, signal > med + asigma)
+
+        signal = signal.copy()
+        signal[mask] = (med + 2.2 * mad)[mask]
 
         return signal
 

@@ -1221,7 +1221,15 @@ class UBModel(NeuXtalVizModel):
         return d_spacing, counts, two_theta, az_phi
 
     def load_data(
-        self, instrument, IPTS, runs, exp, time_stop, force_reload=False
+        self,
+        instrument,
+        IPTS,
+        runs,
+        exp,
+        time_stop,
+        force_reload=False,
+        progress=None,
+        stop_event=None,
     ):
         """
         Load experimental data for a given instrument and run parameters.
@@ -1240,12 +1248,23 @@ class UBModel(NeuXtalVizModel):
             Time to stop loading data.
         force_reload : bool, optional
             Force reloading already cached workspaces instead of reusing them.
+        progress : callable, optional
+            ``progress(message, percent)`` callback (injected by the
+            worker infrastructure), called once per run as it loads.
+            Reports within 10-40% -- the sub-range the caller (see
+            ``UBToolsPresenter.convert_Q_process``) budgets for this
+            step, bookended by its own "Data loading..."/"Data
+            loaded..." messages at 10/40.
+        stop_event : threading.Event, optional
+            Cooperative-cancellation event (injected by the worker
+            infrastructure), checked between runs.
 
         Returns
         -------
         bool
             True if the "data" workspace was successfully loaded/grouped,
-            False if no files were found or loading failed.
+            False if no files were found, loading was stopped early, or
+            loading failed.
         """
 
         filenames, idf, grouping, raw, message = self.get_files(
@@ -1258,6 +1277,7 @@ class UBModel(NeuXtalVizModel):
             return False
 
         requested_filenames = [filename for filename in filenames]
+        run_by_filename = dict(zip(requested_filenames, runs))
 
         self.runs = runs
         self.instrument = instrument
@@ -1324,7 +1344,17 @@ class UBModel(NeuXtalVizModel):
                     or not mtd.doesExist(self.loaded_data_workspaces[filename])
                 ]
 
-                for filename in missing_filenames:
+                total = len(missing_filenames)
+                for n, filename in enumerate(missing_filenames, start=1):
+                    if stop_event is not None and stop_event.is_set():
+                        return False
+
+                    if progress is not None:
+                        progress(
+                            f"Loading run {run_by_filename[filename]}...",
+                            int(10 + 30 * n / total),
+                        )
+
                     workspace = self._loaded_workspace_name(filename)
 
                     if raw:
@@ -1357,7 +1387,17 @@ class UBModel(NeuXtalVizModel):
                 self._group_data_workspaces(requested_filenames)
             else:
                 self.loaded_data_workspaces = {}
-                for filename in requested_filenames:
+                total = len(requested_filenames)
+                for n, filename in enumerate(requested_filenames, start=1):
+                    if stop_event is not None and stop_event.is_set():
+                        return False
+
+                    if progress is not None:
+                        progress(
+                            f"Loading run {run_by_filename[filename]}...",
+                            int(10 + 30 * n / total),
+                        )
+
                     workspace = self._loaded_workspace_name(filename)
 
                     if raw:
