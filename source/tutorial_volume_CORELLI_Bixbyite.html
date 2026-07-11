@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Modulation Tools with MnCoGeAs Data &#8212; NeuXtalViz  documentation</title>
+    <title>3D-ΔPDF with CORELLI Bixbyite Data &#8212; NeuXtalViz  documentation</title>
   
   
   
@@ -42,12 +42,12 @@
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'source/tutorial_modulation_TOPAZ_MnCoGeAs';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'source/tutorial_volume_CORELLI_Bixbyite';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="UB Tools with Bixbyite Data" href="tutorial_ub_tools_CORELLI_Bixbyite.html" />
-    <link rel="prev" title="Crystal Structure with Scolecite Data" href="tutorial_crystal_structure_TOPAZ_Scolecite.html" />
+    <link rel="next" title="UB Tools with Mesolite Data" href="tutorial_ub_tools_MANDI_Mesolite.html" />
+    <link rel="prev" title="Crystal Structure with Natrolite Data" href="tutorial_crystal_structure_CORELLI_Natrolite.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -331,20 +331,20 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">TOPAZ Tutorials:</span></p>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Si.html">UB Tools with Silicon Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_TOPAZ_Scolecite.html">UB Tools with Scolecite Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_plan_TOPAZ_Si.html">Experiment Plan with Silicon Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_volume_TOPAZ_Si.html">Volume Slicer with Silicon Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_crystal_structure_TOPAZ_Scolecite.html">Crystal Structure with Scolecite Data</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Modulation Tools with MnCoGeAs Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_modulation_TOPAZ_MnCoGeAs.html">Modulation Tools with MnCoGeAs Data</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">CORELLI Tutorials:</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Bixbyite.html">UB Tools with Bixbyite Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_ub_tools_CORELLI_Natrolite.html">UB Tools with Natrolite Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_crystal_structure_CORELLI_Natrolite.html">Crystal Structure with Natrolite Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_volume_CORELLI_Bixbyite.html">3D-ΔPDF with CORELLI Bixbyite Data</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">3D-ΔPDF with CORELLI Bixbyite Data</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">MANDI Tutorials:</span></p>
 <ul class="nav bd-sidenav">
@@ -393,7 +393,7 @@
     
     <li class="breadcrumb-item"><a href="NeuXtalViz.tutorials.html" class="nav-link">NeuXtalViz tutorials</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Modulation Tools with MnCoGeAs Data</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">3D-ΔPDF with CORELLI Bixbyite Data</span></li>
   </ul>
 </nav>
 </div>
@@ -410,123 +410,118 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="modulation-tools-with-mncogeas-data">
-<h1>Modulation Tools with MnCoGeAs Data<a class="headerlink" href="#modulation-tools-with-mncogeas-data" title="Link to this heading">#</a></h1>
-<p>This tutorial demonstrates how to use the UB tools in <em>NeuXtalViz</em> to
-run the TOPAZ modulation scenario for the MnCoGeAs example.</p>
-<section id="step-1-convert-to-q">
-<h2>Step 1: Convert to Q<a class="headerlink" href="#step-1-convert-to-q" title="Link to this heading">#</a></h2>
-<p>In the <strong>Convert to Q</strong> tab:</p>
+  <section id="d-pdf-with-corelli-bixbyite-data">
+<span id="tutorial-corelli-volume-deltapdf"></span><h1>3D-ΔPDF with CORELLI Bixbyite Data<a class="headerlink" href="#d-pdf-with-corelli-bixbyite-data" title="Link to this heading">#</a></h1>
+<p>This tutorial demonstrates how to use the volume slicer’s Transform tab in NeuXtalViz to calculate a 3D-ΔPDF from normalized CORELLI bixbyite volume data collected at 6 K and 300 K.</p>
+<section id="step-1-load-the-6-k-data">
+<h2>Step 1: Load the 6 K Data<a class="headerlink" href="#step-1-load-the-6-k-data" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Set the instrument to <strong>TOPAZ</strong>.</p></li>
-<li><p>Enter IPTS number: <code class="docutils literal notranslate"><span class="pre">36079</span></code>.</p></li>
-<li><p>Enter run number: <code class="docutils literal notranslate"><span class="pre">23996</span></code>.</p></li>
-<li><p>Click <strong>Convert to Q</strong> to load the data and build the Q volume.</p></li>
+<li><p>Open NeuXtalViz and navigate to the Volume Slicer tab.</p></li>
+<li><p>Load the normalized NeXus file for the 6 K dataset, naming it “006K”.</p></li>
 </ul>
 <figure class="align-center" id="id1">
-<img alt="../_images/MnCoGeAs_UB_convert_Q.png" src="../_images/MnCoGeAs_UB_convert_Q.png" />
+<a class="reference internal image-reference" href="../_images/Bixbyite_deltaPDF_load_006K.png"><img alt="../_images/Bixbyite_deltaPDF_load_006K.png" src="../_images/Bixbyite_deltaPDF_load_006K.png" style="width: 100%;" />
+</a>
 <figcaption>
-<p><span class="caption-text">Convert MnCoGeAs data to Q for TOPAZ.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+<p><span class="caption-text">Load the 6 K bixbyite data.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-2-find-peaks">
-<h2>Step 2: Find peaks<a class="headerlink" href="#step-2-find-peaks" title="Link to this heading">#</a></h2>
-<p>Still in the <strong>Convert to Q</strong> tab:</p>
+<section id="step-2-load-the-300-k-data">
+<h2>Step 2: Load the 300 K Data<a class="headerlink" href="#step-2-load-the-300-k-data" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Adjust the peak-finding parameters (maximum number of peaks,
-density threshold, minimum distance).</p></li>
-<li><p>Click <strong>Find Peaks</strong> to locate Bragg peaks in the Q volume.</p></li>
+<li><p>Load the normalized NeXus file for the 300 K dataset, naming it “300K”.</p></li>
 </ul>
 <figure class="align-center" id="id2">
-<img alt="../_images/MnCoGeAs_UB_find_peaks.png" src="../_images/MnCoGeAs_UB_find_peaks.png" />
+<a class="reference internal image-reference" href="../_images/Bixbyite_deltaPDF_load_300K.png"><img alt="../_images/Bixbyite_deltaPDF_load_300K.png" src="../_images/Bixbyite_deltaPDF_load_300K.png" style="width: 100%;" />
+</a>
 <figcaption>
-<p><span class="caption-text">Find Bragg peaks in the MnCoGeAs Q volume.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+<p><span class="caption-text">Load the 300 K bixbyite data.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-3-primitive-cell">
-<h2>Step 3: Primitive cell<a class="headerlink" href="#step-3-primitive-cell" title="Link to this heading">#</a></h2>
-<p>In the <strong>UB</strong> tab:</p>
+<section id="step-3-subtract-the-high-temperature-background">
+<h2>Step 3: Subtract the High-Temperature Background<a class="headerlink" href="#step-3-subtract-the-high-temperature-background" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Set tolerances and cell-parameter bounds for the Niggli reduction.</p></li>
-<li><p>Click <strong>Primitive Cell</strong> (Niggli) to search for a primitive cell
-consistent with the peak list.</p></li>
+<li><p>Switch to the Transform tab.</p></li>
+<li><p>In the arithmetic panel, select “006K” as workspace A and “300K” as workspace B, scaling B by 0.95.</p></li>
+<li><p>Name the output “subtracted” and run the subtraction.</p></li>
 </ul>
 <figure class="align-center" id="id3">
-<img alt="../_images/MnCoGeAs_UB_primitive_cell.png" src="../_images/MnCoGeAs_UB_primitive_cell.png" />
+<a class="reference internal image-reference" href="../_images/Bixbyite_deltaPDF_subtract.png"><img alt="../_images/Bixbyite_deltaPDF_subtract.png" src="../_images/Bixbyite_deltaPDF_subtract.png" style="width: 100%;" />
+</a>
 <figcaption>
-<p><span class="caption-text">Primitive cell solutions for MnCoGeAs.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+<p><span class="caption-text">Subtract the scaled 300 K background from the 6 K data.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-4-conventional-cell">
-<h2>Step 4: Conventional cell<a class="headerlink" href="#step-4-conventional-cell" title="Link to this heading">#</a></h2>
-<p>From the list of candidate cells:</p>
+<section id="step-4-view-the-subtracted-data">
+<h2>Step 4: View the Subtracted Data<a class="headerlink" href="#step-4-view-the-subtracted-data" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Select the row corresponding to the desired conventional cell.</p></li>
-<li><p>Click <strong>Select</strong> to adopt it as the working unit cell.</p></li>
+<li><p>Select “subtracted” in the workspace combo.</p></li>
+<li><p>Set the color limits to V Min = 0 and V Max = 1e-5.</p></li>
 </ul>
 <figure class="align-center" id="id4">
-<img alt="../_images/MnCoGeAs_UB_conventional_cell.png" src="../_images/MnCoGeAs_UB_conventional_cell.png" />
+<a class="reference internal image-reference" href="../_images/Bixbyite_deltaPDF_view_subtracted.png"><img alt="../_images/Bixbyite_deltaPDF_view_subtracted.png" src="../_images/Bixbyite_deltaPDF_view_subtracted.png" style="width: 100%;" />
+</a>
 <figcaption>
-<p><span class="caption-text">Select a conventional cell for MnCoGeAs on TOPAZ.</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+<p><span class="caption-text">View the subtracted reciprocal-space data.</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-5-refine-ub-matrix">
-<h2>Step 5: Refine UB matrix<a class="headerlink" href="#step-5-refine-ub-matrix" title="Link to this heading">#</a></h2>
-<p>With the conventional cell selected:</p>
+<section id="step-5-punch-the-bragg-peaks">
+<h2>Step 5: Punch the Bragg Peaks<a class="headerlink" href="#step-5-punch-the-bragg-peaks" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Choose an optimization mode (for example, Hexagonal).</p></li>
-<li><p>Click <strong>Refine UB</strong> to refine the UB matrix against the peak list.</p></li>
+<li><p>Select the “Cubic” crystal system and space group 206.</p></li>
+<li><p>Select “subtracted” as the input workspace, set the punch size to 0.25 (keeping the default inner radius), and run the punch.</p></li>
 </ul>
 <figure class="align-center" id="id5">
-<img alt="../_images/MnCoGeAs_UB_refine_UB.png" src="../_images/MnCoGeAs_UB_refine_UB.png" />
+<a class="reference internal image-reference" href="../_images/Bixbyite_deltaPDF_punch.png"><img alt="../_images/Bixbyite_deltaPDF_punch.png" src="../_images/Bixbyite_deltaPDF_punch.png" style="width: 100%;" />
+</a>
 <figcaption>
-<p><span class="caption-text">Refined UB matrix for MnCoGeAs.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+<p><span class="caption-text">Punch out the Bragg peaks and low-Q region.</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-6-view-indexed-peaks">
-<h2>Step 6: View indexed peaks<a class="headerlink" href="#step-6-view-indexed-peaks" title="Link to this heading">#</a></h2>
-<p>In the <strong>Peaks</strong> tab:</p>
+<section id="step-6-fill-the-punched-regions">
+<h2>Step 6: Fill the Punched Regions<a class="headerlink" href="#step-6-fill-the-punched-regions" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Select a peak in the table to highlight it in the Q-space view.</p></li>
-<li><p>Inspect the indexing and fit quality.</p></li>
+<li><p>Select “punched” as the input workspace, name the output “filled”, set the blur size to 0.1, and run the blur.</p></li>
 </ul>
 <figure class="align-center" id="id6">
-<img alt="../_images/MnCoGeAs_UB_index_peaks.png" src="../_images/MnCoGeAs_UB_index_peaks.png" />
+<a class="reference internal image-reference" href="../_images/Bixbyite_deltaPDF_fill.png"><img alt="../_images/Bixbyite_deltaPDF_fill.png" src="../_images/Bixbyite_deltaPDF_fill.png" style="width: 100%;" />
+</a>
 <figcaption>
-<p><span class="caption-text">View and inspect an indexed peak.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+<p><span class="caption-text">Fill the punched regions with a NaN-Gaussian blur.</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-7-clustering-view-clusters">
-<h2>Step 7: Clustering / View clusters<a class="headerlink" href="#step-7-clustering-view-clusters" title="Link to this heading">#</a></h2>
-<p>In the clustering view:</p>
+<section id="step-7-calculate-the-3d-pdf">
+<h2>Step 7: Calculate the 3D-ΔPDF<a class="headerlink" href="#step-7-calculate-the-3d-pdf" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Set clustering parameters (epsilon, minimum points) and click <strong>Cluster</strong>.</p></li>
-<li><p>Inspect clusters to verify grouping of related peaks.</p></li>
+<li><p>Select “filled” as the input workspace, choose the “Lorch” apodization window (keeping the default outer Q), and calculate the 3D-ΔPDF.</p></li>
 </ul>
 <figure class="align-center" id="id7">
-<img alt="../_images/MnCoGeAs_UB_view_cluster.png" src="../_images/MnCoGeAs_UB_view_cluster.png" />
+<a class="reference internal image-reference" href="../_images/Bixbyite_deltaPDF_transform.png"><img alt="../_images/Bixbyite_deltaPDF_transform.png" src="../_images/Bixbyite_deltaPDF_transform.png" style="width: 100%;" />
+</a>
 <figcaption>
-<p><span class="caption-text">Cluster view for the refined UB.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+<p><span class="caption-text">Calculate the 3D-ΔPDF.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
-<section id="step-8-hkl-slice-view-optional">
-<h2>Step 8: HKL slice view (optional)<a class="headerlink" href="#step-8-hkl-slice-view-optional" title="Link to this heading">#</a></h2>
-<p>The test script contains commented steps to generate HKL slices and save
-additional screenshots. Use the <strong>Convert to HKL</strong> tab to generate
-reciprocal-space slices when needed.</p>
-</section>
-<section id="step-9-save-ub-optional">
-<h2>Step 9: Save UB (optional)<a class="headerlink" href="#step-9-save-ub-optional" title="Link to this heading">#</a></h2>
-<p>The scenario script also includes commented code for saving the UB matrix.
-Use <strong>Save UB</strong> to write the refined UB matrix to disk for subsequent
-analysis. It will contain the modulation information as well.</p>
+<section id="step-8-view-the-3d-pdf">
+<h2>Step 8: View the 3D-ΔPDF<a class="headerlink" href="#step-8-view-the-3d-pdf" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Select “pdf” in the workspace combo.</p></li>
+<li><p>Set the color limits to V Min = -1 and V Max = 1.</p></li>
+</ul>
+<figure class="align-center" id="id8">
+<a class="reference internal image-reference" href="../_images/Bixbyite_deltaPDF_view_pdf.png"><img alt="../_images/Bixbyite_deltaPDF_view_pdf.png" src="../_images/Bixbyite_deltaPDF_view_pdf.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">View the resulting 3D-ΔPDF.</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 </section>
 </section>
 
@@ -541,20 +536,20 @@ analysis. It will contain the modulation information as well.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="tutorial_crystal_structure_TOPAZ_Scolecite.html"
+       href="tutorial_crystal_structure_CORELLI_Natrolite.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Crystal Structure with Scolecite Data</p>
+        <p class="prev-next-title">Crystal Structure with Natrolite Data</p>
       </div>
     </a>
     <a class="right-next"
-       href="tutorial_ub_tools_CORELLI_Bixbyite.html"
+       href="tutorial_ub_tools_MANDI_Mesolite.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">UB Tools with Bixbyite Data</p>
+        <p class="prev-next-title">UB Tools with Mesolite Data</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -577,15 +572,14 @@ analysis. It will contain the modulation information as well.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-convert-to-q">Step 1: Convert to Q</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-find-peaks">Step 2: Find peaks</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-primitive-cell">Step 3: Primitive cell</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-conventional-cell">Step 4: Conventional cell</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-refine-ub-matrix">Step 5: Refine UB matrix</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-view-indexed-peaks">Step 6: View indexed peaks</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-clustering-view-clusters">Step 7: Clustering / View clusters</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-8-hkl-slice-view-optional">Step 8: HKL slice view (optional)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-9-save-ub-optional">Step 9: Save UB (optional)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-load-the-6-k-data">Step 1: Load the 6 K Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-load-the-300-k-data">Step 2: Load the 300 K Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-subtract-the-high-temperature-background">Step 3: Subtract the High-Temperature Background</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-view-the-subtracted-data">Step 4: View the Subtracted Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-punch-the-bragg-peaks">Step 5: Punch the Bragg Peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-fill-the-punched-regions">Step 6: Fill the Punched Regions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-calculate-the-3d-pdf">Step 7: Calculate the 3D-ΔPDF</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-8-view-the-3d-pdf">Step 8: View the 3D-ΔPDF</a></li>
 </ul>
   </nav></div>
 

@@ -19,6 +19,7 @@ NeuXtalViz tutorials
    tutorial_ub_tools_CORELLI_Bixbyite
    tutorial_ub_tools_CORELLI_Natrolite
    tutorial_crystal_structure_CORELLI_Natrolite
+   tutorial_volume_CORELLI_Bixbyite
 
 .. toctree::
    :maxdepth: 2
