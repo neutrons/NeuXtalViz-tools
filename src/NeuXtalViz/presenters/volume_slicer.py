@@ -243,9 +243,8 @@ class VolumeSlicer(NeuXtalVizPresenter):
         None
         """
         if self.view.get_symmetric_zero():
-            vmin = self.view.get_vmin_value()
-            if vmin is not None:
-                self.view.set_vmax_value(-vmin)
+            if self.view.get_vmin_value() is not None:
+                self.view.set_vmax_from_vmin()
         self.update_cvals()
 
     def update_vmax(self):
@@ -260,9 +259,8 @@ class VolumeSlicer(NeuXtalVizPresenter):
         None
         """
         if self.view.get_symmetric_zero():
-            vmax = self.view.get_vmax_value()
-            if vmax is not None:
-                self.view.set_vmin_value(-vmax)
+            if self.view.get_vmax_value() is not None:
+                self.view.set_vmin_from_vmax()
         self.update_cvals()
 
     def update_cvals(self):

@@ -3166,6 +3166,49 @@ class VolumeSlicerView(NeuXtalVizWidget):
         """
         self.vmax_line.setText(str(round(val, 5)))
 
+    def set_vmax_from_vmin(self):
+        """
+        Mirror the minimum field's text into the maximum field, negated.
+
+        Used for "Symmetric About Zero": flips the sign of vmin's raw
+        text rather than reformatting the numeric value, so a typed
+        notation (e.g. "1e-4") is preserved instead of flip-flopping
+        to a different format (e.g. "0.0001") each time either field
+        is edited.
+
+        Parameters
+        ----------
+        None
+        """
+        self.vmax_line.setText(
+            self._negate_numeric_text(self.vmin_line.text())
+        )
+
+    def set_vmin_from_vmax(self):
+        """
+        Mirror the maximum field's text into the minimum field, negated.
+
+        See :meth:`set_vmax_from_vmin` -- preserves vmax's typed
+        notation instead of reformatting it.
+
+        Parameters
+        ----------
+        None
+        """
+        self.vmin_line.setText(
+            self._negate_numeric_text(self.vmax_line.text())
+        )
+
+    @staticmethod
+    def _negate_numeric_text(text):
+        """Flip the leading sign of a numeric string, keeping its notation."""
+        text = text.strip()
+        if text.startswith("-"):
+            return text[1:]
+        if text.startswith("+"):
+            return "-" + text[1:]
+        return "-" + text
+
     def get_xmin_value(self):
         """
         Get the current X-axis minimum value, if valid.
