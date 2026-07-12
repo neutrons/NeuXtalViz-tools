@@ -4913,7 +4913,7 @@ table.</p>
 
 <span class="target" id="module-NeuXtalViz.presenters.volume_slicer"></span><dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VolumeSlicer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L8-L1395"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VolumeSlicer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L8-L1393"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter" title="NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuXtalVizPresenter</span></code></a></p>
 <p>Presenter for the volume slicer tool.</p>
 <p>Connects the volume slicer view’s signals to model-driven actions for
@@ -5148,7 +5148,7 @@ and saving slices and cuts.</p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.activate_workspace">
-<span class="sig-name descname"><span class="pre">activate_workspace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1015-L1043"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.activate_workspace" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">activate_workspace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1013-L1041"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.activate_workspace" title="Link to this definition">#</a></dt>
 <dd><p>Make the workspace combo’s current selection the active workspace.</p>
 <p>Runs on a worker thread, since activation clones and
 re-downsamples the workspace for the 3D view (potentially
@@ -5164,7 +5164,7 @@ slow for large volumes), then redraws the volume/slice/cut.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.activate_workspace_complete">
-<span class="sig-name descname"><span class="pre">activate_workspace_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1045-L1069"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.activate_workspace_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">activate_workspace_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1043-L1067"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.activate_workspace_complete" title="Link to this definition">#</a></dt>
 <dd><p>Refresh lattice/display state after a new workspace is activated.</p>
 <p>For a real-space (delta-PDF) workspace, defaults the colormap
 to “Diverging” and checks “Symmetric about Zero” – these
@@ -5181,7 +5181,7 @@ remain normal, user-overridable controls afterward.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.calculate_pdf">
-<span class="sig-name descname"><span class="pre">calculate_pdf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1342-L1381"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.calculate_pdf" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_pdf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1340-L1379"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.calculate_pdf" title="Link to this definition">#</a></dt>
 <dd><p>Run the pad/FFT stage, producing a 3D-ΔPDF result.</p>
 <p>Runs on a worker thread. Typically run on the output of
 <cite>run_blur</cite>, though any registered workspace may be selected
@@ -5197,7 +5197,7 @@ directly – see <cite>VolumeSlicerModel.calculate_pdf</cite>.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.calculate_pdf_complete">
-<span class="sig-name descname"><span class="pre">calculate_pdf_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1383-L1395"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.calculate_pdf_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_pdf_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1381-L1393"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.calculate_pdf_complete" title="Link to this definition">#</a></dt>
 <dd><p>Refresh the workspace list after a 3D-ΔPDF calculation completes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5212,7 +5212,7 @@ was stopped or the inputs were invalid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.combine_workspaces">
-<span class="sig-name descname"><span class="pre">combine_workspaces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1115-L1145"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.combine_workspaces" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">combine_workspaces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1113-L1143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.combine_workspaces" title="Link to this definition">#</a></dt>
 <dd><p>Compute <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">*</span> <span class="pre">ws_a</span> <span class="pre">-</span> <span class="pre">b</span> <span class="pre">*</span> <span class="pre">ws_b</span></code> from the arithmetic panel’s inputs.</p>
 <p>Shows an error dialog (without raising) if the two workspaces
 don’t share common binning, or if any input is missing/invalid.</p>
@@ -5227,7 +5227,7 @@ don’t share common binning, or if any input is missing/invalid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data">
-<span class="sig-name descname"><span class="pre">cut_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L870-L897"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cut_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L868-L895"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data" title="Link to this definition">#</a></dt>
 <dd><p>Cut the sliced volume on a worker thread if not already cutting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5240,7 +5240,7 @@ don’t share common binning, or if any input is missing/invalid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data_complete">
-<span class="sig-name descname"><span class="pre">cut_data_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L899-L911"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cut_data_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L897-L909"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data_complete" title="Link to this definition">#</a></dt>
 <dd><p>Complete cut calculation and update the view with the result.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5255,7 +5255,7 @@ if the worker was stopped or the parameters were invalid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data_process">
-<span class="sig-name descname"><span class="pre">cut_data_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_thick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L913-L967"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cut_data_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_thick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L911-L965"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.cut_data_process" title="Link to this definition">#</a></dt>
 <dd><p>Worker task that computes a 1D cut through the sliced volume.</p>
 <p>Intended to run on a background worker thread, reporting progress
 and checking for a stop request between steps.</p>
@@ -5288,7 +5288,7 @@ not sliced, or <cite>cut_value</cite>/<cite>cut_thick</cite> are missing.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.delete_workspace">
-<span class="sig-name descname"><span class="pre">delete_workspace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1071-L1090"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.delete_workspace" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">delete_workspace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1069-L1088"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.delete_workspace" title="Link to this definition">#</a></dt>
 <dd><p>Delete the workspace currently selected in the management list.</p>
 <p>Prompts for confirmation first.</p>
 <dl class="field-list simple">
@@ -5302,7 +5302,7 @@ not sliced, or <cite>cut_value</cite>/<cite>cut_thick</cite> are missing.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_axis">
-<span class="sig-name descname"><span class="pre">get_axis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L496-L519"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_axis" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_axis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L494-L517"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_axis" title="Link to this definition">#</a></dt>
 <dd><p>Get the axis vector for the currently selected line cut.</p>
 <p>Derived from the in-plane directions of <cite>get_normal</cite>, with the
 component corresponding to the selected cut axis zeroed out.</p>
@@ -5319,7 +5319,7 @@ in-plane direction being cut along.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_clim_method">
-<span class="sig-name descname"><span class="pre">get_clim_method</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L521-L540"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_clim_method" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_clim_method</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L519-L538"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_clim_method" title="Link to this definition">#</a></dt>
 <dd><p>Get the color-limit clipping method for the 3D volume display.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -5334,7 +5334,7 @@ IQR clipping, or None for no clipping.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_normal">
-<span class="sig-name descname"><span class="pre">get_normal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L475-L494"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_normal" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_normal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L473-L492"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_normal" title="Link to this definition">#</a></dt>
 <dd><p>Get the normal vector for the currently selected slice plane.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -5349,7 +5349,7 @@ for “Axis 1/3”, or [1, 0, 0] otherwise.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_vlim_method">
-<span class="sig-name descname"><span class="pre">get_vlim_method</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L542-L561"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_vlim_method" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_vlim_method</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L540-L559"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_vlim_method" title="Link to this definition">#</a></dt>
 <dd><p>Get the color-limit clipping method for the 2D slice display.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -5364,7 +5364,7 @@ IQR clipping, or None for no clipping.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS">
-<span class="sig-name descname"><span class="pre">load_NXS</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L389-L416"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_NXS</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L387-L414"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS" title="Link to this definition">#</a></dt>
 <dd><p>Prompt for a NeXus file and a workspace name, then load it on a
 worker thread.</p>
 <dl class="field-list simple">
@@ -5378,7 +5378,7 @@ worker thread.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS_complete">
-<span class="sig-name descname"><span class="pre">load_NXS_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L418-L428"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_NXS_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L416-L426"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS_complete" title="Link to this definition">#</a></dt>
 <dd><p>Complete NeXus file loading by refreshing the oriented lattice display.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5392,7 +5392,7 @@ worker thread.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS_process">
-<span class="sig-name descname"><span class="pre">load_NXS_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L430-L473"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_NXS_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L428-L471"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS_process" title="Link to this definition">#</a></dt>
 <dd><p>Worker task that loads a NeXus MDHisto workspace.</p>
 <p>Intended to run on a background worker thread, reporting progress
 and checking for a stop request between steps.</p>
@@ -5412,7 +5412,7 @@ status text and percent complete.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data">
-<span class="sig-name descname"><span class="pre">redraw_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L563-L601"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">redraw_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L561-L599"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data" title="Link to this definition">#</a></dt>
 <dd><p>Redraw the 3D volume on a worker thread if not already drawing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5427,7 +5427,7 @@ status text and percent complete.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data_complete">
-<span class="sig-name descname"><span class="pre">redraw_data_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L603-L621"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">redraw_data_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L601-L619"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data_complete" title="Link to this definition">#</a></dt>
 <dd><p>Complete volume redraw and update the view with the new histogram.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5443,7 +5443,7 @@ the parameters were invalid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data_process">
-<span class="sig-name descname"><span class="pre">redraw_data_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clim_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetric_zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L623-L722"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">redraw_data_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clim_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetric_zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L621-L720"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.redraw_data_process" title="Link to this definition">#</a></dt>
 <dd><p>Worker task that prepares the 3D volume histogram for display.</p>
 <p>Intended to run on a background worker thread, reporting progress
 and checking for a stop request between steps.</p>
@@ -5496,7 +5496,7 @@ passed in.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.refresh_workspace_lists">
-<span class="sig-name descname"><span class="pre">refresh_workspace_lists</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1001-L1013"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.refresh_workspace_lists" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">refresh_workspace_lists</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L999-L1011"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.refresh_workspace_lists" title="Link to this definition">#</a></dt>
 <dd><p>Refresh the workspace combo(s) and management list from the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5509,7 +5509,7 @@ passed in.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.rename_workspace">
-<span class="sig-name descname"><span class="pre">rename_workspace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1092-L1113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.rename_workspace" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">rename_workspace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1090-L1111"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.rename_workspace" title="Link to this definition">#</a></dt>
 <dd><p>Rename the workspace currently selected in the management list.</p>
 <p>Prompts for a new display name.</p>
 <dl class="field-list simple">
@@ -5523,7 +5523,7 @@ passed in.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_blur">
-<span class="sig-name descname"><span class="pre">run_blur</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1289-L1326"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_blur" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run_blur</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1287-L1324"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_blur" title="Link to this definition">#</a></dt>
 <dd><p>NaN-Gaussian-blur the selected workspace.</p>
 <p>Runs on a worker thread. Typically run on the output of
 <cite>run_bragg_punch</cite>, though any registered workspace may be
@@ -5539,7 +5539,7 @@ selected directly – see <cite>VolumeSlicerModel.run_blur</cite>.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_blur_complete">
-<span class="sig-name descname"><span class="pre">run_blur_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1328-L1340"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_blur_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run_blur_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1326-L1338"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_blur_complete" title="Link to this definition">#</a></dt>
 <dd><p>Refresh the workspace list after a blur completes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5554,7 +5554,7 @@ worker was stopped or the inputs were invalid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_bragg_punch">
-<span class="sig-name descname"><span class="pre">run_bragg_punch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1171-L1219"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_bragg_punch" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run_bragg_punch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1169-L1217"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_bragg_punch" title="Link to this definition">#</a></dt>
 <dd><p>Punch out Bragg-reflection outliers and remove the low-Q region.</p>
 <p>Runs on a worker thread (the per-reflection loop can be slow).
 Produces a new, separately inspectable reciprocal-space
@@ -5570,7 +5570,7 @@ workspace – see <cite>VolumeSlicerModel.run_bragg_punch</cite>.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_bragg_punch_complete">
-<span class="sig-name descname"><span class="pre">run_bragg_punch_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1221-L1233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_bragg_punch_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run_bragg_punch_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1219-L1231"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_bragg_punch_complete" title="Link to this definition">#</a></dt>
 <dd><p>Refresh the workspace list after a Bragg punch completes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5585,7 +5585,7 @@ worker was stopped or the inputs were invalid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_karen">
-<span class="sig-name descname"><span class="pre">run_karen</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1235-L1273"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_karen" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run_karen</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1233-L1271"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_karen" title="Link to this definition">#</a></dt>
 <dd><p>Remove Bragg-peak outliers from the selected workspace with KAREN.</p>
 <p>Runs on a worker thread. An alternative to run_bragg_punch +
 run_blur – see <cite>VolumeSlicerModel.run_karen</cite>.</p>
@@ -5600,7 +5600,7 @@ run_blur – see <cite>VolumeSlicerModel.run_karen</cite>.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_karen_complete">
-<span class="sig-name descname"><span class="pre">run_karen_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1275-L1287"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_karen_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run_karen_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1273-L1285"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.run_karen_complete" title="Link to this definition">#</a></dt>
 <dd><p>Refresh the workspace list after a KAREN filter completes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5615,7 +5615,7 @@ worker was stopped or the inputs were invalid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.save_cut">
-<span class="sig-name descname"><span class="pre">save_cut</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L983-L995"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.save_cut" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_cut</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L981-L993"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.save_cut" title="Link to this definition">#</a></dt>
 <dd><p>Prompt for a filename and save the current cut, if one exists.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5628,7 +5628,7 @@ worker was stopped or the inputs were invalid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.save_slice">
-<span class="sig-name descname"><span class="pre">save_slice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L969-L981"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.save_slice" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_slice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L967-L979"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.save_slice" title="Link to this definition">#</a></dt>
 <dd><p>Prompt for a filename and save the current slice, if one exists.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5641,7 +5641,7 @@ worker was stopped or the inputs were invalid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data">
-<span class="sig-name descname"><span class="pre">slice_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L724-L763"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">slice_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L722-L761"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data" title="Link to this definition">#</a></dt>
 <dd><p>Slice the volume on a worker thread if not already slicing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5654,7 +5654,7 @@ worker was stopped or the inputs were invalid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data_complete">
-<span class="sig-name descname"><span class="pre">slice_data_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L765-L780"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data_complete" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">slice_data_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L763-L778"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data_complete" title="Link to this definition">#</a></dt>
 <dd><p>Complete slice calculation and update the view with the result.</p>
 <p>Caches the sliced signal for later use by <cite>update_slice_display</cite>.</p>
 <dl class="field-list simple">
@@ -5670,7 +5670,7 @@ None if the worker was stopped or the parameters were invalid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data_process">
-<span class="sig-name descname"><span class="pre">slice_data_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vlim_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetric_zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L782-L868"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data_process" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">slice_data_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vlim_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetric_zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L780-L866"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.slice_data_process" title="Link to this definition">#</a></dt>
 <dd><p>Worker task that computes a 2D slice through the loaded volume.</p>
 <p>Intended to run on a background worker thread, reporting progress
 and checking for a stop request between steps.</p>
@@ -5715,7 +5715,7 @@ limits, or None if stopped, the histogram is not loaded, or
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cut">
-<span class="sig-name descname"><span class="pre">update_cut</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L378-L387"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cut" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_cut</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L376-L385"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cut" title="Link to this definition">#</a></dt>
 <dd><p>Cut the loaded volume if a histogram workspace is available.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5728,7 +5728,7 @@ limits, or None if stopped, the histogram is not loaded, or
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cut_value">
-<span class="sig-name descname"><span class="pre">update_cut_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L309-L318"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cut_value" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_cut_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L307-L316"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cut_value" title="Link to this definition">#</a></dt>
 <dd><p>Update the cut using the current cut value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5741,7 +5741,7 @@ limits, or None if stopped, the histogram is not loaded, or
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cvals">
-<span class="sig-name descname"><span class="pre">update_cvals</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L268-L287"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cvals" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_cvals</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L266-L285"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_cvals" title="Link to this definition">#</a></dt>
 <dd><p>Update colorbar value limits in the view based on user input.</p>
 <p>Uses vmin, vmax from the view and sets colorbar limits if valid.
 Manually editing either value disables automatic color limits.</p>
@@ -5770,7 +5770,7 @@ Manually editing either value disables automatic color limits.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_pdf_space_groups">
-<span class="sig-name descname"><span class="pre">update_pdf_space_groups</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1151-L1169"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_pdf_space_groups" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_pdf_space_groups</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L1149-L1167"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_pdf_space_groups" title="Link to this definition">#</a></dt>
 <dd><p>Repopulate the space-group combo for the selected crystal system.</p>
 <p>Connected to the crystal-system combo. Reuses
 <code class="docutils literal notranslate"><span class="pre">CrystalStructureModel</span></code>’s (static) space-group generation
@@ -5786,7 +5786,7 @@ rather than duplicating it.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice">
-<span class="sig-name descname"><span class="pre">update_slice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L320-L329"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_slice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L318-L327"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice" title="Link to this definition">#</a></dt>
 <dd><p>Slice the loaded volume if a histogram workspace is available.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5799,7 +5799,7 @@ rather than duplicating it.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_clim">
-<span class="sig-name descname"><span class="pre">update_slice_clim</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L331-L346"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_clim" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_slice_clim</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L329-L344"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_clim" title="Link to this definition">#</a></dt>
 <dd><p>Refresh the slice display using the current color limit settings.</p>
 <p>Connected to the slice view’s color-limit method combo box.
 Selecting a method re-enables automatic color limits.</p>
@@ -5814,7 +5814,7 @@ Selecting a method re-enables automatic color limits.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_display">
-<span class="sig-name descname"><span class="pre">update_slice_display</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L348-L376"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_display" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_slice_display</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L346-L374"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_display" title="Link to this definition">#</a></dt>
 <dd><p>Update the slice display’s colormap, scale, and value limits.</p>
 <p>If no slice signal is cached yet, triggers a slice update instead.</p>
 <dl class="field-list simple">
@@ -5828,7 +5828,7 @@ Selecting a method re-enables automatic color limits.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_value">
-<span class="sig-name descname"><span class="pre">update_slice_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L289-L297"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_value" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_slice_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L287-L295"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_slice_value" title="Link to this definition">#</a></dt>
 <dd><p>Redraw the volume without resetting the current slice/cut view.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -5841,7 +5841,7 @@ Selecting a method re-enables automatic color limits.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_vmax">
-<span class="sig-name descname"><span class="pre">update_vmax</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L251-L266"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_vmax" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_vmax</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L250-L264"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_vmax" title="Link to this definition">#</a></dt>
 <dd><p>Handle editing of the colorbar maximum field.</p>
 <p>If “Symmetric About Zero” is enabled, forces the minimum field
 to the negative of the edited maximum before applying it.</p>
@@ -5856,7 +5856,7 @@ to the negative of the edited maximum before applying it.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_vmin">
-<span class="sig-name descname"><span class="pre">update_vmin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L234-L249"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_vmin" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_vmin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L234-L248"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_vmin" title="Link to this definition">#</a></dt>
 <dd><p>Handle editing of the colorbar minimum field.</p>
 <p>If “Symmetric About Zero” is enabled, forces the maximum field
 to the negative of the edited minimum before applying it.</p>
@@ -5871,7 +5871,7 @@ to the negative of the edited minimum before applying it.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_volume">
-<span class="sig-name descname"><span class="pre">update_volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L299-L307"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_volume" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/presenters/volume_slicer.py#L297-L305"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_volume" title="Link to this definition">#</a></dt>
 <dd><p>Redraw the volume and reset the slice/cut view.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
