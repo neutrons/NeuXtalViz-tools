@@ -396,8 +396,13 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         validator = QDoubleValidator(-1e32, 1e32, 6, notation=notation)
 
-        self.vmin_line.setValidator(validator)
-        self.vmax_line.setValidator(validator)
+        # Scientific notation (e.g. "1e-4") is common for diffuse-scattering
+        # and 3D-ΔPDF color limits, which can span many orders of magnitude.
+        vlim_validator = QDoubleValidator(
+            -1e32, 1e32, 6, notation=QDoubleValidator.ScientificNotation
+        )
+        self.vmin_line.setValidator(vlim_validator)
+        self.vmax_line.setValidator(vlim_validator)
         self.vmin_line.setToolTip("Set the minimum value for the colorbar.")
         self.vmax_line.setToolTip("Set the maximum value for the colorbar.")
 
