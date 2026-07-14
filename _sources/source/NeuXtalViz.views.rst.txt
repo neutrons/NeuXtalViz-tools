@@ -8,7 +8,6 @@ NeuXtalViz.views package
    crystal_structure_tools
    experiment_planner
    periodic_table
-   sample_tools
    ub_tools
    volume_slicer
    command_browser
@@ -38,11 +37,6 @@ Submodules
    :undoc-members:
    :show-inheritance:
    :exclude-members: selection
-
-.. automodule:: NeuXtalViz.views.sample_tools
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 .. automodule:: NeuXtalViz.views.ub_tools
    :members:

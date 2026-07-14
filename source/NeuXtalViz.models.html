@@ -819,7 +819,7 @@ Default is True.</p>
 <span id="neuxtalviz-models-crystal-structure-tools-module"></span><h2>NeuXtalViz.models.crystal_structure_tools module<a class="headerlink" href="#module-NeuXtalViz.models.crystal_structure_tools" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CrystalStructureModel</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L28-L671"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CrystalStructureModel</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L39-L1248"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel" title="NeuXtalViz.models.base_model.NeuXtalVizModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuXtalVizModel</span></code></a></p>
 <p>Model for crystal structure and space group handling using Mantid.</p>
 <p>Wraps a Mantid <code class="docutils literal notranslate"><span class="pre">crystal</span></code> sample workspace to manage the crystal
@@ -868,23 +868,41 @@ structure factors, chemical formula, and atom positions.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_atom_positions" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_atom_positions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_atom_positions</span></code></a>()</p></td>
 <td><p>Generate symmetry-equivalent atom positions within the unit cell.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_settings_from_space_group" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_settings_from_space_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_settings_from_space_group</span></code></a>(sg)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_hkl_list" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_hkl_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_hkl_list</span></code></a>([d_min])</p></td>
+<td><p>Generate every allowed reflection and its d-spacing down to d_min.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_settings_from_space_group" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_settings_from_space_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_settings_from_space_group</span></code></a>(sg)</p></td>
 <td><p>Generate the list of alternative settings (symbols) for a space group.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_space_groups_from_crystal_system" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_space_groups_from_crystal_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_space_groups_from_crystal_system</span></code></a>(system)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_space_groups_from_crystal_system" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_space_groups_from_crystal_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_space_groups_from_crystal_system</span></code></a>(system)</p></td>
 <td><p>Generate the list of space groups belonging to a crystal system.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_chemical_formula_z_parameter" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_chemical_formula_z_parameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_chemical_formula_z_parameter</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_UB_from_vectors" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_UB_from_vectors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_UB_from_vectors</span></code></a>(u_vector, v_vector)</p></td>
+<td><p>Build a sample-orientation UB matrix from two crystallographic directions, independent of the model's own <code class="docutils literal notranslate"><span class="pre">self.UB</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_absorption_dict" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_absorption_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_absorption_dict</span></code></a>(wavelength[, volume])</p></td>
+<td><p>Compute absorption and scattering parameters for the sample material.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_chemical_formula_z_parameter" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_chemical_formula_z_parameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_chemical_formula_z_parameter</span></code></a>()</p></td>
 <td><p>Get the chemical formula and Z parameter of the crystal structure.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_crystal_system" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_crystal_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_crystal_system</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_crystal_system" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_crystal_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_crystal_system</span></code></a>()</p></td>
 <td><p>Get the crystal system of the current crystal structure.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_constants" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lattice_constants</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_euler_angles" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_euler_angles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_euler_angles</span></code></a>(u_vector, v_vector, UB)</p></td>
+<td><p>Compute Euler angles that orient a sample face along given directions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_incident_path_length" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_incident_path_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_incident_path_length</span></code></a>(mesh, UB, u_vector)</p></td>
+<td><p>Sample radius along the incident beam direction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_constants" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lattice_constants</span></code></a>()</p></td>
 <td><p>Get the lattice constants of the current unit cell.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_system" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lattice_system</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_system" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lattice_system</span></code></a>()</p></td>
 <td><p>Get the lattice system of the current crystal structure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_material_dict" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_material_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_material_dict</span></code></a>(chemical_formula, ...)</p></td>
+<td><p>Build a Mantid material dictionary for the sample.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_oriented_lattice_parameters</span></code>()</p></td>
 <td><p>Obtain the oriented lattice parameters.</p></td>
@@ -907,26 +925,32 @@ structure factors, chemical formula, and atom positions.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform</span></code>([reciprocal])</p></td>
 <td><p>Transformation matrix describing the reciprocal or crystal axes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_transform" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unit_cell_transform</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_transform_from_UB" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_transform_from_UB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform_from_UB</span></code></a>(UB)</p></td>
+<td><p>Normalized orientation matrix (unit a*/b*/c* Cartesian columns) for a given UB matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_transform" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unit_cell_transform</span></code></a>()</p></td>
 <td><p>Get the transformation matrix from fractional to Cartesian coordinates.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_volume" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_volume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unit_cell_volume</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_volume" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_volume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unit_cell_volume</span></code></a>()</p></td>
 <td><p>Get the volume of the current unit cell.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vector</span></code>(axes_type, ind)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vector</span></code>(axes_type, ind)</p></td>
 <td><p>Vector corresponding to a particular crystallographic direction.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_UB</span></code>(ws)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_UB</span></code>(ws)</p></td>
 <td><p>Check if the oriented lattice exists on a workspace.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.has_crystal_structure" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.has_crystal_structure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_crystal_structure</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.has_crystal_structure" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.has_crystal_structure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_crystal_structure</span></code></a>()</p></td>
 <td><p>Check whether the sample workspace has a crystal structure set.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.load_CIF" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.load_CIF"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_CIF</span></code></a>(filename)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.load_CIF" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.load_CIF"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_CIF</span></code></a>(filename)</p></td>
 <td><p>Load a crystal structure from a CIF file and recompute the UB matrix.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation_matrix</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation_matrix</span></code>()</p></td>
 <td><p>Return the current UB matrix (orientation matrix).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.predict_transmission" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.predict_transmission"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_transmission</span></code></a>(hkls, ds, wavelength, ...)</p></td>
+<td><p>Predict the transmission and absorption-weighted path length (T-bar) of every given reflection for a monochromatic rotation experiment.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_azimuth</span></code>(position, focal_point, ...)</p></td>
 <td><p>Rotate the camera left/right about a global up axis.</p></td>
@@ -937,17 +961,23 @@ structure factors, chemical formula, and atom positions.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_roll</span></code>(position, focal_point, ...)</p></td>
 <td><p>Apply a roll about the current viewing axis.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.save_ins" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.save_ins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_ins</span></code></a>(filename)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.sample_mesh" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.sample_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_mesh</span></code></a>()</p></td>
+<td><p>Return the triangulated mesh of the sample shape for visualization.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.save_ins" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.save_ins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_ins</span></code></a>(filename)</p></td>
 <td><p>Set the sample material and save the crystal structure to an INS file.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_UB</span></code>(UB)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_UB</span></code>(UB)</p></td>
 <td><p>Update the UB-matrix.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_crystal_structure" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_crystal_structure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_crystal_structure</span></code></a>(params, space_group, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_crystal_structure" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_crystal_structure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_crystal_structure</span></code></a>(params, space_group, ...)</p></td>
 <td><p>Set the crystal structure on the sample workspace and recompute UB.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_material" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_material</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_material" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_material</span></code></a>()</p></td>
 <td><p>Set the sample material from the chemical formula and number density.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_sample_shape" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_sample_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_sample_shape</span></code></a>(ws, mat_dict, alpha, beta, ...)</p></td>
+<td><p>Set the ellipsoid sample shape and material on a workspace.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.update_lattice_parameters" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.update_lattice_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_lattice_parameters</span></code></a>(a, b, c, alpha, ...)</p></td>
 <td><p>Update the lattice parameters, keeping the current setting and atoms.</p></td>
@@ -955,12 +985,20 @@ structure factors, chemical formula, and atom positions.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.update_parameters" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.update_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_parameters</span></code></a>(params)</p></td>
 <td><p>Symmetrize lattice parameters according to the current lattice system.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.write_ellipsoid_stl" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.write_ellipsoid_stl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_ellipsoid_stl</span></code></a>(params)</p></td>
+<td><p>Build a triaxial ellipsoid mesh and save it as a temporary STL file.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.PEAKS_WORKSPACE">
+<span class="sig-name descname"><span class="pre">PEAKS_WORKSPACE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'absorption_peaks'</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.PEAKS_WORKSPACE" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.calculate_F2">
-<span class="sig-name descname"><span class="pre">calculate_F2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L282-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.calculate_F2" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_F2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L295-L327"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.calculate_F2" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the structure factor and symmetry equivalents of a reflection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -984,7 +1022,7 @@ structure factors, chemical formula, and atom positions.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.calculate_UB">
-<span class="sig-name descname"><span class="pre">calculate_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L218-L242"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.calculate_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_UB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L231-L255"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.calculate_UB" title="Link to this definition">#</a></dt>
 <dd><p>Calculate and set the UB matrix from the current crystal structure.</p>
 <p>Computes the UB matrix from the unit cell metric tensor using
 Cholesky decomposition, sets it on the <code class="docutils literal notranslate"><span class="pre">crystal</span></code> workspace, and
@@ -993,7 +1031,7 @@ stores it on the model via <code class="xref py py-meth docutils literal notrans
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.constrain_parameters">
-<span class="sig-name descname"><span class="pre">constrain_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L588-L621"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.constrain_parameters" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">constrain_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L1165-L1198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.constrain_parameters" title="Link to this definition">#</a></dt>
 <dd><p>Determine which lattice parameters are fixed by the lattice system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1010,7 +1048,7 @@ should be disabled for editing.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_F2">
-<span class="sig-name descname"><span class="pre">generate_F2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L244-L280"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_F2" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">generate_F2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L257-L293"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_F2" title="Link to this definition">#</a></dt>
 <dd><p>Generate unique reflections and their structure factors down to d_min.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1034,7 +1072,7 @@ should be disabled for editing.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_atom_positions">
-<span class="sig-name descname"><span class="pre">generate_atom_positions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L503-L566"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_atom_positions" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">generate_atom_positions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L1080-L1143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_atom_positions" title="Link to this definition">#</a></dt>
 <dd><p>Generate symmetry-equivalent atom positions within the unit cell.</p>
 <p>For each scatterer, applies the space group’s equivalent
 positions, wraps into the unit cell, extends to unit cell
@@ -1055,8 +1093,47 @@ a list of the originating scatterer index for each position.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_hkl_list">
+<span class="sig-name descname"><span class="pre">generate_hkl_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L498-L551"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_hkl_list" title="Link to this definition">#</a></dt>
+<dd><p>Generate every allowed reflection and its d-spacing down to d_min.</p>
+<p>Unlike <a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_F2" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_F2"><code class="xref py py-meth docutils literal notranslate"><span class="pre">generate_F2()</span></code></a> (the Factors tab, which reduces to
+symmetry-unique reflections via <code class="docutils literal notranslate"><span class="pre">getUniqueHKLsUsingFilter</span></code>),
+this returns every symmetry-equivalent allowed reflection via
+Mantid’s <code class="docutils literal notranslate"><span class="pre">ReflectionGenerator.getHKLsUsingFilter</span></code> – the
+absorption/transmission prediction is per-reflection (each
+equivalent has its own Q direction and therefore its own
+goniometer setting and absorption path), so the full set is
+needed, not just one representative per family.</p>
+<p>Absorption is centrosymmetric though: reversing (h,k,l) to
+(-h,-k,-l) swaps the incident/outgoing beam directions through
+the sample, and an ellipsoid (like every shape supported here)
+is itself inversion-symmetric about its center, so
+T(hkl) == T(-hkl) exactly. Only one reflection from each such
+Friedel pair is kept (whichever has the first nonzero index
+positive), halving the simulation work for no loss of
+information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>d_min</strong><span class="classifier">float, optional</span></dt><dd><p>Minimum d-spacing (default 0.7).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>hkls</strong><span class="classifier">(N, 3) ndarray</span></dt><dd><p>Miller indices of every allowed reflection, one per
+centrosymmetric (Friedel) pair.</p>
+</dd>
+<dt><strong>ds</strong><span class="classifier">(N,) ndarray</span></dt><dd><p>d-spacing of each reflection.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_settings_from_space_group">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">generate_settings_from_space_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L134-L157"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_settings_from_space_group" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">generate_settings_from_space_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L147-L170"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_settings_from_space_group" title="Link to this definition">#</a></dt>
 <dd><p>Generate the list of alternative settings (symbols) for a space group.</p>
 <p>A static method (uses no instance state) – see
 <a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_space_groups_from_crystal_system" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_space_groups_from_crystal_system"><code class="xref py py-meth docutils literal notranslate"><span class="pre">generate_space_groups_from_crystal_system()</span></code></a>.</p>
@@ -1081,7 +1158,7 @@ space group number as <cite>sg</cite>.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_space_groups_from_crystal_system">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">generate_space_groups_from_crystal_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L95-L132"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_space_groups_from_crystal_system" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">generate_space_groups_from_crystal_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L108-L145"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_space_groups_from_crystal_system" title="Link to this definition">#</a></dt>
 <dd><p>Generate the list of space groups belonging to a crystal system.</p>
 <p>A static method (uses no instance state) so it can be reused
 by other tools (e.g. the Volume Slicer’s delta-PDF Transform
@@ -1107,8 +1184,81 @@ unique space group number in the crystal system.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_UB_from_vectors">
+<span class="sig-name descname"><span class="pre">get_UB_from_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_vector</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L553-L604"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_UB_from_vectors" title="Link to this definition">#</a></dt>
+<dd><p>Build a sample-orientation UB matrix from two crystallographic
+directions, independent of the model’s own <code class="docutils literal notranslate"><span class="pre">self.UB</span></code>.</p>
+<p>Distinct from <a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_euler_angles" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_euler_angles"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_euler_angles()</span></code></a> (which orients the
+<em>shape</em> mesh relative to whatever orientation the crystal
+already has): this defines the crystal’s <em>own</em> orientation for
+the absorption prediction – <code class="docutils literal notranslate"><span class="pre">u_vector</span></code> is aligned with the
+local z axis and, together with <code class="docutils literal notranslate"><span class="pre">v_vector</span></code>, fixes an
+orthonormal frame U, independent of the arbitrary Busing-Levy
+default in <a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.calculate_UB" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.calculate_UB"><code class="xref py py-meth docutils literal notranslate"><span class="pre">calculate_UB()</span></code></a>. B comes directly from the
+lattice metric tensor, not from <code class="docutils literal notranslate"><span class="pre">self.UB</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>u_vector</strong><span class="classifier">3-element 1d array-like</span></dt><dd><p>Crystallographic direction to align with the local z axis.</p>
+</dd>
+<dt><strong>v_vector</strong><span class="classifier">3-element 1d array-like</span></dt><dd><p>Crystallographic direction used together with <cite>u_vector</cite> to
+define the orientation plane.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>UB</strong><span class="classifier">(3, 3) ndarray</span></dt><dd><p>Orientation matrix <code class="docutils literal notranslate"><span class="pre">U</span> <span class="pre">&#64;</span> <span class="pre">B</span></code>, or None if the vectors are
+collinear.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_absorption_dict">
+<span class="sig-name descname"><span class="pre">get_absorption_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L772-L837"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_absorption_dict" title="Link to this definition">#</a></dt>
+<dd><p>Compute absorption and scattering parameters for the sample material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>wavelength</strong><span class="classifier">float</span></dt><dd><p>Incident wavelength, in Angstrom (the absorption cross
+section is wavelength-dependent).</p>
+</dd>
+<dt><strong>volume</strong><span class="classifier">float, optional</span></dt><dd><p>Sample volume (cm^3), for shapes whose Mantid <code class="docutils literal notranslate"><span class="pre">Sample</span></code>
+object can’t report its own volume – in practice only the
+ellipsoid (a <code class="docutils literal notranslate"><span class="pre">MeshObject</span></code>, which exposes no <code class="docutils literal notranslate"><span class="pre">volume()</span></code>
+method), whose volume is instead computed from the PyVista
+mesh in <a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.write_ellipsoid_stl" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.write_ellipsoid_stl"><code class="xref py py-meth docutils literal notranslate"><span class="pre">write_ellipsoid_stl()</span></code></a>. If None, the volume is
+read directly from the sample shape (CSG shapes only).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>abs_dict</strong><span class="classifier">dict</span></dt><dd><p>Dictionary with keys:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sigma_a</span></code> : float, absorption cross section (barn).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sigma_s</span></code> : float, total scattering cross section (barn).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mu_a</span></code> : float, linear absorption coefficient (1/cm).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mu_s</span></code> : float, linear scattering coefficient (1/cm).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">N</span></code> : float, total number of atoms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">M</span></code> : float, relative molecular mass (g/mol).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n</span></code> : float, effective number density (1/Angstrom^3).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rho</span></code> : float, mass density (g/cm^3).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">V</span></code> : float, sample volume (cm^3).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">m</span></code> : float, sample mass (g).</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_chemical_formula_z_parameter">
-<span class="sig-name descname"><span class="pre">get_chemical_formula_z_parameter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L446-L501"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_chemical_formula_z_parameter" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_chemical_formula_z_parameter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L1023-L1078"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_chemical_formula_z_parameter" title="Link to this definition">#</a></dt>
 <dd><p>Get the chemical formula and Z parameter of the crystal structure.</p>
 <p>Groups scatterers by atom type, accounting for symmetry
 multiplicity and site occupancy, to build the reduced chemical
@@ -1129,7 +1279,7 @@ divisor of the per-atom site multiplicities).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_crystal_system">
-<span class="sig-name descname"><span class="pre">get_crystal_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L316-L329"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_crystal_system" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_crystal_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L893-L906"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_crystal_system" title="Link to this definition">#</a></dt>
 <dd><p>Get the crystal system of the current crystal structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1142,8 +1292,87 @@ divisor of the per-atom site multiplicities).</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_euler_angles">
+<span class="sig-name descname"><span class="pre">get_euler_angles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">UB</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L329-L388"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_euler_angles" title="Link to this definition">#</a></dt>
+<dd><p>Compute Euler angles that orient a sample face along given directions.</p>
+<p>The <cite>u_vector</cite> and <cite>v_vector</cite> are Miller index / fractional
+coordinate directions that are transformed to Cartesian coordinates
+via <code class="docutils literal notranslate"><span class="pre">UB</span></code> to build a rotation matrix, which is then decomposed
+into ZYX Euler angles via Mantid’s own <code class="docutils literal notranslate"><span class="pre">Goniometer</span></code> (matching
+<code class="docutils literal notranslate"><span class="pre">garnet.reduction.sample.SampleMaterial.set_shape</span></code> exactly,
+rather than scipy’s rotation decomposition, so the angles are
+guaranteed to be in the convention Mantid’s own
+<code class="docutils literal notranslate"><span class="pre">LoadSampleShape</span></code> (<code class="docutils literal notranslate"><span class="pre">XDegrees</span></code>/<code class="docutils literal notranslate"><span class="pre">YDegrees</span></code>/<code class="docutils literal notranslate"><span class="pre">ZDegrees</span></code>)
+expects).</p>
+<p>Note this takes an explicit <code class="docutils literal notranslate"><span class="pre">UB</span></code> rather than reading
+<code class="docutils literal notranslate"><span class="pre">self.UB</span></code>: the shape must be oriented relative to the <em>same</em>
+orientation used for the rest of the absorption prediction
+(typically the sample-orientation UB from
+<a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_UB_from_vectors" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_UB_from_vectors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_UB_from_vectors()</span></code></a>), not the model’s own default
+(Busing-Levy) orientation, or the shape and the beam/goniometer
+geometry would be computed in inconsistent frames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>u_vector</strong><span class="classifier">3-element 1d array-like</span></dt><dd><p>Crystallographic direction to align with the sample’s primary
+(height/thickness) axis.</p>
+</dd>
+<dt><strong>v_vector</strong><span class="classifier">3-element 1d array-like</span></dt><dd><p>Crystallographic direction used together with <cite>u_vector</cite> to
+define the orientation plane.</p>
+</dd>
+<dt><strong>UB</strong><span class="classifier">(3, 3) ndarray</span></dt><dd><p>Orientation matrix to transform <cite>u_vector</cite>/<cite>v_vector</cite> into
+Cartesian coordinates.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>alpha, beta, gamma</strong><span class="classifier">float</span></dt><dd><p>Rotation angles in degrees about the X, Y, and Z axes
+respectively, or None if the vectors are collinear.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_incident_path_length">
+<span class="sig-name descname"><span class="pre">get_incident_path_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">UB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_vector</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L853-L891"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_incident_path_length" title="Link to this definition">#</a></dt>
+<dd><p>Sample radius along the incident beam direction.</p>
+<p>Matches <code class="docutils literal notranslate"><span class="pre">AddAbsorptionWeightedPathLengths</span></code>’s single-path
+formula (see its C++ source): the total single-path length is
+the sample’s radius along the <em>outgoing</em> direction (per point,
+already used directly as <code class="docutils literal notranslate"><span class="pre">|vertex|</span></code> when coloring the mesh)
+plus a <em>constant</em> term – the sample’s radius along the fixed
+<em>incident</em> beam direction. Found by looking up the mesh’s own
+vertex closest to the beam direction (rather than an
+independent analytic/rotation-matrix calculation), so it is
+guaranteed self-consistent with the mesh actually being drawn.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mesh</strong><span class="classifier">(N, 3, 3) ndarray</span></dt><dd><p>Triangle vertex coordinates, from <a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.sample_mesh" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.sample_mesh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sample_mesh()</span></code></a>.</p>
+</dd>
+<dt><strong>UB</strong><span class="classifier">(3, 3) ndarray</span></dt><dd><p>Sample orientation matrix, from <a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_UB_from_vectors" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_UB_from_vectors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_UB_from_vectors()</span></code></a>
+(or <code class="docutils literal notranslate"><span class="pre">self.UB</span></code>).</p>
+</dd>
+<dt><strong>u_vector</strong><span class="classifier">3-element 1d array-like</span></dt><dd><p>Beam-direction crystallographic direction (the sample U
+vector).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>r_incident</strong><span class="classifier">float</span></dt><dd><p>Sample radius (cm) along the incident beam direction.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_constants">
-<span class="sig-name descname"><span class="pre">get_lattice_constants</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L392-L407"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_constants" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_lattice_constants</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L969-L984"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_constants" title="Link to this definition">#</a></dt>
 <dd><p>Get the lattice constants of the current unit cell.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1157,7 +1386,7 @@ divisor of the per-atom site multiplicities).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_system">
-<span class="sig-name descname"><span class="pre">get_lattice_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L331-L344"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_system" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_lattice_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L908-L921"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_system" title="Link to this definition">#</a></dt>
 <dd><p>Get the lattice system of the current crystal structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1170,8 +1399,34 @@ divisor of the per-atom site multiplicities).</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_material_dict">
+<span class="sig-name descname"><span class="pre">get_material_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chemical_formula</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L472-L496"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_material_dict" title="Link to this definition">#</a></dt>
+<dd><p>Build a Mantid material dictionary for the sample.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>chemical_formula</strong><span class="classifier">str</span></dt><dd><p>Chemical formula of the sample material.</p>
+</dd>
+<dt><strong>z_parameter</strong><span class="classifier">float</span></dt><dd><p>Number of formula units per unit cell.</p>
+</dd>
+<dt><strong>volume</strong><span class="classifier">float</span></dt><dd><p>Unit cell volume in Angstrom^3.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>mat_dict</strong><span class="classifier">dict</span></dt><dd><p>Dictionary with keys <code class="docutils literal notranslate"><span class="pre">&quot;ChemicalFormula&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ZParameter&quot;</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">&quot;UnitCellVolume&quot;</span></code>, suitable for the <code class="docutils literal notranslate"><span class="pre">Material</span></code>
+argument of Mantid’s <code class="docutils literal notranslate"><span class="pre">SetSample</span></code> algorithm.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_periodic_table">
-<span class="sig-name descname"><span class="pre">get_periodic_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L656-L671"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_periodic_table" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_periodic_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L1233-L1248"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_periodic_table" title="Link to this definition">#</a></dt>
 <dd><p>Create a periodic table model for isotope selection of an element.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1192,7 +1447,7 @@ model with.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_point_group_name">
-<span class="sig-name descname"><span class="pre">get_point_group_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L346-L359"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_point_group_name" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_point_group_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L923-L936"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_point_group_name" title="Link to this definition">#</a></dt>
 <dd><p>Get the point group name of the current crystal structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1206,7 +1461,7 @@ model with.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_scatterers">
-<span class="sig-name descname"><span class="pre">get_scatterers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L422-L444"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_scatterers" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_scatterers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L999-L1021"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_scatterers" title="Link to this definition">#</a></dt>
 <dd><p>Get the list of scatterers of the current crystal structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1222,7 +1477,7 @@ and the remaining values are floats.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_setting">
-<span class="sig-name descname"><span class="pre">get_setting</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L379-L390"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_setting" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_setting</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L956-L967"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_setting" title="Link to this definition">#</a></dt>
 <dd><p>Get the current space group setting (Hermann-Mauguin symbol).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1236,7 +1491,7 @@ and the remaining values are floats.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_space_group">
-<span class="sig-name descname"><span class="pre">get_space_group</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L361-L377"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_space_group" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_space_group</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L938-L954"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_space_group" title="Link to this definition">#</a></dt>
 <dd><p>Get the space group of the current crystal structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1249,8 +1504,35 @@ and the remaining values are floats.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_transform_from_UB">
+<span class="sig-name descname"><span class="pre">get_transform_from_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">UB</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L606-L629"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_transform_from_UB" title="Link to this definition">#</a></dt>
+<dd><p>Normalized orientation matrix (unit a*/b*/c* Cartesian columns)
+for a given UB matrix.</p>
+<p>Same normalization as the base model’s <code class="docutils literal notranslate"><span class="pre">get_transform</span></code>, but
+operating on a caller-supplied <code class="docutils literal notranslate"><span class="pre">UB</span></code> (e.g. from
+<a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_UB_from_vectors" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_UB_from_vectors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_UB_from_vectors()</span></code></a>) instead of <code class="docutils literal notranslate"><span class="pre">self.UB</span></code> – used to
+orient the a*/b*/c* arrows drawn next to the absorption sample
+without touching the model’s own stored orientation (which the
+Structure tab’s unit-cell view depends on).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>UB</strong><span class="classifier">(3, 3) ndarray</span></dt><dd><p>Orientation matrix.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>T</strong><span class="classifier">(3, 3) ndarray</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">UB</span></code> with each column normalized to unit length.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_transform">
-<span class="sig-name descname"><span class="pre">get_unit_cell_transform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L568-L586"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_transform" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_unit_cell_transform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L1145-L1163"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_transform" title="Link to this definition">#</a></dt>
 <dd><p>Get the transformation matrix from fractional to Cartesian coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1265,7 +1547,7 @@ Cholesky decomposition of the unit cell metric tensor.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_volume">
-<span class="sig-name descname"><span class="pre">get_unit_cell_volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L409-L420"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_volume" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_unit_cell_volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L986-L997"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_volume" title="Link to this definition">#</a></dt>
 <dd><p>Get the volume of the current unit cell.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1279,7 +1561,7 @@ Cholesky decomposition of the unit cell metric tensor.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.has_crystal_structure">
-<span class="sig-name descname"><span class="pre">has_crystal_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L63-L73"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.has_crystal_structure" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">has_crystal_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L76-L86"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.has_crystal_structure" title="Link to this definition">#</a></dt>
 <dd><p>Check whether the sample workspace has a crystal structure set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1294,7 +1576,7 @@ structure, False otherwise.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.load_CIF">
-<span class="sig-name descname"><span class="pre">load_CIF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L159-L170"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.load_CIF" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_CIF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L172-L183"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.load_CIF" title="Link to this definition">#</a></dt>
 <dd><p>Load a crystal structure from a CIF file and recompute the UB matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1307,8 +1589,84 @@ structure, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.predict_transmission">
+<span class="sig-name descname"><span class="pre">predict_transmission</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hkls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">UB</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L631-L770"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.predict_transmission" title="Link to this definition">#</a></dt>
+<dd><p>Predict the transmission and absorption-weighted path length
+(T-bar) of every given reflection for a monochromatic rotation
+experiment.</p>
+<p>Builds a <code class="docutils literal notranslate"><span class="pre">LeanElasticPeak</span></code> peaks workspace with one peak per
+hkl (<code class="docutils literal notranslate"><span class="pre">Q</span> <span class="pre">=</span> <span class="pre">2*pi*UB*hkl</span></code>, using the given <code class="docutils literal notranslate"><span class="pre">UB</span></code>), each given
+its own unique run number (each peak is an independent
+simulated “setting”), computes a goniometer setting for each
+via Mantid’s <code class="docutils literal notranslate"><span class="pre">HFIRCalculateGoniometer</span></code> (constant wavelength,
+vertical-axis rotation – no user-specified goniometer axes are
+needed), drops any reflection whose goniometer matrix comes
+back NaN (not reachable by a single vertical-axis rotation at
+this wavelength – kept in the result as NaN rows rather than
+silently dropped), sets the ellipsoid sample shape/material,
+then runs Mantid’s <code class="docutils literal notranslate"><span class="pre">AddAbsorptionWeightedPathLengths</span></code> (Monte
+Carlo) to get T-bar per peak and derives the transmission
+<code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">=</span> <span class="pre">exp(-mu</span> <span class="pre">*</span> <span class="pre">Tbar)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>hkls</strong><span class="classifier">(N, 3) ndarray</span></dt><dd><p>Miller indices, from <a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_hkl_list" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_hkl_list"><code class="xref py py-meth docutils literal notranslate"><span class="pre">generate_hkl_list()</span></code></a>.</p>
+</dd>
+<dt><strong>ds</strong><span class="classifier">(N,) ndarray</span></dt><dd><p>d-spacing of each reflection, from <a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_hkl_list" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_hkl_list"><code class="xref py py-meth docutils literal notranslate"><span class="pre">generate_hkl_list()</span></code></a>.</p>
+</dd>
+<dt><strong>wavelength</strong><span class="classifier">float</span></dt><dd><p>Incident wavelength, in Angstrom.</p>
+</dd>
+<dt><strong>shape_params</strong><span class="classifier">list of float</span></dt><dd><p>Ellipsoid thickness, width, and height, in mm.</p>
+</dd>
+<dt><strong>mat_dict</strong><span class="classifier">dict</span></dt><dd><p>Material dictionary from <a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_material_dict" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_material_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_material_dict()</span></code></a>.</p>
+</dd>
+<dt><strong>alpha, beta, gamma</strong><span class="classifier">float</span></dt><dd><p>Shape orientation Euler angles from <a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_euler_angles" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_euler_angles"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_euler_angles()</span></code></a>
+(shape U/V vectors).</p>
+</dd>
+<dt><strong>UB</strong><span class="classifier">(3, 3) ndarray</span></dt><dd><p>Sample orientation matrix used for <code class="docutils literal notranslate"><span class="pre">Q</span> <span class="pre">=</span> <span class="pre">2*pi*UB*hkl</span></code>, from
+<a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_UB_from_vectors" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_UB_from_vectors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_UB_from_vectors()</span></code></a> (sample U/V vectors), or
+<code class="docutils literal notranslate"><span class="pre">self.UB</span></code> if the sample U/V vectors weren’t set.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>hkls</strong><span class="classifier">(M, 3) ndarray</span></dt><dd><p>Miller indices, sorted by decreasing d-spacing then
+increasing h, k, l.</p>
+</dd>
+<dt><strong>ds</strong><span class="classifier">(M,) ndarray</span></dt><dd><p>d-spacing of each reflection.</p>
+</dd>
+<dt><strong>Ts</strong><span class="classifier">(M,) ndarray</span></dt><dd><p>Transmission of each reflection (NaN if unreachable at this
+wavelength).</p>
+</dd>
+<dt><strong>Tbars</strong><span class="classifier">(M,) ndarray</span></dt><dd><p>Absorption-weighted path length (cm) of each reflection
+(NaN if unreachable at this wavelength).</p>
+</dd>
+<dt><strong>volume</strong><span class="classifier">float</span></dt><dd><p>Ellipsoid volume, in cm^3.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.sample_mesh">
+<span class="sig-name descname"><span class="pre">sample_mesh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L839-L851"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.sample_mesh" title="Link to this definition">#</a></dt>
+<dd><p>Return the triangulated mesh of the sample shape for visualization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mesh</strong><span class="classifier">ndarray</span></dt><dd><p>Array of triangle vertices describing the sample shape mesh,
+scaled from meters to centimeters.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.save_ins">
-<span class="sig-name descname"><span class="pre">save_ins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L46-L61"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.save_ins" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_ins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L59-L74"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.save_ins" title="Link to this definition">#</a></dt>
 <dd><p>Set the sample material and save the crystal structure to an INS file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1322,7 +1680,7 @@ structure, False otherwise.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_crystal_structure">
-<span class="sig-name descname"><span class="pre">set_crystal_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scatterers</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L172-L197"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_crystal_structure" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_crystal_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scatterers</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L185-L210"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_crystal_structure" title="Link to this definition">#</a></dt>
 <dd><p>Set the crystal structure on the sample workspace and recompute UB.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1342,7 +1700,7 @@ build the <code class="xref py py-class docutils literal notranslate"><span clas
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_material">
-<span class="sig-name descname"><span class="pre">set_material</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L75-L93"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_material" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_material</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L88-L106"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_material" title="Link to this definition">#</a></dt>
 <dd><p>Set the sample material from the chemical formula and number density.</p>
 <p>Computes the chemical formula and Z parameter from the current
 crystal structure and derives the sample number density from the
@@ -1350,8 +1708,39 @@ unit cell volume, then applies it to the <code class="docutils literal notransla
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_sample_shape">
+<span class="sig-name descname"><span class="pre">set_sample_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ellipsoid_stl</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L427-L470"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_sample_shape" title="Link to this definition">#</a></dt>
+<dd><p>Set the ellipsoid sample shape and material on a workspace.</p>
+<p>Loads the mesh built by <a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.write_ellipsoid_stl" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.write_ellipsoid_stl"><code class="xref py py-meth docutils literal notranslate"><span class="pre">write_ellipsoid_stl()</span></code></a> via
+Mantid’s <code class="docutils literal notranslate"><span class="pre">LoadSampleShape</span></code> (rotated by alpha/beta/gamma about
+X, Y, Z in that order), then sets the material separately.</p>
+<p><code class="docutils literal notranslate"><span class="pre">LoadSampleShape</span></code> requires a workspace with a real instrument
+(specifically a “sample holder” component) – a bare
+<code class="docutils literal notranslate"><span class="pre">LeanElasticPeak</span></code> workspace has none, so the mesh is instead
+loaded onto a throwaway scratch workspace (which does have a
+default instrument) and its resulting <code class="docutils literal notranslate"><span class="pre">Sample</span></code> (shape) is
+copied onto <code class="docutils literal notranslate"><span class="pre">ws</span></code> via <code class="docutils literal notranslate"><span class="pre">setSample</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ws</strong><span class="classifier">str</span></dt><dd><p>Name of the workspace to set the sample on.</p>
+</dd>
+<dt><strong>mat_dict</strong><span class="classifier">dict</span></dt><dd><p>Material dictionary from <a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_material_dict" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_material_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_material_dict()</span></code></a>.</p>
+</dd>
+<dt><strong>alpha, beta, gamma</strong><span class="classifier">float</span></dt><dd><p>Rotation angles in degrees for the ellipsoid mesh’s
+<code class="docutils literal notranslate"><span class="pre">LoadSampleShape</span></code> orientation.</p>
+</dd>
+<dt><strong>ellipsoid_stl</strong><span class="classifier">str</span></dt><dd><p>Path to the ellipsoid STL file from
+<a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.write_ellipsoid_stl" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.write_ellipsoid_stl"><code class="xref py py-meth docutils literal notranslate"><span class="pre">write_ellipsoid_stl()</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.update_lattice_parameters">
-<span class="sig-name descname"><span class="pre">update_lattice_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L199-L216"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.update_lattice_parameters" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_lattice_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L212-L229"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.update_lattice_parameters" title="Link to this definition">#</a></dt>
 <dd><p>Update the lattice parameters, keeping the current setting and atoms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1367,7 +1756,7 @@ unit cell volume, then applies it to the <code class="docutils literal notransla
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.update_parameters">
-<span class="sig-name descname"><span class="pre">update_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L623-L654"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.update_parameters" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L1200-L1231"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.update_parameters" title="Link to this definition">#</a></dt>
 <dd><p>Symmetrize lattice parameters according to the current lattice system.</p>
 <p>Copies dependent parameters (e.g. <cite>b</cite>, <cite>c</cite> from <cite>a</cite> for cubic
 systems) so that the returned parameters are consistent with the
@@ -1383,6 +1772,37 @@ lattice system’s constraints.</p>
 <dd class="field-even"><dl class="simple">
 <dt><strong>params</strong><span class="classifier">list of float</span></dt><dd><p>Lattice parameters with dependent values overwritten to match
 their independent counterparts per the lattice system.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.write_ellipsoid_stl">
+<span class="sig-name descname"><span class="pre">write_ellipsoid_stl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/crystal_structure_tools.py#L390-L425"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.write_ellipsoid_stl" title="Link to this definition">#</a></dt>
+<dd><p>Build a triaxial ellipsoid mesh and save it as a temporary STL file.</p>
+<p>Mantid’s shape system (CSG XML / <code class="docutils literal notranslate"><span class="pre">SetSample</span></code>) has no native
+ellipsoid primitive, so the ellipsoid is instead built as a
+unit icosphere non-uniformly scaled to the requested semi-axis
+lengths, then loaded as the sample shape via
+<a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_sample_shape" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_sample_shape"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_sample_shape()</span></code></a>’s <code class="docutils literal notranslate"><span class="pre">LoadSampleShape</span></code> call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>params</strong><span class="classifier">list of float</span></dt><dd><p>Thickness, width, and height, in mm.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>path</strong><span class="classifier">str</span></dt><dd><p>Path to the written temporary <code class="docutils literal notranslate"><span class="pre">.stl</span></code> file. The caller is
+responsible for deleting it once <code class="docutils literal notranslate"><span class="pre">LoadSampleShape</span></code> has
+consumed it.</p>
+</dd>
+<dt><strong>volume</strong><span class="classifier">float</span></dt><dd><p>Ellipsoid volume in cm^3 (from the PyVista mesh directly –
+Mantid’s <code class="docutils literal notranslate"><span class="pre">MeshObject</span></code> shape has no <code class="docutils literal notranslate"><span class="pre">volume()</span></code> method, so
+this is needed by <a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_absorption_dict" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_absorption_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_absorption_dict()</span></code></a>).</p>
 </dd>
 </dl>
 </dd>
@@ -3700,319 +4120,11 @@ close to zero), meaning U, V, W do not form a valid basis.</p>
 </dd></dl>
 
 </section>
-<section id="module-NeuXtalViz.models.sample_tools">
-<span id="neuxtalviz-models-sample-tools-module"></span><h2>NeuXtalViz.models.sample_tools module<a class="headerlink" href="#module-NeuXtalViz.models.sample_tools" title="Link to this heading">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="NeuXtalViz.models.sample_tools.SampleModel">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SampleModel</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/sample_tools.py#L15-L348"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.sample_tools.SampleModel" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel" title="NeuXtalViz.models.base_model.NeuXtalVizModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuXtalVizModel</span></code></a></p>
-<p>Model for defining and characterizing a sample for absorption corrections.</p>
-<p>Wraps a single-valued Mantid workspace (<code class="docutils literal notranslate"><span class="pre">&quot;sample&quot;</span></code>) used to hold the
-oriented lattice, goniometer, shape, and material information needed to
-compute absorption/scattering parameters and to render the sample mesh.</p>
-<p class="rubric">Methods</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ab_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(c^*\)</span>-direction in cartesian coordinates.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ab_star_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(c\)</span>-direction in cartesian coordinates.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(a^*\)</span>-direction in cartesian coordinates.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_star_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(a\)</span>-direction in cartesian coordinates.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(b^*\)</span>-direction in cartesian coordinates.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_star_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_camera_parameters</span></code>(direction, roll)</p></td>
-<td><p>Calculate roll, elevation, and azimuth from camera direction and roll.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">files_exist</span></code>(files)</p></td>
-<td><p>Check if the specified files exist and are readable.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.sample_tools.SampleModel.get_absorption_dict" title="NeuXtalViz.models.sample_tools.SampleModel.get_absorption_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_absorption_dict</span></code></a>()</p></td>
-<td><p>Compute absorption and scattering parameters for the sample material.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.sample_tools.SampleModel.get_euler_angles" title="NeuXtalViz.models.sample_tools.SampleModel.get_euler_angles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_euler_angles</span></code></a>(u_vector, v_vector)</p></td>
-<td><p>Compute Euler angles that orient a sample face along given directions.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.sample_tools.SampleModel.get_goniometer_strings" title="NeuXtalViz.models.sample_tools.SampleModel.get_goniometer_strings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_goniometer_strings</span></code></a>(goniometers)</p></td>
-<td><p>Format goniometer axis definitions for Mantid's <code class="docutils literal notranslate"><span class="pre">SetGoniometer</span></code>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.sample_tools.SampleModel.get_material_dict" title="NeuXtalViz.models.sample_tools.SampleModel.get_material_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_material_dict</span></code></a>(chemical_formula, ...)</p></td>
-<td><p>Build a Mantid material dictionary for the sample.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_oriented_lattice_parameters</span></code>()</p></td>
-<td><p>Obtain the oriented lattice parameters.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.sample_tools.SampleModel.get_shape_dict" title="NeuXtalViz.models.sample_tools.SampleModel.get_shape_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_shape_dict</span></code></a>(shape, params[, alpha, beta, ...])</p></td>
-<td><p>Build a Mantid CSG shape dictionary describing the sample geometry.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_transform</span></code>([reciprocal])</p></td>
-<td><p>Transformation matrix describing the reciprocal or crystal axes.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vector</span></code>(axes_type, ind)</p></td>
-<td><p>Vector corresponding to a particular crystallographic direction.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.sample_tools.SampleModel.get_volume" title="NeuXtalViz.models.sample_tools.SampleModel.get_volume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_volume</span></code></a>()</p></td>
-<td><p>Return the unit cell volume of the oriented lattice, if set.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_UB</span></code>(ws)</p></td>
-<td><p>Check if the oriented lattice exists on a workspace.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.sample_tools.SampleModel.load_UB" title="NeuXtalViz.models.sample_tools.SampleModel.load_UB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_UB</span></code></a>(filename)</p></td>
-<td><p>Load a UB matrix from an ISAW UB file and update the model.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation_matrix</span></code>()</p></td>
-<td><p>Return the current UB matrix (orientation matrix).</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_azimuth</span></code>(position, focal_point, ...)</p></td>
-<td><p>Rotate the camera left/right about a global up axis.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_elevation</span></code>(position, ...)</p></td>
-<td><p>Tilt the camera up/down about its right axis.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate_camera_roll</span></code>(position, focal_point, ...)</p></td>
-<td><p>Apply a roll about the current viewing axis.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.sample_tools.SampleModel.sample_mesh" title="NeuXtalViz.models.sample_tools.SampleModel.sample_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_mesh</span></code></a>()</p></td>
-<td><p>Return the triangulated mesh of the sample shape for visualization.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_UB</span></code>(UB)</p></td>
-<td><p>Update the UB-matrix.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.sample_tools.SampleModel.set_sample" title="NeuXtalViz.models.sample_tools.SampleModel.set_sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_sample</span></code></a>(shape_dict, mat_dict, axes)</p></td>
-<td><p>Set the goniometer, shape, and material on the sample workspace.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<dl class="py method">
-<dt class="sig sig-object py" id="NeuXtalViz.models.sample_tools.SampleModel.get_absorption_dict">
-<span class="sig-name descname"><span class="pre">get_absorption_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/sample_tools.py#L280-L332"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.sample_tools.SampleModel.get_absorption_dict" title="Link to this definition">#</a></dt>
-<dd><p>Compute absorption and scattering parameters for the sample material.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>abs_dict</strong><span class="classifier">dict</span></dt><dd><p>Dictionary with keys:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">sigma_a</span></code> : float, absorption cross section (barn).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sigma_s</span></code> : float, total scattering cross section (barn).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">mu_a</span></code> : float, linear absorption coefficient (1/cm).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">mu_s</span></code> : float, linear scattering coefficient (1/cm).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">N</span></code> : float, total number of atoms.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">M</span></code> : float, relative molecular mass (g/mol).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">n</span></code> : float, effective number density (1/Angstrom^3).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">rho</span></code> : float, mass density (g/cm^3).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">V</span></code> : float, sample volume (cm^3).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">m</span></code> : float, sample mass (g).</p></li>
-</ul>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="NeuXtalViz.models.sample_tools.SampleModel.get_euler_angles">
-<span class="sig-name descname"><span class="pre">get_euler_angles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_vector</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/sample_tools.py#L65-L110"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.sample_tools.SampleModel.get_euler_angles" title="Link to this definition">#</a></dt>
-<dd><p>Compute Euler angles that orient a sample face along given directions.</p>
-<p>The <cite>u_vector</cite> and <cite>v_vector</cite> are Miller index / fractional
-coordinate directions that are transformed to Cartesian coordinates
-via the UB matrix to build a rotation matrix, which is then
-decomposed into intrinsic ZYX Euler angles.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>u_vector</strong><span class="classifier">3-element 1d array-like</span></dt><dd><p>Crystallographic direction to align with the sample’s primary
-(height/thickness) axis.</p>
-</dd>
-<dt><strong>v_vector</strong><span class="classifier">3-element 1d array-like</span></dt><dd><p>Crystallographic direction used together with <cite>u_vector</cite> to
-define the orientation plane.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><strong>alpha, beta, gamma</strong><span class="classifier">float</span></dt><dd><p>Rotation angles in degrees about the X, Y, and Z axes
-respectively, or None if no UB matrix is set or the vectors
-are collinear.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="NeuXtalViz.models.sample_tools.SampleModel.get_goniometer_strings">
-<span class="sig-name descname"><span class="pre">get_goniometer_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">goniometers</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/sample_tools.py#L220-L250"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.sample_tools.SampleModel.get_goniometer_strings" title="Link to this definition">#</a></dt>
-<dd><p>Format goniometer axis definitions for Mantid’s <code class="docutils literal notranslate"><span class="pre">SetGoniometer</span></code>.</p>
-<p>Only axes with a nonzero rotation vector are kept, and exactly
-three such axes are required for a valid result.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>goniometers</strong><span class="classifier">list of list</span></dt><dd><p>Goniometer definitions, each a 6-element sequence
-<code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">x,</span> <span class="pre">y,</span> <span class="pre">z,</span> <span class="pre">sense,</span> <span class="pre">angle)</span></code> where <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">z)</span></code> is the
-rotation axis, <code class="docutils literal notranslate"><span class="pre">sense</span></code> is the rotation sense, and <code class="docutils literal notranslate"><span class="pre">angle</span></code>
-is the rotation angle in degrees.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><strong>axes</strong><span class="classifier">list of str</span></dt><dd><p>Three axis strings of the form <code class="docutils literal notranslate"><span class="pre">&quot;angle,x,y,z,sense&quot;</span></code>, or
-None if fewer than three axes have a nonzero rotation vector.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="NeuXtalViz.models.sample_tools.SampleModel.get_material_dict">
-<span class="sig-name descname"><span class="pre">get_material_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chemical_formula</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/sample_tools.py#L190-L218"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.sample_tools.SampleModel.get_material_dict" title="Link to this definition">#</a></dt>
-<dd><p>Build a Mantid material dictionary for the sample.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>chemical_formula</strong><span class="classifier">str</span></dt><dd><p>Chemical formula of the sample material.</p>
-</dd>
-<dt><strong>z_parameter</strong><span class="classifier">float</span></dt><dd><p>Number of formula units per unit cell.</p>
-</dd>
-<dt><strong>volume</strong><span class="classifier">float</span></dt><dd><p>Unit cell volume in Angstrom^3.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><strong>mat_dict</strong><span class="classifier">dict</span></dt><dd><p>Dictionary with keys <code class="docutils literal notranslate"><span class="pre">&quot;ChemicalFormula&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ZParameter&quot;</span></code>,
-and <code class="docutils literal notranslate"><span class="pre">&quot;UnitCellVolume&quot;</span></code>, suitable for the <code class="docutils literal notranslate"><span class="pre">Material</span></code>
-argument of Mantid’s <code class="docutils literal notranslate"><span class="pre">SetSample</span></code> algorithm.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="NeuXtalViz.models.sample_tools.SampleModel.get_shape_dict">
-<span class="sig-name descname"><span class="pre">get_shape_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/sample_tools.py#L112-L188"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.sample_tools.SampleModel.get_shape_dict" title="Link to this definition">#</a></dt>
-<dd><p>Build a Mantid CSG shape dictionary describing the sample geometry.</p>
-<p>Dimensions in <cite>params</cite> are given in the view’s display units
-(mm for sphere/cylinder radius, cm for cuboid width/height/depth)
-and are converted to meters for the generated XML.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>shape</strong><span class="classifier">str</span></dt><dd><p>Sample shape name: <code class="docutils literal notranslate"><span class="pre">&quot;Sphere&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;Cylinder&quot;</span></code>, or any other
-value (treated as <code class="docutils literal notranslate"><span class="pre">&quot;Plate&quot;</span></code>/cuboid).</p>
-</dd>
-<dt><strong>params</strong><span class="classifier">list of float</span></dt><dd><p>Shape dimensions. For <code class="docutils literal notranslate"><span class="pre">&quot;Sphere&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">params[0]</span></code> is the
-diameter (mm). For <code class="docutils literal notranslate"><span class="pre">&quot;Cylinder&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">params[0]</span></code> is the
-diameter (mm) and <code class="docutils literal notranslate"><span class="pre">params[1]</span></code> is the height (cm). Otherwise,
-<code class="docutils literal notranslate"><span class="pre">params[0:3]</span></code> are the width, height, and depth (cm).</p>
-</dd>
-<dt><strong>alpha</strong><span class="classifier">float, optional</span></dt><dd><p>Rotation about the x-axis in degrees. Default is 0.</p>
-</dd>
-<dt><strong>beta</strong><span class="classifier">float, optional</span></dt><dd><p>Rotation about the y-axis in degrees. Default is 0.</p>
-</dd>
-<dt><strong>gamma</strong><span class="classifier">float, optional</span></dt><dd><p>Rotation about the z-axis in degrees. Default is 0.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><strong>shape_dict</strong><span class="classifier">dict</span></dt><dd><p>Dictionary with keys <code class="docutils literal notranslate"><span class="pre">&quot;Shape&quot;</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;CSG&quot;</span></code>) and <code class="docutils literal notranslate"><span class="pre">&quot;Value&quot;</span></code>
-(the CSG XML string), suitable for the <code class="docutils literal notranslate"><span class="pre">Geometry</span></code> argument
-of Mantid’s <code class="docutils literal notranslate"><span class="pre">SetSample</span></code> algorithm.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="NeuXtalViz.models.sample_tools.SampleModel.get_volume">
-<span class="sig-name descname"><span class="pre">get_volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/sample_tools.py#L51-L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.sample_tools.SampleModel.get_volume" title="Link to this definition">#</a></dt>
-<dd><p>Return the unit cell volume of the oriented lattice, if set.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>volume</strong><span class="classifier">float</span></dt><dd><p>Unit cell volume in Angstrom^3, or None if no UB matrix is set.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="NeuXtalViz.models.sample_tools.SampleModel.load_UB">
-<span class="sig-name descname"><span class="pre">load_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/sample_tools.py#L34-L49"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.sample_tools.SampleModel.load_UB" title="Link to this definition">#</a></dt>
-<dd><p>Load a UB matrix from an ISAW UB file and update the model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>filename</strong><span class="classifier">str</span></dt><dd><p>Path to the ISAW UB matrix file.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="NeuXtalViz.models.sample_tools.SampleModel.sample_mesh">
-<span class="sig-name descname"><span class="pre">sample_mesh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/sample_tools.py#L334-L348"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.sample_tools.SampleModel.sample_mesh" title="Link to this definition">#</a></dt>
-<dd><p>Return the triangulated mesh of the sample shape for visualization.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>mesh</strong><span class="classifier">ndarray</span></dt><dd><p>Array of triangle vertices describing the sample shape mesh,
-scaled from meters to centimeters.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="NeuXtalViz.models.sample_tools.SampleModel.set_sample">
-<span class="sig-name descname"><span class="pre">set_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/sample_tools.py#L252-L278"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.sample_tools.SampleModel.set_sample" title="Link to this definition">#</a></dt>
-<dd><p>Set the goniometer, shape, and material on the sample workspace.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>shape_dict</strong><span class="classifier">dict</span></dt><dd><p>Shape dictionary as returned by <a class="reference internal" href="#NeuXtalViz.models.sample_tools.SampleModel.get_shape_dict" title="NeuXtalViz.models.sample_tools.SampleModel.get_shape_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_shape_dict()</span></code></a>, used
-as the <code class="docutils literal notranslate"><span class="pre">Geometry</span></code> argument of Mantid’s <code class="docutils literal notranslate"><span class="pre">SetSample</span></code>.</p>
-</dd>
-<dt><strong>mat_dict</strong><span class="classifier">dict</span></dt><dd><p>Material dictionary as returned by <a class="reference internal" href="#NeuXtalViz.models.sample_tools.SampleModel.get_material_dict" title="NeuXtalViz.models.sample_tools.SampleModel.get_material_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_material_dict()</span></code></a>,
-used as the <code class="docutils literal notranslate"><span class="pre">Material</span></code> argument of Mantid’s <code class="docutils literal notranslate"><span class="pre">SetSample</span></code>.</p>
-</dd>
-<dt><strong>axes</strong><span class="classifier">list of str</span></dt><dd><p>Three goniometer axis strings as returned by
-<a class="reference internal" href="#NeuXtalViz.models.sample_tools.SampleModel.get_goniometer_strings" title="NeuXtalViz.models.sample_tools.SampleModel.get_goniometer_strings"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_goniometer_strings()</span></code></a>, used as the <code class="docutils literal notranslate"><span class="pre">Axis0</span></code>,
-<code class="docutils literal notranslate"><span class="pre">Axis1</span></code>, and <code class="docutils literal notranslate"><span class="pre">Axis2</span></code> arguments of Mantid’s
-<code class="docutils literal notranslate"><span class="pre">SetGoniometer</span></code>.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</section>
 <section id="module-NeuXtalViz.models.ub_tools">
 <span id="neuxtalviz-models-ub-tools-module"></span><h2>NeuXtalViz.models.ub_tools module<a class="headerlink" href="#module-NeuXtalViz.models.ub_tools" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">UBModel</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L130-L4711"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">UBModel</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L130-L4715"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel" title="NeuXtalViz.models.base_model.NeuXtalVizModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuXtalVizModel</span></code></a></p>
 <p>Model for UB matrix and peak table operations in NeuXtalViz.</p>
 <p>Provides methods for loading, saving, and manipulating
@@ -5172,7 +5284,7 @@ no UB matrix, or no indexed peaks for the given run.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.ub_tools.UBModel.get_cluster_info">
-<span class="sig-name descname"><span class="pre">get_cluster_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L4659-L4711"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_cluster_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_cluster_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/ub_tools.py#L4659-L4715"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.ub_tools.UBModel.get_cluster_info" title="Link to this definition">#</a></dt>
 <dd><p>Get cluster information for peaks based on UB and peak table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -6534,7 +6646,7 @@ chunk of values and before the process index.</p>
 <span id="neuxtalviz-models-volume-slicer-module"></span><h2>NeuXtalViz.models.volume_slicer module<a class="headerlink" href="#module-NeuXtalViz.models.volume_slicer" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VolumeSlicerModel</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L29-L1828"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VolumeSlicerModel</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L29-L1835"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel" title="NeuXtalViz.models.base_model.NeuXtalVizModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuXtalVizModel</span></code></a></p>
 <p>Model for slicing and cutting reciprocal-space MD histogram volumes.</p>
 <p>Wraps Mantid MD histogram workspaces (<code class="docutils literal notranslate"><span class="pre">histo</span></code>/<code class="docutils literal notranslate"><span class="pre">volume</span></code>) to load
@@ -6699,7 +6811,7 @@ worker infrastructure).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_clim">
-<span class="sig-name descname"><span class="pre">calculate_clim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'normal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetric_zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L704-L775"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_clim" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_clim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'normal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetric_zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L711-L782"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_clim" title="Link to this definition">#</a></dt>
 <dd><p>Calculate color limits for visualization based on a method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -6731,7 +6843,7 @@ limits.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_pdf">
-<span class="sig-name descname"><span class="pre">calculate_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q_outer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'None'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L1523-L1597"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_pdf" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q_outer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'None'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L1530-L1604"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.calculate_pdf" title="Link to this definition">#</a></dt>
 <dd><p>Zero-pad and Fourier-transform a (typically blurred) workspace.</p>
 <p>Runs, on <code class="docutils literal notranslate"><span class="pre">input_display_name</span></code> (typically the output of
 <a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_blur" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_blur"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_blur()</span></code></a>, though any registered workspace may be used
@@ -6774,7 +6886,7 @@ in place rather than accumulating new entries.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.combine_workspaces">
-<span class="sig-name descname"><span class="pre">combine_workspaces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeff_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ws_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeff_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_display_name</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L1012-L1089"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.combine_workspaces" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">combine_workspaces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ws_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeff_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ws_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeff_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_display_name</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L1019-L1096"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.combine_workspaces" title="Link to this definition">#</a></dt>
 <dd><p>Compute <code class="docutils literal notranslate"><span class="pre">coeff_a</span> <span class="pre">*</span> <span class="pre">ws_a</span> <span class="pre">-</span> <span class="pre">coeff_b</span> <span class="pre">*</span> <span class="pre">ws_b</span></code> and register the result.</p>
 <p>Uses explicit Mantid algorithms with explicit output names
 throughout (a scalar <code class="docutils literal notranslate"><span class="pre">WorkspaceSingleValue</span></code> multiplied via
@@ -6833,7 +6945,7 @@ different workspace is activated.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_cut_info">
-<span class="sig-name descname"><span class="pre">get_cut_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L640-L702"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_cut_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_cut_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L647-L709"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_cut_info" title="Link to this definition">#</a></dt>
 <dd><p>Get cut information for a given axis and value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -6857,7 +6969,7 @@ different workspace is activated.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_histo_info">
-<span class="sig-name descname"><span class="pre">get_histo_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L474-L505"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_histo_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_histo_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L481-L512"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_histo_info" title="Link to this definition">#</a></dt>
 <dd><p>Get histogram information for a given normal direction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -6877,7 +6989,7 @@ different workspace is activated.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_normal_plane">
-<span class="sig-name descname"><span class="pre">get_normal_plane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L907-L937"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_normal_plane" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_normal_plane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L914-L944"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_normal_plane" title="Link to this definition">#</a></dt>
 <dd><p>Get the normal vector for a plane given an index vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -6899,7 +7011,7 @@ None if no UB matrix has been set.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info">
-<span class="sig-name descname"><span class="pre">get_slice_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L507-L638"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_slice_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L514-L645"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_slice_info" title="Link to this definition">#</a></dt>
 <dd><p>Get slice information for a given normal and value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -6927,7 +7039,7 @@ None if no UB matrix has been set.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transform">
-<span class="sig-name descname"><span class="pre">get_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reciprocal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L834-L876"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transform" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reciprocal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L841-L883"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transform" title="Link to this definition">#</a></dt>
 <dd><p>Get the transformation matrix for the current UB and W matrices.</p>
 <p>Overrides <code class="xref py py-meth docutils literal notranslate"><span class="pre">NeuXtalVizModel.get_transform()</span></code> to account for
 the additional W matrix (projection into the slicing basis).
@@ -6952,7 +7064,7 @@ matrix has been set.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transforms">
-<span class="sig-name descname"><span class="pre">get_transforms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L878-L905"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transforms" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_transforms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L885-L912"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_transforms" title="Link to this definition">#</a></dt>
 <dd><p>Get projection, transform, and scale matrices for the current UB and W.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -6972,7 +7084,7 @@ Cholesky factor.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_cut">
-<span class="sig-name descname"><span class="pre">is_cut</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L439-L448"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_cut" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_cut</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L446-L455"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_cut" title="Link to this definition">#</a></dt>
 <dd><p>Check if a cut workspace exists in Mantid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -6986,7 +7098,7 @@ Cholesky factor.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_histo_loaded">
-<span class="sig-name descname"><span class="pre">is_histo_loaded</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L417-L426"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_histo_loaded" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_histo_loaded</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L424-L433"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_histo_loaded" title="Link to this definition">#</a></dt>
 <dd><p>Check if a histogram workspace is loaded in Mantid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -7000,7 +7112,7 @@ Cholesky factor.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_sliced">
-<span class="sig-name descname"><span class="pre">is_sliced</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L428-L437"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_sliced" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_sliced</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L435-L444"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_sliced" title="Link to this definition">#</a></dt>
 <dd><p>Check if a slice workspace exists in Mantid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -7058,7 +7170,7 @@ be used next, disambiguated against the current registry.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.orientation_matrix">
-<span class="sig-name descname"><span class="pre">orientation_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L812-L832"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.orientation_matrix" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">orientation_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L819-L839"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.orientation_matrix" title="Link to this definition">#</a></dt>
 <dd><p>Compute the orientation matrix for the current UB and W matrices.</p>
 <p>Overrides <code class="xref py py-meth docutils literal notranslate"><span class="pre">NeuXtalVizModel.orientation_matrix()</span></code> to account
 for the additional W matrix (projection into the slicing basis).</p>
@@ -7121,7 +7233,7 @@ another already-registered name.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_blur">
-<span class="sig-name descname"><span class="pre">run_blur</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q_blur</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L1373-L1441"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_blur" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run_blur</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q_blur</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L1380-L1448"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_blur" title="Link to this definition">#</a></dt>
 <dd><p>NaN-Gaussian-blur the gaps (e.g. from a Bragg punch) closed.</p>
 <p>Runs, on <code class="docutils literal notranslate"><span class="pre">input_display_name</span></code> (typically the output of
 <a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_bragg_punch" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_bragg_punch"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_bragg_punch()</span></code></a>, though any registered workspace may be
@@ -7161,7 +7273,7 @@ in place rather than accumulating new entries.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_bragg_punch">
-<span class="sig-name descname"><span class="pre">run_bragg_punch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q_inner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L1205-L1371"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_bragg_punch" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run_bragg_punch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q_inner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L1212-L1378"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_bragg_punch" title="Link to this definition">#</a></dt>
 <dd><p>Punch Bragg-reflection outliers and mask the low-Q region.</p>
 <p>For every allowed reflection (per <code class="docutils literal notranslate"><span class="pre">space_group</span></code>) within the
 workspace’s extent, examines an ellipsoidal region of
@@ -7220,7 +7332,7 @@ in place rather than accumulating new entries.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_karen">
-<span class="sig-name descname"><span class="pre">run_karen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_score</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L1443-L1521"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_karen" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run_karen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_display_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_score</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L1450-L1528"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_karen" title="Link to this definition">#</a></dt>
 <dd><p>Remove Bragg-peak outliers with the KAREN algorithm.</p>
 <p>An alternative to <a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_bragg_punch" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_bragg_punch"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_bragg_punch()</span></code></a> + <a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_blur" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.run_blur"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_blur()</span></code></a>,
 following Mantid’s <code class="docutils literal notranslate"><span class="pre">DeltaPDF3D</span></code> “KAREN” method: a moving-window
@@ -7269,7 +7381,7 @@ in place rather than accumulating new entries.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.save_cut">
-<span class="sig-name descname"><span class="pre">save_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L406-L415"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.save_cut" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L413-L422"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.save_cut" title="Link to this definition">#</a></dt>
 <dd><p>Save the current cut workspace to an ASCII file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -7283,7 +7395,7 @@ in place rather than accumulating new entries.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.save_slice">
-<span class="sig-name descname"><span class="pre">save_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L395-L404"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.save_slice" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L402-L411"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.save_slice" title="Link to this definition">#</a></dt>
 <dd><p>Save the current slice workspace to an ASCII file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -7297,13 +7409,13 @@ in place rather than accumulating new entries.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.set_B">
-<span class="sig-name descname"><span class="pre">set_B</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L450-L459"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.set_B" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_B</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L457-L466"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.set_B" title="Link to this definition">#</a></dt>
 <dd><p>Set the B matrix from the UB of the loaded histogram workspace.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.set_W">
-<span class="sig-name descname"><span class="pre">set_W</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L461-L472"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.set_W" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_W</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/volume_slicer.py#L468-L479"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.set_W" title="Link to this definition">#</a></dt>
 <dd><p>Set the W matrix from the workspace log if available, otherwise identity.</p>
 </dd></dl>
 
@@ -7391,31 +7503,43 @@ in place rather than accumulating new entries.</p>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-NeuXtalViz.models.crystal_structure_tools">NeuXtalViz.models.crystal_structure_tools module</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.PEAKS_WORKSPACE"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.PEAKS_WORKSPACE</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.calculate_F2"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.calculate_F2()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.calculate_UB"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.calculate_UB()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.constrain_parameters"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.constrain_parameters()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_F2"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.generate_F2()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_atom_positions"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.generate_atom_positions()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_hkl_list"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.generate_hkl_list()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_settings_from_space_group"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.generate_settings_from_space_group()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.generate_space_groups_from_crystal_system"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.generate_space_groups_from_crystal_system()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_UB_from_vectors"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_UB_from_vectors()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_absorption_dict"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_absorption_dict()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_chemical_formula_z_parameter"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_chemical_formula_z_parameter()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_crystal_system"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_crystal_system()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_euler_angles"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_euler_angles()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_incident_path_length"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_incident_path_length()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_constants"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_lattice_constants()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_lattice_system"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_lattice_system()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_material_dict"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_material_dict()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_periodic_table"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_periodic_table()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_point_group_name"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_point_group_name()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_scatterers"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_scatterers()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_setting"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_setting()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_space_group"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_space_group()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_transform_from_UB"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_transform_from_UB()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_transform"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_unit_cell_transform()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_unit_cell_volume"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.get_unit_cell_volume()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.has_crystal_structure"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.has_crystal_structure()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.load_CIF"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.load_CIF()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.predict_transmission"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.predict_transmission()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.sample_mesh"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.sample_mesh()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.save_ins"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.save_ins()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_crystal_structure"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.set_crystal_structure()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_material"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.set_material()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.set_sample_shape"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.set_sample_shape()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.update_lattice_parameters"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.update_lattice_parameters()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.update_parameters"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.update_parameters()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.write_ellipsoid_stl"><code class="docutils literal notranslate"><span class="pre">CrystalStructureModel.write_ellipsoid_stl()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -7512,21 +7636,6 @@ in place rather than accumulating new entries.</p>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.periodic_table.PeriodicTableModel"><code class="docutils literal notranslate"><span class="pre">PeriodicTableModel</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.periodic_table.PeriodicTableModel.get_atom_model"><code class="docutils literal notranslate"><span class="pre">PeriodicTableModel.get_atom_model()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-NeuXtalViz.models.sample_tools">NeuXtalViz.models.sample_tools module</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.sample_tools.SampleModel"><code class="docutils literal notranslate"><span class="pre">SampleModel</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.sample_tools.SampleModel.get_absorption_dict"><code class="docutils literal notranslate"><span class="pre">SampleModel.get_absorption_dict()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.sample_tools.SampleModel.get_euler_angles"><code class="docutils literal notranslate"><span class="pre">SampleModel.get_euler_angles()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.sample_tools.SampleModel.get_goniometer_strings"><code class="docutils literal notranslate"><span class="pre">SampleModel.get_goniometer_strings()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.sample_tools.SampleModel.get_material_dict"><code class="docutils literal notranslate"><span class="pre">SampleModel.get_material_dict()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.sample_tools.SampleModel.get_shape_dict"><code class="docutils literal notranslate"><span class="pre">SampleModel.get_shape_dict()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.sample_tools.SampleModel.get_volume"><code class="docutils literal notranslate"><span class="pre">SampleModel.get_volume()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.sample_tools.SampleModel.load_UB"><code class="docutils literal notranslate"><span class="pre">SampleModel.load_UB()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.sample_tools.SampleModel.sample_mesh"><code class="docutils literal notranslate"><span class="pre">SampleModel.sample_mesh()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#NeuXtalViz.models.sample_tools.SampleModel.set_sample"><code class="docutils literal notranslate"><span class="pre">SampleModel.set_sample()</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -8,7 +8,6 @@ NeuXtalViz.presenters package
    crystal_structure_tools
    experiment_planner
    periodic_table
-   sample_tools
    ub_tools
    volume_slicer
 
@@ -31,11 +30,6 @@ Submodules
    :show-inheritance:
 
 .. automodule:: NeuXtalViz.presenters.periodic_table
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: NeuXtalViz.presenters.sample_tools
    :members:
    :undoc-members:
    :show-inheritance:
