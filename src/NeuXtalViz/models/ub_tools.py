@@ -4675,15 +4675,19 @@ class UBModel(NeuXtalVizModel):
             for j, peak in enumerate(mtd[self.table]):
                 pk_no = j + 1
 
-                diff_HKL = peak.getHKL() - np.round(peak.getHKL())
+                hkl = np.array(peak.getHKL())
+                # np.round breaks exact .5 ties by rounding to the
+                # nearest even integer, so a modulation vector sitting
+                # exactly at 0.5 gets a different sign depending on the
+                # parity of the nearest HKL -- always rounding half up
+                # keeps it consistent across peaks.
+                diff_HKL = hkl - np.floor(hkl + 0.5)
 
                 Q = 2 * np.pi * np.dot(UB, diff_HKL)
 
                 Qs.append(Q)
                 HKLs.append(diff_HKL)
                 pk_nos.append(pk_no)
-
-                diff_HKL = peak.getHKL() - np.round(peak.getHKL())
 
                 Q = 2 * np.pi * np.dot(UB, -diff_HKL)
 

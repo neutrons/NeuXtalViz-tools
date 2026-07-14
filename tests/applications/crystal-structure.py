@@ -129,6 +129,56 @@ def TOPAZ_Bixbyite_Structure(app, window):
     )
 
 
+def TOPAZ_Garnet_Absorption(app, window):
+    directory = os.path.join(DIRECTORY, "TOPAZ")
+    os.makedirs(directory, exist_ok=True)
+
+    cs_presenter, cs_view = _activate_crystal_structure_tool(window)
+
+    cif_path = os.path.join(DIRECTORY, "../data", "garnet.cif")
+
+    original_get_open = QFileDialog.getOpenFileName
+
+    def _fake_get_open(self, *args, **kwargs):  # noqa: ANN001
+        return cif_path, "CIF files (*.cif)"
+
+    QFileDialog.getOpenFileName = _fake_get_open
+
+    try:
+        QTest.mouseClick(cs_view.load_CIF_button, Qt.LeftButton)
+        QTest.qWait(1000 * 5)
+    finally:
+        QFileDialog.getOpenFileName = original_get_open
+
+    cs_view.tab_widget.setCurrentIndex(2)
+
+    cs_view.abs_param1_line.setText("2.0")
+    cs_view.abs_param2_line.setText("1.5")
+    cs_view.abs_param3_line.setText("1.0")
+
+    cs_view.abs_wavelength_line.setText("1.5")
+    cs_view.abs_dmin_line.setText("1")
+
+    cs_view.abs_param1_line.setStyleSheet("background-color: yellow;")
+    cs_view.abs_param2_line.setStyleSheet("background-color: yellow;")
+    cs_view.abs_param3_line.setStyleSheet("background-color: yellow;")
+    cs_view.abs_calculate_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(cs_view.abs_calculate_button, Qt.LeftButton)
+    QTest.qWait(1000 * 30)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "Garnet_absorption.png"), "png"
+    )
+
+    cs_view.abs_param1_line.setStyleSheet("")
+    cs_view.abs_param2_line.setStyleSheet("")
+    cs_view.abs_param3_line.setStyleSheet("")
+    cs_view.abs_calculate_button.setStyleSheet("")
+
+    copy_generated_pngs(directory)
+
+
 SCENARIOS = {
     "MANDI_Mesolite_Structure": MANDI_Mesolite_Structure,
     "CORELLI_Natrolite_Structure": CORELLI_Natrolite_Structure,
@@ -136,6 +186,7 @@ SCENARIOS = {
     "TOPAZ_Si_Structure": TOPAZ_Si_Structure,
     "SNAP_Si_Structure": SNAP_Si_Structure,
     "TOPAZ_Bixbyite_Structure": TOPAZ_Bixbyite_Structure,
+    "TOPAZ_Garnet_Absorption": TOPAZ_Garnet_Absorption,
 }
 
 if __name__ == "__main__":

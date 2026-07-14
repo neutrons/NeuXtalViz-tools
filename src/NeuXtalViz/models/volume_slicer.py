@@ -287,29 +287,36 @@ class VolumeSlicerModel(NeuXtalVizModel):
         """
         Prepare the ``"histo"``/``"volume"`` workspaces for slicing.
 
-        Masks non-finite values, downsamples for the 3D volume render,
-        and reads the UB/W matrices. Shared by both
+        Clamps infinities to NaN, downsamples for the 3D volume
+        render, and reads the UB/W matrices. Shared by both
         :meth:`load_md_histo_workspace` (after ``LoadMD``) and
         :meth:`activate_workspace` (after cloning a registered
         workspace into ``"histo"``).
 
+        Genuine NaN (e.g. from :meth:`run_bragg_punch`'s masking, or
+        unmeasured detector regions) is left as NaN rather than zeroed
+        out -- zeroing it here would silently turn "no data" into a
+        real (and wrong) zero-intensity value for both the 2D
+        slice/cut (matplotlib renders NaN as a transparent "bad"
+        color) and the 3D volume render (the block-reduce below and
+        PyVista's volume mapper are both already NaN-aware). Only
+        actual infinities are clamped, matching the convention used in
+        :meth:`get_slice_info`.
+
         Parameters
         ----------
         progress : callable, optional
-            ``progress(message, percent)`` callback -- masking/
-            compacting/downsampling can take a while for a large
-            workspace.
+            ``progress(message, percent)`` callback -- compacting/
+            downsampling can take a while for a large workspace.
         """
         if progress is not None:
-            progress("Masking non-finite values", 30)
+            progress("Clamping infinities", 30)
 
         signal = mtd["histo"].getSignalArray().copy()
         signal_var = mtd["histo"].getErrorSquaredArray().copy()
 
-        mask = np.isfinite(signal) & np.isfinite(signal_var)
-
-        signal[~mask] = 0
-        signal_var[~mask] = 0
+        signal[np.isinf(signal)] = np.nan
+        signal_var[np.isinf(signal_var)] = np.nan
 
         mtd["histo"].setSignalArray(signal)
         mtd["histo"].setErrorSquaredArray(signal_var)
@@ -1637,8 +1644,8 @@ class VolumeSlicerModel(NeuXtalVizModel):
         mad = median_filter(
             np.abs(signal - med), size=tuple(size), mode="nearest"
         )
-        asigma = np.abs(mad * z_score * 1.4826)
-        mask = np.logical_or(signal < med - asigma, signal > med + asigma)
+        asigma = np.abs(1.4826 * mad)
+        mask = np.abs(signal - med) > z_score * asigma
 
         signal = signal.copy()
         signal[mask] = (med + 2.2 * mad)[mask]

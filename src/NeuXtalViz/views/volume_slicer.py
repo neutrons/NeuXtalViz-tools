@@ -274,7 +274,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         )
         self.auto_scale_dropdown(self.workspace_combo)
 
-        self.redraw_workspace_button = QPushButton(self)
+        self.redraw_workspace_button = QPushButton("Redraw", self)
         self.redraw_workspace_button.setIcon(qta.icon("fa6s.arrows-rotate"))
         self.redraw_workspace_button.setToolTip(
             "Redraw the current workspace. Use this if its data "
@@ -771,7 +771,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
             "NaN-Gaussian-blur the gaps closed, producing a new, "
             "separately inspectable workspace."
         )
-        self.run_blur_button.setIcon(qta.icon("fa6s.droplet"))
+        self.run_blur_button.setIcon(qta.icon("fa6s.blender"))
 
         steps_layout.addWidget(self.blur_input_combo, 2, 0)
         steps_layout.addWidget(QLabel("Blur:", self), 2, 3)

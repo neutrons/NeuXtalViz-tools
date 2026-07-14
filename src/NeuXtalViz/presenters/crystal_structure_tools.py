@@ -45,6 +45,8 @@ class CrystalStructure(NeuXtalVizPresenter):
         self.view.connect_save_INS(self.save_INS)
         self.view.connect_select_isotope(self.select_isotope)
 
+        self.view.connect_calculate_absorption(self.calculate_absorption)
+
         self.generate_groups()
         self.generate_settings()
 
@@ -169,6 +171,7 @@ class CrystalStructure(NeuXtalVizPresenter):
 
             vol = self.model.get_unit_cell_volume()
             self.view.set_unit_cell_volume(vol)
+            self.view.set_material_display(form, z, vol)
 
             self.update_complete("CIF loaded!")
 
@@ -378,6 +381,202 @@ class CrystalStructure(NeuXtalVizPresenter):
 
         else:
             progress("Invalid parameters.", 0)
+
+    def calculate_absorption(self):
+        """
+        Start prediction of per-reflection transmission/absorption using
+        a worker thread.
+
+        Parameters
+        ----------
+        None
+        """
+        d_min = self.view.get_absorption_d_min()
+        wavelength = self.view.get_wavelength()
+        shape_params = self.view.get_absorption_shape_constants()
+        sample_vectors = self.view.get_absorption_sample_vectors()
+        shape_vectors = self.view.get_absorption_shape_vectors()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.calculate_absorption_process,
+                d_min=d_min,
+                wavelength=wavelength,
+                shape_params=shape_params,
+                sample_vectors=sample_vectors,
+                shape_vectors=shape_vectors,
+            )
+        )
+        worker.connect_result(self.calculate_absorption_complete)
+        worker.connect_finished(self.update_complete)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def calculate_absorption_complete(self, result):
+        """
+        Complete absorption prediction and update the view with results.
+
+        Parameters
+        ----------
+        result : tuple or None
+            Result from :meth:`calculate_absorption_process`.
+        """
+        if result is not None:
+            hkls, ds, Ts, Tbars, abs_dict, mesh, T, r_incident = result
+            self.view.set_absorption_results(hkls, ds, Ts, Tbars)
+            self.view.set_absorption_parameters(abs_dict)
+            mu = abs_dict["mu_a"] + abs_dict["mu_s"]
+            # add_absorption_sample clears the scene first, so the corner
+            # axes widget (driven by set_transform/show_axes) must be
+            # (re-)added after it, or it would get wiped out again.
+            self.view.add_absorption_sample(mesh, T, mu, r_incident)
+            self.view.set_transform(T)
+
+    def calculate_absorption_process(
+        self,
+        progress,
+        stop_event=None,
+        d_min=None,
+        wavelength=None,
+        shape_params=None,
+        sample_vectors=None,
+        shape_vectors=None,
+    ):
+        """
+        Worker task that predicts per-reflection transmission/absorption.
+
+        Intended to run on a background worker thread, reporting progress
+        and checking for a stop request between steps.
+
+        Parameters
+        ----------
+        progress : callable
+            Callback invoked as ``progress(status, value)`` to report
+            status text and percent complete.
+        stop_event : threading.Event, optional
+            Event used to signal that the worker should stop early
+            (default None).
+        d_min : float, optional
+            Minimum d-spacing to generate reflections for. If None, it
+            is derived from the lattice constants, the same way as the
+            Factors tab's ``calculate_F2_process``.
+        wavelength : float, optional
+            Incident wavelength, in Angstrom.
+        shape_params : list of float, optional
+            Ellipsoid thickness, width, and height, in mm.
+        sample_vectors : tuple of (list, list) or None, optional
+            Sample U/V vectors defining the crystal's own orientation.
+        shape_vectors : tuple of (list, list) or None, optional
+            Shape U/V vectors orienting the shape mesh.
+
+        Returns
+        -------
+        hkls : numpy.ndarray or None
+            Miller indices, sorted by d-spacing then h, k, l, or None
+            if stopped, invalid, or no reflection was reachable.
+        ds : numpy.ndarray or None
+            d-spacing per reflection.
+        Ts : numpy.ndarray or None
+            Transmission per reflection.
+        Tbars : numpy.ndarray or None
+            Absorption-weighted path length (cm) per reflection.
+        abs_dict : dict or None
+            Absorption/scattering parameters, from the model's
+            ``get_absorption_dict``.
+        mesh : numpy.ndarray or None
+            Sample shape mesh, from the model's ``sample_mesh``.
+        T : numpy.ndarray or None
+            a*/b*/c* orientation matrix, from the model's
+            ``get_transform_from_UB``, for drawing the axes arrows
+            attached to the sample.
+        r_incident : float or None
+            Sample radius (cm) along the incident beam direction, from
+            the model's ``get_incident_path_length``.
+        """
+        if self.stop_processing(stop_event):
+            return None
+
+        if wavelength is None or shape_params is None:
+            progress("Invalid parameters.", 0)
+            return None
+
+        progress("Processing...", 1)
+
+        if d_min is None:
+            params = self.model.get_lattice_constants()
+            d_min = min(params[0:2]) * 0.2
+
+        if self.stop_processing(stop_event):
+            return None
+
+        progress("Building material...", 10)
+
+        chem, Z = self.model.get_chemical_formula_z_parameter()
+        vol = self.model.get_unit_cell_volume()
+        mat_dict = self.model.get_material_dict(
+            " ".join(chem.split("-")), float(Z), vol
+        )
+
+        if self.stop_processing(stop_event):
+            return None
+
+        progress("Building orientation...", 20)
+
+        UB = None
+        if sample_vectors is not None:
+            UB = self.model.get_UB_from_vectors(*sample_vectors)
+        if UB is None:
+            UB = self.model.UB
+
+        T = self.model.get_transform_from_UB(UB)
+
+        shape_angles = (0, 0, 0)
+        if shape_vectors is not None:
+            values = self.model.get_euler_angles(*shape_vectors, UB)
+            if values is not None:
+                shape_angles = values
+
+        if self.stop_processing(stop_event):
+            return None
+
+        progress("Generating reflections...", 30)
+
+        hkls, ds = self.model.generate_hkl_list(d_min)
+
+        if self.stop_processing(stop_event):
+            return None
+
+        progress("Calculating transmission (Monte Carlo)...", 50)
+
+        result = self.model.predict_transmission(
+            hkls,
+            ds,
+            wavelength,
+            shape_params,
+            mat_dict,
+            *shape_angles,
+            UB,
+        )
+        if result is None:
+            progress("No reachable reflections at this wavelength.", 0)
+            return None
+
+        hkls_sorted, ds_sorted, Ts, Tbars, volume = result
+
+        progress("Finalizing...", 90)
+
+        abs_dict = self.model.get_absorption_dict(wavelength, volume)
+        mesh = self.model.sample_mesh()
+
+        u_vector = (
+            sample_vectors[0] if sample_vectors is not None else (0, 0, 1)
+        )
+        r_incident = self.model.get_incident_path_length(mesh, UB, u_vector)
+
+        progress("Transmission calculated!", 100)
+
+        return hkls_sorted, ds_sorted, Ts, Tbars, abs_dict, mesh, T, r_incident
 
     def select_isotope(self):
         """

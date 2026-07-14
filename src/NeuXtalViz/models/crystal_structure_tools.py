@@ -2,6 +2,7 @@ from mantid.kernel import V3D
 
 from mantid.geometry import (
     CrystalStructure,
+    Goniometer,
     ReflectionGenerator,
     ReflectionConditionFilter,
     PointGroup,
@@ -11,15 +12,25 @@ from mantid.geometry import (
 
 from mantid.simpleapi import (
     CreateSampleWorkspace,
+    CreatePeaksWorkspace,
+    DeleteWorkspace,
     LoadCIF,
+    LoadSampleShape,
     SaveINS,
     SetSample,
     SetUB,
+    HFIRCalculateGoniometer,
+    AddAbsorptionWeightedPathLengths,
     mtd,
 )
 
+import os
+import tempfile
+
 import numpy as np
 import scipy.linalg
+
+import pyvista as pv
 
 from NeuXtalViz.models.periodic_table import PeriodicTableModel
 from NeuXtalViz.models.base_model import NeuXtalVizModel
@@ -34,6 +45,8 @@ class CrystalStructureModel(NeuXtalVizModel):
     matrix, and generate derived crystallographic information such as
     structure factors, chemical formula, and atom positions.
     """
+
+    PEAKS_WORKSPACE = "absorption_peaks"
 
     def __init__(self):
         """
@@ -312,6 +325,570 @@ class CrystalStructureModel(NeuXtalVizModel):
         equivalents = pg.getEquivalents(hkl)
 
         return equivalents, d, F2
+
+    def get_euler_angles(self, u_vector, v_vector, UB):
+        """
+        Compute Euler angles that orient a sample face along given directions.
+
+        The `u_vector` and `v_vector` are Miller index / fractional
+        coordinate directions that are transformed to Cartesian coordinates
+        via ``UB`` to build a rotation matrix, which is then decomposed
+        into ZYX Euler angles via Mantid's own ``Goniometer`` (matching
+        ``garnet.reduction.sample.SampleMaterial.set_shape`` exactly,
+        rather than scipy's rotation decomposition, so the angles are
+        guaranteed to be in the convention Mantid's own
+        ``LoadSampleShape`` (``XDegrees``/``YDegrees``/``ZDegrees``)
+        expects).
+
+        Note this takes an explicit ``UB`` rather than reading
+        ``self.UB``: the shape must be oriented relative to the *same*
+        orientation used for the rest of the absorption prediction
+        (typically the sample-orientation UB from
+        :meth:`get_UB_from_vectors`), not the model's own default
+        (Busing-Levy) orientation, or the shape and the beam/goniometer
+        geometry would be computed in inconsistent frames.
+
+        Parameters
+        ----------
+        u_vector : 3-element 1d array-like
+            Crystallographic direction to align with the sample's primary
+            (height/thickness) axis.
+        v_vector : 3-element 1d array-like
+            Crystallographic direction used together with `u_vector` to
+            define the orientation plane.
+        UB : (3, 3) ndarray
+            Orientation matrix to transform `u_vector`/`v_vector` into
+            Cartesian coordinates.
+
+        Returns
+        -------
+        alpha, beta, gamma : float
+            Rotation angles in degrees about the X, Y, and Z axes
+            respectively, or None if the vectors are collinear.
+        """
+        w_vector = np.cross(u_vector, v_vector)
+
+        if np.linalg.norm(w_vector) > 0:
+            u = np.dot(UB, u_vector)
+            v = np.dot(UB, v_vector)
+
+            u /= np.linalg.norm(u)
+
+            w = np.cross(u, v)
+            w /= np.linalg.norm(w)
+
+            v = np.cross(w, u)
+
+            T = np.column_stack([v, w, u])
+
+            gon = Goniometer()
+            gon.setR(T)
+            gamma, beta, alpha = gon.getEulerAngles("ZYX")
+
+            return alpha, beta, gamma
+
+    def write_ellipsoid_stl(self, params):
+        """
+        Build a triaxial ellipsoid mesh and save it as a temporary STL file.
+
+        Mantid's shape system (CSG XML / ``SetSample``) has no native
+        ellipsoid primitive, so the ellipsoid is instead built as a
+        unit icosphere non-uniformly scaled to the requested semi-axis
+        lengths, then loaded as the sample shape via
+        :meth:`set_sample_shape`'s ``LoadSampleShape`` call.
+
+        Parameters
+        ----------
+        params : list of float
+            Thickness, width, and height, in mm.
+
+        Returns
+        -------
+        path : str
+            Path to the written temporary ``.stl`` file. The caller is
+            responsible for deleting it once ``LoadSampleShape`` has
+            consumed it.
+        volume : float
+            Ellipsoid volume in cm^3 (from the PyVista mesh directly --
+            Mantid's ``MeshObject`` shape has no ``volume()`` method, so
+            this is needed by :meth:`get_absorption_dict`).
+        """
+        thickness, width, height = params
+
+        sph = pv.Icosphere(radius=0.5)
+        ell = sph.scale([width, height, thickness], inplace=False)
+
+        fd, path = tempfile.mkstemp(suffix=".stl")
+        os.close(fd)
+        ell.save(path)
+
+        return path, ell.volume / 1000.0
+
+    def set_sample_shape(
+        self, ws, mat_dict, alpha, beta, gamma, ellipsoid_stl
+    ):
+        """
+        Set the ellipsoid sample shape and material on a workspace.
+
+        Loads the mesh built by :meth:`write_ellipsoid_stl` via
+        Mantid's ``LoadSampleShape`` (rotated by alpha/beta/gamma about
+        X, Y, Z in that order), then sets the material separately.
+
+        ``LoadSampleShape`` requires a workspace with a real instrument
+        (specifically a "sample holder" component) -- a bare
+        ``LeanElasticPeak`` workspace has none, so the mesh is instead
+        loaded onto a throwaway scratch workspace (which does have a
+        default instrument) and its resulting ``Sample`` (shape) is
+        copied onto ``ws`` via ``setSample``.
+
+        Parameters
+        ----------
+        ws : str
+            Name of the workspace to set the sample on.
+        mat_dict : dict
+            Material dictionary from :meth:`get_material_dict`.
+        alpha, beta, gamma : float
+            Rotation angles in degrees for the ellipsoid mesh's
+            ``LoadSampleShape`` orientation.
+        ellipsoid_stl : str
+            Path to the ellipsoid STL file from
+            :meth:`write_ellipsoid_stl`.
+        """
+        scratch = "_{}_ellipsoid_scratch".format(ws)
+        CreateSampleWorkspace(OutputWorkspace=scratch)
+        LoadSampleShape(
+            InputWorkspace=scratch,
+            Filename=ellipsoid_stl,
+            Scale="mm",
+            XDegrees=alpha,
+            YDegrees=beta,
+            ZDegrees=gamma,
+            OutputWorkspace=scratch,
+        )
+        mtd[ws].setSample(mtd[scratch].sample())
+        DeleteWorkspace(Workspace=scratch)
+        SetSample(InputWorkspace=ws, Material=mat_dict)
+
+    def get_material_dict(self, chemical_formula, z_parameter, volume):
+        """
+        Build a Mantid material dictionary for the sample.
+
+        Parameters
+        ----------
+        chemical_formula : str
+            Chemical formula of the sample material.
+        z_parameter : float
+            Number of formula units per unit cell.
+        volume : float
+            Unit cell volume in Angstrom^3.
+
+        Returns
+        -------
+        mat_dict : dict
+            Dictionary with keys ``"ChemicalFormula"``, ``"ZParameter"``,
+            and ``"UnitCellVolume"``, suitable for the ``Material``
+            argument of Mantid's ``SetSample`` algorithm.
+        """
+        return {
+            "ChemicalFormula": chemical_formula,
+            "ZParameter": z_parameter,
+            "UnitCellVolume": volume,
+        }
+
+    def generate_hkl_list(self, d_min=0.7):
+        """
+        Generate every allowed reflection and its d-spacing down to d_min.
+
+        Unlike :meth:`generate_F2` (the Factors tab, which reduces to
+        symmetry-unique reflections via ``getUniqueHKLsUsingFilter``),
+        this returns every symmetry-equivalent allowed reflection via
+        Mantid's ``ReflectionGenerator.getHKLsUsingFilter`` -- the
+        absorption/transmission prediction is per-reflection (each
+        equivalent has its own Q direction and therefore its own
+        goniometer setting and absorption path), so the full set is
+        needed, not just one representative per family.
+
+        Absorption is centrosymmetric though: reversing (h,k,l) to
+        (-h,-k,-l) swaps the incident/outgoing beam directions through
+        the sample, and an ellipsoid (like every shape supported here)
+        is itself inversion-symmetric about its center, so
+        T(hkl) == T(-hkl) exactly. Only one reflection from each such
+        Friedel pair is kept (whichever has the first nonzero index
+        positive), halving the simulation work for no loss of
+        information.
+
+        Parameters
+        ----------
+        d_min : float, optional
+            Minimum d-spacing (default 0.7).
+
+        Returns
+        -------
+        hkls : (N, 3) ndarray
+            Miller indices of every allowed reflection, one per
+            centrosymmetric (Friedel) pair.
+        ds : (N,) ndarray
+            d-spacing of each reflection.
+        """
+        cryst_struct = mtd["crystal"].sample().getCrystalStructure()
+
+        generator = ReflectionGenerator(cryst_struct)
+
+        sf_filt = ReflectionConditionFilter.StructureFactor
+
+        unit_cell = cryst_struct.getUnitCell()
+
+        d_max = np.max([unit_cell.a(), unit_cell.b(), unit_cell.c()])
+
+        hkls = generator.getHKLsUsingFilter(d_min, d_max, sf_filt)
+
+        ds = np.array(generator.getDValues(hkls))
+        hkls = np.array([[hkl[0], hkl[1], hkl[2]] for hkl in hkls])
+
+        first_nonzero = np.argmax(hkls != 0, axis=1)
+        keep = hkls[np.arange(len(hkls)), first_nonzero] > 0
+
+        return hkls[keep], ds[keep]
+
+    def get_UB_from_vectors(self, u_vector, v_vector):
+        """
+        Build a sample-orientation UB matrix from two crystallographic
+        directions, independent of the model's own ``self.UB``.
+
+        Distinct from :meth:`get_euler_angles` (which orients the
+        *shape* mesh relative to whatever orientation the crystal
+        already has): this defines the crystal's *own* orientation for
+        the absorption prediction -- ``u_vector`` is aligned with the
+        local z axis and, together with ``v_vector``, fixes an
+        orthonormal frame U, independent of the arbitrary Busing-Levy
+        default in :meth:`calculate_UB`. B comes directly from the
+        lattice metric tensor, not from ``self.UB``.
+
+        Parameters
+        ----------
+        u_vector : 3-element 1d array-like
+            Crystallographic direction to align with the local z axis.
+        v_vector : 3-element 1d array-like
+            Crystallographic direction used together with `u_vector` to
+            define the orientation plane.
+
+        Returns
+        -------
+        UB : (3, 3) ndarray
+            Orientation matrix ``U @ B``, or None if the vectors are
+            collinear.
+        """
+        w_vector = np.cross(u_vector, v_vector)
+
+        if np.linalg.norm(w_vector) == 0:
+            return None
+
+        cryst_struct = mtd["crystal"].sample().getCrystalStructure()
+        uc = cryst_struct.getUnitCell()
+        G = uc.getG()
+        G_star = np.linalg.inv(G)
+        B = scipy.linalg.cholesky(G_star, lower=False)
+
+        u = np.dot(B, u_vector)
+        v = np.dot(B, v_vector)
+
+        u /= np.linalg.norm(u)
+
+        w = np.cross(u, v)
+        w /= np.linalg.norm(w)
+
+        v = np.cross(w, u)
+
+        U = np.column_stack([v, w, u])
+
+        return U @ B
+
+    def get_transform_from_UB(self, UB):
+        """
+        Normalized orientation matrix (unit a*/b*/c* Cartesian columns)
+        for a given UB matrix.
+
+        Same normalization as the base model's ``get_transform``, but
+        operating on a caller-supplied ``UB`` (e.g. from
+        :meth:`get_UB_from_vectors`) instead of ``self.UB`` -- used to
+        orient the a*/b*/c* arrows drawn next to the absorption sample
+        without touching the model's own stored orientation (which the
+        Structure tab's unit-cell view depends on).
+
+        Parameters
+        ----------
+        UB : (3, 3) ndarray
+            Orientation matrix.
+
+        Returns
+        -------
+        T : (3, 3) ndarray
+            ``UB`` with each column normalized to unit length.
+        """
+        T = np.array(UB, dtype=float)
+        return T / np.linalg.norm(T, axis=0)
+
+    def predict_transmission(
+        self,
+        hkls,
+        ds,
+        wavelength,
+        shape_params,
+        mat_dict,
+        alpha,
+        beta,
+        gamma,
+        UB,
+    ):
+        """
+        Predict the transmission and absorption-weighted path length
+        (T-bar) of every given reflection for a monochromatic rotation
+        experiment.
+
+        Builds a ``LeanElasticPeak`` peaks workspace with one peak per
+        hkl (``Q = 2*pi*UB*hkl``, using the given ``UB``), each given
+        its own unique run number (each peak is an independent
+        simulated "setting"), computes a goniometer setting for each
+        via Mantid's ``HFIRCalculateGoniometer`` (constant wavelength,
+        vertical-axis rotation -- no user-specified goniometer axes are
+        needed), drops any reflection whose goniometer matrix comes
+        back NaN (not reachable by a single vertical-axis rotation at
+        this wavelength -- kept in the result as NaN rows rather than
+        silently dropped), sets the ellipsoid sample shape/material,
+        then runs Mantid's ``AddAbsorptionWeightedPathLengths`` (Monte
+        Carlo) to get T-bar per peak and derives the transmission
+        ``T = exp(-mu * Tbar)``.
+
+        Parameters
+        ----------
+        hkls : (N, 3) ndarray
+            Miller indices, from :meth:`generate_hkl_list`.
+        ds : (N,) ndarray
+            d-spacing of each reflection, from :meth:`generate_hkl_list`.
+        wavelength : float
+            Incident wavelength, in Angstrom.
+        shape_params : list of float
+            Ellipsoid thickness, width, and height, in mm.
+        mat_dict : dict
+            Material dictionary from :meth:`get_material_dict`.
+        alpha, beta, gamma : float
+            Shape orientation Euler angles from :meth:`get_euler_angles`
+            (shape U/V vectors).
+        UB : (3, 3) ndarray
+            Sample orientation matrix used for ``Q = 2*pi*UB*hkl``, from
+            :meth:`get_UB_from_vectors` (sample U/V vectors), or
+            ``self.UB`` if the sample U/V vectors weren't set.
+
+        Returns
+        -------
+        hkls : (M, 3) ndarray
+            Miller indices, sorted by decreasing d-spacing then
+            increasing h, k, l.
+        ds : (M,) ndarray
+            d-spacing of each reflection.
+        Ts : (M,) ndarray
+            Transmission of each reflection (NaN if unreachable at this
+            wavelength).
+        Tbars : (M,) ndarray
+            Absorption-weighted path length (cm) of each reflection
+            (NaN if unreachable at this wavelength).
+        volume : float
+            Ellipsoid volume, in cm^3.
+        """
+        ws = self.PEAKS_WORKSPACE
+
+        CreatePeaksWorkspace(
+            OutputType="LeanElasticPeak", NumberOfPeaks=0, OutputWorkspace=ws
+        )
+        peaks = mtd[ws]
+
+        for i, (h, k, l) in enumerate(hkls):
+            Q = 2 * np.pi * UB @ np.array([h, k, l])
+            pk = peaks.createPeakQSample([Q[0], Q[1], Q[2]])
+            pk.setHKL(h, k, l)
+            pk.setRunNumber(i + 1)
+            peaks.addPeak(pk)
+
+        HFIRCalculateGoniometer(Workspace=ws, Wavelength=wavelength)
+
+        bad = [
+            i
+            for i in range(peaks.getNumberPeaks())
+            if np.any(np.isnan(peaks.getPeak(i).getGoniometerMatrix()))
+        ]
+
+        hkls_ok = np.delete(hkls, bad, axis=0)
+        ds_ok = np.delete(ds, bad)
+        hkls_bad = hkls[bad]
+
+        if bad:
+            peaks.removePeaks(bad)
+
+        if peaks.getNumberPeaks() == 0:
+            return None
+
+        ellipsoid_stl, ellipsoid_volume = self.write_ellipsoid_stl(
+            shape_params
+        )
+
+        try:
+            self.set_sample_shape(
+                ws, mat_dict, alpha, beta, gamma, ellipsoid_stl
+            )
+        finally:
+            os.remove(ellipsoid_stl)
+
+        AddAbsorptionWeightedPathLengths(InputWorkspace=ws)
+
+        mat = mtd[ws].sample().getMaterial()
+        n = mat.numberDensityEffective
+        mu = n * (mat.absorbXSection(wavelength) + mat.totalScatterXSection())
+
+        Ts, Tbars = [], []
+        for i in range(peaks.getNumberPeaks()):
+            tbar = peaks.getPeak(i).getAbsorptionWeightedPathLength()
+            Tbars.append(tbar)
+            Ts.append(np.exp(-mu * tbar))
+        Ts, Tbars = np.array(Ts), np.array(Tbars)
+
+        nan = np.full(len(hkls_bad), np.nan)
+        hkls_all = np.vstack([hkls_ok, hkls_bad]) if len(hkls_bad) else hkls_ok
+        Ts_all = np.concatenate([Ts, nan])
+        Tbars_all = np.concatenate([Tbars, nan])
+        ds_all = np.concatenate([ds_ok, ds[bad]]) if len(hkls_bad) else ds_ok
+
+        order = np.lexsort(
+            (hkls_all[:, 2], hkls_all[:, 1], hkls_all[:, 0], -ds_all)
+        )
+
+        return (
+            hkls_all[order],
+            ds_all[order],
+            Ts_all[order],
+            Tbars_all[order],
+            ellipsoid_volume,
+        )
+
+    def get_absorption_dict(self, wavelength, volume=None):
+        """
+        Compute absorption and scattering parameters for the sample material.
+
+        Parameters
+        ----------
+        wavelength : float
+            Incident wavelength, in Angstrom (the absorption cross
+            section is wavelength-dependent).
+        volume : float, optional
+            Sample volume (cm^3), for shapes whose Mantid ``Sample``
+            object can't report its own volume -- in practice only the
+            ellipsoid (a ``MeshObject``, which exposes no ``volume()``
+            method), whose volume is instead computed from the PyVista
+            mesh in :meth:`write_ellipsoid_stl`. If None, the volume is
+            read directly from the sample shape (CSG shapes only).
+
+        Returns
+        -------
+        abs_dict : dict
+            Dictionary with keys:
+
+            - ``sigma_a`` : float, absorption cross section (barn).
+            - ``sigma_s`` : float, total scattering cross section (barn).
+            - ``mu_a`` : float, linear absorption coefficient (1/cm).
+            - ``mu_s`` : float, linear scattering coefficient (1/cm).
+            - ``N`` : float, total number of atoms.
+            - ``M`` : float, relative molecular mass (g/mol).
+            - ``n`` : float, effective number density (1/Angstrom^3).
+            - ``rho`` : float, mass density (g/cm^3).
+            - ``V`` : float, sample volume (cm^3).
+            - ``m`` : float, sample mass (g).
+        """
+        mat = mtd[self.PEAKS_WORKSPACE].sample().getMaterial()
+
+        sigma_a = mat.absorbXSection(wavelength)
+        sigma_s = mat.totalScatterXSection()
+
+        M = mat.relativeMolecularMass()
+        n = mat.numberDensityEffective
+        N = mat.totalAtoms
+
+        if volume is None:
+            shape = mtd[self.PEAKS_WORKSPACE].sample().getShape()
+            V = abs(shape.volume() * 100**3)
+        else:
+            V = volume
+
+        rho = (n / N) / 0.6022 * M
+        m = rho * V
+
+        mu_s = n * sigma_s
+        mu_a = n * sigma_a
+
+        return {
+            "sigma_a": sigma_a,
+            "sigma_s": sigma_s,
+            "mu_a": mu_a,
+            "mu_s": mu_s,
+            "N": N,
+            "M": M,
+            "n": n,
+            "rho": rho,
+            "V": V,
+            "m": m,
+        }
+
+    def sample_mesh(self):
+        """
+        Return the triangulated mesh of the sample shape for visualization.
+
+        Returns
+        -------
+        mesh : ndarray
+            Array of triangle vertices describing the sample shape mesh,
+            scaled from meters to centimeters.
+        """
+        shape = mtd[self.PEAKS_WORKSPACE].sample().getShape()
+
+        return shape.getMesh() * 100
+
+    def get_incident_path_length(self, mesh, UB, u_vector):
+        """
+        Sample radius along the incident beam direction.
+
+        Matches ``AddAbsorptionWeightedPathLengths``'s single-path
+        formula (see its C++ source): the total single-path length is
+        the sample's radius along the *outgoing* direction (per point,
+        already used directly as ``|vertex|`` when coloring the mesh)
+        plus a *constant* term -- the sample's radius along the fixed
+        *incident* beam direction. Found by looking up the mesh's own
+        vertex closest to the beam direction (rather than an
+        independent analytic/rotation-matrix calculation), so it is
+        guaranteed self-consistent with the mesh actually being drawn.
+
+        Parameters
+        ----------
+        mesh : (N, 3, 3) ndarray
+            Triangle vertex coordinates, from :meth:`sample_mesh`.
+        UB : (3, 3) ndarray
+            Sample orientation matrix, from :meth:`get_UB_from_vectors`
+            (or ``self.UB``).
+        u_vector : 3-element 1d array-like
+            Beam-direction crystallographic direction (the sample U
+            vector).
+
+        Returns
+        -------
+        r_incident : float
+            Sample radius (cm) along the incident beam direction.
+        """
+        beam_dir = UB @ np.asarray(u_vector, dtype=float)
+        beam_dir /= np.linalg.norm(beam_dir)
+
+        vertices = mesh.reshape(-1, 3)
+        directions = vertices / np.linalg.norm(vertices, axis=1, keepdims=True)
+
+        best = np.argmax(directions @ beam_dir)
+
+        return np.linalg.norm(vertices[best])
 
     def get_crystal_system(self):
         """

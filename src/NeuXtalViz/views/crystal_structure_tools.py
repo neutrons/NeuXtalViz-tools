@@ -19,6 +19,7 @@ from qtpy.QtWidgets import (
 )
 
 from qtpy.QtGui import QDoubleValidator
+from qtpy.QtCore import Qt
 
 import pyvista as pv
 
@@ -29,6 +30,47 @@ from NeuXtalViz.views.periodic_table import PeriodicTableView
 from NeuXtalViz.views.base_view import NeuXtalVizWidget
 
 import qtawesome as qta
+
+
+def _cubehelix_colormap(
+    start_hue=240.0,
+    end_hue=-300.0,
+    min_sat=1.0,
+    max_sat=2.5,
+    min_light=0.3,
+    max_light=0.8,
+    gamma=0.9,
+    n=256,
+):
+    """
+    Cubehelix color scheme matching palettable's ``Cubehelix.make``
+    (github.com/jiffyclub/palettable), computed directly since
+    palettable isn't installed here. Defaults reproduce its
+    "perceptual_rainbow_16" preset: ``start``/``rotation`` are derived
+    from ``start_hue``/``end_hue`` the same way palettable does, and
+    lightness/saturation are each swept over their own explicit range
+    rather than vanishing at the endpoints (as in the classic Dave
+    Green (2011) cubehelix), so hues stay vivid all the way to the
+    ends instead of fading to gray.
+    """
+    start = (start_hue / 360.0 - 1.0) * 3.0
+    rotation = end_hue / 360.0 - start / 3.0 - 1.0
+
+    lam = np.linspace(min_light, max_light, n)
+    lam_gamma = lam**gamma
+
+    phi = 2.0 * np.pi * (start / 3.0 + rotation * lam)
+
+    sat = np.linspace(min_sat, max_sat, n)
+    a = sat * lam_gamma * (1.0 - lam_gamma) / 2.0
+
+    r = lam_gamma + a * (-0.14861 * np.cos(phi) + 1.78277 * np.sin(phi))
+    g = lam_gamma + a * (-0.29227 * np.cos(phi) - 0.90649 * np.sin(phi))
+    b = lam_gamma + a * (1.97294 * np.cos(phi))
+
+    rgb = np.clip(np.stack([r, g, b], axis=1), 0, 1)
+
+    return matplotlib.colors.ListedColormap(rgb)
 
 
 class CrystalStructureView(NeuXtalVizWidget):
@@ -57,6 +99,7 @@ class CrystalStructureView(NeuXtalVizWidget):
 
         self.structure_tab()
         self.factors_tab()
+        self.absorption_tab()
 
         self.layout().addWidget(self.tab_widget, stretch=1)
 
@@ -405,6 +448,350 @@ class CrystalStructureView(NeuXtalVizWidget):
             "Calculate structure factor for the specified hkl."
         )
 
+    def absorption_tab(self):
+        """
+        Build the "Absorption" tab layout and widgets.
+
+        Constructs the ellipsoid dimension fields, wavelength and
+        d-min fields with a calculate button, the transmission results
+        table, the beam-/shape-orientation vector fields, the
+        CIF-derived (read-only) material fields, and the
+        absorption/scattering info panel, and adds them to the tab
+        widget.
+        """
+
+        abs_tab = QWidget()
+        self.tab_widget.addTab(abs_tab, "Absorption")
+
+        abs_layout = QVBoxLayout()
+
+        notation = QDoubleValidator.StandardNotation
+
+        # --- Ellipsoid dimensions --------------------------------------
+        validator = QDoubleValidator(0, 100, 5, notation=notation)
+
+        param1_label = QLabel("Thickness", self)
+        param2_label = QLabel("Width", self)
+        param3_label = QLabel("Height", self)
+
+        unit_label = QLabel("mm", self)
+
+        self.abs_param1_line = QLineEdit("1.0")
+        self.abs_param2_line = QLineEdit("1.0")
+        self.abs_param3_line = QLineEdit("1.0")
+
+        self.abs_param1_line.setValidator(validator)
+        self.abs_param2_line.setValidator(validator)
+        self.abs_param3_line.setValidator(validator)
+
+        shape_layout = QHBoxLayout()
+        shape_layout.addWidget(param1_label)
+        shape_layout.addWidget(self.abs_param1_line)
+        shape_layout.addWidget(param2_label)
+        shape_layout.addWidget(self.abs_param2_line)
+        shape_layout.addWidget(param3_label)
+        shape_layout.addWidget(self.abs_param3_line)
+        shape_layout.addWidget(unit_label)
+        shape_layout.addStretch(1)
+
+        # --- Wavelength / d-min / Calculate (same row as shape) --------
+        wavelength_label = QLabel("λ", self)
+        dmin_label = QLabel("d(min)", self)
+        angstrom_label = QLabel("Å", self)
+
+        self.abs_wavelength_line = QLineEdit("1.5", self)
+        self.abs_wavelength_line.setValidator(
+            QDoubleValidator(0.1, 20, 4, notation=notation)
+        )
+
+        self.abs_dmin_line = QLineEdit(self)
+        self.abs_dmin_line.setValidator(
+            QDoubleValidator(0.1, 1000, 4, notation=notation)
+        )
+        self.abs_dmin_line.setPlaceholderText("d-min (Å)")
+
+        self.abs_calculate_button = QPushButton("Calculate", self)
+        self.abs_calculate_button.setIcon(qta.icon("fa6s.calculator"))
+
+        shape_layout.addWidget(wavelength_label)
+        shape_layout.addWidget(self.abs_wavelength_line)
+        shape_layout.addWidget(dmin_label)
+        shape_layout.addWidget(self.abs_dmin_line)
+        shape_layout.addWidget(angstrom_label)
+        shape_layout.addWidget(self.abs_calculate_button)
+
+        # --- Results table ---------------------------------------------
+        stretch = QHeaderView.Stretch
+
+        self.abs_table = QTableWidget()
+        self.abs_table.setRowCount(0)
+        self.abs_table.setColumnCount(6)
+        self.abs_table.horizontalHeader().setSectionResizeMode(stretch)
+        self.abs_table.setHorizontalHeaderLabels(
+            ["h", "k", "l", "d", "T", "T-bar"]
+        )
+        self.abs_table.setEditTriggers(QTableWidget.NoEditTriggers)
+
+        # --- Sample orientation (defines the crystal's own U matrix) ----
+        a_star_label1 = QLabel("a*", self)
+        b_star_label1 = QLabel("b*", self)
+        c_star_label1 = QLabel("c*", self)
+
+        sample_orient_label = QLabel("Sample Orientation", self)
+        sample_u_label = QLabel("Beam Direction:", self)
+        sample_v_label = QLabel("In-plane Direction:", self)
+
+        self.abs_sample_hu_line = QLineEdit("0")
+        self.abs_sample_ku_line = QLineEdit("0")
+        self.abs_sample_lu_line = QLineEdit("1")
+
+        self.abs_sample_hv_line = QLineEdit("1")
+        self.abs_sample_kv_line = QLineEdit("0")
+        self.abs_sample_lv_line = QLineEdit("0")
+
+        sample_orient_layout = QGridLayout()
+
+        sample_orient_layout.addWidget(
+            sample_orient_label, 0, 0, Qt.AlignCenter
+        )
+        sample_orient_layout.addWidget(a_star_label1, 0, 1, Qt.AlignCenter)
+        sample_orient_layout.addWidget(b_star_label1, 0, 2, Qt.AlignCenter)
+        sample_orient_layout.addWidget(c_star_label1, 0, 3, Qt.AlignCenter)
+
+        sample_orient_layout.addWidget(sample_u_label, 1, 0)
+        sample_orient_layout.addWidget(self.abs_sample_hu_line, 1, 1)
+        sample_orient_layout.addWidget(self.abs_sample_ku_line, 1, 2)
+        sample_orient_layout.addWidget(self.abs_sample_lu_line, 1, 3)
+        sample_orient_layout.addWidget(sample_v_label, 2, 0)
+        sample_orient_layout.addWidget(self.abs_sample_hv_line, 2, 1)
+        sample_orient_layout.addWidget(self.abs_sample_kv_line, 2, 2)
+        sample_orient_layout.addWidget(self.abs_sample_lv_line, 2, 3)
+
+        # --- Shape orientation (orients the shape mesh) ------------------
+        a_star_label2 = QLabel("a*", self)
+        b_star_label2 = QLabel("b*", self)
+        c_star_label2 = QLabel("c*", self)
+
+        shape_orient_label = QLabel("Shape Orientation", self)
+        shape_u_label = QLabel("Along Thickness:", self)
+        shape_v_label = QLabel("In-plane Lateral:", self)
+
+        self.abs_shape_hu_line = QLineEdit("0")
+        self.abs_shape_ku_line = QLineEdit("0")
+        self.abs_shape_lu_line = QLineEdit("1")
+
+        self.abs_shape_hv_line = QLineEdit("1")
+        self.abs_shape_kv_line = QLineEdit("0")
+        self.abs_shape_lv_line = QLineEdit("0")
+
+        shape_orient_layout = QGridLayout()
+
+        shape_orient_layout.addWidget(shape_orient_label, 0, 0, Qt.AlignCenter)
+        shape_orient_layout.addWidget(a_star_label2, 0, 1, Qt.AlignCenter)
+        shape_orient_layout.addWidget(b_star_label2, 0, 2, Qt.AlignCenter)
+        shape_orient_layout.addWidget(c_star_label2, 0, 3, Qt.AlignCenter)
+
+        shape_orient_layout.addWidget(shape_u_label, 1, 0)
+        shape_orient_layout.addWidget(self.abs_shape_hu_line, 1, 1)
+        shape_orient_layout.addWidget(self.abs_shape_ku_line, 1, 2)
+        shape_orient_layout.addWidget(self.abs_shape_lu_line, 1, 3)
+        shape_orient_layout.addWidget(shape_v_label, 2, 0)
+        shape_orient_layout.addWidget(self.abs_shape_hv_line, 2, 1)
+        shape_orient_layout.addWidget(self.abs_shape_kv_line, 2, 2)
+        shape_orient_layout.addWidget(self.abs_shape_lv_line, 2, 3)
+
+        # --- Material (read-only, auto-filled from the loaded CIF) ------
+        material_layout = QHBoxLayout()
+
+        self.abs_chem_line = QLineEdit()
+        self.abs_Z_line = QLineEdit()
+        self.abs_V_line = QLineEdit()
+
+        self.abs_chem_line.setReadOnly(True)
+        self.abs_Z_line.setReadOnly(True)
+        self.abs_V_line.setReadOnly(True)
+
+        self.abs_chem_line.setPlaceholderText("Chemical formula")
+        self.abs_Z_line.setPlaceholderText("Z")
+        self.abs_V_line.setPlaceholderText("Ω (Å³)")
+
+        Z_label = QLabel("Z")
+        V_label = QLabel("Ω")
+        uc_vol_label = QLabel("Å^3")
+
+        material_layout.addWidget(self.abs_chem_line)
+        material_layout.addWidget(Z_label)
+        material_layout.addWidget(self.abs_Z_line)
+        material_layout.addWidget(V_label)
+        material_layout.addWidget(self.abs_V_line)
+        material_layout.addWidget(uc_vol_label)
+
+        # --- Absorption / scattering info panel (read-only) --------------
+        cryst_layout = QGridLayout()
+
+        scattering_label = QLabel("Scattering", self)
+        absorption_label = QLabel("Absorption", self)
+
+        sigma_label = QLabel("σ", self)
+        mu_label = QLabel("μ", self)
+
+        sigma_unit_label = QLabel("barn", self)
+        mu_unit_label = QLabel("1/cm", self)
+
+        self.abs_sigma_a_line = QLineEdit()
+        self.abs_sigma_s_line = QLineEdit()
+
+        self.abs_mu_a_line = QLineEdit()
+        self.abs_mu_s_line = QLineEdit()
+
+        self.abs_sigma_a_line.setReadOnly(True)
+        self.abs_sigma_s_line.setReadOnly(True)
+        self.abs_mu_a_line.setReadOnly(True)
+        self.abs_mu_s_line.setReadOnly(True)
+
+        cryst_layout.addWidget(scattering_label, 0, 1, Qt.AlignCenter)
+        cryst_layout.addWidget(absorption_label, 0, 2, Qt.AlignCenter)
+
+        cryst_layout.addWidget(sigma_label, 1, 0)
+        cryst_layout.addWidget(self.abs_sigma_a_line, 1, 1)
+        cryst_layout.addWidget(self.abs_sigma_s_line, 1, 2)
+        cryst_layout.addWidget(sigma_unit_label, 1, 3)
+
+        cryst_layout.addWidget(mu_label, 2, 0)
+        cryst_layout.addWidget(self.abs_mu_a_line, 2, 1)
+        cryst_layout.addWidget(self.abs_mu_s_line, 2, 2)
+        cryst_layout.addWidget(mu_unit_label, 2, 3)
+
+        N_label = QLabel("N", self)
+        M_label = QLabel("M", self)
+        n_label = QLabel("n", self)
+        rho_label = QLabel("rho", self)
+        v_label = QLabel("V", self)
+        m_label = QLabel("m", self)
+
+        N_unit_label = QLabel("atoms", self)
+        M_unit_label = QLabel("g/mol", self)
+        n_unit_label = QLabel("1/Å^3", self)
+        rho_unit_label = QLabel("g/cm^3", self)
+        v_unit_label = QLabel("cm^3", self)
+        m_unit_label = QLabel("g", self)
+
+        self.abs_N_line = QLineEdit()
+        self.abs_M_line = QLineEdit()
+        self.abs_n_line = QLineEdit()
+        self.abs_rho_line = QLineEdit()
+        self.abs_v_line = QLineEdit()
+        self.abs_m_line = QLineEdit()
+
+        for w in (
+            self.abs_N_line,
+            self.abs_M_line,
+            self.abs_n_line,
+            self.abs_rho_line,
+            self.abs_v_line,
+            self.abs_m_line,
+        ):
+            w.setReadOnly(True)
+
+        cryst_layout.addWidget(N_label, 3, 0)
+        cryst_layout.addWidget(self.abs_N_line, 3, 1)
+        cryst_layout.addWidget(N_unit_label, 3, 2)
+
+        cryst_layout.addWidget(M_label, 4, 0)
+        cryst_layout.addWidget(self.abs_M_line, 4, 1)
+        cryst_layout.addWidget(M_unit_label, 4, 2)
+
+        cryst_layout.addWidget(n_label, 5, 0)
+        cryst_layout.addWidget(self.abs_n_line, 5, 1)
+        cryst_layout.addWidget(n_unit_label, 5, 2)
+
+        cryst_layout.addWidget(rho_label, 6, 0)
+        cryst_layout.addWidget(self.abs_rho_line, 6, 1)
+        cryst_layout.addWidget(rho_unit_label, 6, 2)
+
+        cryst_layout.addWidget(v_label, 7, 0)
+        cryst_layout.addWidget(self.abs_v_line, 7, 1)
+        cryst_layout.addWidget(v_unit_label, 7, 2)
+
+        cryst_layout.addWidget(m_label, 8, 0)
+        cryst_layout.addWidget(self.abs_m_line, 8, 1)
+        cryst_layout.addWidget(m_unit_label, 8, 2)
+
+        abs_layout.addLayout(shape_layout)
+        abs_layout.addWidget(self.abs_table)
+        abs_layout.addLayout(sample_orient_layout)
+        abs_layout.addLayout(shape_orient_layout)
+        abs_layout.addLayout(material_layout)
+        abs_layout.addLayout(cryst_layout)
+
+        abs_tab.setLayout(abs_layout)
+
+        self.abs_param1_line.setToolTip("Set the ellipsoid thickness (mm).")
+        self.abs_param2_line.setToolTip("Set the ellipsoid width (mm).")
+        self.abs_param3_line.setToolTip("Set the ellipsoid height (mm).")
+        self.abs_wavelength_line.setToolTip(
+            "Incident wavelength (Å) for the monochromatic rotation "
+            "experiment."
+        )
+        self.abs_dmin_line.setToolTip(
+            "Minimum d-spacing (Å) for the predicted reflections."
+        )
+        self.abs_calculate_button.setToolTip(
+            "Predict the goniometer setting and transmission/absorption "
+            "for every reflection out to d-min."
+        )
+        self.abs_table.setToolTip(
+            "Predicted transmission (T) and absorption-weighted path "
+            "length (T-bar, cm) per reflection, sorted by d-spacing."
+        )
+        self.abs_sample_hu_line.setToolTip(
+            "h-index of the crystallographic direction to align with "
+            "the beam direction (independent of the shape orientation)."
+        )
+        self.abs_sample_ku_line.setToolTip(
+            "k-index of the beam direction vector."
+        )
+        self.abs_sample_lu_line.setToolTip(
+            "l-index of the beam direction vector."
+        )
+        self.abs_sample_hv_line.setToolTip(
+            "h-index of the in-plane direction vector."
+        )
+        self.abs_sample_kv_line.setToolTip(
+            "k-index of the in-plane direction vector."
+        )
+        self.abs_sample_lv_line.setToolTip(
+            "l-index of the in-plane direction vector."
+        )
+        self.abs_shape_hu_line.setToolTip(
+            "h-index of the crystallographic direction along the "
+            "shape's thickness."
+        )
+        self.abs_shape_ku_line.setToolTip("k-index of the shape U vector.")
+        self.abs_shape_lu_line.setToolTip("l-index of the shape U vector.")
+        self.abs_shape_hv_line.setToolTip("h-index of the shape V vector.")
+        self.abs_shape_kv_line.setToolTip("k-index of the shape V vector.")
+        self.abs_shape_lv_line.setToolTip("l-index of the shape V vector.")
+        self.abs_chem_line.setToolTip(
+            "Chemical formula, auto-filled from the loaded CIF."
+        )
+        self.abs_Z_line.setToolTip(
+            "Z parameter, auto-filled from the loaded CIF."
+        )
+        self.abs_V_line.setToolTip(
+            "Unit cell volume (Å^3), auto-filled from the loaded CIF."
+        )
+        self.abs_sigma_a_line.setToolTip("Absorption cross-section (barn).")
+        self.abs_sigma_s_line.setToolTip("Scattering cross-section (barn).")
+        self.abs_mu_a_line.setToolTip("Linear absorption coefficient (1/cm).")
+        self.abs_mu_s_line.setToolTip("Linear scattering coefficient (1/cm).")
+        self.abs_N_line.setToolTip("Number of atoms in the unit cell.")
+        self.abs_M_line.setToolTip("Molar mass of the material (g/mol).")
+        self.abs_n_line.setToolTip("Effective number density (1/Å^3).")
+        self.abs_rho_line.setToolTip("Mass density (g/cm^3).")
+        self.abs_v_line.setToolTip("Sample volume (cm^3).")
+        self.abs_m_line.setToolTip("Sample mass (g).")
+
     def connect_save_INS(self, save_INS):
         """
         Connect the save INS button to a handler.
@@ -470,6 +857,19 @@ class CrystalStructureView(NeuXtalVizWidget):
         """
 
         self.individual_button.clicked.connect(calculate_hkl)
+
+    def connect_calculate_absorption(self, calculate_absorption):
+        """
+        Connect the absorption calculate button to a handler.
+
+        Parameters
+        ----------
+        calculate_absorption : callable
+            Slot invoked when the absorption calculate button is
+            clicked.
+        """
+
+        self.abs_calculate_button.clicked.connect(calculate_absorption)
 
     def connect_row_highligter(self, highlight_row):
         """
@@ -1295,3 +1695,292 @@ class CrystalStructureView(NeuXtalVizWidget):
         """
 
         return PeriodicTableView()
+
+    def set_absorption_shape_constants(self, params):
+        """
+        Populate the ellipsoid dimension fields.
+
+        Parameters
+        ----------
+        params : list of float
+            Thickness, width, and height values (mm), in that order.
+        """
+
+        self.abs_param1_line.setText("{:.2f}".format(params[0]))
+        self.abs_param2_line.setText("{:.2f}".format(params[1]))
+        self.abs_param3_line.setText("{:.2f}".format(params[2]))
+
+    def get_absorption_shape_constants(self):
+        """
+        Ellipsoid dimension values entered by the user.
+
+        Returns
+        -------
+        params : list of float or None
+            Thickness, width, and height values (mm), or None if any
+            field has invalid input.
+        """
+
+        params = (
+            self.abs_param1_line,
+            self.abs_param2_line,
+            self.abs_param3_line,
+        )
+
+        if all(param.hasAcceptableInput() for param in params):
+            return [float(param.text()) for param in params]
+
+    def get_wavelength(self):
+        """
+        Incident wavelength entered by the user, if valid.
+
+        Returns
+        -------
+        wavelength : float or None
+            Wavelength (Å), or None if the field does not currently
+            contain acceptable input.
+        """
+
+        if self.abs_wavelength_line.hasAcceptableInput():
+            return float(self.abs_wavelength_line.text())
+
+    def get_absorption_d_min(self):
+        """
+        Minimum d-spacing entered by the user, if valid.
+
+        Returns
+        -------
+        d_min : float or None
+            Minimum d-spacing (Å), or None if the field does not
+            currently contain acceptable input.
+        """
+
+        if self.abs_dmin_line.hasAcceptableInput():
+            return float(self.abs_dmin_line.text())
+
+    def get_absorption_sample_vectors(self):
+        """
+        Beam-/in-plane-direction vectors entered by the user.
+
+        These define the crystal's own orientation for the absorption
+        prediction, independent of :meth:`get_absorption_shape_vectors`
+        (which orients the shape mesh).
+
+        Returns
+        -------
+        u_vector : list of float
+            Reciprocal lattice indices (h, k, l) of the beam direction.
+        v_vector : list of float
+            Reciprocal lattice indices (h, k, l) of the in-plane
+            direction.
+        """
+
+        params = (
+            self.abs_sample_hu_line,
+            self.abs_sample_ku_line,
+            self.abs_sample_lu_line,
+            self.abs_sample_hv_line,
+            self.abs_sample_kv_line,
+            self.abs_sample_lv_line,
+        )
+
+        if all(param.hasAcceptableInput() for param in params):
+            vals = [float(param.text()) for param in params]
+            return vals[0:3], vals[3:6]
+
+    def get_absorption_shape_vectors(self):
+        """
+        Shape-orientation U/V vectors entered by the user.
+
+        Returns
+        -------
+        u_vector : list of float
+            Reciprocal lattice indices (h, k, l) of the direction along
+            the sample thickness (the shape's face normal).
+        v_vector : list of float
+            Reciprocal lattice indices (h, k, l) of an in-plane lateral
+            direction.
+        """
+
+        params = (
+            self.abs_shape_hu_line,
+            self.abs_shape_ku_line,
+            self.abs_shape_lu_line,
+            self.abs_shape_hv_line,
+            self.abs_shape_kv_line,
+            self.abs_shape_lv_line,
+        )
+
+        if all(param.hasAcceptableInput() for param in params):
+            vals = [float(param.text()) for param in params]
+            return vals[0:3], vals[3:6]
+
+    def set_material_display(self, chemical_formula, z_parameter, volume):
+        """
+        Populate the (read-only) absorption-tab material fields.
+
+        Parameters
+        ----------
+        chemical_formula : str
+            Chemical formula, as returned by the model's
+            ``get_chemical_formula_z_parameter``.
+        z_parameter : float
+            Number of formula units per unit cell.
+        volume : float
+            Unit cell volume (Å^3).
+        """
+
+        self.abs_chem_line.setText(chemical_formula)
+        self.abs_Z_line.setText(str(z_parameter))
+        self.abs_V_line.setText("{:.4f}".format(volume))
+
+    def set_absorption_parameters(self, abs_dict):
+        """
+        Populate the scattering/absorption and material property fields.
+
+        Parameters
+        ----------
+        abs_dict : dict
+            Dictionary with keys "sigma_a", "sigma_s", "mu_a", "mu_s",
+            "N", "M", "n", "rho", "V", and "m" giving the absorption and
+            scattering cross sections, linear coefficients, number of
+            atoms, molar mass, number density, mass density, volume,
+            and mass, respectively.
+        """
+
+        self.abs_sigma_a_line.setText("{:.4f}".format(abs_dict["sigma_a"]))
+        self.abs_sigma_s_line.setText("{:.4f}".format(abs_dict["sigma_s"]))
+
+        self.abs_mu_a_line.setText("{:.4f}".format(abs_dict["mu_a"]))
+        self.abs_mu_s_line.setText("{:.4f}".format(abs_dict["mu_s"]))
+
+        self.abs_N_line.setText("{:.4f}".format(abs_dict["N"]))
+        self.abs_M_line.setText("{:.4f}".format(abs_dict["M"]))
+        self.abs_n_line.setText("{:.4f}".format(abs_dict["n"]))
+        self.abs_rho_line.setText("{:.4f}".format(abs_dict["rho"]))
+        self.abs_v_line.setText("{:.4f}".format(abs_dict["V"]))
+        self.abs_m_line.setText("{:.4f}".format(abs_dict["m"]))
+
+    def set_absorption_results(self, hkls, ds, Ts, Tbars):
+        """
+        Repopulate the absorption results table.
+
+        Parameters
+        ----------
+        hkls : iterable of array-like
+            Miller indices (h, k, l) for each reflection.
+        ds : iterable of float
+            d-spacing (Å) for each reflection.
+        Ts : iterable of float
+            Transmission for each reflection (NaN if unreachable at the
+            chosen wavelength).
+        Tbars : iterable of float
+            Absorption-weighted path length (cm) for each reflection
+            (NaN if unreachable at the chosen wavelength).
+        """
+
+        self.abs_table.setRowCount(0)
+        self.abs_table.setRowCount(len(hkls))
+
+        for row, (hkl, d, T, tbar) in enumerate(zip(hkls, ds, Ts, Tbars)):
+            h, k, l = ["{:.0f}".format(v) for v in hkl]
+            d_str = "{:.4f}".format(d)
+            T_str = "N/A" if np.isnan(T) else "{:.4f}".format(T)
+            tbar_str = "N/A" if np.isnan(tbar) else "{:.4f}".format(tbar)
+            for col, val in enumerate([h, k, l, d_str, T_str, tbar_str]):
+                self.abs_table.setItem(row, col, QTableWidgetItem(val))
+
+    def add_absorption_sample(self, mesh, T, mu, r_incident):
+        """
+        Draw the absorption sample mesh in the 3D view.
+
+        Clears the current scene, adds the sample as a collection of
+        triangles colored by the transmission from the incident beam
+        entering the sample out to each surface point
+        (``exp(-mu*(r_incident + r))``, with a colorbar) -- the same
+        two-leg path used by the model's ``predict_transmission``, an
+        easy, physically meaningful way to show which faces of the
+        shape are most absorbing without hiding the shape itself
+        behind a separate plot. Also adds a*/b*/c* arrows attached to
+        the sample (colored red/green/blue, oriented by ``T``, scaled
+        to the sample's own size), and resets the view.
+
+        Parameters
+        ----------
+        mesh : iterable of array-like
+            Triangle vertex coordinates describing the sample surface
+            mesh, in cm.
+        T : (3, 3) array-like
+            Orientation matrix (unit a*/b*/c* Cartesian columns) from
+            the model's ``get_transform_from_UB``.
+        mu : float
+            Linear attenuation coefficient (1/cm, ``mu_a + mu_s`` from
+            the model's ``get_absorption_dict``) used to color the
+            sample surface by local transmission.
+        r_incident : float
+            Sample radius (cm) along the incident beam direction, from
+            the model's ``get_incident_path_length`` -- the constant
+            leg of the path added to each surface point's own outgoing
+            radius before computing transmission.
+        """
+
+        self.plotter.clear_actors()
+
+        triangles = []
+        for triangle in mesh:
+            tri = pv.Triangle(triangle)
+            radius = np.linalg.norm(triangle, axis=1)
+            tri.point_data["Transmission"] = np.exp(
+                -mu * (r_incident + radius)
+            )
+            triangles.append(tri)
+
+        multiblock = pv.MultiBlock(triangles)
+
+        self.plotter.add_composite(
+            multiblock,
+            scalars="Transmission",
+            cmap=_cubehelix_colormap(),
+            clim=[0, 1],
+            smooth_shading=True,
+            show_scalar_bar=True,
+            scalar_bar_args={"title": "T"},
+        )
+
+        self.plotter.add_legend_scale(
+            corner_offset_factor=2,
+            bottom_border_offset=50,
+            top_border_offset=50,
+            left_border_offset=100,
+            right_border_offset=100,
+            legend_visibility=True,
+            xy_label_mode=False,
+        )
+
+        T = np.array(T)
+        vertices = np.asarray(mesh).reshape(-1, 3)
+        extent = np.linalg.norm(vertices, axis=1).max()
+        length = 1.5 * extent
+
+        labels = ["a*", "b*", "c*"]
+        colors = ["r", "g", "b"]
+        points = []
+        for i in range(3):
+            direction = T[:, i]
+            arrow = pv.Arrow(
+                start=[0.0, 0.0, 0.0], direction=direction, scale=length
+            )
+            self.plotter.add_mesh(arrow, color=colors[i], smooth_shading=True)
+            points.append(direction / np.linalg.norm(direction) * length)
+
+        self.plotter.add_point_labels(
+            points,
+            labels,
+            text_color="k",
+            font_size=20,
+            shape=None,
+            always_visible=True,
+            show_points=False,
+        )
+
+        self.reset_view()

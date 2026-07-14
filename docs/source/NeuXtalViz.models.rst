@@ -36,14 +36,6 @@ NeuXtalViz.models.periodic\_table module
    :undoc-members:
    :show-inheritance:
 
-NeuXtalViz.models.sample\_tools module
---------------------------------------
-
-.. automodule:: NeuXtalViz.models.sample_tools
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 NeuXtalViz.models.ub\_tools module
 ----------------------------------
 

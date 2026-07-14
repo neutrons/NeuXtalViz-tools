@@ -215,6 +215,14 @@ class NeuXtalVizWidget(QWidget):
 
         self.plotter.enable_parallel_projection()
 
+        # theme_combo's initial selection (above) is set before its
+        # currentIndexChanged signal is connected, so it never actually
+        # triggers update_theme()/plt.style.use(...). Without this, a
+        # dark-mode startup would show "dark" selected while matplotlib
+        # canvases (created by subclasses after this __init__ returns)
+        # still picked up whatever style happened to be globally active.
+        self.update_theme()
+
     @staticmethod
     def stop_processing(stop_event):
         """
