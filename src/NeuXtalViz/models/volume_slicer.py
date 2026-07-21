@@ -597,10 +597,6 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         signal = mtd["slice"].getSignalArray().T.copy().squeeze()
 
-        # Both reciprocal-space intensity (which can legitimately dip
-        # slightly negative from background subtraction/statistics, or
-        # after Bragg-punch/outlier removal) and real-space (delta-PDF)
-        # signal are signed, so only infinities are clamped.
         signal[np.isinf(signal)] = np.nan
 
         slice_dict["signal"] = signal
@@ -615,9 +611,6 @@ class VolumeSlicerModel(NeuXtalVizModel):
         slice_dict["z"] = value
         slice_dict["space"] = self.active_space
 
-        # hkl for reciprocal-space workspaces; the unitless inv(W).T
-        # factor for real-space (delta-PDF) uvw-style readout. Scale
-        # doesn't matter here (see _basis_matrix), only direction.
         readout_matrix = (
             np.linalg.inv(self.W).T if self.active_space == "real" else self.W
         )
