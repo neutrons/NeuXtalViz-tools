@@ -77,6 +77,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
         self.view.connect_redraw_workspace(self.activate_workspace)
         self.view.connect_delete_workspace(self.delete_workspace)
         self.view.connect_rename_workspace(self.rename_workspace)
+        self.view.connect_save_workspace(self.save_workspace)
         self.view.connect_combine_workspaces(self.combine_workspaces)
 
         self.view.connect_pdf_crystal_system_combo(
@@ -90,6 +91,9 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
         self.view.connect_symmetric_zero(self.update_slice_display)
 
+        self.view.connect_load_bond_cif(self.load_bond_cif)
+        self.view.connect_plot_bond_network(self.plot_bond_network)
+
         self.draw_idle = True
         self.slice_idle = True
         self.cut_idle = True
@@ -99,6 +103,8 @@ class VolumeSlicer(NeuXtalVizPresenter):
         self.karen_idle = True
         self.blur_idle = True
         self.pdf_idle = True
+        self.bond_network_idle = True
+        self.bond_cif_loaded = False
 
         self.update_pdf_space_groups()
 
@@ -1010,6 +1016,13 @@ class VolumeSlicer(NeuXtalVizPresenter):
         )
         self.view.update_workspace_list(names)
 
+        real_names = [
+            name
+            for name, entry in self.model.workspace_registry.items()
+            if entry.get("space") == "real"
+        ]
+        self.view.update_bond_pdf_workspace_combo(real_names)
+
     def activate_workspace(self):
         """
         Make the workspace combo's current selection the active workspace.
@@ -1109,6 +1122,29 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
         self.model.rename_workspace(old_name, new_name)
         self.refresh_workspace_lists()
+
+    def save_workspace(self):
+        """
+        Save the workspace currently selected in the management list.
+
+        Prompts for a destination file, pre-filled with the
+        workspace's display name.
+
+        Parameters
+        ----------
+        None
+        """
+        display_name = self.view.get_selected_workspace_for_management()
+
+        if not display_name:
+            return
+
+        filename = self.view.save_md_file_dialog(default_name=display_name)
+
+        if not filename:
+            return
+
+        self.model.save_md_workspace(display_name, filename)
 
     def combine_workspaces(self):
         """
@@ -1391,3 +1427,156 @@ class VolumeSlicer(NeuXtalVizPresenter):
         if result is not None:
             self.refresh_workspace_lists()
         self.pdf_idle = True
+
+    def load_bond_cif(self):
+        """
+        Prompt for a CIF file and load it for the bond-network viewer.
+
+        Runs on a worker thread (symmetry expansion of every site can
+        take a moment for a large asymmetric unit). On success,
+        populates the atom-site table -- the bond network itself is
+        only (re)built when "Plot Bond Network" is clicked.
+
+        Parameters
+        ----------
+        None
+        """
+        filename = self.view.load_bond_cif_file_dialog()
+
+        if not filename:
+            return
+
+        self._bond_cif_file = filename
+
+        worker = self.view.worker(
+            functools.partial(self.model.load_bond_cif, filename)
+        )
+        worker.connect_result(self.load_bond_cif_complete)
+        worker.connect_finished(self.update_complete)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def load_bond_cif_complete(self, result):
+        """
+        Populate the atom-site table after a CIF finishes loading.
+
+        Parameters
+        ----------
+        result : list of dict or None
+            Sites returned by `VolumeSlicerModel.load_bond_cif`, or
+            None if the worker was stopped.
+        """
+        if result is None:
+            return
+
+        self.bond_cif_loaded = True
+        self.view.set_bond_cif_filename(self._bond_cif_file)
+        self.view.set_bond_atom_table(result)
+
+    def plot_bond_network(self):
+        """
+        Build the supercell bond network and draw it in the 3D view.
+
+        Runs on a worker thread (the pairwise-distance search can be
+        slow for a large supercell) -- see
+        `VolumeSlicerModel.build_bond_network`.
+
+        Parameters
+        ----------
+        None
+        """
+        if not self.bond_cif_loaded or not self.bond_network_idle:
+            return
+
+        nx, ny, nz = self.view.get_bond_supercell_extent()
+        tolerance = self.view.get_bond_tolerance()
+        site_enabled = self.view.get_bond_site_enabled()
+
+        self.bond_network_idle = False
+
+        worker = self.view.worker(
+            functools.partial(
+                self.model.build_bond_network,
+                nx,
+                ny,
+                nz,
+                site_enabled,
+                tolerance=tolerance,
+            )
+        )
+        worker.connect_result(self.plot_bond_network_complete)
+        worker.connect_finished(self.update_complete)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def plot_bond_network_complete(self, result):
+        """
+        Chain a second worker to sample ΔPDF correlations, then draw.
+
+        Keeps the (potentially slow) supercell build and the ΔPDF
+        sampling as two separately inspectable/progress-reported
+        steps, rather than drawing immediately.
+
+        Parameters
+        ----------
+        result : dict or None
+            Geometry dictionary from
+            `VolumeSlicerModel.build_bond_network`, or None if the
+            worker was stopped.
+        """
+        if result is None:
+            self.bond_network_idle = True
+            return
+
+        self._bond_geometry = result
+
+        pdf_workspace = self.view.get_bond_pdf_workspace()
+
+        if not pdf_workspace:
+            self.view.set_info(
+                "No 3D-ΔPDF workspace selected -- drew bonds without "
+                "correlation coloring."
+            )
+            self.view.add_bond_network(result)
+            self.bond_network_idle = True
+            return
+
+        worker = self.view.worker(
+            functools.partial(
+                self.model.sample_bond_correlations,
+                result,
+                pdf_workspace,
+            )
+        )
+        worker.connect_result(self.sample_bond_correlations_complete)
+        worker.connect_finished(self.update_complete)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def sample_bond_correlations_complete(self, result):
+        """
+        Draw the bond network, colored by sampled ΔPDF correlation.
+
+        Parameters
+        ----------
+        result : ndarray or None
+            Signed ΔPDF value per bond from
+            `VolumeSlicerModel.sample_bond_correlations`, or None if
+            the selected workspace isn't a registered real-space
+            result (or the worker was stopped) -- either way, the
+            bond network is still drawn, just without correlation
+            coloring.
+        """
+        if result is None:
+            self.view.set_info(
+                "Selected workspace is not a 3D-ΔPDF result -- drew "
+                "bonds without correlation coloring."
+            )
+            self.view.add_bond_network(self._bond_geometry)
+        else:
+            self.view.add_bond_network(self._bond_geometry, result)
+
+        self.bond_network_idle = True

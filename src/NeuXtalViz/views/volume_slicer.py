@@ -16,6 +16,10 @@ from qtpy.QtWidgets import (
     QListWidget,
     QMessageBox,
     QInputDialog,
+    QTableWidget,
+    QTableWidgetItem,
+    QHeaderView,
+    QSpinBox,
 )
 
 from qtpy.QtGui import QDoubleValidator
@@ -558,8 +562,8 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         self.workspace_list_widget = QListWidget(self)
         self.workspace_list_widget.setToolTip(
-            "All loaded/derived workspaces. Select one to rename or "
-            "delete it."
+            "All loaded/derived workspaces. Select one to rename, "
+            "delete, or save it."
         )
 
         manage_button_layout = QHBoxLayout()
@@ -573,8 +577,14 @@ class VolumeSlicerView(NeuXtalVizWidget):
             "Delete the selected workspace."
         )
         self.delete_workspace_button.setIcon(qta.icon("fa6s.trash"))
+        self.save_workspace_button = QPushButton("Save", self)
+        self.save_workspace_button.setToolTip(
+            "Save the selected workspace as an MD (.nxs) file."
+        )
+        self.save_workspace_button.setIcon(qta.icon("fa6s.floppy-disk"))
         manage_button_layout.addWidget(self.rename_workspace_button)
         manage_button_layout.addWidget(self.delete_workspace_button)
+        manage_button_layout.addWidget(self.save_workspace_button)
         manage_button_layout.addStretch(1)
 
         manage_layout.addWidget(self.workspace_list_widget)
@@ -827,9 +837,128 @@ class VolumeSlicerView(NeuXtalVizWidget):
         layout.addLayout(combine_layout)
         layout.addLayout(crystal_layout)
         layout.addLayout(steps_layout)
+        layout.addLayout(self._bond_network_layout())
         layout.addStretch(1)
 
         transform_tab.setLayout(layout)
+
+    def _bond_network_layout(self):
+        """
+        Build the bond-network viewer section of the "3D-ΔPDF" tab.
+
+        Creates the "Load CIF" button/filename display, the checkable
+        atom-site table, the supercell-extent spin boxes, the bond
+        tolerance field, and the "Plot Bond Network" button.
+
+        Returns
+        -------
+        layout : QVBoxLayout
+            Layout containing the bond-network viewer controls.
+        """
+        layout = QVBoxLayout()
+
+        header_layout = QHBoxLayout()
+
+        self.load_bond_cif_button = QPushButton("Load CIF...", self)
+        self.load_bond_cif_button.setToolTip(
+            "Load a crystal structure (CIF) to build a supercell bond "
+            "network, drawn in the shared 3D view."
+        )
+        self.load_bond_cif_button.setIcon(qta.icon("fa6s.folder-open"))
+
+        self.bond_cif_file_label = QLabel("No file loaded", self)
+
+        header_layout.addWidget(self.load_bond_cif_button)
+        header_layout.addWidget(self.bond_cif_file_label)
+        header_layout.addStretch(1)
+
+        self.bond_atom_table = QTableWidget(self)
+        self.bond_atom_table.setColumnCount(6)
+        self.bond_atom_table.setHorizontalHeaderLabels(
+            ["Use", "Label", "Element", "x", "y", "z"]
+        )
+        self.bond_atom_table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch
+        )
+        self.bond_atom_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.bond_atom_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.bond_atom_table.setToolTip(
+            "Asymmetric-unit sites read from the loaded CIF. Uncheck a "
+            "row to exclude that site -- and all of its "
+            "symmetry-equivalent copies -- from the supercell."
+        )
+        self.bond_atom_table.setMaximumHeight(150)
+
+        extent_layout = QHBoxLayout()
+
+        self.bond_nx_spin = QSpinBox(self)
+        self.bond_ny_spin = QSpinBox(self)
+        self.bond_nz_spin = QSpinBox(self)
+
+        axis_names = ("a", "b", "c")
+        for spin, axis in zip(
+            (self.bond_nx_spin, self.bond_ny_spin, self.bond_nz_spin),
+            axis_names,
+        ):
+            spin.setMinimum(1)
+            spin.setMaximum(10)
+            spin.setValue(1)
+            spin.setToolTip(
+                "Number of unit cells to repeat along {} in each "
+                "direction (±N, giving 2N+1 cells total along this "
+                "axis) -- an odd cell count is what keeps the bond "
+                "set centrosymmetric.".format(axis)
+            )
+
+        extent_layout.addWidget(QLabel("Nx:", self))
+        extent_layout.addWidget(self.bond_nx_spin)
+        extent_layout.addWidget(QLabel("Ny:", self))
+        extent_layout.addWidget(self.bond_ny_spin)
+        extent_layout.addWidget(QLabel("Nz:", self))
+        extent_layout.addWidget(self.bond_nz_spin)
+
+        self.bond_tolerance_line = QLineEdit("1e-3", self)
+        self.bond_tolerance_line.setValidator(
+            QDoubleValidator(
+                0.0, 1.0, 6, notation=QDoubleValidator.ScientificNotation
+            )
+        )
+        self.bond_tolerance_line.setToolTip(
+            "Fractional-coordinate tolerance used to collapse "
+            "separation vectors that are effectively the same "
+            "crystallographic bond. Covalent radii are not used here "
+            "-- this tool samples 3D-ΔPDF correlation strength at a "
+            "separation vector, not chemical bonding."
+        )
+
+        self.plot_bond_network_button = QPushButton("Plot Bond Network", self)
+        self.plot_bond_network_button.setIcon(qta.icon("fa6s.diagram-project"))
+        self.plot_bond_network_button.setToolTip(
+            "Build the supercell and bond network from the enabled "
+            "sites and draw it in the 3D view."
+        )
+
+        extent_layout.addWidget(QLabel("Tolerance:", self))
+        extent_layout.addWidget(self.bond_tolerance_line)
+        extent_layout.addWidget(self.plot_bond_network_button)
+
+        self.bond_pdf_workspace_combo = QComboBox(self)
+        self.bond_pdf_workspace_combo.setToolTip(
+            "3D-ΔPDF (real-space) workspace to sample at each bond's "
+            "separation vector and color bonds by (blue/white/red) --"
+            " independent of whichever workspace is active in the "
+            "Slice tab."
+        )
+        self.auto_scale_dropdown(self.bond_pdf_workspace_combo)
+
+        extent_layout.addWidget(QLabel("Workspace:", self))
+        extent_layout.addWidget(self.bond_pdf_workspace_combo)
+
+        layout.addLayout(header_layout)
+        layout.addWidget(self.bond_atom_table)
+        layout.addLayout(extent_layout)
+
+        return layout
 
     def toggle_container(self, state):
         """
@@ -980,6 +1109,17 @@ class VolumeSlicerView(NeuXtalVizWidget):
         """
         self.rename_workspace_button.clicked.connect(rename_workspace)
 
+    def connect_save_workspace(self, save_workspace):
+        """
+        Connect a handler to the "Save" button click.
+
+        Parameters
+        ----------
+        save_workspace : callable
+            Slot invoked when the "Save" button is clicked.
+        """
+        self.save_workspace_button.clicked.connect(save_workspace)
+
     def connect_combine_workspaces(self, combine_workspaces):
         """
         Connect a handler to the "Subtract" button click.
@@ -1046,6 +1186,283 @@ class VolumeSlicerView(NeuXtalVizWidget):
             Slot invoked when the "Transform" button is clicked.
         """
         self.calculate_pdf_button.clicked.connect(calculate_pdf)
+
+    def connect_load_bond_cif(self, load_bond_cif):
+        """
+        Connect a handler to the bond-network viewer's "Load CIF" button.
+
+        Parameters
+        ----------
+        load_bond_cif : callable
+            Slot invoked when the "Load CIF..." button is clicked.
+        """
+        self.load_bond_cif_button.clicked.connect(load_bond_cif)
+
+    def connect_plot_bond_network(self, plot_bond_network):
+        """
+        Connect a handler to the "Plot Bond Network" button click.
+
+        Parameters
+        ----------
+        plot_bond_network : callable
+            Slot invoked when the "Plot Bond Network" button is
+            clicked.
+        """
+        self.plot_bond_network_button.clicked.connect(plot_bond_network)
+
+    def load_bond_cif_file_dialog(self):
+        """
+        Prompt the user for a CIF file path to load for the
+        bond-network viewer.
+
+        Returns
+        -------
+        filename : str
+            Selected file path, or an empty string if the dialog was
+            cancelled.
+        """
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.AnyFile)
+
+        filename, _ = file_dialog.getOpenFileName(
+            self,
+            "Load CIF file",
+            self._get_file_dialog_dir(),
+            "CIF files (*.cif)",
+            options=options,
+        )
+
+        if filename:
+            self._remember_file_dialog_dir(os.path.dirname(filename))
+
+        return filename
+
+    def set_bond_cif_filename(self, filename):
+        """
+        Update the bond-network viewer's loaded-filename display.
+
+        Parameters
+        ----------
+        filename : str
+            Path of the loaded CIF file, or a falsy value to show the
+            "no file loaded" placeholder.
+        """
+        text = os.path.basename(filename) if filename else "No file loaded"
+        self.bond_cif_file_label.setText(text)
+
+    def set_bond_atom_table(self, sites):
+        """
+        Populate the bond-network viewer's atom-site table.
+
+        Parameters
+        ----------
+        sites : list of dict
+            One entry per asymmetric-unit site, as returned by
+            `VolumeSlicerModel.load_bond_cif` (keys ``"label"``,
+            ``"element"``, ``"x"``, ``"y"``, ``"z"``). Every row
+            starts checked (enabled).
+        """
+        self.bond_atom_table.setRowCount(0)
+        self.bond_atom_table.setRowCount(len(sites))
+
+        for row, site in enumerate(sites):
+            checkbox = QCheckBox()
+            checkbox.setChecked(True)
+
+            cell_widget = QWidget()
+            cell_layout = QHBoxLayout(cell_widget)
+            cell_layout.addWidget(checkbox)
+            cell_layout.setAlignment(Qt.AlignCenter)
+            cell_layout.setContentsMargins(0, 0, 0, 0)
+            self.bond_atom_table.setCellWidget(row, 0, cell_widget)
+
+            values = [
+                site["label"],
+                site["element"],
+                "{:.4f}".format(site["x"]),
+                "{:.4f}".format(site["y"]),
+                "{:.4f}".format(site["z"]),
+            ]
+            for col, value in enumerate(values, start=1):
+                item = QTableWidgetItem(value)
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                self.bond_atom_table.setItem(row, col, item)
+
+    def get_bond_site_enabled(self):
+        """
+        Get the checked/unchecked state of every row in the atom-site table.
+
+        Returns
+        -------
+        enabled : list of bool
+            One flag per site, in table order.
+        """
+        enabled = []
+        for row in range(self.bond_atom_table.rowCount()):
+            cell_widget = self.bond_atom_table.cellWidget(row, 0)
+            checkbox = (
+                cell_widget.findChild(QCheckBox) if cell_widget else None
+            )
+            enabled.append(checkbox.isChecked() if checkbox else True)
+        return enabled
+
+    def get_bond_supercell_extent(self):
+        """
+        Get the requested supercell extent along each axis.
+
+        Returns
+        -------
+        nx, ny, nz : int
+            Number of unit cells to show along a, b, c -- see
+            `VolumeSlicerModel.build_bond_network` for how this maps
+            to translations.
+        """
+        return (
+            self.bond_nx_spin.value(),
+            self.bond_ny_spin.value(),
+            self.bond_nz_spin.value(),
+        )
+
+    def get_bond_tolerance(self):
+        """
+        Get the fractional-coordinate bond-matching tolerance.
+
+        Returns
+        -------
+        tolerance : float
+            Value of the tolerance field, or 1e-3 if it does not
+            currently hold valid input.
+        """
+        if self.bond_tolerance_line.hasAcceptableInput():
+            return float(self.bond_tolerance_line.text())
+        return 1e-3
+
+    def get_bond_pdf_workspace(self):
+        """
+        Get the display name selected in the ΔPDF-workspace combo.
+
+        Returns
+        -------
+        display_name : str or None
+            Currently selected display name, or None if the combo is
+            empty (no real-space workspace registered yet).
+        """
+        text = self.bond_pdf_workspace_combo.currentText()
+        return text if text else None
+
+    def update_bond_pdf_workspace_combo(self, display_names):
+        """
+        Repopulate the ΔPDF-workspace combo used for bond coloring.
+
+        Parameters
+        ----------
+        display_names : list of str
+            Display names of registered real-space (3D-ΔPDF)
+            workspaces only -- see
+            `VolumeSlicerModel.workspace_registry`.
+        """
+        current = self.bond_pdf_workspace_combo.currentText()
+
+        self.bond_pdf_workspace_combo.blockSignals(True)
+        self.bond_pdf_workspace_combo.clear()
+        self.bond_pdf_workspace_combo.addItems(display_names)
+        if current in display_names:
+            self.bond_pdf_workspace_combo.setCurrentIndex(
+                display_names.index(current)
+            )
+        self.bond_pdf_workspace_combo.blockSignals(False)
+        self.auto_scale_dropdown(self.bond_pdf_workspace_combo)
+
+    def add_bond_network(self, geometry, bond_values=None):
+        """
+        Draw the supercell unit-cell edges in the shared 3D view, plus
+        one point per bond location colored by its sampled ΔPDF
+        correlation strength (if given).
+
+        The supercell's individual atoms are deliberately not
+        rendered -- for a supercell with more than a few hundred
+        atoms, that's both unnecessary for this tool's purpose (seeing
+        the correlation-colored bond points) and, empirically, far
+        slower to build than the bond points themselves. Bonds
+        themselves are drawn as a true point cloud (a single
+        `pv.PolyData`, GPU point-sprite rendered via
+        `render_points_as_spheres`), the same pattern used by
+        `experiment_planner.add_peaks` -- not one glyphed mesh per
+        point, which is far slower for the hundreds of thousands of
+        bonds a modest supercell can produce.
+
+        Parameters
+        ----------
+        geometry : dict
+            Dictionary as returned by
+            `VolumeSlicerModel.build_bond_network`: ``"bond_vectors"``
+            ((N, 3) array of Cartesian separation vectors, each
+            measured from an implicit origin) and ``"edges"`` (list
+            of (p0, p1) Cartesian line segments for the repeated
+            unit-cell wireframe).
+        bond_values : array-like, optional
+            Signed ΔPDF value per bond (from
+            `VolumeSlicerModel.sample_bond_correlations`), same
+            length/order as ``geometry["bond_vectors"]``. A point is
+            drawn at each bond vector's own position, colored with a
+            diverging (blue/white/red) colormap symmetric about zero
+            and a matching V-shaped opacity (near-zero/white values
+            rendered more translucent, the extremes fully opaque;
+            NaN values drawn gray). If not given, no bond markers are
+            drawn at all -- just the unit-cell wireframe.
+        """
+        self.clear_scene()
+
+        bond_vectors = geometry["bond_vectors"]
+        edges = geometry["edges"]
+
+        if edges:
+            points = []
+            lines = []
+            for a, b in edges:
+                idx = len(points)
+                points.append(a)
+                points.append(b)
+                lines.append([2, idx, idx + 1])
+
+            mesh = pv.PolyData(np.array(points), lines=np.hstack(lines))
+            self.plotter.add_mesh(
+                mesh, color="black", line_width=1, opacity=0.3
+            )
+
+        if (
+            len(bond_vectors)
+            and bond_values is not None
+            and len(bond_values) == len(bond_vectors)
+        ):
+            values = np.asarray(bond_values, dtype=float)
+            finite = values[np.isfinite(values)]
+            lim = np.max(np.abs(finite)) if len(finite) else 1.0
+            if not (lim > 0):
+                lim = 1.0
+
+            point_cloud = pv.PolyData(np.asarray(bond_vectors))
+            point_cloud.point_data["correlation"] = values
+
+            self.plotter.add_mesh(
+                point_cloud,
+                scalars="correlation",
+                cmap="bwr",
+                clim=[-lim, lim],
+                opacity=_sigmoid_symmetric_opacity,
+                nan_color="gray",
+                nan_opacity=0.05,
+                point_size=8,
+                render_points_as_spheres=True,
+                smooth_shading=True,
+                show_scalar_bar=True,
+                scalar_bar_args={"title": "ΔPDF"},
+            )
+
+        self.reset_scene()
 
     def connect_slice_thickness_line(self, update_slice):
         """
@@ -1495,6 +1912,48 @@ class VolumeSlicerView(NeuXtalVizWidget):
             self,
             "Load NXS file",
             self._get_file_dialog_dir(),
+            "NXS files (*.nxs)",
+            options=options,
+        )
+
+        if filename:
+            self._remember_file_dialog_dir(os.path.dirname(filename))
+
+        return filename
+
+    def save_md_file_dialog(self, default_name=""):
+        """
+        Prompt the user for a NeXus (.nxs) file path to save an MD
+        workspace to.
+
+        Parameters
+        ----------
+        default_name : str, optional
+            Display name to pre-fill as the suggested filename.
+
+        Returns
+        -------
+        filename : str
+            Selected file path, or an empty string if the dialog was
+            cancelled.
+        """
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.AnyFile)
+
+        start_dir = self._get_file_dialog_dir()
+        start = (
+            os.path.join(start_dir, default_name + ".nxs")
+            if start_dir
+            else default_name + ".nxs"
+        )
+
+        filename, _ = file_dialog.getSaveFileName(
+            self,
+            "Save MD workspace",
+            start,
             "NXS files (*.nxs)",
             options=options,
         )

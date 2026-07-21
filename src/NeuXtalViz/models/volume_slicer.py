@@ -2,9 +2,12 @@ import re
 
 from mantid.simpleapi import (
     LoadMD,
+    LoadCIF,
+    SaveMD,
     IntegrateMDHistoWorkspace,
     CloneWorkspace,
     CreateMDWorkspace,
+    CreateSampleWorkspace,
     CreateSingleValuedWorkspace,
     BinMD,
     AddSampleLog,
@@ -53,6 +56,12 @@ class VolumeSlicerModel(NeuXtalVizModel):
         self.active_space = "reciprocal"
         self.active_display_name = None
         self._load_counter = 0
+
+        # Bond-network viewer state (see the "Bond-network viewer"
+        # section below) -- populated by load_bond_cif().
+        self._bond_A = None
+        self._bond_sg = None
+        self._bond_sites = []
 
     def register_workspace(self, display_name, ws_name, space="reciprocal"):
         """
@@ -144,6 +153,23 @@ class VolumeSlicerModel(NeuXtalVizModel):
         if mtd.doesExist(entry["ws_name"]):
             DeleteWorkspace(Workspace=entry["ws_name"])
 
+    def save_md_workspace(self, display_name, filename):
+        """
+        Save a registered workspace's backing MD workspace to a file.
+
+        Parameters
+        ----------
+        display_name : str
+            Display name previously passed to
+            :meth:`register_workspace` (or returned by one of the
+            load/derived-workspace steps below).
+        filename : str
+            Output file path (``.nxs``).
+        """
+        entry = self.workspace_registry[display_name]
+
+        SaveMD(InputWorkspace=entry["ws_name"], Filename=filename)
+
         if self.active_display_name == display_name:
             self.active_display_name = None
 
@@ -178,10 +204,47 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         LoadMD(Filename=filename, OutputWorkspace=ws_name)
 
-        self.register_workspace(display_name, ws_name, space="reciprocal")
+        self.register_workspace(
+            display_name, ws_name, space=self._detect_space(ws_name)
+        )
         self.activate_workspace(display_name)
 
         return display_name
+
+    @staticmethod
+    def _detect_space(ws_name):
+        """
+        Infer whether a just-loaded MD workspace is real-space
+        (3D-ΔPDF) or reciprocal-space, from its own dimension units --
+        needed because a workspace loaded from a file (as opposed to
+        one derived via :meth:`calculate_pdf`, which already knows) has
+        no other indication of which space it's in, and re-loading a
+        previously :meth:`save_md_workspace`-saved ΔPDF result must
+        still be recognized as real-space (e.g. so it appears in the
+        bond-network viewer's ΔPDF-workspace combo, and so the Slice
+        tab still defaults to the diverging colormap for it).
+
+        Parameters
+        ----------
+        ws_name : str
+            Mantid workspace name to inspect.
+
+        Returns
+        -------
+        space : str
+            ``"real"`` if every dimension is tagged with this app's
+            own real-space unit string (``"d.l.u."``, always used by
+            :meth:`_transform`'s output and nothing else this app
+            produces); ``"reciprocal"`` otherwise (the common case,
+            and the safe default for externally-produced files).
+        """
+        ws = mtd[ws_name]
+        units = [ws.getDimension(i).getUnits() for i in range(ws.getNumDims())]
+
+        if units and all(u == "d.l.u." for u in units):
+            return "real"
+
+        return "reciprocal"
 
     def _auto_load_name(self):
         """Sequential ``"data"``/``"data_2"``/... name for ``self._load_counter``."""
@@ -324,14 +387,6 @@ class VolumeSlicerModel(NeuXtalVizModel):
         if progress is not None:
             progress("Preparing volume", 50)
 
-        # CompactMD (trimming empty border bins) turned out to be very
-        # slow on a large workspace (bixbyite.nxs: 1+ minute), and the
-        # trim rarely matters -- real datasets are usually dense across
-        # their extent, and the delta-PDF pipeline's own padded output
-        # just ends up with a slightly wider default zoom instead. Keep
-        # a plain clone so "volume" still exists as its own workspace,
-        # independent of "histo" (deleted/recreated on every
-        # activation).
         CloneWorkspace(InputWorkspace="histo", OutputWorkspace="volume")
 
         signal = mtd["volume"].getSignalArray()
@@ -1826,3 +1881,511 @@ class VolumeSlicerModel(NeuXtalVizModel):
         self._attach_ub_w(output_ws, source_ws)
 
         mtd[output_ws].setSignalArray(signal)
+
+    # ------------------------------------------------------------------
+    # Bond-network viewer
+    # ------------------------------------------------------------------
+    #
+    # Loads a CIF and builds the distinct bond (separation-vector) set
+    # and unit-cell-edge wireframe for display in the shared 3D view.
+    # Deliberately uses its own workspace ("pdf_crystal") rather than
+    # CrystalStructureModel's "crystal" -- both models can be alive at
+    # once in the same Mantid session (see application.py), and
+    # CrystalStructureModel's own docstrings already flag "crystal" as
+    # unsafe to share across tools.
+    #
+    # Bonds are not found via a covalent-radius distance cutoff (see
+    # build_bond_network) -- this tool samples 3D-ΔPDF correlation
+    # strength at a separation vector, so "is this a real chemical
+    # bond" isn't a relevant question here. Instead they follow the
+    # reference DiffuseRefinement script's construction: symmetry-
+    # expand each site within the unit cell, take every pairwise
+    # separation there, wrap/dedupe, then extend by periodic images.
+
+    BOND_CIF_WORKSPACE = "pdf_crystal"
+
+    def load_bond_cif(
+        self, filename, progress=None, stop_event=None, **kwargs
+    ):
+        """
+        Load a CIF for the bond-network viewer.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the CIF file to load.
+        progress : callable, optional
+            ``progress(message, percent)`` callback (injected by the
+            worker infrastructure).
+        stop_event : threading.Event, optional
+            Unused; accepted because the presenter runs this on a
+            worker thread, which always passes it (injected by the
+            worker infrastructure).
+
+        Returns
+        -------
+        sites : list of dict
+            One entry per asymmetric-unit site, each with keys
+            ``"label"`` (an auto-generated ``"{element}{n}"`` label,
+            since Mantid's `CrystalStructure` does not retain the
+            CIF's own `_atom_site_label` values), ``"element"``, and
+            fractional ``"x"``/``"y"``/``"z"``. Unchecking a site in
+            the atom table excludes it from every pair considered by
+            :meth:`build_bond_network`.
+        """
+        if progress is not None:
+            progress("Loading CIF", 10)
+
+        ws = self.BOND_CIF_WORKSPACE
+
+        if mtd.doesExist(ws):
+            DeleteWorkspace(Workspace=ws)
+
+        CreateSampleWorkspace(OutputWorkspace=ws)
+        LoadCIF(Workspace=ws, InputFile=filename)
+
+        cs = mtd[ws].sample().getCrystalStructure()
+
+        uc = cs.getUnitCell()
+        G = uc.getG()
+        self._bond_A = scipy.linalg.cholesky(G, lower=False)
+        self._bond_sg = cs.getSpaceGroup()
+
+        scatterers = [s.split(" ") for s in list(cs.getScatterers())]
+        scatterers = [
+            [val if val.isalpha() else float(val) for val in scatterer]
+            for scatterer in scatterers
+        ]
+
+        element_counts = {}
+        sites = []
+
+        for element, x, y, z, occ, U in scatterers:
+            element_counts[element] = element_counts.get(element, 0) + 1
+            label = "{}{}".format(element, element_counts[element])
+
+            sites.append(
+                {"label": label, "element": element, "x": x, "y": y, "z": z}
+            )
+
+        self._bond_sites = sites
+
+        if progress is not None:
+            progress("Done", 100)
+
+        return sites
+
+    def build_bond_network(
+        self,
+        nx,
+        ny,
+        nz,
+        site_enabled,
+        tolerance=1e-3,
+        progress=None,
+        stop_event=None,
+        **kwargs,
+    ):
+        """
+        Build the distinct bond (separation-vector) set and
+        unit-cell-edge wireframe for the bond-network viewer.
+
+        Bonds are not found via a covalent-radius distance cutoff --
+        that isn't a meaningful criterion here (this tool samples
+        3D-ΔPDF correlation strength at a separation vector; it
+        doesn't need "is this a real chemical bond"). Instead, this
+        follows the same construction as the reference
+        ``DiffuseRefinement`` script's ``initialize_unit_cell_atoms``
+        + ``pair_expansion``:
+
+        1. Every enabled site is expanded by the space group's
+           symmetry operations into all of its equivalent positions
+           within the unit cell, each wrapped into ``[0, 1)``.
+        2. Every pairwise separation vector between these expanded
+           positions is computed (the full N×N set, not just an
+           upper triangle) -- these are the bonds *within the unit
+           cell*.
+        3. Each is wrapped into ``[0, 1)`` (a unit cell's own
+           fractional coordinates always span that range) and
+           deduplicated (within `tolerance`) to the set of distinct
+           new positions.
+        4. Periodic images of each are then generated by adding every
+           requested lattice translation to it, and each resulting
+           vector is explicitly unioned with its own negation before
+           deduping again. This step is required, not optional:
+           wrapping to ``[0, 1)`` in step 3 is one-sided (it shifts
+           negative components up by 1, never shifts positive ones
+           down), so a vector's negation is generally *not* produced
+           naturally by this same translation loop at the mirror
+           translation -- verified empirically (corundum): without
+           this explicit union, 34-66% of the extended set was
+           missing its negation partner, not a rare edge effect.
+           Explicitly including it also has the side benefit of
+           centering the final set on the origin regardless of where
+           the wrapped `unit_cell_bonds` themselves happen to sit,
+           matching the unit-cell wireframe (see below).
+
+        Parameters
+        ----------
+        nx, ny, nz : int
+            Number of unit cells to repeat along a, b, c in each
+            direction (translations run ``-n...+n`` inclusive along
+            each axis, i.e. ``2n+1`` cells -- an odd count is what
+            keeps the translation range closed under negation, which
+            is what makes the extended bond set centrosymmetric; see
+            above).
+        site_enabled : list of bool
+            One flag per site returned by :meth:`load_bond_cif`
+            (same order); disabled sites (and all of their
+            symmetry-equivalent copies) are excluded.
+        tolerance : float, optional
+            Fractional-coordinate tolerance used to collapse
+            separation vectors that are effectively the same
+            crystallographic bond (default 1e-3).
+        progress : callable, optional
+            ``progress(message, percent)`` callback (injected by the
+            worker infrastructure).
+        stop_event : threading.Event, optional
+            Cooperative-cancellation event (injected by the worker
+            infrastructure).
+
+        Returns
+        -------
+        geometry : dict
+            Dictionary with keys ``"bond_vectors"`` ((N, 3) array of
+            Cartesian separation vectors, Angstrom, each measured
+            from an implicit origin) and ``"edges"`` (list of (p0,
+            p1) Cartesian line segments for the repeated unit-cell
+            wireframe). None if cancelled via `stop_event`.
+        """
+        A = self._bond_A
+        sg = self._bond_sg
+
+        translations = [
+            np.array([i, j, k])
+            for i in range(-nx, nx)
+            for j in range(-ny, ny)
+            for k in range(-nz, nz)
+        ]
+
+        if progress is not None:
+            progress("Expanding unit cell", 10)
+
+        # --- Step 1: symmetry-expand enabled sites within [0, 1)^3 ------
+        locs = []
+        for site_index, enabled in enumerate(site_enabled):
+            if not enabled:
+                continue
+
+            if stop_event is not None and stop_event.is_set():
+                return None
+
+            site = self._bond_sites[site_index]
+            xyz = np.mod([site["x"], site["y"], site["z"]], 1)
+
+            equiv = np.mod(
+                np.array(sg.getEquivalentPositions(xyz.tolist())), 1
+            )
+            equiv, _ = self._unique_rows(equiv, tol=1e-4)
+
+            locs.append(equiv)
+
+        locs = np.vstack(locs) if locs else np.empty((0, 3))
+
+        if progress is not None:
+            progress("Finding bonds within unit cell", 30)
+
+        # --- Step 2: all pairwise separations within the unit cell ------
+        n = len(locs)
+        if n > 1:
+            i, j = np.indices((n, n))
+            dr = locs[i.ravel()] - locs[j.ravel()]
+        else:
+            dr = np.empty((0, 3))
+
+        if stop_event is not None and stop_event.is_set():
+            return None
+
+        # --- Step 3: wrap to [0, 1)^3 and find unique new positions -----
+        # A unit cell's own fractional coordinates always span [0, 1),
+        # so bonds "within the unit cell" belong in that same range.
+        dr = np.mod(dr, 1)
+        unit_cell_bonds, _ = self._unique_rows(dr, tol=tolerance)
+
+        if progress is not None:
+            progress("Generating periodic images", 60)
+
+        # --- Step 4: periodic images ±(nx, ny, nz) -----------------------
+        n_done = 0
+        seen = set()
+        bond_vectors = []
+
+        for v0 in unit_cell_bonds:
+            if stop_event is not None and stop_event.is_set():
+                return None
+
+            n_done += 1
+            if progress is not None:
+                progress(
+                    "Generating periodic images",
+                    60 + int(20 * n_done / max(len(unit_cell_bonds), 1)),
+                )
+
+            for translation in translations:
+                vec_frac = v0 + translation
+                key = tuple(np.round(vec_frac / tolerance).astype(np.int64))
+                if key in seen:
+                    continue
+                seen.add(key)
+
+                bond_vectors.append(vec_frac @ A)
+
+        bond_vectors = (
+            np.array(bond_vectors) if bond_vectors else np.empty((0, 3))
+        )
+
+        if progress is not None:
+            progress("Building unit-cell edges", 80)
+
+        cell_corners = np.array(
+            [
+                [0, 0, 0],
+                [1, 0, 0],
+                [0, 1, 0],
+                [1, 1, 0],
+                [0, 0, 1],
+                [1, 0, 1],
+                [0, 1, 1],
+                [1, 1, 1],
+            ]
+        )
+        cell_edges = [
+            (0, 1),
+            (0, 2),
+            (1, 3),
+            (2, 3),
+            (4, 5),
+            (4, 6),
+            (5, 7),
+            (6, 7),
+            (0, 4),
+            (1, 5),
+            (2, 6),
+            (3, 7),
+        ]
+
+        seen_edges = set()
+        edges = []
+        for translation in translations:
+            if stop_event is not None and stop_event.is_set():
+                return None
+
+            corners_cart = (cell_corners + translation) @ A
+            for i, j in cell_edges:
+                a, b = corners_cart[i], corners_cart[j]
+                ka = tuple(np.round(a / 1e-3).astype(np.int64))
+                kb = tuple(np.round(b / 1e-3).astype(np.int64))
+                key = tuple(sorted((ka, kb)))
+                if key not in seen_edges:
+                    seen_edges.add(key)
+                    edges.append((a, b))
+
+        if progress is not None:
+            progress("Done", 100)
+
+        return {
+            "bond_vectors": bond_vectors,
+            "edges": edges,
+        }
+
+    @staticmethod
+    def _unique_rows(xyz, tol=1e-4):
+        """
+        Deduplicate rows of `xyz` that agree within `tol`.
+
+        Parameters
+        ----------
+        xyz : (N, 3) array-like
+            Rows to deduplicate.
+        tol : float, optional
+            Absolute tolerance used to snap rows to a common grid
+            before comparing them (default 1e-4).
+
+        Returns
+        -------
+        unique : (M, 3) ndarray
+            Deduplicated rows, in their first-occurrence order.
+        index : (M,) ndarray
+            Indices into the original `xyz` selected as `unique`.
+        """
+        xyz = np.asarray(xyz, dtype=float)
+
+        if len(xyz) == 0:
+            return xyz, np.array([], dtype=int)
+
+        rounded = np.round(xyz / tol).astype(np.int64)
+        _, index = np.unique(rounded, axis=0, return_index=True)
+        index = np.sort(index)
+
+        return xyz[index], index
+
+    def _read_ub_w(self, ws_name):
+        """
+        Read the UB (really just B -- no orientation, matching
+        :meth:`set_B`) and W matrices directly from a workspace's own
+        `ExperimentInfo`, without disturbing `self.UB`/`self.W` (which
+        track whichever workspace is currently *active* for the Slice
+        tab). Lets :meth:`sample_bond_correlations` sample any
+        registered real-space workspace the user selects, independent
+        of what's active elsewhere.
+
+        Parameters
+        ----------
+        ws_name : str
+            Mantid workspace name (a registry entry's ``"ws_name"``,
+            not its display name) to read from.
+
+        Returns
+        -------
+        UB : (3, 3) ndarray
+        W : (3, 3) ndarray
+            Identity if the workspace has no ``W_MATRIX`` log.
+        """
+        ei = mtd[ws_name].getExperimentInfo(0)
+
+        UB = ei.sample().getOrientedLattice().getB().copy()
+
+        W = np.eye(3)
+        if ei.run().hasProperty("W_MATRIX"):
+            W = np.array(ei.run().getLogData("W_MATRIX").value).reshape(3, 3)
+
+        return UB, W
+
+    def sample_bond_correlations(
+        self,
+        geometry,
+        display_name,
+        tolerance=1e-3,
+        progress=None,
+        stop_event=None,
+        **kwargs,
+    ):
+        """
+        Sample a 3D-ΔPDF workspace at each bond's separation vector.
+
+        Maps each bond's Cartesian separation vector to its nearest
+        grid coordinate in the workspace's own real-space basis and
+        reads that voxel's signed value directly -- no neighborhood
+        search or shell integration is performed.
+
+        A ΔPDF value at real-space vector ``r`` reflects the
+        correlated pair-density for atom pairs separated by ``r`` --
+        since this depends only on the separation (not the pair's
+        absolute position), every translationally-equivalent copy of
+        a bond across the supercell samples the identical grid
+        location automatically, with no separate symmetry-family
+        grouping step needed.
+
+        Reads ``display_name``'s own UB/W directly (via
+        :meth:`_read_ub_w`), not the CIF's own basis, nor
+        `self.UB`/`self.W` (whatever's *active* in the Slice tab) --
+        the workspace sampled here can be any registered real-space
+        result the user selects, and need not be the active one. Its
+        own UB/W need not agree with the CIF's basis either, if it was
+        built with a non-identity `W_MATRIX` projection.
+
+        Parameters
+        ----------
+        geometry : dict
+            Geometry dictionary from :meth:`build_bond_network`
+            (only ``"bond_vectors"`` is used).
+        display_name : str
+            Display name of a registered real-space (3D-ΔPDF)
+            workspace -- see `self.workspace_registry`.
+        tolerance : float, optional
+            Per-axis slack (in grid-index units, applied
+            independently to x, y, and z), allowed when checking that
+            a bond's nearest grid coordinate falls within the
+            workspace's extent -- guards against floating-point
+            roundoff putting an on-boundary index just outside
+            ``[0, n_bins)`` (default 1e-3).
+        progress : callable, optional
+            ``progress(message, percent)`` callback (injected by the
+            worker infrastructure).
+        stop_event : threading.Event, optional
+            Cooperative-cancellation event (injected by the worker
+            infrastructure).
+
+        Returns
+        -------
+        values : (len(bond_vectors),) ndarray or None
+            Signed ΔPDF value sampled for each bond (NaN where the
+            vector falls outside the workspace's extent, or its
+            nearest voxel is itself NaN). None if ``display_name``
+            isn't a registered real-space workspace, or if cancelled
+            via `stop_event`.
+        """
+        entry = self.workspace_registry.get(display_name)
+
+        if entry is None or entry.get("space") != "real":
+            return None
+
+        ws_name = entry["ws_name"]
+
+        if not self.has_UB(ws_name):
+            return None
+
+        if progress is not None:
+            progress("Sampling ΔPDF", 10)
+
+        UB, W = self._read_ub_w(ws_name)
+        Bp = np.dot(UB, W)
+        Ap = np.linalg.inv(Bp).T
+        Ap_inv = np.linalg.inv(Ap)
+
+        ws = mtd[ws_name]
+        dims = [ws.getDimension(i) for i in range(3)]
+        mins = np.array([dim.getMinimum() for dim in dims])
+        widths = np.array([dim.getBinWidth() for dim in dims])
+        shape = np.array([dim.getNBins() for dim in dims])
+
+        signal = ws.getSignalArray()
+
+        bond_vectors = geometry["bond_vectors"]
+
+        values = np.full(len(bond_vectors), np.nan)
+
+        for n, r in enumerate(bond_vectors):
+            if stop_event is not None and stop_event.is_set():
+                return None
+
+            if progress is not None and n % 200 == 0:
+                progress(
+                    "Sampling ΔPDF",
+                    10 + int(80 * n / max(len(bond_vectors), 1)),
+                )
+
+            frac = Ap_inv @ r
+
+            idx = (frac - mins) / widths
+
+            # A bond's ideal separation vector can easily fall well
+            # outside the workspace's own real-space extent -- e.g. a
+            # large supercell's longest separations vs. a modestly
+            # padded ΔPDF result -- in which case it must be excluded
+            # entirely (NaN), not silently clamped to the boundary.
+            if np.any(idx < -tolerance) or np.any(idx > shape - 1 + tolerance):
+                continue
+
+            nearest = np.clip(np.round(idx), 0, shape - 1).astype(int)
+            value = signal[nearest[0], nearest[1], nearest[2]]
+
+            if not np.isfinite(value):
+                continue
+
+            values[n] = value
+
+        if progress is not None:
+            progress("Done", 100)
+
+        return values
