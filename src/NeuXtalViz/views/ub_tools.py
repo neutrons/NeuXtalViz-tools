@@ -107,7 +107,7 @@ class UBView(NeuXtalVizWidget):
 
         self.last_highlight = None
         self._highlight_actor = None
-        self._peaks_multiblock = None
+        self._peak_centers = None
         self._inst_click_cid = None
         self._scan_click_cid = None
         self._slice_click_cid = None
@@ -377,9 +377,9 @@ class UBView(NeuXtalVizWidget):
         satellite_layout.addWidget(self.dk3_line, 3, 2)
         satellite_layout.addWidget(self.dl3_line, 3, 3)
 
-        x_label = QLabel("x:")
-        y_label = QLabel("y:")
-        z_label = QLabel("z:")
+        x_label = QLabel("x (In-Plane):")
+        y_label = QLabel("y (Vertical):")
+        z_label = QLabel("z (Beam):")
 
         a_star_label = QLabel("a*")
         b_star_label = QLabel("b*")
@@ -418,6 +418,20 @@ class UBView(NeuXtalVizWidget):
         self.wh_line.setReadOnly(False)
         self.wk_line.setReadOnly(False)
         self.wl_line.setReadOnly(False)
+
+        self.wh_line.setEnabled(False)
+        self.wk_line.setEnabled(False)
+        self.wl_line.setEnabled(False)
+
+        self.wh_line.setToolTip(
+            "Vertical direction, derived from the in-plane and beam directions."
+        )
+        self.wk_line.setToolTip(
+            "Vertical direction, derived from the in-plane and beam directions."
+        )
+        self.wl_line.setToolTip(
+            "Vertical direction, derived from the in-plane and beam directions."
+        )
 
         notation = QDoubleValidator.StandardNotation
 
@@ -665,9 +679,12 @@ class UBView(NeuXtalVizWidget):
         peak_width_label = QLabel("Peak Width:")
         density_threshold_label = QLabel("Min Density:")
         find_edge_label = QLabel("Edge Pixels:")
+        max_peaks_unit_label = QLabel("#")
         distance_unit_label = QLabel("Å⁻¹")
         peak_width_unit_label = QLabel("Å⁻¹")
         angstrom_unit_label = QLabel("Å")
+        density_unit_label = QLabel("×")
+        find_edge_unit_label = QLabel("#")
         self.aluminum_box = QCheckBox("Avoid Aluminum", self)
         self.aluminum_box.setChecked(True)
         self.copper_box = QCheckBox("Avoid Copper", self)
@@ -686,7 +703,8 @@ class UBView(NeuXtalVizWidget):
         self.density_threshold_line = QLineEdit("100")
         self.density_threshold_line.setValidator(validator)
         self.density_threshold_line.setToolTip(
-            "Minimum density threshold for peak finding."
+            "Minimum density threshold for peak finding, as a "
+            "multiplicative factor over the mean signal density."
         )
 
         notation = QDoubleValidator.StandardNotation
@@ -725,21 +743,23 @@ class UBView(NeuXtalVizWidget):
 
         find_params_layout.addWidget(max_peaks_label, 0, 0)
         find_params_layout.addWidget(self.max_peaks_line, 0, 1)
-        find_params_layout.addWidget(min_distance_label, 0, 2)
-        find_params_layout.addWidget(self.min_distance_line, 0, 3)
-        find_params_layout.addWidget(distance_unit_label, 0, 4)
-        find_params_layout.addWidget(max_spacing_label, 1, 2)
-        find_params_layout.addWidget(self.max_spacing_line, 1, 3)
-        find_params_layout.addWidget(angstrom_unit_label, 1, 4)
-        find_params_layout.addWidget(peak_width_label, 2, 2)
-        find_params_layout.addWidget(self.peak_width_line, 2, 3)
-        find_params_layout.addWidget(peak_width_unit_label, 2, 4)
+        find_params_layout.addWidget(max_peaks_unit_label, 0, 2)
+        find_params_layout.addWidget(min_distance_label, 0, 3)
+        find_params_layout.addWidget(self.min_distance_line, 0, 4)
+        find_params_layout.addWidget(distance_unit_label, 0, 5)
+        find_params_layout.addWidget(peak_width_label, 0, 6)
+        find_params_layout.addWidget(self.peak_width_line, 0, 7)
+        find_params_layout.addWidget(peak_width_unit_label, 0, 8)
 
         find_params_layout.addWidget(density_threshold_label, 1, 0)
         find_params_layout.addWidget(self.density_threshold_line, 1, 1)
-
-        find_params_layout.addWidget(find_edge_label, 2, 0)
-        find_params_layout.addWidget(self.find_edge_line, 2, 1)
+        find_params_layout.addWidget(density_unit_label, 1, 2)
+        find_params_layout.addWidget(max_spacing_label, 1, 3)
+        find_params_layout.addWidget(self.max_spacing_line, 1, 4)
+        find_params_layout.addWidget(angstrom_unit_label, 1, 5)
+        find_params_layout.addWidget(find_edge_label, 1, 6)
+        find_params_layout.addWidget(self.find_edge_line, 1, 7)
+        find_params_layout.addWidget(find_edge_unit_label, 1, 8)
 
         self.find_button = QPushButton("Find", self)
         self.find_button.setIcon(qta.icon("fa6s.magnifying-glass"))
@@ -768,7 +788,7 @@ class UBView(NeuXtalVizWidget):
 
         validator = QDoubleValidator(0.01, 1, 5, notation=notation)
 
-        self.index_sat_box = QCheckBox("Satellite", self)
+        self.index_sat_box = QCheckBox("Index Satellite", self)
         self.index_sat_box.setChecked(False)
 
         self.index_tolerance_line = QLineEdit("0.1")
@@ -780,6 +800,12 @@ class UBView(NeuXtalVizWidget):
         self.index_sat_tolerance_line.setToolTip(
             "Tolerance for satellite peak indexing."
         )
+        self.index_sat_tolerance_line.setEnabled(
+            self.index_sat_box.isChecked()
+        )
+        self.index_sat_box.toggled.connect(
+            self.index_sat_tolerance_line.setEnabled
+        )
 
         index_params_layout = QGridLayout()
 
@@ -787,7 +813,8 @@ class UBView(NeuXtalVizWidget):
         index_params_layout.addWidget(self.index_tolerance_line, 0, 1)
         index_params_layout.addWidget(self.index_sat_tolerance_line, 0, 2)
         index_params_layout.addWidget(index_tolerance_unit_label, 0, 3)
-        index_params_layout.addWidget(self.index_sat_box, 1, 2)
+        index_params_layout.addWidget(self.index_sat_box, 0, 4)
+        index_params_layout.setColumnStretch(5, 1)
 
         self.round_box = QCheckBox("Round hkl", self)
         self.round_box.setChecked(True)
@@ -826,11 +853,12 @@ class UBView(NeuXtalVizWidget):
         self.auto_scale_dropdown(self.centering_combo)
 
         min_d_unit_label = QLabel("Å")
+        predict_edge_unit_label = QLabel("#")
 
         min_d_label = QLabel("Min d-spacing:")
         predict_edge_label = QLabel("Edge Pixels:")
 
-        self.predict_sat_box = QCheckBox("Satellite", self)
+        self.predict_sat_box = QCheckBox("Predict Satellite", self)
         self.predict_sat_box.setChecked(False)
         self.predict_sat_box.setToolTip("Enable satellite peak prediction.")
 
@@ -847,6 +875,8 @@ class UBView(NeuXtalVizWidget):
         self.min_sat_d_line.setToolTip(
             "Minimum d-spacing for satellite peaks."
         )
+        self.min_sat_d_line.setEnabled(self.predict_sat_box.isChecked())
+        self.predict_sat_box.toggled.connect(self.min_sat_d_line.setEnabled)
 
         validator = QIntValidator(0, 64, self)
 
@@ -863,13 +893,14 @@ class UBView(NeuXtalVizWidget):
 
         predict_params_layout.addWidget(centering_label, 0, 0)
         predict_params_layout.addWidget(self.centering_combo, 0, 1)
+        predict_params_layout.addWidget(self.predict_sat_box, 0, 2)
         predict_params_layout.addWidget(min_d_label, 1, 0)
         predict_params_layout.addWidget(self.min_d_line, 1, 1)
         predict_params_layout.addWidget(self.min_sat_d_line, 1, 2)
         predict_params_layout.addWidget(min_d_unit_label, 1, 3)
-        predict_params_layout.addWidget(predict_edge_label, 2, 0)
-        predict_params_layout.addWidget(self.predict_edge_line, 2, 1)
-        predict_params_layout.addWidget(self.predict_sat_box, 2, 2)
+        predict_params_layout.addWidget(predict_edge_label, 1, 4)
+        predict_params_layout.addWidget(self.predict_edge_line, 1, 5)
+        predict_params_layout.addWidget(predict_edge_unit_label, 1, 6)
 
         self.predict_button = QPushButton("Predict", self)
         self.predict_button.setIcon(qta.icon("fa6s.bullseye"))
@@ -901,6 +932,8 @@ class UBView(NeuXtalVizWidget):
         inner_label = QLabel("Inner Factor:")
         outer_label = QLabel("Outer Factor:")
         radius_unit_label = QLabel("Å⁻¹")
+        inner_unit_label = QLabel("×")
+        outer_unit_label = QLabel("×")
 
         notation = QDoubleValidator.StandardNotation
 
@@ -930,10 +963,12 @@ class UBView(NeuXtalVizWidget):
         integrate_params_layout.addWidget(radius_label, 0, 0)
         integrate_params_layout.addWidget(self.radius_line, 0, 1)
         integrate_params_layout.addWidget(radius_unit_label, 0, 2)
-        integrate_params_layout.addWidget(inner_label, 2, 0)
-        integrate_params_layout.addWidget(self.inner_line, 2, 1)
-        integrate_params_layout.addWidget(outer_label, 2, 2)
-        integrate_params_layout.addWidget(self.outer_line, 2, 3)
+        integrate_params_layout.addWidget(inner_label, 0, 3)
+        integrate_params_layout.addWidget(self.inner_line, 0, 4)
+        integrate_params_layout.addWidget(inner_unit_label, 0, 5)
+        integrate_params_layout.addWidget(outer_label, 0, 6)
+        integrate_params_layout.addWidget(self.outer_line, 0, 7)
+        integrate_params_layout.addWidget(outer_unit_label, 0, 8)
 
         self.integrate_button = QPushButton("Integrate", self)
         self.integrate_button.setIcon(qta.icon("fa6s.chart-area"))
@@ -4534,13 +4569,14 @@ class UBView(NeuXtalVizWidget):
 
         grid["scalars"] = signal.T.flatten()
 
-        _ = self.plotter.add_volume(
+        actor = self.plotter.add_volume(
             grid,
             opacity="linear",
             show_scalar_bar=False,
             cmap="binary",
             culling=True,
         )
+        actor.prop.interpolation_type = "nearest"
 
         transforms = Q_dict.get("transforms")
         intensities = Q_dict.get("intensities")
@@ -4582,17 +4618,23 @@ class UBView(NeuXtalVizWidget):
             else:
                 sphere = pv.PolyData(np.array([[0.0, 0.0, 0.0]]))
 
-            geoms, self.indexing = [], {}
+            transforms = params[0]
+            self._peak_centers = np.array([T[:3, 3] for T in transforms])
+
+            geoms = []
             for i, (T, I, ind, no) in enumerate(zip(*params)):
                 ellipsoid = sphere.copy(deep=False).transform(T, inplace=True)
                 color = I if integrate else ind
                 ellipsoid["scalars"] = np.full(sphere.n_cells, color)
+                ellipsoid.point_data["peak_id"] = np.full(sphere.n_points, i)
                 geoms.append(ellipsoid)
-                self.indexing[i] = i
 
-            multiblock = pv.MultiBlock(geoms)
-
-            self._peaks_multiblock = multiblock
+            # A single merged mesh instead of pv.MultiBlock + add_composite:
+            # the composite mapper's per-block bookkeeping is what's slow
+            # here (hundreds to thousands of peaks), not the geometry
+            # itself -- merging avoids it while keeping full per-peak
+            # ellipsoid shape/orientation and coloring.
+            merged = pv.merge(geoms)
 
             mu = np.nanmean(intensities)
             sigma = np.nanstd(intensities)
@@ -4601,8 +4643,8 @@ class UBView(NeuXtalVizWidget):
             n_colors = 16 if integrate else 2
             clim = [mu - 3 * sigma, mu + 3 * sigma] if integrate else [0, 1]
 
-            _, mapper = self.plotter.add_composite(
-                multiblock,
+            self.plotter.add_mesh(
+                merged,
                 scalars="scalars",
                 color=None,
                 log_scale=False,
@@ -4617,13 +4659,32 @@ class UBView(NeuXtalVizWidget):
                 smooth_shading=False,
             )
 
-            self.mapper = mapper
+            def get_picked_peak(*args, **kwargs):
+                plotter = self.plotter
+                x, y = plotter.mouse_position
+                loc = plotter.iren.get_event_subplot_loc()
+                index = plotter.renderers.loc_to_index(loc)
+                renderer = plotter.renderers[index]
 
-            self.plotter.enable_block_picking(
-                callback=self.highlight, side="left"
+                picker = pv._vtk.vtkPointPicker()
+                picker.Pick(x, y, 0, renderer)
+
+                dataset = picker.GetDataSet()
+                point_id = picker.GetPointId()
+                if dataset is None or point_id < 0:
+                    return
+
+                peak_ids = dataset.GetPointData().GetArray("peak_id")
+                if peak_ids is None:
+                    return
+
+                self.highlight(int(peak_ids.GetValue(point_id)))
+
+            self.plotter.track_click_position(
+                callback=get_picked_peak, viewport=True, side="left"
             )
-            self.plotter.enable_block_picking(
-                callback=self.highlight, side="right"
+            self.plotter.track_click_position(
+                callback=get_picked_peak, viewport=True, side="right"
             )
 
             self.last_highlight = None
@@ -4661,13 +4722,8 @@ class UBView(NeuXtalVizWidget):
 
         self.plotter.camera_position = camera_pos
 
-    def highlight(self, index, dataset):
+    def highlight(self, ind):
         """Select a peak in the table from a 3D view click."""
-
-        if index - 1 not in self.indexing:
-            return
-
-        ind = self.indexing[index - 1]
 
         rows = self.peaks_table.rowCount()
         for row in range(rows):
@@ -4698,10 +4754,10 @@ class UBView(NeuXtalVizWidget):
 
         centers = []
         for index in indices:
-            if self._peaks_multiblock is not None and index - 1 < len(
-                self._peaks_multiblock
+            if self._peak_centers is not None and index - 1 < len(
+                self._peak_centers
             ):
-                centers.append(self._peaks_multiblock[index - 1].center)
+                centers.append(self._peak_centers[index - 1])
 
         self._set_highlight_actor(centers)
         self.last_highlight = indices[-1] if len(indices) > 0 else None

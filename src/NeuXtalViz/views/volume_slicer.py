@@ -2068,6 +2068,8 @@ class VolumeSlicerView(NeuXtalVizWidget):
             user_matrix=b,
         )
 
+        self.plotter.volume.prop.interpolation_type = "nearest"
+
         prop = self.clip.GetOutlineProperty()
         prop.SetOpacity(0)
 
