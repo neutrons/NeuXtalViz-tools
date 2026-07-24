@@ -1246,13 +1246,16 @@ class NeuXtalVizWidget(QWidget):
         Parameters
         ----------
         vecs : list of 2 or single 3 element 1d array-like
-            Camera direction and optional upward vector.
+            Camera direction and optional upward vector. VTK
+            orthogonalizes a non-perpendicular upward vector against
+            the view direction internally, so it need not be exactly
+            perpendicular to the camera direction (crystallographic
+            axes generally aren't, for a non-orthogonal cell).
 
         """
 
         if len(vecs) == 2:
-            vec = np.cross(vecs[0], vecs[1])
-            self.plotter.view_vector(vecs[0], vec)
+            self.plotter.view_vector(vecs[0], vecs[1])
         else:
             self.plotter.view_vector(vecs)
 

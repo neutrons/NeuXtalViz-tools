@@ -181,7 +181,100 @@ class NeuXtalVizModel:
 
             return T / np.linalg.norm(T, axis=0)
 
+    def _reciprocal_axes(self):
+        """
+        :math:`a^\ast`/:math:`b^\ast`/:math:`c^\ast` in cartesian coordinates.
+
+        Shared building block for the six ``*_axes``/``*_star_axes``
+        camera-direction methods below, so their up-vector priority
+        only needs to be encoded once: prefer :math:`c`/:math:`c^\ast`
+        as "up", falling back to :math:`b`/:math:`b^\ast` only when
+        :math:`c`/:math:`c^\ast` itself is the view direction --
+        :math:`a`/:math:`a^\ast` is never used as "up".
+
+        Returns
+        -------
+        a_star, b_star, c_star : 3 element 1d array
+            Cartesian directions of the reciprocal axes.
+        """
+
+        M = self.orientation_matrix()
+
+        return np.dot(M, [1, 0, 0]), np.dot(M, [0, 1, 0]), np.dot(M, [0, 0, 1])
+
+    def _real_axes(self):
+        """
+        :math:`a`/:math:`b`/:math:`c` in cartesian coordinates.
+
+        See :meth:`_reciprocal_axes` -- shared building block for the
+        real-space camera-direction methods below.
+
+        Returns
+        -------
+        a, b, c : 3 element 1d array
+            Cartesian directions of the real-space axes.
+        """
+
+        a_star, b_star, c_star = self._reciprocal_axes()
+
+        return (
+            np.cross(b_star, c_star),
+            np.cross(c_star, a_star),
+            np.cross(a_star, b_star),
+        )
+
     def ab_star_axes(self):
+        """
+        :math:`c^\ast`-direction in cartesian coordinates.
+
+        Returns
+        -------
+        camera : 3 element 1d array
+            Cartesian camera view vector.
+        upward : 3 element 1d array
+            Cartesian upward view vector.
+
+        """
+
+        if self.UB is not None:
+            a_star, b_star, c_star = self._reciprocal_axes()
+            return c_star, b_star
+
+    def bc_star_axes(self):
+        """
+        :math:`a^\ast`-direction in cartesian coordinates.
+
+        Returns
+        -------
+        camera : 3 element 1d array
+            Cartesian camera view vector.
+        upward : 3 element 1d array
+            Cartesian upward view vector.
+
+        """
+
+        if self.UB is not None:
+            a_star, b_star, c_star = self._reciprocal_axes()
+            return a_star, c_star
+
+    def ca_star_axes(self):
+        """
+        :math:`b^\ast`-direction in cartesian coordinates.
+
+        Returns
+        -------
+        camera : 3 element 1d array
+            Cartesian camera view vector.
+        upward : 3 element 1d array
+            Cartesian upward view vector.
+
+        """
+
+        if self.UB is not None:
+            a_star, b_star, c_star = self._reciprocal_axes()
+            return b_star, c_star
+
+    def ab_axes(self):
         """
         :math:`c`-direction in cartesian coordinates.
 
@@ -195,11 +288,10 @@ class NeuXtalVizModel:
         """
 
         if self.UB is not None:
-            return np.dot(self.orientation_matrix(), [0, 0, 1]), np.dot(
-                self.orientation_matrix(), [1, 0, 0]
-            )
+            a, b, c = self._real_axes()
+            return c, b
 
-    def bc_star_axes(self):
+    def bc_axes(self):
         """
         :math:`a`-direction in cartesian coordinates.
 
@@ -213,11 +305,10 @@ class NeuXtalVizModel:
         """
 
         if self.UB is not None:
-            return np.dot(self.orientation_matrix(), [1, 0, 0]), np.dot(
-                self.orientation_matrix(), [0, 1, 0]
-            )
+            a, b, c = self._real_axes()
+            return a, c
 
-    def ca_star_axes(self):
+    def ca_axes(self):
         """
         :math:`b`-direction in cartesian coordinates.
 
@@ -231,63 +322,8 @@ class NeuXtalVizModel:
         """
 
         if self.UB is not None:
-            return np.dot(self.orientation_matrix(), [0, 1, 0]), np.dot(
-                self.orientation_matrix(), [0, 0, 1]
-            )
-
-    def ab_axes(self):
-        """
-        :math:`c^*`-direction in cartesian coordinates.
-
-        Returns
-        -------
-        camera : 3 element 1d array
-            Cartesian camera view vector.
-        upward : 3 element 1d array
-            Cartesian upward view vector.
-
-        """
-
-        if self.UB is not None:
-            return np.cross(*self.bc_star_axes()), np.cross(
-                *self.ca_star_axes()
-            )
-
-    def bc_axes(self):
-        """
-        :math:`a^*`-direction in cartesian coordinates.
-
-        Returns
-        -------
-        camera : 3 element 1d array
-            Cartesian camera view vector.
-        upward : 3 element 1d array
-            Cartesian upward view vector.
-
-        """
-
-        if self.UB is not None:
-            return np.cross(*self.ca_star_axes()), np.cross(
-                *self.ab_star_axes()
-            )
-
-    def ca_axes(self):
-        """
-        :math:`b^*`-direction in cartesian coordinates.
-
-        Returns
-        -------
-        camera : 3 element 1d array
-            Cartesian camera view vector.
-        upward : 3 element 1d array
-            Cartesian upward view vector.
-
-        """
-
-        if self.UB is not None:
-            return np.cross(*self.ab_star_axes()), np.cross(
-                *self.bc_star_axes()
-            )
+            a, b, c = self._real_axes()
+            return b, c
 
     def get_vector(self, axes_type, ind):
         """
