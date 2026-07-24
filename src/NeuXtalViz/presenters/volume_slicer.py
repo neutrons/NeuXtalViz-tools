@@ -61,11 +61,13 @@ class VolumeSlicer(NeuXtalVizPresenter):
         self.view.connect_vmin_line(self.update_vmin)
         self.view.connect_vmax_line(self.update_vmax)
 
-        self.view.connect_xmin_line(self.update_lims)
-        self.view.connect_xmax_line(self.update_lims)
+        self.view.connect_xmin_line(self.update_xmin)
+        self.view.connect_xmax_line(self.update_xmax)
 
-        self.view.connect_ymin_line(self.update_lims)
-        self.view.connect_ymax_line(self.update_lims)
+        self.view.connect_ymin_line(self.update_ymin)
+        self.view.connect_ymax_line(self.update_ymax)
+
+        self.view.connect_symmetric_xy(self.update_symmetric_xy)
 
         self.view.connect_vol_scale_combo(self.update_volume)
         self.view.connect_opacity_combo(self.update_volume)
@@ -236,6 +238,90 @@ class VolumeSlicer(NeuXtalVizPresenter):
                 line_cut = self.view.get_cut()
                 lim = xlim if line_cut == "Axis 1" else ylim
                 self.view.set_cut_lim(lim)
+
+    def update_xmin(self):
+        """
+        Handle editing of the X-axis minimum field.
+
+        If "Symmetric X/Y" is enabled, forces the X maximum field to
+        the negative of the edited minimum before applying it.
+
+        Parameters
+        ----------
+        None
+        """
+        if self.view.get_symmetric_xy():
+            if self.view.get_xmin_value() is not None:
+                self.view.set_xmax_from_xmin()
+        self.update_lims()
+
+    def update_xmax(self):
+        """
+        Handle editing of the X-axis maximum field.
+
+        If "Symmetric X/Y" is enabled, forces the X minimum field to
+        the negative of the edited maximum before applying it.
+
+        Parameters
+        ----------
+        None
+        """
+        if self.view.get_symmetric_xy():
+            if self.view.get_xmax_value() is not None:
+                self.view.set_xmin_from_xmax()
+        self.update_lims()
+
+    def update_ymin(self):
+        """
+        Handle editing of the Y-axis minimum field.
+
+        If "Symmetric X/Y" is enabled, forces the Y maximum field to
+        the negative of the edited minimum before applying it.
+
+        Parameters
+        ----------
+        None
+        """
+        if self.view.get_symmetric_xy():
+            if self.view.get_ymin_value() is not None:
+                self.view.set_ymax_from_ymin()
+        self.update_lims()
+
+    def update_ymax(self):
+        """
+        Handle editing of the Y-axis maximum field.
+
+        If "Symmetric X/Y" is enabled, forces the Y minimum field to
+        the negative of the edited maximum before applying it.
+
+        Parameters
+        ----------
+        None
+        """
+        if self.view.get_symmetric_xy():
+            if self.view.get_ymax_value() is not None:
+                self.view.set_ymin_from_ymax()
+        self.update_lims()
+
+    def update_symmetric_xy(self):
+        """
+        Handle toggling of the "Symmetric X/Y" box.
+
+        Immediately snaps the current X/Y limits to be symmetric about
+        zero (mirroring the minimum into the maximum) when enabled, so
+        the effect is visible right away rather than only on the next
+        edit.
+
+        Parameters
+        ----------
+        None
+        """
+        if self.view.get_symmetric_xy():
+            if self.view.get_xmin_value() is not None:
+                self.view.set_xmax_from_xmin()
+            if self.view.get_ymin_value() is not None:
+                self.view.set_ymax_from_ymin()
+        self.update_lims()
 
     def update_vmin(self):
         """
@@ -611,14 +697,14 @@ class VolumeSlicer(NeuXtalVizPresenter):
         Parameters
         ----------
         result : tuple or None
-            Tuple of (histo, normal, norm, value, trans) from
+            Tuple of (histo, norm, value, trans) from
             `redraw_data_process`, or None if the worker was stopped or
             the parameters were invalid.
         """
         if result is not None:
-            histo, normal, norm, value, trans = result
+            histo, norm, value, trans = result
 
-            self.view.add_histo(histo, normal, norm, value)
+            self.view.add_histo(histo, norm, value)
 
             self.view.set_transform(trans)
 
@@ -670,8 +756,6 @@ class VolumeSlicer(NeuXtalVizPresenter):
         -------
         histo : dict
             Histogram information dictionary with clipped signal data.
-        normal : numpy.ndarray
-            Negated normal plane vector from the model.
         norm : array-like
             Normal vector for the current slice plane, as passed in.
         slice_value : float
@@ -694,7 +778,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
             if self.stop_processing(stop_event):
                 return None
 
-            histo = self.model.get_histo_info(norm)
+            histo = self.model.get_histo_info()
 
             data = histo["signal"]
 
@@ -709,14 +793,11 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
             histo["signal"] = data
 
-            normal = -self.model.get_normal_plane(norm)
-
             if slice_value is not None:
                 progress("Volume drawn!", 100)
 
                 return (
                     histo,
-                    normal,
                     norm,
                     slice_value,
                     self.model.get_transform(),

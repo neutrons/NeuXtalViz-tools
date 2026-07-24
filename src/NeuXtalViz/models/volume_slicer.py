@@ -21,7 +21,6 @@ from mantid.geometry import SpaceGroupFactory
 
 import numpy as np
 import scipy.linalg
-import skimage.measure
 from scipy.ndimage import gaussian_filter, median_filter
 
 from NeuXtalViz.models.base_model import NeuXtalVizModel
@@ -349,9 +348,8 @@ class VolumeSlicerModel(NeuXtalVizModel):
         """
         Prepare the ``"histo"``/``"volume"`` workspaces for slicing.
 
-        Clamps infinities to NaN, downsamples for the 3D volume
-        render, and reads the UB/W matrices. Shared by both
-        :meth:`load_md_histo_workspace` (after ``LoadMD``) and
+        Clamps infinities to NaN and reads the UB/W matrices. Shared
+        by both :meth:`load_md_histo_workspace` (after ``LoadMD``) and
         :meth:`activate_workspace` (after cloning a registered
         workspace into ``"histo"``).
 
@@ -359,17 +357,16 @@ class VolumeSlicerModel(NeuXtalVizModel):
         unmeasured detector regions) is left as NaN rather than zeroed
         out -- zeroing it here would silently turn "no data" into a
         real (and wrong) zero-intensity value for both the 2D
-        slice/cut (matplotlib renders NaN as a transparent "bad"
-        color) and the 3D volume render (the block-reduce below and
-        PyVista's volume mapper are both already NaN-aware). Only
-        actual infinities are clamped, matching the convention used in
-        :meth:`get_slice_info`.
+        slice/cut and the 3D view (matplotlib renders NaN as a
+        transparent "bad" color, and PyVista's mesh-slice cutter is
+        NaN-aware). Only actual infinities are clamped, matching the
+        convention used in :meth:`get_slice_info`.
 
         Parameters
         ----------
         progress : callable, optional
-            ``progress(message, percent)`` callback -- compacting/
-            downsampling can take a while for a large workspace.
+            ``progress(message, percent)`` callback -- compacting can
+            take a while for a large workspace.
         """
         if progress is not None:
             progress("Clamping infinities", 30)
@@ -408,52 +405,7 @@ class VolumeSlicerModel(NeuXtalVizModel):
 
         self.spacing = np.array([dim.getBinWidth() for dim in dims])
 
-        max_dim = 128.0
-        max_spacing = 0.5
-
-        shape = np.array(self.shape, dtype=float)
-
-        base = np.ceil(shape / max_dim).astype(int)
-        base[base < 1] = 1
-
-        with np.errstate(divide="ignore", invalid="ignore"):
-            spacing_limit = np.floor(max_spacing / self.spacing)
-
-        spacing_limit[~np.isfinite(spacing_limit)] = np.inf
-        spacing_limit[spacing_limit < 1] = 1
-        spacing_limit = spacing_limit.astype(int)
-
-        base = np.minimum(base, spacing_limit)
-
-        scale = base.copy()
-        compress = np.maximum(base, np.minimum(spacing_limit, 2 * base))
-
-        blocks = [
-            (compress[0], scale[1], scale[2]),
-            (scale[0], compress[1], scale[2]),
-            (scale[0], scale[1], compress[2]),
-        ]
-
-        if progress is not None:
-            progress("Downsampling for 3D view", 70)
-
-        # float32 halves the memory traffic of the NaN-aware block
-        # average below (~1.4x faster, measured), with rounding error
-        # (~1e-7 relative) far below what's visible in the 3D preview.
-        # Plain strided decimation was tried instead (skips block_reduce
-        # entirely) but visibly aliased/missed narrow features between
-        # sampled voxels, so block_reduce's actual block average is kept.
-        signal32 = signal.astype(np.float32)
-
-        self.signals = []
-        self.spacings = []
-        for block in blocks:
-            self.spacings.append(self.spacing * np.array(block))
-            self.signals.append(
-                skimage.measure.block_reduce(
-                    signal32, block_size=block, func=np.nanmean, cval=np.nan
-                )
-            )
+        self.signal = signal
 
         if progress is not None:
             progress("Reading orientation", 90)
@@ -540,29 +492,22 @@ class VolumeSlicerModel(NeuXtalVizModel):
                 3, 3
             )
 
-    def get_histo_info(self, normal):
+    def get_histo_info(self):
         """
-        Get histogram information for a given normal direction.
-
-        Parameters
-        ----------
-        normal : array-like
-            Normal vector for the slicing direction.
+        Get histogram information for the loaded volume.
 
         Returns
         -------
         dict
             Dictionary containing signal, limits, spacing, labels, and transforms.
         """
-        ind = np.abs(normal).tolist().index(1)
-
         histo_dict = {}
 
-        histo_dict["signal"] = self.signals[ind].copy()
+        histo_dict["signal"] = self.signal.copy()
 
         histo_dict["min_lim"] = self.min_lim
         histo_dict["max_lim"] = self.max_lim
-        histo_dict["spacing"] = self.spacings[ind]
+        histo_dict["spacing"] = self.spacing
         histo_dict["labels"] = self.labels
 
         P, T, S = self.get_transforms()
@@ -965,38 +910,6 @@ class VolumeSlicerModel(NeuXtalVizModel):
         s = np.linalg.norm(p, axis=0)
 
         return p, t, s
-
-    def get_normal_plane(self, ind):
-        """
-        Get the normal vector for a plane given an index vector.
-
-        Parameters
-        ----------
-        ind : array-like
-            One-hot index vector (e.g. ``[1, 0, 0]``) selecting the
-            slicing axis in the W-projected basis.
-
-        Returns
-        -------
-        vec : np.ndarray or None
-            Normal vector for the plane in Cartesian coordinates, or
-            None if no UB matrix has been set.
-        """
-        if self.UB is not None:
-            Bp = self._basis_matrix()
-
-            Q, R = scipy.linalg.qr(Bp)
-
-            v = scipy.linalg.cholesky(np.dot(R.T, R), lower=False)
-
-            matrix = np.cross(
-                np.dot(v, np.roll(np.eye(3), 2, 1)).T,
-                np.dot(v, np.roll(np.eye(3), 1, 1)).T,
-            ).T
-
-            vec = np.dot(matrix, ind)
-
-            return vec
 
     # ------------------------------------------------------------------
     # Delta-PDF pipeline

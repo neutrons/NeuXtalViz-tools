@@ -64,6 +64,7 @@ _geom_symmetric_opacity = np.concatenate(
 )
 
 opacities = {
+    "None": 1.0,
     "Linear Ascending": "linear",
     "Linear Descending": "linear_r",
     "Geometric Ascending": "geom",
@@ -120,15 +121,15 @@ class VolumeSlicerView(NeuXtalVizWidget):
     View for the volume slicer tool.
 
     Provides the UI for loading a NeXus MDHisto workspace, rendering it as
-    a 3D clipped volume, slicing it into a 2D plane, and cutting a 1D line
-    profile through that slice, together with controls for scaling,
-    colormaps, opacity, and display/color limits.
+    an interactive 3D slice plane, slicing it into a 2D plane, and cutting
+    a 1D line profile through that slice, together with controls for
+    scaling, colormaps, opacity, and display/color limits.
 
     Attributes
     ----------
     slice_ready : qtpy.QtCore.Signal
         Emitted when the slice position/parameters are ready to be
-        recomputed (e.g. after dragging the 3D clip plane or slider).
+        recomputed (e.g. after dragging the 3D slice plane or slider).
     cut_ready : qtpy.QtCore.Signal
         Emitted when the cut position/parameters are ready to be
         recomputed (e.g. after dragging the line cut on the slice plot).
@@ -207,6 +208,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.auto_scale_dropdown(self.vol_scale_combo)
 
         self.opacity_combo = QComboBox(self)
+        self.opacity_combo.addItem("None")
         self.opacity_combo.addItem("Linear Ascending")
         self.opacity_combo.addItem("Linear Descending")
         self.opacity_combo.addItem("Linear Symmetric")
@@ -218,15 +220,17 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.opacity_combo.addItem("Sigmoid Symmetric")
         self.opacity_combo.setCurrentIndex(0)
         self.opacity_combo.setToolTip(
-            "Choose the opacity mapping for the volume rendering. "
-            '"Ascending" is transparent at the minimum and opaque at '
-            'the maximum ("Descending" the reverse). The "Symmetric" '
-            "options are instead fully opaque at both the minimum and "
-            "maximum and transparent in the middle -- useful for "
-            'signed data such as a delta-PDF result -- with "Linear" '
-            'a sharp V-shape, "Sigmoid" a smooth ease in/out, and '
-            '"Geometric" staying low across most of the range before '
-            "rising sharply only very near the extremes."
+            "Choose the opacity mapping for the 3D slice planes. "
+            '"None" (default) is fully opaque everywhere, with no '
+            'value-based transparency. "Ascending" is transparent at '
+            'the minimum and opaque at the maximum ("Descending" the '
+            'reverse). The "Symmetric" options are instead fully '
+            "opaque at both the minimum and maximum and transparent "
+            "in the middle -- useful for signed data such as a "
+            'delta-PDF result -- with "Linear" a sharp V-shape, '
+            '"Sigmoid" a smooth ease in/out, and "Geometric" staying '
+            "low across most of the range before rising sharply only "
+            "very near the extremes."
         )
         self.auto_scale_dropdown(self.opacity_combo)
 
@@ -452,6 +456,14 @@ class VolumeSlicerView(NeuXtalVizWidget):
             "3D-ΔPDF result."
         )
 
+        self.symmetric_xy_box = QCheckBox("Symmetric X/Y")
+        self.symmetric_xy_box.setChecked(False)
+        self.symmetric_xy_box.setToolTip(
+            "Keep the X/Y axis limits symmetric about zero. While "
+            "checked, editing X Min or X Max sets the other to its "
+            "negative (and likewise for Y Min/Y Max)."
+        )
+
         slice_params_layout.addWidget(self.slice_combo)
         slice_params_layout.addWidget(slice_label)
         slice_params_layout.addWidget(self.slice_line)
@@ -472,6 +484,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         view_params_layout.addWidget(self.ymax_line, 0, 3)
 
         view_params_layout.addWidget(self.vlim_combo, 0, 4)
+        view_params_layout.addWidget(self.symmetric_xy_box, 1, 4)
         view_params_layout.addWidget(vmin_label, 1, 5)
         view_params_layout.addWidget(self.vmin_line, 1, 6)
         view_params_layout.addWidget(vmax_label, 0, 5)
@@ -1063,6 +1076,17 @@ class VolumeSlicerView(NeuXtalVizWidget):
             Slot invoked when the checkbox is toggled.
         """
         self.symmetric_zero_box.toggled.connect(update_symmetric_zero)
+
+    def connect_symmetric_xy(self, update_symmetric_xy):
+        """
+        Connect a handler to toggling of the "Symmetric X/Y" box.
+
+        Parameters
+        ----------
+        update_symmetric_xy : callable
+            Slot invoked when the checkbox is toggled.
+        """
+        self.symmetric_xy_box.toggled.connect(update_symmetric_xy)
 
     def connect_workspace_combo(self, activate_workspace):
         """
@@ -1963,18 +1987,36 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         return filename
 
-    def add_histo(self, histo_dict, normal, norm, value):
+    def add_histo(self, histo_dict, norm, value):
         """
-        Render the 3D clipped volume for the loaded histogram.
+        Render 3 axis-aligned slice planes for the loaded histogram.
 
-        Builds a PyVista `ImageData` grid from the histogram signal,
-        applies the current opacity/colormap/scale settings, adds a
-        clipped volume actor with a movable clip plane at the given
-        origin/normal, configures the bounding-box axes with the
+        Builds a PyVista `ImageData` grid from the histogram signal and
+        cuts it with `ImageData.slice_index` along each of the 3 axes
+        (a plain, non-interactive geometric cut -- no plane widget),
+        colored/scaled with the current opacity/colormap/scale
+        settings, configures the bounding-box axes with the
         crystallographic transform, and resets the camera to fit the
         scene. Also (re)configures the slice position slider range for
-        the newly selected plane and registers a callback so that
-        interactively moving the clip plane updates the slice position.
+        the newly selected plane.
+
+        Two of the three planes sit at index 0 (the origin); the third
+        -- whichever axis is currently selected -- sits at `value`,
+        the position driven by the slice slider/line edit. This gives
+        the same tri-planar context as PyVista's `slice_orthogonal`
+        example, but built from `slice_index` instead: `slice_index`
+        extracts the requested point layer directly by index (an O(1)
+        structured-grid lookup), whereas `slice`/`slice_orthogonal` run
+        VTK's generic cutter over the *entire* volume for every plane
+        -- about 90x slower on a 201^3 volume in local testing, and
+        3 planes means paying that 3 times over. A previous version of
+        this used PyVista's `add_mesh_slice`, which additionally builds
+        an interactive plane-widget (handles, outline, VTK interactor
+        observers) around the cut -- and since every reslice already
+        tears down and rebuilds the whole scene from scratch (see
+        `clear_scene`), that widget setup/teardown cost was paid on
+        every single slider tick for no benefit (nothing here supports
+        dragging a plane directly in the 3D view).
 
         Parameters
         ----------
@@ -1982,16 +2024,13 @@ class VolumeSlicerView(NeuXtalVizWidget):
             Histogram information dictionary (as returned by the model's
             `get_histo_info`) containing 'signal', 'labels', 'min_lim',
             'max_lim', 'spacing', 'projection', 'transform', and 'scales'.
-        normal : numpy.ndarray
-            Plane normal vector (in Cartesian/plot space) used to orient
-            the volume clip plane.
         norm : array-like
             Normal vector identifying the selected slice plane in
             crystallographic axis space (e.g. [0, 0, 1]); mutated in
-            place to build the clip plane origin.
+            place to build the slice plane origin.
         value : float
-            Position along `norm` at which to place the initial clip
-            plane / slice.
+            Position along `norm` at which to place the selected slice
+            plane; the other two planes stay at the origin (index 0).
         """
         opacity = opacities[self.get_opacity()]
 
@@ -2036,45 +2075,40 @@ class VolumeSlicerView(NeuXtalVizWidget):
             limits[ind][0], limits[ind][1], signal.shape[ind]
         )
 
-        a = pv._vtk.vtkMatrix3x3()
         b = pv._vtk.vtkMatrix4x4()
         for i in range(3):
             for j in range(3):
-                a.SetElement(i, j, T[i, j])
                 b.SetElement(i, j, P[i, j])
 
         grid.cell_data["scalars"] = signal.flatten(order="F")
-
-        normal /= np.linalg.norm(normal)
-
-        origin = np.dot(P, origin)
 
         clim = [np.nanmin(signal), np.nanmax(signal)]
 
         if not np.all(np.isfinite(clim)):
             clim = [0.1, 10]
 
-        self.clip = self.plotter.add_volume_clip_plane(
-            grid,
-            opacity=opacity,
-            log_scale=log_scale,
-            clim=clim,
-            normal=normal,
-            origin=origin,
-            origin_translation=False,
-            show_scalar_bar=True,
-            normal_rotation=False,
-            cmap=cmap,
-            user_matrix=b,
+        point_index = np.clip(
+            np.round((np.array(origin) - min_lim) / spacing).astype(int),
+            0,
+            np.array(signal.shape),
         )
 
-        self.plotter.volume.prop.interpolation_type = "nearest"
+        slices = [
+            grid.slice_index(i=point_index[0]),
+            grid.slice_index(j=point_index[1]),
+            grid.slice_index(k=point_index[2]),
+        ]
 
-        prop = self.clip.GetOutlineProperty()
-        prop.SetOpacity(0)
-
-        prop = self.clip.GetEdgesProperty()
-        prop.SetOpacity(0)
+        for i, slice_mesh in enumerate(slices):
+            self.plotter.add_mesh(
+                slice_mesh,
+                opacity=opacity,
+                log_scale=log_scale,
+                clim=clim,
+                show_scalar_bar=(i == 0),
+                cmap=cmap,
+                user_matrix=b,
+            )
 
         actor = self.plotter.show_grid(
             xtitle=labels[0],
@@ -2124,59 +2158,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
         actor.SetAxisLabels(2, axis2_label)
 
         self.reset_scene()
-
-        self.clip.AddObserver("InteractionEvent", self.interaction_callback)
-
-        self.P_inv = np.linalg.inv(P)
-
-    def interaction_callback(self, caller, event):
-        """
-        VTK observer callback fired while the 3D clip plane is dragged.
-
-        Converts the clip plane's current origin back into slice-position
-        units, updates the slice position field without re-triggering its
-        edit signal, and emits `slice_ready` to request a re-slice.
-
-        Parameters
-        ----------
-        caller : vtkImplicitPlaneWidget or similar
-            The VTK widget/actor that raised the interaction event; its
-            `GetOrigin()` is used to obtain the new clip plane origin.
-        event : str
-            The VTK event name (unused, required by the observer
-            signature).
-        """
-        orig = caller.GetOrigin()
-
-        ind = np.abs(self.norm).tolist().index(1)
-
-        value = np.dot(self.P_inv, orig)[ind]
-
-        self.slice_line.blockSignals(True)
-        self.set_slice_value(value)
-        self.slice_line.blockSignals(False)
-
-        self.slice_ready.emit()
-
-    def update_clip(self, origin=None, normal=None):
-        """
-        Update the 3D volume clip plane's origin and/or normal.
-
-        Parameters
-        ----------
-        origin : array-like, optional
-            New origin point for the clip plane (default None, meaning
-            unchanged).
-        normal : array-like, optional
-            New normal vector for the clip plane (default None, meaning
-            unchanged).
-        """
-        if origin is not None:
-            self.clip.SetOrigin(*origin)
-        if normal is not None:
-            self.clip.SetNormal(*normal)
-
-        self.plotter.update()
 
     def connect_slice_ready(self, reslice):
         """
@@ -2766,6 +2747,28 @@ class VolumeSlicerView(NeuXtalVizWidget):
             Whether to check the "Symmetric About Zero" box.
         """
         self.symmetric_zero_box.setChecked(checked)
+
+    def get_symmetric_xy(self):
+        """
+        Get whether the X/Y axis limits should be kept symmetric about zero.
+
+        Returns
+        -------
+        symmetric_xy : bool
+            True if the "Symmetric X/Y" box is checked.
+        """
+        return self.symmetric_xy_box.isChecked()
+
+    def set_symmetric_xy(self, checked):
+        """
+        Set whether the X/Y axis limits should be kept symmetric about zero.
+
+        Parameters
+        ----------
+        checked : bool
+            Whether to check the "Symmetric X/Y" box.
+        """
+        self.symmetric_xy_box.setChecked(checked)
 
     def get_active_workspace(self):
         """
@@ -3669,6 +3672,46 @@ class VolumeSlicerView(NeuXtalVizWidget):
         if text.startswith("+"):
             return "-" + text[1:]
         return "-" + text
+
+    def set_xmax_from_xmin(self):
+        """
+        Mirror the X minimum field's text into the X maximum field, negated.
+
+        Used for "Symmetric X/Y" -- see :meth:`set_vmax_from_vmin`.
+        """
+        self.xmax_line.setText(
+            self._negate_numeric_text(self.xmin_line.text())
+        )
+
+    def set_xmin_from_xmax(self):
+        """
+        Mirror the X maximum field's text into the X minimum field, negated.
+
+        Used for "Symmetric X/Y" -- see :meth:`set_vmax_from_vmin`.
+        """
+        self.xmin_line.setText(
+            self._negate_numeric_text(self.xmax_line.text())
+        )
+
+    def set_ymax_from_ymin(self):
+        """
+        Mirror the Y minimum field's text into the Y maximum field, negated.
+
+        Used for "Symmetric X/Y" -- see :meth:`set_vmax_from_vmin`.
+        """
+        self.ymax_line.setText(
+            self._negate_numeric_text(self.ymin_line.text())
+        )
+
+    def set_ymin_from_ymax(self):
+        """
+        Mirror the Y maximum field's text into the Y minimum field, negated.
+
+        Used for "Symmetric X/Y" -- see :meth:`set_vmax_from_vmin`.
+        """
+        self.ymin_line.setText(
+            self._negate_numeric_text(self.ymax_line.text())
+        )
 
     def get_xmin_value(self):
         """
