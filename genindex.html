@@ -839,10 +839,10 @@
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.connect_integer_l_index">connect_integer_l_index() (UBView method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.connect_integer_m_index">connect_integer_m_index() (UBView method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.connect_integer_n_index">connect_integer_n_index() (UBView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.connect_integer_p_index">connect_integer_p_index() (UBView method)</a>
@@ -1052,6 +1052,8 @@
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.connect_switch_lattice_centering">connect_switch_lattice_centering() (ExperimentView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.connect_switch_point_group">connect_switch_point_group() (ExperimentView method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.connect_symmetric_xy">connect_symmetric_xy() (VolumeSlicerView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.connect_symmetric_zero">connect_symmetric_zero() (VolumeSlicerView method)</a>
 </li>
@@ -1775,8 +1777,6 @@
         <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.get_normal">(VolumeSlicer method)</a>
 </li>
       </ul></li>
-      <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.get_normal_plane">get_normal_plane() (VolumeSlicerModel method)</a>
-</li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.get_number_of_orientations">get_number_of_orientations() (ExperimentView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.get_number_workspaces">get_number_workspaces() (UBModel method)</a>
@@ -1974,6 +1974,8 @@
 </li>
       </ul></li>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.periodic_table.AtomModel.get_symbol_name">get_symbol_name() (AtomModel method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.get_symmetric_xy">get_symmetric_xy() (VolumeSlicerView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.get_symmetric_zero">get_symmetric_zero() (VolumeSlicerView method)</a>
 </li>
@@ -2176,8 +2178,6 @@
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.integrate_peaks_complete">integrate_peaks_complete() (UB method)</a>
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.integrate_peaks_process">integrate_peaks_process() (UB method)</a>
-</li>
-      <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.interaction_callback">interaction_callback() (VolumeSlicerView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.is_cut">is_cut() (VolumeSlicerModel method)</a>
 </li>
@@ -3098,8 +3098,6 @@
       </ul></li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.set_lattice_centering">set_lattice_centering() (ExperimentView method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.set_lattice_centerings">set_lattice_centerings() (ExperimentView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_lattice_constants">set_lattice_constants() (CrystalStructureView method)</a>
@@ -3108,6 +3106,8 @@
         <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.set_lattice_constants">(UBView method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.set_manual_UB">set_manual_UB() (UBModel method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.set_mask">set_mask() (ExperimentView method)</a>
@@ -3176,6 +3176,8 @@
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.periodic_table.AtomView.set_symbol_name">set_symbol_name() (AtomView method)</a>
 </li>
+      <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.set_symmetric_xy">set_symmetric_xy() (VolumeSlicerView method)</a>
+</li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.set_symmetric_zero">set_symmetric_zero() (VolumeSlicerView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.base_view.NeuXtalVizWidget.set_transform">set_transform() (NeuXtalVizWidget method)</a>
@@ -3234,11 +3236,19 @@
         <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.set_wavelength">(UBView method)</a>
 </li>
       </ul></li>
+      <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.set_xmax_from_xmin">set_xmax_from_xmin() (VolumeSlicerView method)</a>
+</li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.set_xmax_value">set_xmax_value() (VolumeSlicerView method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.set_xmin_from_xmax">set_xmin_from_xmax() (VolumeSlicerView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.set_xmin_value">set_xmin_value() (VolumeSlicerView method)</a>
 </li>
+      <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.set_ymax_from_ymin">set_ymax_from_ymin() (VolumeSlicerView method)</a>
+</li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.set_ymax_value">set_ymax_value() (VolumeSlicerView method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.set_ymin_from_ymax">set_ymin_from_ymax() (VolumeSlicerView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.set_ymin_value">set_ymin_value() (VolumeSlicerView method)</a>
 </li>
@@ -3412,8 +3422,6 @@
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.update_check_hkl">update_check_hkl() (UB method)</a>
 </li>
-      <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.update_clip">update_clip() (VolumeSlicerView method)</a>
-</li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.update_cluster_table">update_cluster_table() (UBView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.update_colorbar_max">update_colorbar_max() (VolumeSlicerView method)</a>
@@ -3500,8 +3508,6 @@
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.update_oriented_lattice">update_oriented_lattice() (NeuXtalVizPresenter method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.crystal_structure_tools.CrystalStructure.update_parameters">update_parameters() (CrystalStructure method)</a>
 
       <ul>
@@ -3514,6 +3520,8 @@
         <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.update_pdf_space_groups">(VolumeSlicerView method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.update_peaks">update_peaks() (Experiment method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.update_peaks_table">update_peaks_table() (ExperimentView method)</a>
@@ -3590,6 +3598,8 @@
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.base_presenter.NeuXtalVizPresenter.update_stopped">update_stopped() (NeuXtalVizPresenter method)</a>
 </li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_symmetric_xy">update_symmetric_xy() (VolumeSlicer method)</a>
+</li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.update_symmetry_symbols">update_symmetry_symbols() (UBView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.update_table_index">update_table_index() (UBView method)</a>
@@ -3619,6 +3629,14 @@
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.update_workspace_combos">update_workspace_combos() (VolumeSlicerView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.volume_slicer.VolumeSlicerView.update_workspace_list">update_workspace_list() (VolumeSlicerView method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_xmax">update_xmax() (VolumeSlicer method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_xmin">update_xmin() (VolumeSlicer method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_ymax">update_ymax() (VolumeSlicer method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.update_ymin">update_ymin() (VolumeSlicer method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.use_equivalents">use_equivalents() (ExperimentView method)</a>
 </li>
