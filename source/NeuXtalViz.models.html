@@ -440,28 +440,28 @@ various crystallographic and reciprocal axes and transformations for visualizati
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NeuXtalVizModel</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L51-L559"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NeuXtalVizModel</span></span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L51-L595"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ab_axes" title="NeuXtalViz.models.base_model.NeuXtalVizModel.ab_axes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ab_axes</span></code></a>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(c^*\)</span>-direction in cartesian coordinates.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ab_star_axes" title="NeuXtalViz.models.base_model.NeuXtalVizModel.ab_star_axes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ab_star_axes</span></code></a>()</p></td>
 <td><p><span class="math notranslate nohighlight">\(c\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.bc_axes" title="NeuXtalViz.models.base_model.NeuXtalVizModel.bc_axes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_axes</span></code></a>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(a^*\)</span>-direction in cartesian coordinates.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ab_star_axes" title="NeuXtalViz.models.base_model.NeuXtalVizModel.ab_star_axes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ab_star_axes</span></code></a>()</p></td>
+<td><p><span class="math notranslate nohighlight">\(c^st\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.bc_star_axes" title="NeuXtalViz.models.base_model.NeuXtalVizModel.bc_star_axes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_star_axes</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.bc_axes" title="NeuXtalViz.models.base_model.NeuXtalVizModel.bc_axes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_axes</span></code></a>()</p></td>
 <td><p><span class="math notranslate nohighlight">\(a\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.bc_star_axes" title="NeuXtalViz.models.base_model.NeuXtalVizModel.bc_star_axes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_star_axes</span></code></a>()</p></td>
+<td><p><span class="math notranslate nohighlight">\(a^st\)</span>-direction in cartesian coordinates.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ca_axes" title="NeuXtalViz.models.base_model.NeuXtalVizModel.ca_axes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_axes</span></code></a>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(b^*\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ca_star_axes" title="NeuXtalViz.models.base_model.NeuXtalVizModel.ca_star_axes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_star_axes</span></code></a>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(b^st\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.calculate_camera_parameters" title="NeuXtalViz.models.base_model.NeuXtalVizModel.calculate_camera_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_camera_parameters</span></code></a>(direction, roll)</p></td>
 <td><p>Calculate roll, elevation, and azimuth from camera direction and roll.</p></td>
@@ -501,23 +501,7 @@ various crystallographic and reciprocal axes and transformations for visualizati
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.ab_axes">
-<span class="sig-name descname"><span class="pre">ab_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L238-L254"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ab_axes" title="Link to this definition">#</a></dt>
-<dd><p><span class="math notranslate nohighlight">\(c^*\)</span>-direction in cartesian coordinates.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>camera</strong><span class="classifier">3 element 1d array</span></dt><dd><p>Cartesian camera view vector.</p>
-</dd>
-<dt><strong>upward</strong><span class="classifier">3 element 1d array</span></dt><dd><p>Cartesian upward view vector.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.ab_star_axes">
-<span class="sig-name descname"><span class="pre">ab_star_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L184-L200"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ab_star_axes" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ab_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L277-L292"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ab_axes" title="Link to this definition">#</a></dt>
 <dd><p><span class="math notranslate nohighlight">\(c\)</span>-direction in cartesian coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -532,9 +516,9 @@ various crystallographic and reciprocal axes and transformations for visualizati
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.bc_axes">
-<span class="sig-name descname"><span class="pre">bc_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L256-L272"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.bc_axes" title="Link to this definition">#</a></dt>
-<dd><p><span class="math notranslate nohighlight">\(a^*\)</span>-direction in cartesian coordinates.</p>
+<dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.ab_star_axes">
+<span class="sig-name descname"><span class="pre">ab_star_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L226-L241"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ab_star_axes" title="Link to this definition">#</a></dt>
+<dd><p><span class="math notranslate nohighlight">\(c^st\)</span>-direction in cartesian coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -548,8 +532,8 @@ various crystallographic and reciprocal axes and transformations for visualizati
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.bc_star_axes">
-<span class="sig-name descname"><span class="pre">bc_star_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L202-L218"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.bc_star_axes" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.bc_axes">
+<span class="sig-name descname"><span class="pre">bc_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L294-L309"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.bc_axes" title="Link to this definition">#</a></dt>
 <dd><p><span class="math notranslate nohighlight">\(a\)</span>-direction in cartesian coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -564,9 +548,9 @@ various crystallographic and reciprocal axes and transformations for visualizati
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.ca_axes">
-<span class="sig-name descname"><span class="pre">ca_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L274-L290"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ca_axes" title="Link to this definition">#</a></dt>
-<dd><p><span class="math notranslate nohighlight">\(b^*\)</span>-direction in cartesian coordinates.</p>
+<dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.bc_star_axes">
+<span class="sig-name descname"><span class="pre">bc_star_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L243-L258"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.bc_star_axes" title="Link to this definition">#</a></dt>
+<dd><p><span class="math notranslate nohighlight">\(a^st\)</span>-direction in cartesian coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -580,8 +564,8 @@ various crystallographic and reciprocal axes and transformations for visualizati
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.ca_star_axes">
-<span class="sig-name descname"><span class="pre">ca_star_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L220-L236"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ca_star_axes" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.ca_axes">
+<span class="sig-name descname"><span class="pre">ca_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L311-L326"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ca_axes" title="Link to this definition">#</a></dt>
 <dd><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -596,8 +580,24 @@ various crystallographic and reciprocal axes and transformations for visualizati
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.ca_star_axes">
+<span class="sig-name descname"><span class="pre">ca_star_axes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L260-L275"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.ca_star_axes" title="Link to this definition">#</a></dt>
+<dd><p><span class="math notranslate nohighlight">\(b^st\)</span>-direction in cartesian coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>camera</strong><span class="classifier">3 element 1d array</span></dt><dd><p>Cartesian camera view vector.</p>
+</dd>
+<dt><strong>upward</strong><span class="classifier">3 element 1d array</span></dt><dd><p>Cartesian upward view vector.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.calculate_camera_parameters">
-<span class="sig-name descname"><span class="pre">calculate_camera_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roll</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L535-L559"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.calculate_camera_parameters" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_camera_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roll</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L571-L595"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.calculate_camera_parameters" title="Link to this definition">#</a></dt>
 <dd><p>Calculate roll, elevation, and azimuth from camera direction and roll.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -678,7 +678,7 @@ Default is True.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.get_vector">
-<span class="sig-name descname"><span class="pre">get_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axes_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L292-L325"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_vector" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axes_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L328-L361"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.get_vector" title="Link to this definition">#</a></dt>
 <dd><p>Vector corresponding to a particular crystallographic direction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -734,7 +734,7 @@ Default is True.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_azimuth">
-<span class="sig-name descname"><span class="pre">rotate_camera_azimuth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focal_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_deg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L506-L533"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_azimuth" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">rotate_camera_azimuth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focal_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_deg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L542-L569"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_azimuth" title="Link to this definition">#</a></dt>
 <dd><p>Rotate the camera left/right about a global up axis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -756,7 +756,7 @@ Default is True.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_elevation">
-<span class="sig-name descname"><span class="pre">rotate_camera_elevation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focal_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_deg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L475-L504"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_elevation" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">rotate_camera_elevation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focal_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_deg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L511-L540"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_elevation" title="Link to this definition">#</a></dt>
 <dd><p>Tilt the camera up/down about its right axis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -778,7 +778,7 @@ Default is True.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_roll">
-<span class="sig-name descname"><span class="pre">rotate_camera_roll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focal_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_deg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L450-L473"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_roll" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">rotate_camera_roll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focal_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_deg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/models/base_model.py#L486-L509"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.models.base_model.NeuXtalVizModel.rotate_camera_roll" title="Link to this definition">#</a></dt>
 <dd><p>Apply a roll about the current viewing axis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -830,22 +830,22 @@ structure factors, chemical formula, and atom positions.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ab_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(c^*\)</span>-direction in cartesian coordinates.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ab_star_axes</span></code>()</p></td>
 <td><p><span class="math notranslate nohighlight">\(c\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(a^*\)</span>-direction in cartesian coordinates.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ab_star_axes</span></code>()</p></td>
+<td><p><span class="math notranslate nohighlight">\(c^st\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_star_axes</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_axes</span></code>()</p></td>
 <td><p><span class="math notranslate nohighlight">\(a\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_star_axes</span></code>()</p></td>
+<td><p><span class="math notranslate nohighlight">\(a^st\)</span>-direction in cartesian coordinates.</p></td>
+</tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(b^*\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_star_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(b^st\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.calculate_F2" title="NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.calculate_F2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_F2</span></code></a>(h, k, l)</p></td>
 <td><p>Calculate the structure factor and symmetry equivalents of a reflection.</p></td>
@@ -2052,10 +2052,10 @@ performing peak prediction, and calculating experiment statistics.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ab_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(c^*\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(c\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ab_star_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(c\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(c^st\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.experiment_planner.ExperimentModel.add_mesh" title="NeuXtalViz.models.experiment_planner.ExperimentModel.add_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_mesh</span></code></a>(mesh_angles, wavelength, d_min, ...)</p></td>
 <td><p>Add one orientation per point of a regular goniometer-angle mesh.</p></td>
@@ -2067,16 +2067,16 @@ performing peak prediction, and calculating experiment statistics.</p>
 <td><p>Add orientations that keep the scattering plane defined by hkl_1/hkl_2 accessible, spanning <em>max_deg</em> in rotation about the plane normal.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(a^*\)</span>-direction in cartesian coordinates.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_star_axes</span></code>()</p></td>
 <td><p><span class="math notranslate nohighlight">\(a\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_star_axes</span></code>()</p></td>
+<td><p><span class="math notranslate nohighlight">\(a^st\)</span>-direction in cartesian coordinates.</p></td>
+</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(b^*\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_star_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(b^st\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_camera_parameters</span></code>(direction, roll)</p></td>
 <td><p>Calculate roll, elevation, and azimuth from camera direction and roll.</p></td>
@@ -4136,10 +4136,10 @@ and modulated structures.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ab_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(c^*\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(c\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ab_star_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(c\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(c^st\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.ub_tools.UBModel.add_peak" title="NeuXtalViz.models.ub_tools.UBModel.add_peak"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_peak</span></code></a>(ind, val, horz, vert)</p></td>
 <td><p>Add a peak to the peaks table.</p></td>
@@ -4160,16 +4160,16 @@ and modulated structures.</p>
 <td><p>Flag peaks coincident with iron powder ring reflections.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(a^*\)</span>-direction in cartesian coordinates.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_star_axes</span></code>()</p></td>
 <td><p><span class="math notranslate nohighlight">\(a\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_star_axes</span></code>()</p></td>
+<td><p><span class="math notranslate nohighlight">\(a^st\)</span>-direction in cartesian coordinates.</p></td>
+</tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(b^*\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_star_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(b^st\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_camera_parameters</span></code>(direction, roll)</p></td>
 <td><p>Calculate roll, elevation, and azimuth from camera direction and roll.</p></td>
@@ -6657,28 +6657,28 @@ matrices for visualization.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ab_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(c^*\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(c\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ab_star_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(c\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(c^st\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.activate_workspace" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.activate_workspace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">activate_workspace</span></code></a>(display_name[, progress, ...])</p></td>
 <td><p>Make a registered workspace the active one for slicing/cutting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(a^*\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(a\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_star_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(a\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(a^st\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.build_bond_network" title="NeuXtalViz.models.volume_slicer.VolumeSlicerModel.build_bond_network"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_bond_network</span></code></a>(nx, ny, nz, site_enabled)</p></td>
 <td><p>Build the distinct bond (separation-vector) set and unit-cell-edge wireframe for the bond-network viewer.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(b^*\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ca_star_axes</span></code>()</p></td>
-<td><p><span class="math notranslate nohighlight">\(b\)</span>-direction in cartesian coordinates.</p></td>
+<td><p><span class="math notranslate nohighlight">\(b^st\)</span>-direction in cartesian coordinates.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_camera_parameters</span></code>(direction, roll)</p></td>
 <td><p>Calculate roll, elevation, and azimuth from camera direction and roll.</p></td>

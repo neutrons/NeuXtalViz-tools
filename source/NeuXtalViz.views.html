@@ -378,7 +378,7 @@
 <span id="submodules"></span><h2>Submodules<a class="headerlink" href="#module-NeuXtalViz.views.base_view" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NeuXtalVizWidget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L60-L1632"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NeuXtalVizWidget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L60-L1635"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
 <p>Base widget for all NeuXtalViz views, providing shared functionality
 and interface for user-facing widgets.</p>
@@ -1624,7 +1624,7 @@ be restored later by <a class="reference internal" href="#NeuXtalViz.views.base_
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.connect_camera_ready">
-<span class="sig-name descname"><span class="pre">connect_camera_ready</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculate</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1332-L1347"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.connect_camera_ready" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_camera_ready</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculate</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1335-L1350"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.connect_camera_ready" title="Link to this definition">#</a></dt>
 <dd><p>Connect a callback to the <code class="docutils literal notranslate"><span class="pre">cam_ready</span></code> signal.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">cam_ready</span></code> signal is emitted whenever the camera state
 changes (e.g. after a view/up vector change or a camera
@@ -1780,7 +1780,7 @@ recomputes and displays roll/elevation/azimuth.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.get_camera_roll_direction">
-<span class="sig-name descname"><span class="pre">get_camera_roll_direction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1349-L1361"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.get_camera_roll_direction" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_camera_roll_direction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1352-L1364"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.get_camera_roll_direction" title="Link to this definition">#</a></dt>
 <dd><p>Get the current camera roll angle and view direction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1796,7 +1796,7 @@ recomputes and displays roll/elevation/azimuth.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.get_camera_state">
-<span class="sig-name descname"><span class="pre">get_camera_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1275-L1292"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.get_camera_state" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_camera_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1278-L1295"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.get_camera_state" title="Link to this definition">#</a></dt>
 <dd><p>Return the current camera position, focal point, and up vectors.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1814,7 +1814,7 @@ recomputes and displays roll/elevation/azimuth.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.get_manual_axis_indices">
-<span class="sig-name descname"><span class="pre">get_manual_axis_indices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1503-L1532"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.get_manual_axis_indices" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_manual_axis_indices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1506-L1535"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.get_manual_axis_indices" title="Link to this definition">#</a></dt>
 <dd><p>Indices of manually entered direction components.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1834,7 +1834,7 @@ input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.get_manual_axis_up_indices">
-<span class="sig-name descname"><span class="pre">get_manual_axis_up_indices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1534-L1563"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.get_manual_axis_up_indices" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_manual_axis_up_indices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1537-L1566"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.get_manual_axis_up_indices" title="Link to this definition">#</a></dt>
 <dd><p>Indices of manually entered direction up components.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1854,7 +1854,7 @@ input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.get_rotate_step">
-<span class="sig-name descname"><span class="pre">get_rotate_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1317-L1330"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.get_rotate_step" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_rotate_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1320-L1333"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.get_rotate_step" title="Link to this definition">#</a></dt>
 <dd><p>Return the rotation step in degrees from the rotate tab.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1950,7 +1950,7 @@ cancelled the dialog.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.set_camera_state">
-<span class="sig-name descname"><span class="pre">set_camera_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focal_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1294-L1315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.set_camera_state" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_camera_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focal_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1297-L1318"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.set_camera_state" title="Link to this definition">#</a></dt>
 <dd><p>Apply a new camera state to the underlying plotter and refresh.</p>
 <p>Re-renders the plotter and emits <code class="docutils literal notranslate"><span class="pre">cam_ready</span></code> afterward.</p>
 <dl class="field-list simple">
@@ -2001,7 +2001,7 @@ cancelled the dialog.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.set_position">
-<span class="sig-name descname"><span class="pre">set_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1613-L1624"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.set_position" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1616-L1627"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.set_position" title="Link to this definition">#</a></dt>
 <dd><p>Set the position.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2074,7 +2074,7 @@ connected by the presenter.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.stop_processes">
-<span class="sig-name descname"><span class="pre">stop_processes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1626-L1632"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.stop_processes" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">stop_processes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1629-L1635"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.stop_processes" title="Link to this definition">#</a></dt>
 <dd><p>Stop all running worker processes.</p>
 </dd></dl>
 
@@ -2118,7 +2118,7 @@ falsy (unchecked) hides it.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.update_camera_display">
-<span class="sig-name descname"><span class="pre">update_camera_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">roll</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elevation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">azimuth</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1363-L1380"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.update_camera_display" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_camera_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">roll</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elevation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">azimuth</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1366-L1383"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.update_camera_display" title="Link to this definition">#</a></dt>
 <dd><p>Update the read-only camera orientation display, if present.</p>
 <p>This shows the camera’s roll, elevation, azimuth in degrees.</p>
 <dl class="field-list simple">
@@ -2137,13 +2137,13 @@ falsy (unchecked) hides it.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.update_labels">
-<span class="sig-name descname"><span class="pre">update_labels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1475-L1501"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.update_labels" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_labels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1478-L1504"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.update_labels" title="Link to this definition">#</a></dt>
 <dd><p>Change the axes labels between Miller and fractional notation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.update_theme">
-<span class="sig-name descname"><span class="pre">update_theme</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1394-L1433"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.update_theme" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_theme</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1397-L1436"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.update_theme" title="Link to this definition">#</a></dt>
 <dd><p>Apply the selected PyVista/matplotlib plot theme to the view.</p>
 <p>Reads the current selection from the theme combo box,
 applies it as the global PyVista plot theme, updates the
@@ -2159,7 +2159,7 @@ re-styles any matplotlib canvases already drawn on this view.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.view_up_vector">
-<span class="sig-name descname"><span class="pre">view_up_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1261-L1273"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_up_vector" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">view_up_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1264-L1276"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_up_vector" title="Link to this definition">#</a></dt>
 <dd><p>Set the camera according to given vector(s).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2173,12 +2173,16 @@ re-styles any matplotlib canvases already drawn on this view.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.view_vector">
-<span class="sig-name descname"><span class="pre">view_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vecs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1242-L1259"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_vector" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">view_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vecs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1242-L1262"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_vector" title="Link to this definition">#</a></dt>
 <dd><p>Set the camera according to given vector(s).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>vecs</strong><span class="classifier">list of 2 or single 3 element 1d array-like</span></dt><dd><p>Camera direction and optional upward vector.</p>
+<dt><strong>vecs</strong><span class="classifier">list of 2 or single 3 element 1d array-like</span></dt><dd><p>Camera direction and optional upward vector. VTK
+orthogonalizes a non-perpendicular upward vector against
+the view direction internally, so it need not be exactly
+perpendicular to the camera direction (crystallographic
+axes generally aren’t, for a non-orthogonal cell).</p>
 </dd>
 </dl>
 </dd>
@@ -2187,37 +2191,37 @@ re-styles any matplotlib canvases already drawn on this view.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.view_xy">
-<span class="sig-name descname"><span class="pre">view_xy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1565-L1571"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_xy" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">view_xy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1568-L1574"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_xy" title="Link to this definition">#</a></dt>
 <dd><p>View <span class="math notranslate nohighlight">\(xy\)</span>-plane.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.view_xz">
-<span class="sig-name descname"><span class="pre">view_xz</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1605-L1611"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_xz" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">view_xz</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1608-L1614"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_xz" title="Link to this definition">#</a></dt>
 <dd><p>View <span class="math notranslate nohighlight">\(xz\)</span>-plane.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.view_yx">
-<span class="sig-name descname"><span class="pre">view_yx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1589-L1595"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_yx" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">view_yx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1592-L1598"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_yx" title="Link to this definition">#</a></dt>
 <dd><p>View <span class="math notranslate nohighlight">\(yx\)</span>-plane.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.view_yz">
-<span class="sig-name descname"><span class="pre">view_yz</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1573-L1579"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_yz" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">view_yz</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1576-L1582"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_yz" title="Link to this definition">#</a></dt>
 <dd><p>View <span class="math notranslate nohighlight">\(yz\)</span>-plane.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.view_zx">
-<span class="sig-name descname"><span class="pre">view_zx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1581-L1587"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_zx" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">view_zx</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1584-L1590"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_zx" title="Link to this definition">#</a></dt>
 <dd><p>View <span class="math notranslate nohighlight">\(zx\)</span>-plane.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.base_view.NeuXtalVizWidget.view_zy">
-<span class="sig-name descname"><span class="pre">view_zy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1597-L1603"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_zy" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">view_zy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/base_view.py#L1600-L1606"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget.view_zy" title="Link to this definition">#</a></dt>
 <dd><p>View <span class="math notranslate nohighlight">\(zy\)</span>-plane.</p>
 </dd></dl>
 
