@@ -43,7 +43,6 @@ class VolumeSlicer(NeuXtalVizPresenter):
         self.view.connect_slice_thickness_line(self.update_slice)
         self.view.connect_cut_thickness_line(self.update_cut)
 
-        self.view.connect_clim_combo(self.update_slice)
         self.view.connect_cbar_combo(self.update_volume)
 
         self.view.connect_vlim_combo(self.update_slice_clim)
@@ -69,7 +68,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
         self.view.connect_symmetric_xy(self.update_symmetric_xy)
 
-        self.view.connect_vol_scale_combo(self.update_volume)
+        self.view.connect_opacity_combo(self.sync_symmetric_zero_with_opacity)
         self.view.connect_opacity_combo(self.update_volume)
 
         self.view.connect_save_slice(self.save_slice)
@@ -359,7 +358,10 @@ class VolumeSlicer(NeuXtalVizPresenter):
         """
         Update colorbar value limits in the view based on user input.
 
-        Uses vmin, vmax from the view and sets colorbar limits if valid.
+        Uses vmin, vmax from the view and sets colorbar limits if
+        valid, then updates the 3D slice planes' color limits in place
+        so they pick up the same limits -- the 3D view has no
+        color-limit controls of its own anymore; it shares these.
         Manually editing either value disables automatic color limits.
 
         Parameters
@@ -375,6 +377,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
                 if vmin <= 0 and self.view.get_slice_scale() == "log":
                     vmin = vmax / 10
                 self.view.update_colorbar_vlims(vmin, vmax)
+                self.view.update_3d_clim(vmin, vmax)
 
     def update_slice_value(self):
         """
@@ -439,7 +442,11 @@ class VolumeSlicer(NeuXtalVizPresenter):
         """
         Update the slice display's colormap, scale, and value limits.
 
-        If no slice signal is cached yet, triggers a slice update instead.
+        If no slice signal is cached yet, triggers a slice update
+        instead. Also redraws the 3D slice planes, since they share
+        these same value limits (rather than a separate 3D-only
+        color-limit control) and should stay in sync with the 2D
+        colorbar.
 
         Parameters
         ----------
@@ -464,6 +471,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
             vmin,
             vmax,
         )
+        self.redraw_data(False)
 
     def update_cut(self):
         """
@@ -608,30 +616,10 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
         return axis
 
-    def get_clim_method(self):
-        """
-        Get the color-limit clipping method for the 3D volume display.
-
-        Returns
-        -------
-        method : str or None
-            'normal' for mean +/- 3 sigma, 'boxplot' for quartile-based
-            IQR clipping, or None for no clipping.
-        """
-        ctype = self.view.get_clim_clip_type()
-
-        if ctype == "μ±3×σ":
-            method = "normal"
-        elif ctype == "Q₃/Q₁±1.5×IQR":
-            method = "boxplot"
-        else:
-            method = None
-
-        return method
-
     def get_vlim_method(self):
         """
-        Get the color-limit clipping method for the 2D slice display.
+        Get the color-limit clipping method, shared by the 2D slice
+        display and the 3D slice planes.
 
         Returns
         -------
@@ -650,6 +638,32 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
         return method
 
+    def sync_symmetric_zero_with_opacity(self):
+        """
+        Auto-check "Symmetric About Zero" for zero-centered opacity mappings.
+
+        The "Linear Symmetric"/"Sigmoid Symmetric"/"Geometric
+        Symmetric" opacity mappings are V-shaped around the midpoint
+        of the (shared) color-limit range, so that midpoint needs to
+        actually be the data's zero for them to make sense. The 3D
+        view has no color-limit control of its own to force that
+        anymore (it shares the 2D slice's), so selecting one of these
+        checks the existing "Symmetric About Zero" box instead --
+        connected ahead of the redraw this same combo triggers, so the
+        newly resolved limits are already symmetric by the time it
+        runs.
+
+        Parameters
+        ----------
+        None
+        """
+        if self.view.get_opacity() in (
+            "Linear Symmetric",
+            "Sigmoid Symmetric",
+            "Geometric Symmetric",
+        ):
+            self.view.set_symmetric_zero(True)
+
     def redraw_data(self, reset=True):
         """
         Redraw the 3D volume on a worker thread if not already drawing.
@@ -667,21 +681,19 @@ class VolumeSlicer(NeuXtalVizPresenter):
                 self.view.reset_slice_cut()
 
             norm = self.get_normal()
-            clim_method = self.get_clim_method()
             slice_value = self.view.get_slice_value()
-            symmetric_zero = self.view.get_opacity() in (
-                "Linear Symmetric",
-                "Sigmoid Symmetric",
-                "Geometric Symmetric",
-            )
+            thickness = self.view.get_slice_thickness()
+            vmin = self.view.get_vmin_value()
+            vmax = self.view.get_vmax_value()
 
             worker = self.view.worker(
                 functools.partial(
                     self.redraw_data_process,
                     norm=norm,
-                    clim_method=clim_method,
                     slice_value=slice_value,
-                    symmetric_zero=symmetric_zero,
+                    thickness=thickness,
+                    vmin=vmin,
+                    vmax=vmax,
                 )
             )
             worker.connect_result(self.redraw_data_complete)
@@ -697,14 +709,14 @@ class VolumeSlicer(NeuXtalVizPresenter):
         Parameters
         ----------
         result : tuple or None
-            Tuple of (histo, norm, value, trans) from
-            `redraw_data_process`, or None if the worker was stopped or
-            the parameters were invalid.
+            Tuple of (histo, norm, value, thickness, vmin, vmax, trans)
+            from `redraw_data_process`, or None if the worker was
+            stopped or the parameters were invalid.
         """
         if result is not None:
-            histo, norm, value, trans = result
+            histo, norm, value, thickness, vmin, vmax, trans = result
 
-            self.view.add_histo(histo, norm, value)
+            self.view.add_histo(histo, norm, value, thickness, vmin, vmax)
 
             self.view.set_transform(trans)
 
@@ -715,9 +727,10 @@ class VolumeSlicer(NeuXtalVizPresenter):
         progress,
         stop_event=None,
         norm=None,
-        clim_method=None,
         slice_value=None,
-        symmetric_zero=False,
+        thickness=None,
+        vmin=None,
+        vmax=None,
     ):
         """
         Worker task that prepares the 3D volume histogram for display.
@@ -735,32 +748,34 @@ class VolumeSlicer(NeuXtalVizPresenter):
             (default None).
         norm : array-like, optional
             Normal vector for the current slice plane (default None).
-        clim_method : str or None, optional
-            Color-limit clipping method passed to the model's
-            `calculate_clim` (default None).
         slice_value : float, optional
             Position along the normal for the current slice plane
             (default None).
-        symmetric_zero : bool, optional
-            If True, force the 3D volume's color/opacity limits to be
-            symmetric about zero (default False) -- needed for the
-            "Linear Symmetric"/"Sigmoid Symmetric"/"Geometric
-            Symmetric" opacity mappings,
-            whose zero-opacity point sits at the midpoint of the clim
-            range: without this, that midpoint generally isn't at the
-            data's true zero, since
-            none of the clim methods (Min/Max, mean +/- 3 sigma,
-            IQR) are otherwise zero-aware.
+        thickness : float, optional
+            Slice thickness, applied identically to all 3 of the 3D
+            view's planes (not just the active one) so they're all
+            integrated by the same amount -- see `add_histo`.
+        vmin, vmax : float, optional
+            Color limits for the 3D slice planes, as currently
+            resolved for the 2D slice colorbar (shared rather than
+            computed separately here -- computing them from the full
+            3D volume, as a previous version of this did, cost
+            ~250 ms per redraw on a 201^3 volume in local testing vs.
+            ~1 ms from the much smaller 2D slice; see `add_histo`).
 
         Returns
         -------
         histo : dict
-            Histogram information dictionary with clipped signal data.
+            Histogram information dictionary.
         norm : array-like
             Normal vector for the current slice plane, as passed in.
         slice_value : float
             Position along the normal for the current slice plane, as
             passed in.
+        thickness : float or None
+            Slice thickness, as passed in.
+        vmin, vmax : float or None
+            Color limits, as passed in.
         transform : numpy.ndarray
             Transform matrix from the model.
         """
@@ -773,25 +788,12 @@ class VolumeSlicer(NeuXtalVizPresenter):
             if self.stop_processing(stop_event):
                 return None
 
-            progress("Updating volume...", 20)
-
-            if self.stop_processing(stop_event):
-                return None
-
-            histo = self.model.get_histo_info()
-
-            data = histo["signal"]
-
-            data = self.model.calculate_clim(
-                data, clim_method, symmetric_zero=symmetric_zero
-            )
-
             progress("Updating volume...", 50)
 
             if self.stop_processing(stop_event):
                 return None
 
-            histo["signal"] = data
+            histo = self.model.get_histo_info()
 
             if slice_value is not None:
                 progress("Volume drawn!", 100)
@@ -800,6 +802,9 @@ class VolumeSlicer(NeuXtalVizPresenter):
                     histo,
                     norm,
                     slice_value,
+                    thickness,
+                    vmin,
+                    vmax,
                     self.model.get_transform(),
                 )
 
@@ -852,6 +857,12 @@ class VolumeSlicer(NeuXtalVizPresenter):
         Complete slice calculation and update the view with the result.
 
         Caches the sliced signal for later use by `update_slice_display`.
+        Also pushes this slice's freshly-resolved vmin/vmax into the 3D
+        planes' color limits: `redraw_data` (which draws the 3D planes)
+        always runs *before* this slice recomputes its own limits, so
+        without this, the 3D view keeps showing the previous slice
+        position's limits until some other, unrelated action happens
+        to trigger a redraw.
 
         Parameters
         ----------
@@ -862,6 +873,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
         if result is not None:
             self.slice_signal_cache = result["signal"].copy()
             self.view.add_slice(result)
+            self.view.update_3d_clim(result["vmin"], result["vmax"])
         self.slice_idle = True
 
     def slice_data_process(

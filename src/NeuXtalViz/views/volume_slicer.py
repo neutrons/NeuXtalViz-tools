@@ -171,6 +171,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self._slice_zoom_ylim = None
         self._volume_limits = None
         self._volume_nbins = None
+        self._plane_actors = []
 
     def slice_tab(self):
         """
@@ -197,15 +198,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
         collabsible_layout = QVBoxLayout(self.container)
         cut_params_layout = QHBoxLayout()
         draw_layout = QHBoxLayout()
-
-        self.vol_scale_combo = QComboBox(self)
-        self.vol_scale_combo.addItem("Linear")
-        self.vol_scale_combo.addItem("Log")
-        self.vol_scale_combo.setCurrentIndex(0)
-        self.vol_scale_combo.setToolTip(
-            "Select the scaling for the volume data (Linear or Logarithmic)."
-        )
-        self.auto_scale_dropdown(self.vol_scale_combo)
 
         self.opacity_combo = QComboBox(self)
         self.opacity_combo.addItem("None")
@@ -234,23 +226,15 @@ class VolumeSlicerView(NeuXtalVizWidget):
         )
         self.auto_scale_dropdown(self.opacity_combo)
 
-        self.clim_combo = QComboBox(self)
-        self.clim_combo.addItem("Min/Max")
-        self.clim_combo.addItem("μ±3×σ")
-        self.clim_combo.addItem("Q₃/Q₁±1.5×IQR")
-        self.clim_combo.setCurrentIndex(2)
-        self.clim_combo.setToolTip(
-            "Choose the method for setting color limits for the slice."
-        )
-        self.auto_scale_dropdown(self.clim_combo)
-
         self.vlim_combo = QComboBox(self)
         self.vlim_combo.addItem("Min/Max")
         self.vlim_combo.addItem("μ±3×σ")
         self.vlim_combo.addItem("Q₃/Q₁±1.5×IQR")
         self.vlim_combo.setCurrentIndex(2)
         self.vlim_combo.setToolTip(
-            "Choose the method for setting value limits for the cut."
+            "Choose the method for setting value limits for the "
+            "slice colorbar -- shared by the 2D slice plot and the "
+            "3D slice planes."
         )
         self.auto_scale_dropdown(self.vlim_combo)
 
@@ -291,9 +275,7 @@ class VolumeSlicerView(NeuXtalVizWidget):
             "while it's the active workspace."
         )
 
-        draw_layout.addWidget(self.vol_scale_combo)
         draw_layout.addWidget(self.opacity_combo)
-        draw_layout.addWidget(self.clim_combo)
         draw_layout.addWidget(self.cbar_combo)
         draw_layout.addWidget(self.load_NXS_button)
         draw_layout.addWidget(self.workspace_combo)
@@ -362,7 +344,10 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.slice_scale_combo.setToolTip(
             "Select the scale for the slice plot (Linear, Logarithmic, "
             'or "Symlog": linear near zero, logarithmic away from it -- '
-            "a good fit for signed data such as a 3D-ΔPDF result)."
+            "a good fit for signed data such as a 3D-ΔPDF result), "
+            'shared with the 3D slice planes -- "Log" maps to '
+            'logarithmic there too, "Linear"/"Symlog" both to linear '
+            "(VTK has no direct symlog equivalent)."
         )
         self.auto_scale_dropdown(self.slice_scale_combo)
 
@@ -1009,17 +994,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
         """
         self.save_cut_button.clicked.connect(save_cut)
 
-    def connect_vol_scale_combo(self, update_vol):
-        """
-        Connect a handler to changes in the volume scale combo box.
-
-        Parameters
-        ----------
-        update_vol : callable
-            Slot invoked when the volume scale selection changes.
-        """
-        self.vol_scale_combo.currentIndexChanged.connect(update_vol)
-
     def connect_opacity_combo(self, update_opacity):
         """
         Connect a handler to changes in the opacity mapping combo box.
@@ -1031,27 +1005,16 @@ class VolumeSlicerView(NeuXtalVizWidget):
         """
         self.opacity_combo.currentIndexChanged.connect(update_opacity)
 
-    def connect_clim_combo(self, update_clim):
-        """
-        Connect a handler to changes in the 3D volume color-limit combo box.
-
-        Parameters
-        ----------
-        update_clim : callable
-            Slot invoked when the volume color-limit method selection
-            changes.
-        """
-        self.clim_combo.currentIndexChanged.connect(update_clim)
-
     def connect_vlim_combo(self, update_clim):
         """
-        Connect a handler to changes in the 2D slice value-limit combo box.
+        Connect a handler to changes in the value-limit combo box.
+
+        Shared by the 2D slice plot and the 3D slice planes.
 
         Parameters
         ----------
         update_clim : callable
-            Slot invoked when the slice value-limit method selection
-            changes.
+            Slot invoked when the value-limit method selection changes.
         """
         self.vlim_combo.currentIndexChanged.connect(update_clim)
 
@@ -1987,7 +1950,88 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         return filename
 
-    def add_histo(self, histo_dict, norm, value):
+    @staticmethod
+    def _integrate_axis(signal, min_lim, spacing, axis, value, thickness):
+        """
+        Sum `signal` over bins within `+/-thickness` of `value` along `axis`.
+
+        Weights each bin by its fractional overlap with the window
+        (not an all-or-nothing "bin center within range" test) to
+        match what the 2D slice plot's own
+        `IntegrateMDHistoWorkspace`-based integration does internally
+        -- confirmed by direct comparison to agree to ~1e-5 relative,
+        including in high-gradient regions near Bragg peaks. Whole-bin
+        inclusion is usually close but can be off by several percent
+        locally whenever a window edge happens to bisect a bin (e.g.
+        thickness an exact multiple of the bin width).
+
+        Parameters
+        ----------
+        signal : numpy.ndarray
+            Full 3D signal array.
+        min_lim : array-like
+            Per-axis coordinate of the first bin's center.
+        spacing : array-like
+            Per-axis bin width.
+        axis : int
+            Axis (0, 1, or 2) to integrate/collapse.
+        value : float
+            Center of the integration window along `axis`.
+        thickness : float or None
+            Integration half-width. If None, or the window has zero
+            overlap with every bin (e.g. thickness of 0 landing
+            exactly on a bin edge), falls back to weight 1 on the
+            single nearest bin along `axis`.
+
+        Returns
+        -------
+        integrated : numpy.ndarray
+            2D array, `signal` with `axis` collapsed by (weighted)
+            summation. NaN where every bin with nonzero weight was NaN.
+        """
+        n = signal.shape[axis]
+        centers = min_lim[axis] + spacing[axis] * np.arange(n)
+        edges_lo = centers - 0.5 * spacing[axis]
+        edges_hi = centers + 0.5 * spacing[axis]
+
+        if thickness is None:
+            weights = np.zeros(n)
+        else:
+            lo, hi = value - thickness, value + thickness
+            overlap = np.minimum(edges_hi, hi) - np.maximum(edges_lo, lo)
+            weights = np.clip(overlap, 0, None) / spacing[axis]
+
+        nz = np.nonzero(weights)[0]
+        if nz.size == 0:
+            idx = int(
+                np.clip(
+                    round((value - min_lim[axis]) / spacing[axis]), 0, n - 1
+                )
+            )
+            nz = np.array([idx])
+            weights = np.zeros(n)
+            weights[idx] = 1.0
+
+        # Only the (typically 2-5) bins with nonzero weight are ever
+        # touched -- indexing them out first keeps this a cheap
+        # operation on a thin slab rather than the full 3D volume.
+        block = np.take(signal, nz, axis=axis)
+
+        w_shape = [1] * block.ndim
+        w_shape[axis] = -1
+        w = weights[nz].reshape(w_shape)
+
+        is_nan = np.isnan(block)
+        integrated = np.sum(np.where(is_nan, 0.0, block) * w, axis=axis)
+
+        all_nan = np.all(is_nan | (w == 0), axis=axis)
+        integrated[all_nan] = np.nan
+
+        return integrated
+
+    def add_histo(
+        self, histo_dict, norm, value, thickness=None, vmin=None, vmax=None
+    ):
         """
         Render 3 axis-aligned slice planes for the loaded histogram.
 
@@ -2009,14 +2053,23 @@ class VolumeSlicerView(NeuXtalVizWidget):
         structured-grid lookup), whereas `slice`/`slice_orthogonal` run
         VTK's generic cutter over the *entire* volume for every plane
         -- about 90x slower on a 201^3 volume in local testing, and
-        3 planes means paying that 3 times over. A previous version of
-        this used PyVista's `add_mesh_slice`, which additionally builds
-        an interactive plane-widget (handles, outline, VTK interactor
-        observers) around the cut -- and since every reslice already
-        tears down and rebuilds the whole scene from scratch (see
-        `clear_scene`), that widget setup/teardown cost was paid on
-        every single slider tick for no benefit (nothing here supports
-        dragging a plane directly in the 3D view).
+        3 planes means paying that 3 times over. `slice_index` only
+        gives geometry/position though (a single raw voxel layer), so
+        each plane's own cell data is then overwritten with a sum over
+        `thickness` on either side, matching the *2D slice plot's own*
+        thickness-integration (`IntegrateMDHistoWorkspace`, a plain sum
+        over the included bins -- confirmed by direct comparison) --
+        without that, a single raw layer can look substantially
+        different from the 2D plot even with identical color limits
+        (noisier, and not necessarily even the same sign in the noise
+        floor). A previous version of this used PyVista's
+        `add_mesh_slice`, which additionally builds an interactive
+        plane-widget (handles, outline, VTK interactor observers)
+        around the cut -- and since every reslice already tears down
+        and rebuilds the whole scene from scratch (see `clear_scene`),
+        that widget setup/teardown cost was paid on every single
+        slider tick for no benefit (nothing here supports dragging a
+        plane directly in the 3D view).
 
         Parameters
         ----------
@@ -2031,10 +2084,30 @@ class VolumeSlicerView(NeuXtalVizWidget):
         value : float
             Position along `norm` at which to place the selected slice
             plane; the other two planes stay at the origin (index 0).
+        thickness : float, optional
+            Integration half-width applied identically to all 3 planes
+            (the same "Thickness" the 2D slice/cut controls use) --
+            each plane sums the bins within `+/-thickness` of its own
+            position along its own normal, rather than showing a
+            single raw voxel layer. If None or too small to cover any
+            bin, falls back to the single nearest layer.
+        vmin, vmax : float, optional
+            Color limits shared with the 2D slice colorbar (resolved
+            by the presenter from the same value-limit controls, so
+            the 3D planes and the 2D slice always agree -- and so a
+            percentile-based method doesn't need a separate,
+            far more expensive pass over the full 3D volume just to
+            pick 3D-only limits). If either is None (e.g. nothing has
+            been sliced yet to resolve them from), limits fall back to
+            the plain min/max of the 3 slice planes' own data instead
+            of the full volume, for the same reason.
         """
         opacity = opacities[self.get_opacity()]
 
-        log_scale = True if self.get_vol_scale() == "Log" else False
+        # Shared with the 2D slice scale -- VTK's color mapping only
+        # has a log/linear toggle, no direct "symlog" equivalent, so
+        # "Symlog" maps to linear here same as "Linear" does.
+        log_scale = self.get_slice_scale() == "log"
 
         cmap = cmaps[self.get_colormap()]
 
@@ -2082,11 +2155,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         grid.cell_data["scalars"] = signal.flatten(order="F")
 
-        clim = [np.nanmin(signal), np.nanmax(signal)]
-
-        if not np.all(np.isfinite(clim)):
-            clim = [0.1, 10]
-
         point_index = np.clip(
             np.round((np.array(origin) - min_lim) / spacing).astype(int),
             0,
@@ -2099,7 +2167,22 @@ class VolumeSlicerView(NeuXtalVizWidget):
             grid.slice_index(k=point_index[2]),
         ]
 
-        for i, slice_mesh in enumerate(slices):
+        for axis, slice_mesh in enumerate(slices):
+            integrated = self._integrate_axis(
+                signal, min_lim, spacing, axis, origin[axis], thickness
+            )
+            slice_mesh.cell_data["scalars"] = integrated.flatten(order="F")
+
+        if vmin is None or vmax is None:
+            shown = np.concatenate([s.cell_data["scalars"] for s in slices])
+            vmin, vmax = np.nanmin(shown), np.nanmax(shown)
+
+        clim = [vmin, vmax]
+
+        if not np.all(np.isfinite(clim)):
+            clim = [0.1, 10]
+
+        self._plane_actors = [
             self.plotter.add_mesh(
                 slice_mesh,
                 opacity=opacity,
@@ -2108,7 +2191,10 @@ class VolumeSlicerView(NeuXtalVizWidget):
                 show_scalar_bar=(i == 0),
                 cmap=cmap,
                 user_matrix=b,
+                nan_opacity=0,
             )
+            for i, slice_mesh in enumerate(slices)
+        ]
 
         actor = self.plotter.show_grid(
             xtitle=labels[0],
@@ -2158,6 +2244,37 @@ class VolumeSlicerView(NeuXtalVizWidget):
         actor.SetAxisLabels(2, axis2_label)
 
         self.reset_scene()
+
+    def update_3d_clim(self, vmin, vmax):
+        """
+        Update the 3D slice planes' color limits in place.
+
+        Adjusts the already-drawn plane actors' mapper scalar range
+        directly (which also updates their shared scalar bar) rather
+        than rebuilding the whole scene via `add_histo` -- cheap, and
+        lets the 3D view pick up freshly-resolved 2D slice limits
+        immediately after every reslice, rather than lagging one
+        redraw behind them (`redraw_data`, which draws the 3D planes,
+        always runs before the 2D slice recomputes its own limits, so
+        without this the 3D view would still be showing the previous
+        position's limits by the time this one's are ready). Does
+        nothing if no slice has been drawn yet.
+
+        Parameters
+        ----------
+        vmin, vmax : float
+            New color limits.
+        """
+        if not self._plane_actors or vmin is None or vmax is None:
+            return
+
+        if not np.isfinite([vmin, vmax]).all() or vmin >= vmax:
+            return
+
+        for actor in self._plane_actors:
+            actor.mapper.scalar_range = (vmin, vmax)
+
+        self.plotter.render()
 
     def connect_slice_ready(self, reslice):
         """
@@ -2675,17 +2792,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
                 self._cut_lines = [ln0, ln1]
 
             self.canvas_slice.draw_idle()
-
-    def get_vol_scale(self):
-        """
-        Get the currently selected 3D volume display scale.
-
-        Returns
-        -------
-        scale : str
-            'Linear' or 'Log', as displayed in the volume scale combo box.
-        """
-        return self.vol_scale_combo.currentText()
 
     def get_opacity(self):
         """
@@ -3492,22 +3598,11 @@ class VolumeSlicerView(NeuXtalVizWidget):
         """
         self.cut_thickness_line.setText(str(val))
 
-    def get_clim_clip_type(self):
-        """
-        Get the currently selected color-limit clipping method for the
-        3D volume display.
-
-        Returns
-        -------
-        clip_type : str
-            One of 'Min/Max', 'μ±3×σ', or 'Q₃/Q₁±1.5×IQR'.
-        """
-        return self.clim_combo.currentText()
-
     def get_vlim_clip_type(self):
         """
-        Get the currently selected value-limit clipping method for the
-        2D slice display.
+        Get the currently selected value-limit clipping method.
+
+        Shared by the 2D slice plot and the 3D slice planes.
 
         Returns
         -------
