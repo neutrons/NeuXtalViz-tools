@@ -103,6 +103,8 @@ jobs:
     needs: [build-linux, conda-build]
     if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
     steps:
+      - uses: actions/checkout@v4
+
       - name: Set up Miniconda for publishing
         uses: conda-incubator/setup-miniconda@v3
         with:
