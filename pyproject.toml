@@ -5,7 +5,7 @@ dynamic = ["version"]
 requires-python = ">=3.10"
 dependencies = [
     "mantid >= 6.12",
-  "pyoncat ~= 1.6",
+  "pyoncat",
   "qtpy",
   "pyqt6",
   "numpy",

@@ -24,7 +24,7 @@ requirements:
   run:
     - python >=3.10
     - mantid >=6.12
-    - pyoncat >=1.6,<2
+    - pyoncat
     - qtpy
     - pyqt6
     - numpy
