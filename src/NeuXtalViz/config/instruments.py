@@ -329,13 +329,15 @@ beamlines = {
             "chi,1,1,0,1",
         ],
         "Goniometer": {
-            "Goniometer": {
+            "Vertical": {
+                "omega": [0, 1, 0, 1, 0, 360],
+            },
+            "2-axis": {
                 "omega": [0, 1, 0, 1, 0, 360],
                 "chi": [1, 1, 0, 1, 0, 360],
             },
             "Newport": {
-                "omega": [0, 1, 0, -1, 0, 360],
-                "chi": [1, 1, 0, 1, 0, 360],
+                "omega": [0, 1, 0, -1, -180, 180],
             },
         },
         "GoniometerNames": "ω, χ",
