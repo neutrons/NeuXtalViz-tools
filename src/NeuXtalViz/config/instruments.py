@@ -298,7 +298,7 @@ beamlines = {
         "Grouping": "1x1",
         "PixelSize": [0.125, 0.125],
         "BankPixels": [64, 64],
-        "MaskEdges": [1 , 1],
+        "MaskEdges": [1, 1],
         "MaskBanks": [],
         "Goniometers": [
             "chi,0,1,0,1",
@@ -336,7 +336,7 @@ beamlines = {
             "Newport": {
                 "omega": [0, 1, 0, -1, 0, 360],
                 "chi": [1, 1, 0, 1, 0, 360],
-            }
+            },
         },
         "GoniometerNames": "ω, χ",
         "RawFile": "nexus/WISH000{}.raw",
