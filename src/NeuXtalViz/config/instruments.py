@@ -289,4 +289,60 @@ beamlines = {
         "Counting": ["seconds"],
         "Title": "Title",
     },
+    "SXD": {
+        "Name": "SXD",
+        "InstrumentName": "SXD",
+        "Facility": "ISIS",
+        "Wavelength": [0.4, 7.5],
+        "MinD": 0.4,
+        "Grouping": "1x1",
+        "PixelSize": [0.125, 0.125],
+        "BankPixels": [64, 64],
+        "MaskEdges": [1, 1],
+        "MaskBanks": [],
+        "Goniometers": [
+            "chi,0,1,0,1",
+        ],
+        "Goniometer": {
+            "Goniometer": {
+                "chi": [0, 1, 0, 1, 0, 360],
+            }
+        },
+        "GoniometerNames": "χ",
+        "RawFile": "nexus/SXD{}.raw",
+        "Counting": ["seconds"],
+        "Title": "Title",
+    },
+    "WISH": {
+        "Name": "WISH",
+        "InstrumentName": "WISH",
+        "Facility": "ISIS",
+        "Wavelength": [0.8, 10],
+        "MinD": 1,
+        "Grouping": "1x1",
+        "PixelSize": [0.125, 0.125],
+        "BankPixels": [152, 512],
+        "MaskEdges": [0, 0],
+        "MaskBanks": [],
+        "Goniometers": [
+            "omega,0,1,0,1",
+            "chi,1,1,0,1",
+        ],
+        "Goniometer": {
+            "Vertical": {
+                "omega": [0, 1, 0, 1, 0, 360],
+            },
+            "2-axis": {
+                "omega": [0, 1, 0, 1, 0, 360],
+                "chi": [1, 1, 0, 1, 0, 360],
+            },
+            "Newport": {
+                "omega": [0, 1, 0, -1, -180, 180],
+            },
+        },
+        "GoniometerNames": "ω, χ",
+        "RawFile": "nexus/WISH000{}.raw",
+        "Counting": ["seconds"],
+        "Title": "Title",
+    },
 }
