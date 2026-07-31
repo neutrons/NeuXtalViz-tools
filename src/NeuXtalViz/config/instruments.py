@@ -305,7 +305,7 @@ beamlines = {
         ],
         "Goniometer": {
             "Goniometer": {
-                "chi": [0, 1, 0, 1, -91, 91],
+                "chi": [0, 1, 0, 1, 0, 360],
             }
         },
         "GoniometerNames": "χ",
@@ -325,14 +325,20 @@ beamlines = {
         "MaskEdges": [0, 0],
         "MaskBanks": [],
         "Goniometers": [
-            "chi,0,1,0,1",
+            "omega,0,1,0,1",
+            "chi,1,1,0,1",
         ],
         "Goniometer": {
             "Goniometer": {
-                "chi": [0, 1, 0, 1, -91, 91],
+                "omega": [0, 1, 0, 1, 0, 360],
+                "chi": [1, 1, 0, 1, 0, 360],
+            },
+            "Newport": {
+                "omega": [0, 1, 0, -1, 0, 360],
+                "chi": [1, 1, 0, 1, 0, 360],
             }
         },
-        "GoniometerNames": "χ",
+        "GoniometerNames": "ω, χ",
         "RawFile": "nexus/WISH000{}.raw",
         "Counting": ["seconds"],
         "Title": "Title",
