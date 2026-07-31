@@ -295,6 +295,10 @@ class NeuXtalVizWidget(QWidget):
                 icon = qta.icon("fa6s.weight-scale")
             elif text == "IMAGINE":
                 icon = qta.icon("fa6s.lightbulb")
+            elif text == "SXD":
+                icon = qta.icon("fa6s.cube")
+            elif text == "WISH":
+                icon = qta.icon("fa6s.atom")
             elif space_group_match:
                 no = space_group_match.group(1)
                 pixmap = QPixmap(64, 64)

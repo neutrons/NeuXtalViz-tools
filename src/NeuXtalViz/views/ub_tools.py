@@ -507,6 +507,8 @@ class UBView(NeuXtalVizWidget):
         self.instrument_combo.addItem("SNAP")
         self.instrument_combo.addItem("WAND²")
         self.instrument_combo.addItem("DEMAND")
+        self.instrument_combo.addItem("SXD")
+        self.instrument_combo.addItem("WISH")
         self.instrument_combo.setToolTip(
             "Select the instrument for data conversion."
         )
