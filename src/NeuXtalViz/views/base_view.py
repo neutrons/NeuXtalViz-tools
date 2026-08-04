@@ -45,7 +45,7 @@ pv.set_plot_theme("document")
 
 from pyvistaqt import QtInteractor
 
-from NeuXtalViz.views.utilities import Worker, ThreadPool
+from NeuXtalViz.views.utilities import Worker, ThreadPool, LiveDataSignals
 
 import qtawesome as qta
 
@@ -816,6 +816,49 @@ class NeuXtalVizWidget(QWidget):
         """
 
         return Worker(task)
+
+    def live_signal(self):
+        """
+        Create a :class:`LiveDataSignals` for marshalling live-data
+        update notifications onto the GUI thread.
+
+        Parented to this widget so the signal object's thread affinity
+        matches the GUI thread. Connect a slot to it via
+        :meth:`connect_live_signal` (not a plain ``.connect()`` call)
+        so delivery is queued onto the GUI thread even though the
+        model emits it from a Mantid background algorithm thread.
+
+        Returns
+        -------
+        signals : NeuXtalViz.views.utilities.LiveDataSignals
+            Fresh signal object; pass its bound ``updated.emit``
+            method as the model's live-update callback.
+        """
+
+        return LiveDataSignals(self)
+
+    def connect_live_signal(self, signals, callback):
+        """
+        Connect a callback to a :class:`LiveDataSignals`' ``updated``
+        signal with an explicit queued connection.
+
+        The model's ADS-observer callback (which emits ``updated``)
+        runs on a Mantid background algorithm thread. ``callback`` is
+        typically a plain presenter method, not a slot on a
+        :class:`QObject`, so Qt's auto-connection logic cannot infer
+        that delivery needs to be queued onto the GUI thread -- forcing
+        ``Qt.QueuedConnection`` here makes that explicit.
+
+        Parameters
+        ----------
+        signals : NeuXtalViz.views.utilities.LiveDataSignals
+            Signal object returned by :meth:`live_signal`.
+        callback : callable
+            Function called (on the GUI thread) with the live
+            workspace name each time a chunk lands.
+        """
+
+        signals.updated.connect(callback, Qt.QueuedConnection)
 
     def set_info(self, status):
         """

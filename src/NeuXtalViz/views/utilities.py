@@ -37,6 +37,26 @@ class WorkerSignals(QObject):
     output = Signal(str)
 
 
+class LiveDataSignals(QObject):
+    """
+    Signal used to notify the presenter that a live-data update has
+    landed.
+
+    The model's Mantid ``AnalysisDataServiceObserver`` callback fires on
+    a Mantid background thread; emitting ``updated`` from there still
+    delivers it to slots on the GUI thread, since Qt queues the
+    delivery whenever the receiving :class:`QObject` lives on a
+    different thread than the emitting call.
+
+    Attributes
+    ----------
+    updated : Signal(str)
+        Emitted with the live workspace name each time a chunk lands.
+    """
+
+    updated = Signal(str)
+
+
 class EmittingStream(io.StringIO):
     """
     In-memory text stream that forwards written text to a callback.

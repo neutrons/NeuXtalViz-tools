@@ -64,12 +64,15 @@ from mantid.simpleapi import (
     CropWorkspace,
     MaskDetectors,
     SaveMask,
+    ExtractMonitors,
     mtd,
 )
 
 from mantid import config
 
 config["Q.convention"] = "Crystallography"
+
+from mantid.api import AlgorithmManager, AnalysisDataServiceObserver
 
 from mantid.geometry import (
     CrystalStructure,
@@ -80,7 +83,7 @@ from mantid.geometry import (
     Goniometer,
 )
 
-from mantid.kernel import V3D, FloatTimeSeriesProperty
+from mantid.kernel import V3D
 
 from sklearn.cluster import DBSCAN
 
@@ -91,7 +94,7 @@ import json
 import re
 
 from NeuXtalViz.models.base_model import NeuXtalVizModel
-from NeuXtalViz.config.instruments import beamlines
+from NeuXtalViz.config.instruments import beamlines, LIVE_INSTRUMENTS
 
 lattice_group = {
     "Triclinic": "-1",
@@ -127,6 +130,40 @@ variable = {
 }
 
 
+class _LiveDataObserver(AnalysisDataServiceObserver):
+    """
+    Notifies a callback each time a new live-data chunk lands.
+
+    ``MonitorLiveData`` mutates the live workspace in place on its own
+    background thread (``AccumulationMethod="Add"``). Reading it later
+    from a different thread (e.g. a Qt worker) would race with the next
+    chunk landing, which can crash the process rather than raise a
+    catchable Python exception. `replaceHandle` fires synchronously on
+    Mantid's own thread right after a chunk is stored and before the
+    next one starts, so it is the only safe place to snapshot the
+    workspace; everything downstream operates on that static clone.
+    """
+
+    def __init__(self, workspace_name, snapshot_name, callback):
+        super().__init__()
+        self._workspace_name = workspace_name
+        self._snapshot_name = snapshot_name
+        self._callback = callback
+
+    def replaceHandle(self, name, workspace):
+        if name != self._workspace_name:
+            return
+
+        if mtd.doesExist(self._snapshot_name):
+            DeleteWorkspace(Workspace=self._snapshot_name)
+
+        CloneWorkspace(
+            InputWorkspace=name, OutputWorkspace=self._snapshot_name
+        )
+
+        self._callback(self._snapshot_name)
+
+
 class UBModel(NeuXtalVizModel):
     """
     Model for UB matrix and peak table operations in NeuXtalViz.
@@ -153,6 +190,7 @@ class UBModel(NeuXtalVizModel):
         self.primitive_cell = "primitive_cell"
 
         self.peak_info = None
+        self.runs = []
         self.loaded_data_key = None
         self.loaded_data_workspaces = {}
         self.loaded_md_key = None
@@ -161,6 +199,21 @@ class UBModel(NeuXtalVizModel):
         self.requested_filenames = []
         self.detector_grouping_key = None
         self.detector_grouping_pattern = None
+
+        self.live_workspace = None
+        self.live_snapshot = None
+        self.live_instrument = None
+        self.live_grouping = None
+        self.live_monitor_handle = None
+        self.live_observer = None
+        self.live_previous_facility = None
+        self.live_completed_md_workspaces = []
+        self.live_completed_runs = []
+        self.live_completed_metadata = []
+        self.live_current_md = None
+        self.live_current_run = None
+        self.live_current_metadata = None
+        self.live_run_numbers = []
 
         CreateSampleWorkspace(OutputWorkspace="ub_lattice")
         CreateSampleWorkspace(OutputWorkspace="primitive_cell")
@@ -979,10 +1032,7 @@ class UBModel(NeuXtalVizModel):
         """
         key = (instrument, grouping, cols, rows, c, r)
 
-        if (
-            self.detector_grouping_key == key
-            and self.detector_grouping_pattern is not None
-        ):
+        if self.detector_grouping_key == key:
             return self.detector_grouping_pattern
 
         if workspace is None or not mtd.doesExist(workspace):
@@ -992,9 +1042,27 @@ class UBModel(NeuXtalVizModel):
             InputWorkspace=workspace, OutputWorkspace="detectors"
         )
 
-        det_map = np.asarray(mtd["detectors"].column(5)).reshape(
-            -1, cols, rows
-        )
+        det_ids_flat = np.asarray(mtd["detectors"].column(5))
+
+        if det_ids_flat.size % (cols * rows) != 0:
+            # A raw file load's spectra always form a clean multiple of
+            # cols*rows (LoadEventNexus excludes monitors by default),
+            # but a live listener's workspace -- even after
+            # ExtractMonitors -- isn't guaranteed to (its native
+            # geometry may count/flag spectra differently than the
+            # offline IDF this reshape assumes). Cache the miss so
+            # repeat calls with the same key don't redo this ~0.5s
+            # PreprocessDetectorsToMD just to fail again every tick.
+            print(
+                "Detector grouping pattern for {} unavailable: {} "
+                "spectra is not a multiple of {}x{} -- skipping "
+                "grouping.".format(instrument, det_ids_flat.size, cols, rows)
+            )
+            self.detector_grouping_key = key
+            self.detector_grouping_pattern = None
+            return None
+
+        det_map = det_ids_flat.reshape(-1, cols, rows)
 
         nb, nc, nr = det_map.shape
 
@@ -1095,7 +1163,7 @@ class UBModel(NeuXtalVizModel):
                 Bank=bank,
             )
 
-        if idf is None:
+        if idf is None and grouping != "1x1":
             c, r = [int(val) for val in grouping.split("x")]
             detector_list = self._get_detector_grouping_pattern(
                 workspace, instrument, grouping, cols, rows, c, r
@@ -1219,6 +1287,204 @@ class UBModel(NeuXtalVizModel):
         )
 
         return d_spacing, counts, two_theta, az_phi
+
+    def is_live(self):
+        """
+        Check whether a live-data listener is currently running.
+
+        Returns
+        -------
+        bool
+            True if `start_live_data` has been called without a
+            matching `stop_live_data`.
+        """
+
+        return self.live_workspace is not None
+
+    def start_live_data(self, instrument, update_every=60, on_update=None):
+        """
+        Start streaming live event data for the given instrument.
+
+        Uses Mantid's ``StartLiveData``/``MonitorLiveData`` algorithms
+        to accumulate events for the currently running experiment.
+        ``self.live_workspace`` itself is left at native full pixel
+        resolution and unmasked -- ``MonitorLiveData`` keeps ``Add``-ing
+        freshly listened chunks into it on its own thread, and those
+        incoming chunks are always full resolution, so permanently
+        regrouping/masking that workspace would desync it from the next
+        chunk's spectra count and break accumulation. Instead, the
+        instrument's standard detector grouping (the same
+        ``inst["Grouping"]`` a raw, non-lite file load would use -- see
+        `load_data`/`get_files`) is applied fresh to each disposable
+        snapshot clone, in `_prepare_live_snapshot`, every time one is
+        made.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument identifier, must be one of `LIVE_INSTRUMENTS`.
+        update_every : float, optional
+            Seconds between live-data chunks. Default is 60.
+        on_update : callable, optional
+            Called with the name of a stable snapshot workspace each
+            time a chunk lands (not the live workspace itself -- see
+            `_LiveDataObserver`), plus once immediately (from this
+            method, synchronously) for the initial chunk `StartLiveData`
+            already loaded before the observer existed. Later calls are
+            invoked from Mantid's background algorithm thread, not the
+            GUI thread.
+        """
+
+        if instrument not in LIVE_INSTRUMENTS:
+            raise ValueError(
+                "Live data is only available for {}.".format(
+                    ", ".join(LIVE_INSTRUMENTS)
+                )
+            )
+
+        inst = beamlines[instrument]
+
+        self.live_previous_facility = config["default.facility"]
+        config["default.facility"] = "SNS"
+
+        self.live_workspace = "live_data"
+        self.live_snapshot = "live_data_snapshot"
+        self.live_instrument = instrument
+        self.live_completed_md_workspaces = []
+        self.live_completed_runs = []
+        self.live_completed_metadata = []
+        self.live_current_md = None
+        self.live_current_run = None
+        self.live_current_metadata = None
+        self.live_run_numbers = []
+
+        # Mirrors what load_data() sets from a loaded file -- needed here
+        # too since live mode never calls load_data(), and downstream
+        # code (e.g. calculate_instrument_view) assumes these are set.
+        self.instrument = instrument
+        self.pixel_size = inst["PixelSize"]
+        self.live_grouping = inst["Grouping"]
+        self.grouping_c, self.grouping_r = [
+            int(v) for v in self.live_grouping.split("x")
+        ]
+
+        alg = AlgorithmManager.create("StartLiveData")
+        alg.initialize()
+        alg.setProperty("Instrument", inst["InstrumentName"])
+        alg.setProperty("OutputWorkspace", self.live_workspace)
+        alg.setProperty("FromNow", False)
+        alg.setProperty("FromStartOfRun", True)
+        alg.setProperty("UpdateEvery", float(update_every))
+        alg.setProperty("AccumulationMethod", "Add")
+        alg.setProperty("PreserveEvents", True)
+        alg.setProperty("RunTransitionBehavior", "Rename")
+        alg.execute()
+
+        self.live_monitor_handle = alg.getProperty("MonitorLiveData").value
+
+        if on_update is not None:
+
+            def _forward_live_update(name):
+                self._prepare_live_snapshot(name)
+                on_update(name)
+
+            self.live_observer = _LiveDataObserver(
+                self.live_workspace, self.live_snapshot, _forward_live_update
+            )
+            self.live_observer.observeReplace(True)
+
+            # StartLiveData's own initial chunk (loaded synchronously by
+            # execute() above) landed before the observer existed, so it
+            # never fired a replaceHandle callback. Snapshot and notify
+            # for it explicitly here, or the view shows nothing until
+            # the *next* MonitorLiveData chunk arrives a full
+            # update_every later.
+            if mtd.doesExist(self.live_snapshot):
+                DeleteWorkspace(Workspace=self.live_snapshot)
+
+            CloneWorkspace(
+                InputWorkspace=self.live_workspace,
+                OutputWorkspace=self.live_snapshot,
+            )
+
+            self._prepare_live_snapshot(self.live_snapshot)
+
+            on_update(self.live_snapshot)
+
+    def _prepare_live_snapshot(self, snapshot_name):
+        """
+        Strip monitors and apply standard masking/grouping to a live
+        snapshot clone, in place.
+
+        A raw file load excludes monitor spectra by default
+        (``LoadEventNexus``'s ``LoadMonitors=False``), but the live
+        listener's chunks include them, and detector-geometry
+        algorithms used downstream (`PreprocessDetectorsToMD`, via
+        `convert_data` and `_get_detector_grouping_pattern`) raise if
+        any monitor spectrum is present. `ExtractMonitors` removes them
+        before masking/grouping.
+
+        Only ever called on the disposable snapshot clone
+        (`self.live_snapshot`), never on `self.live_workspace` itself
+        -- see `start_live_data` for why permanently mutating the
+        latter would break ongoing accumulation.
+
+        Parameters
+        ----------
+        snapshot_name : str
+            Name of the snapshot workspace to modify in place.
+        """
+
+        monitor_workspace = snapshot_name + "_monitors"
+
+        ExtractMonitors(
+            InputWorkspace=snapshot_name,
+            DetectorWorkspace=snapshot_name,
+            MonitorWorkspace=monitor_workspace,
+        )
+
+        if mtd.doesExist(monitor_workspace):
+            DeleteWorkspace(Workspace=monitor_workspace)
+
+        self._prepare_white_beam_workspace(
+            snapshot_name,
+            self.live_instrument,
+            beamlines[self.live_instrument],
+            1,
+            1,
+            None,
+            self.live_grouping,
+        )
+
+    def stop_live_data(self):
+        """
+        Stop the live-data listener and restore the previous facility.
+
+        Leaves any already-merged live contribution to the "md"/"Q3D"
+        workspaces in place.
+        """
+
+        if self.live_observer is not None:
+            self.live_observer.observeReplace(False)
+            self.live_observer = None
+
+        if self.live_monitor_handle is not None:
+            self.live_monitor_handle.cancel()
+            self.live_monitor_handle = None
+
+        if self.live_previous_facility is not None:
+            config["default.facility"] = self.live_previous_facility
+            self.live_previous_facility = None
+
+        if self.live_snapshot is not None and mtd.doesExist(
+            self.live_snapshot
+        ):
+            DeleteWorkspace(Workspace=self.live_snapshot)
+
+        self.live_workspace = None
+        self.live_snapshot = None
+        self.live_instrument = None
+        self.live_grouping = None
 
     def load_data(
         self,
@@ -1434,10 +1700,10 @@ class UBModel(NeuXtalVizModel):
 
             return True
 
-    def calibrate_data(self, instrument, det_cal, gon_cal, tube_cal):
+    def calibrate_data(self, instrument, det_cal, tube_cal):
         """
-        Calibrate the loaded data using detector, goniometer, and tube
-        calibration files.
+        Calibrate the loaded data using detector and tube calibration
+        files.
 
         Parameters
         ----------
@@ -1447,18 +1713,24 @@ class UBModel(NeuXtalVizModel):
             Detector calibration file.
         tube_cal : str
             Tube calibration file.
-        gon_cal : str
-            Goniometer calibration file.
         """
 
         filepath = self.get_raw_file_path(instrument)
 
-        if mtd.doesExist("data"):
+        if mtd.doesExist("data") or self.is_live():
             goniometers = self.get_goniometers(instrument)
             while len(goniometers) < 6:
                 goniometers.append(None)
 
             white_beam_workspaces = self._get_requested_loaded_workspaces()
+            if (
+                self.is_live()
+                and self.live_snapshot is not None
+                and mtd.doesExist(self.live_snapshot)
+            ):
+                white_beam_workspaces = white_beam_workspaces + [
+                    self.live_snapshot
+                ]
             if "HFIR" in filepath or len(white_beam_workspaces) == 0:
                 workspaces = (
                     list(mtd["data"].getNames())
@@ -1496,64 +1768,37 @@ class UBModel(NeuXtalVizModel):
                             InputWorkspace=workspace, Filename=det_cal
                         )
 
-            if (
-                gon_cal != ""
-                and os.path.exists(gon_cal)
-                and os.path.splitext(gon_cal)[1] == ".xml"
-            ):
-                LoadParameterFile(Workspace="goniometer", Filename=gon_cal)
-
-                inst = mtd["goniometer"].getInstrument()
-
-                for workspace in workspaces:
-                    run = mtd[workspace].run()
-
-                    params = ["omega-offset", "chi-offset", "phi-offset"]
-
-                    for i, param in enumerate(params):
-                        if inst.hasParameter(param):
-                            val = inst.getNumberParameter(param)[0]
-                            name = goniometers[i].split(",")[0]
-                            values = run.getProperty(name).value
-                            times = run.getProperty(name).times
-                            log = FloatTimeSeriesProperty(name)
-                            for t, v in zip(times, values):
-                                log.addValue(t, v + val)
-                            run[name] = log
-
-                    SetGoniometer(
-                        Workspace=workspace,
-                        Axis0=goniometers[0],
-                        Axis1=goniometers[1],
-                        Axis2=goniometers[2],
-                        Average=False if "HFIR" in filepath else True,
-                    )
-
-                    run = mtd[workspace].run()
-
-                    param = "goniometer-tilt"
-                    if inst.hasParameter(param):
-                        v = inst.getStringParameter(param)[0]
-                        G = np.array(v.split(",")).astype(float).reshape(3, 3)
-                        gon = run.getGoniometer()
-                        gon.setR(G @ gon.getR())
-
     def get_number_workspaces(self):
         """
         Get the run numbers associated with the currently loaded data.
 
+        Reflects whatever `convert_data` last built into `self.runs` --
+        one entry per entry in `self.Rs`/`self.counts`, including every
+        run a live-data session has passed through, not just the
+        current one (see `_update_live_md`).
+
+        Only trusted under the same condition `convert_data` itself
+        requires to rebuild `self.runs` (`mtd.doesExist("data") or
+        is_live()`); otherwise `self.runs` may still hold a stale value
+        from a `load_data` call whose data never actually loaded.
+
         Returns
         -------
         runs : list or None
-            List of run numbers for the loaded "data" workspace, or None
-            if no data has been loaded.
+            List of run numbers, or None if no data has been converted.
         """
 
-        if mtd.doesExist("data"):
-            return self.runs
+        if (mtd.doesExist("data") or self.is_live()) and self.runs:
+            return list(self.runs)
 
     def convert_data(
-        self, instrument, wavelength, lorentz, min_d=None, force_reload=False
+        self,
+        instrument,
+        wavelength,
+        lorentz,
+        min_d=None,
+        force_reload=False,
+        reset_peaks=True,
     ):
         """
         Convert loaded data to Q-space using Mantid algorithms.
@@ -1570,6 +1815,11 @@ class UBModel(NeuXtalVizModel):
             Minimum d-spacing. Default is None.
         force_reload : bool, optional
             Force reconversion of cached MD workspaces.
+        reset_peaks : bool, optional
+            Whether to (re)create an empty peaks table (default True,
+            matching existing Convert behavior). Live ticks pass False
+            so already-found/indexed peaks survive each automatic
+            reconversion instead of being wiped every cycle.
         """
 
         filepath = self.get_raw_file_path(instrument)
@@ -1577,17 +1827,18 @@ class UBModel(NeuXtalVizModel):
         if min_d is not None:
             Q_max = 2 * np.pi / min_d
 
-        if mtd.doesExist("data"):
+        if mtd.doesExist("data") or self.is_live():
             self.detector_ids = np.array([], dtype=int)
 
             input_ws_names = (
                 list(mtd["data"].getNames())
-                if mtd["data"].isGroup()
-                else ["data"]
+                if mtd.doesExist("data") and mtd["data"].isGroup()
+                else (["data"] if mtd.doesExist("data") else [])
             )
-            input_ws = input_ws_names[0]
+            input_ws = input_ws_names[0] if input_ws_names else None
 
             Rs = []
+            runs = None
 
             if "HFIR" in filepath:
                 r = mtd[input_ws].getExperimentInfo(0).run()
@@ -1646,6 +1897,13 @@ class UBModel(NeuXtalVizModel):
                 raw_workspaces = self._get_requested_loaded_workspaces()
                 if len(raw_workspaces) == 0:
                     raw_workspaces = input_ws_names
+                if (
+                    len(raw_workspaces) == 0
+                    and self.is_live()
+                    and self.live_snapshot is not None
+                    and mtd.doesExist(self.live_snapshot)
+                ):
+                    raw_workspaces = [self.live_snapshot]
 
                 PreprocessDetectorsToMD(
                     InputWorkspace=raw_workspaces[0],
@@ -1676,8 +1934,16 @@ class UBModel(NeuXtalVizModel):
                 conv = None
                 counts = []
                 Rs = []
+                runs = []
                 two_theta = None
                 az_phi = None
+
+                # self.runs was set by load_data() in the same order as
+                # self.requested_filenames -- rebuild that mapping here
+                # so runs skipped below (raw_workspace missing) don't
+                # desync self.runs from Rs/counts, and so live runs can
+                # be appended to the same list further down.
+                file_runs = dict(zip(self.requested_filenames, self.runs))
 
                 for filename in self.requested_filenames:
                     raw_workspace = self.loaded_data_workspaces.get(filename)
@@ -1732,6 +1998,7 @@ class UBModel(NeuXtalVizModel):
 
                     Rs.append(R)
                     counts.append(vals)
+                    runs.append(file_runs.get(filename))
 
                 self.loaded_md_key = convert_key
 
@@ -1741,6 +2008,16 @@ class UBModel(NeuXtalVizModel):
                     if filename in self.loaded_md_workspaces
                     and mtd.doesExist(self.loaded_md_workspaces[filename])
                 ]
+
+                if self.is_live():
+                    live_md_workspaces, live_run_numbers, live_metadata = (
+                        self._update_live_md(wavelength, lorentz, Q_min, Q_max)
+                    )
+                    md_workspaces = md_workspaces + live_md_workspaces
+                    for d, vals, two_theta, az_phi, R, conv in live_metadata:
+                        Rs.append(R)
+                        counts.append(vals)
+                    runs = runs + live_run_numbers
 
                 if len(md_workspaces) == 0:
                     return
@@ -1767,6 +2044,8 @@ class UBModel(NeuXtalVizModel):
             self.two_theta = np.array(two_theta)
             self.scan = lamda if "HFIR" in filepath else d
             self.Rs = Rs
+            if runs is not None:
+                self.runs = runs
             self.conv = conv
 
             kf_x = np.sin(two_theta) * np.cos(az_phi)
@@ -1776,21 +2055,143 @@ class UBModel(NeuXtalVizModel):
             self.nu = np.rad2deg(np.arcsin(kf_y))
             self.gamma = np.rad2deg(np.arctan2(kf_x, kf_z))
 
-            self.make_Q(Q_max)
+            self.make_Q(Q_max, reset_peaks=reset_peaks)
 
-    def make_Q(self, Q_max):
+    def _update_live_md(self, wavelength, lorentz, q_min, q_max):
+        """
+        Reconvert the in-progress live run into its MD workspace.
+
+        Operates on `live_snapshot` -- a static clone taken safely on
+        Mantid's own background thread right after a chunk landed (see
+        `_LiveDataObserver`) -- never on `live_workspace` directly,
+        since that one is still being mutated in place by Mantid's
+        `MonitorLiveData` and reading it concurrently from here would
+        race with the next chunk landing.
+
+        Reads the run number off the snapshot. If it has changed since
+        the previous call, the previous run has finished: its MD
+        workspace, run number, and conversion metadata are archived
+        permanently into `live_completed_md_workspaces` /
+        `live_completed_runs` / `live_completed_metadata` (never
+        recomputed again). The current run's MD workspace is then
+        (re)built in place under a name stable for that run number, so
+        repeated calls for the same run replace it rather than adding a
+        new `ExperimentInfo`.
+
+        Every completed run's metadata is returned alongside the
+        current one (not just the latest) so callers building
+        `self.Rs`/`self.counts`/`self.runs` -- which must have one
+        entry per run for peak indexing (see `add_peak`/
+        `add_peak_from_hkl`) -- don't silently drop runs a live session
+        has already passed through.
+
+        Parameters
+        ----------
+        wavelength : list
+            Wavelength band [min, max] in angstroms.
+        lorentz : bool
+            Whether to apply the Lorentz correction during conversion.
+        q_min, q_max : float
+            Momentum-transfer extent used for the conversion.
+
+        Returns
+        -------
+        md_workspaces : list
+            Names of the live MD workspaces (completed runs plus the
+            current in-progress run, if any) to merge into "md".
+        run_numbers : list
+            Run number for each entry in `md_workspaces`/the returned
+            metadata list, in the same order.
+        metadata : list of tuple
+            ``(d, counts, two_theta, az_phi, R, conv)`` for each
+            completed run plus the current one; empty if there is no
+            live snapshot yet.
+        """
+
+        if (
+            self.live_snapshot is None
+            or not mtd.doesExist(self.live_snapshot)
+            or mtd[self.live_snapshot].getNumberEvents() == 0
+        ):
+            return (
+                list(self.live_completed_md_workspaces),
+                list(self.live_completed_runs),
+                list(self.live_completed_metadata),
+            )
+
+        live_ws = mtd[self.live_snapshot]
+        run = live_ws.run()
+        run_number = (
+            run.getProperty("run_number").value
+            if run.hasProperty("run_number")
+            else None
+        )
+
+        if (
+            self.live_current_run is not None
+            and run_number != self.live_current_run
+            and self.live_current_md is not None
+        ):
+            if mtd.doesExist(self.live_current_md):
+                self.live_completed_md_workspaces.append(self.live_current_md)
+                self.live_completed_runs.append(self.live_current_run)
+                self.live_completed_metadata.append(self.live_current_metadata)
+            self.live_current_md = None
+            self.live_current_metadata = None
+
+        self.live_current_run = run_number
+
+        md_workspace = "live_md_{}".format(
+            run_number if run_number is not None else "current"
+        )
+        self.live_current_md = md_workspace
+
+        if mtd.doesExist(md_workspace):
+            DeleteWorkspace(Workspace=md_workspace)
+
+        d, vals, two_theta, az_phi = self._convert_white_beam_run(
+            self.live_snapshot,
+            md_workspace,
+            wavelength,
+            lorentz,
+            q_min,
+            q_max,
+        )
+
+        gon = run.getGoniometer(0)
+        R = gon.getR()
+        conv = gon.getConventionFromMotorAxes()
+        if conv == "YYY":
+            conv = "YZY"
+
+        self.live_current_metadata = (d, vals, two_theta, az_phi, R, conv)
+
+        md_workspaces = self.live_completed_md_workspaces + [md_workspace]
+        run_numbers = self.live_completed_runs + [run_number]
+        metadata = self.live_completed_metadata + [self.live_current_metadata]
+
+        self.live_run_numbers = list(run_numbers)
+
+        return md_workspaces, run_numbers, metadata
+
+    def make_Q(self, Q_max, reset_peaks=True):
         """
         Bin the converted MD workspace into a 3D Q-sample volume for display.
 
-        Creates the "Q3D" histogram volume and associated peaks/lattice
-        workspaces, then computes a normalized, outlier-masked log signal
-        array for rendering.
+        Creates the "Q3D" histogram volume and lattice workspace, then
+        computes a normalized, outlier-masked log signal array for
+        rendering.
 
         Parameters
         ----------
         Q_max : float
             Maximum extent of the Q-sample volume along each axis, and the
             radius beyond which voxels are masked out.
+        reset_peaks : bool, optional
+            Whether to (re)create an empty peaks table (default True).
+            When False, an existing peaks table is left as-is -- used
+            by live ticks so already-found/indexed peaks aren't wiped
+            by every automatic reconversion.
         """
 
         self.Q_max_cut = Q_max
@@ -1808,11 +2209,12 @@ class UBModel(NeuXtalVizModel):
             OutputWorkspace="Q3D",
         )
 
-        CreatePeaksWorkspace(
-            InstrumentWorkspace=self.Q,
-            NumberOfPeaks=0,
-            OutputWorkspace=self.table,
-        )
+        if reset_peaks or not mtd.doesExist(self.table):
+            CreatePeaksWorkspace(
+                InstrumentWorkspace=self.Q,
+                NumberOfPeaks=0,
+                OutputWorkspace=self.table,
+            )
 
         CopySample(
             InputWorkspace=self.Q,
@@ -2209,6 +2611,18 @@ class UBModel(NeuXtalVizModel):
             det_ids_arr = detector_ids[uni_rows][sort]
         else:
             det_ids_arr = np.array([], dtype=int)
+
+        # Detectors with no valid sample-detector distance (e.g. masked/
+        # dead pixels ConvertUnits flagged) come back with NaN gamma/nu,
+        # which would otherwise reach the np.arange calls below and
+        # crash with "cannot compute length".
+        finite = np.isfinite(gamma_arr) & np.isfinite(nu_arr)
+        if not finite.all():
+            gamma_arr = gamma_arr[finite]
+            nu_arr = nu_arr[finite]
+            counts_arr = counts_arr[finite]
+            if det_ids_arr.size == finite.size:
+                det_ids_arr = det_ids_arr[finite]
 
         inst_view["d"] = d_spacing
         inst_view["d_min"] = d_min

@@ -55,7 +55,6 @@ class Experiment(NeuXtalVizPresenter):
         self.view.connect_peak_table(self.update_peaks)
         self.view.connect_load_mask(self.load_mask)
         self.view.connect_load_detector(self.load_detector)
-        self.view.connect_load_goniometer(self.load_goniometer)
         self.view.connect_convert_mesh_to_hkl(self.convert_mesh_to_hkl)
         self.view.connect_convert_plan_to_hkl(self.convert_plan_to_hkl)
 
@@ -96,18 +95,6 @@ class Experiment(NeuXtalVizPresenter):
 
         if filename:
             self.view.set_detector_calibration(filename)
-
-    def load_goniometer(self):
-        """
-        Load goniometer calibration file and set it in the view.
-
-        """
-        inst = self.view.get_instrument()
-        path = self.model.get_calibration_file_path(inst)
-        filename = self.view.load_goniometer_cal_dialog(path)
-
-        if filename:
-            self.view.set_goniometer_calibration(filename)
 
     def load_mask(self):
         """
@@ -259,7 +246,6 @@ class Experiment(NeuXtalVizPresenter):
         instrument = self.view.get_instrument()
         motors = self.view.get_motors()
         cal = self.view.get_detector_calibration()
-        gon = self.view.get_goniometer_calibration()
         mask = self.view.get_mask()
 
         worker = self.view.worker(
@@ -268,7 +254,6 @@ class Experiment(NeuXtalVizPresenter):
                 instrument=instrument,
                 motors=motors,
                 cal=cal,
-                gon=gon,
                 mask=mask,
             )
         )
@@ -301,7 +286,6 @@ class Experiment(NeuXtalVizPresenter):
         instrument=None,
         motors=None,
         cal=None,
-        gon=None,
         mask=None,
     ):
         """
@@ -320,8 +304,6 @@ class Experiment(NeuXtalVizPresenter):
             Auxiliary motor ``(name, value)`` settings.
         cal : str, optional
             Detector calibration file path.
-        gon : str, optional
-            Goniometer calibration file path.
         mask : str, optional
             Detector mask file path.
 
@@ -341,7 +323,7 @@ class Experiment(NeuXtalVizPresenter):
         if self.stop_processing(stop_event):
             return None
 
-        self.model.initialize_instrument(instrument, motors, cal, gon, mask)
+        self.model.initialize_instrument(instrument, motors, cal, mask)
 
         progress("Calculating instrument view.", 5)
 
@@ -366,10 +348,9 @@ class Experiment(NeuXtalVizPresenter):
         instrument = self.view.get_instrument()
         motors = self.view.get_motors()
         cal = self.view.get_detector_calibration()
-        gon = self.view.get_goniometer_calibration()
         mask = self.view.get_mask()
 
-        self.model.initialize_instrument(instrument, motors, cal, gon, mask)
+        self.model.initialize_instrument(instrument, motors, cal, mask)
 
     def calculate_single(self):
         """
@@ -413,7 +394,6 @@ class Experiment(NeuXtalVizPresenter):
         limits = self.view.get_goniometer_limits()
         instr_motors = self.view.get_motors()
         cal = self.view.get_detector_calibration()
-        gon = self.view.get_goniometer_calibration()
         mask = self.view.get_mask()
 
         worker = self.view.worker(
@@ -429,7 +409,6 @@ class Experiment(NeuXtalVizPresenter):
                 limits=limits,
                 instr_motors=instr_motors,
                 cal=cal,
-                gon=gon,
                 mask=mask,
             )
         )
@@ -472,7 +451,6 @@ class Experiment(NeuXtalVizPresenter):
         limits=None,
         instr_motors=None,
         cal=None,
-        gon=None,
         mask=None,
     ):
         """
@@ -508,8 +486,6 @@ class Experiment(NeuXtalVizPresenter):
             Auxiliary motor ``(name, value)`` settings.
         cal : str, optional
             Detector calibration file path.
-        gon : str, optional
-            Goniometer calibration file path.
         mask : str, optional
             Detector mask file path.
 
@@ -536,7 +512,7 @@ class Experiment(NeuXtalVizPresenter):
                 return None
 
             self.model.initialize_instrument(
-                instrument, instr_motors, cal, gon, mask
+                instrument, instr_motors, cal, mask
             )
 
             progress("Instrument initialized! ", 10)
@@ -589,7 +565,6 @@ class Experiment(NeuXtalVizPresenter):
         limits = self.view.get_goniometer_limits()
         instr_motors = self.view.get_motors()
         cal = self.view.get_detector_calibration()
-        gon = self.view.get_goniometer_calibration()
         mask = self.view.get_mask()
 
         worker = self.view.worker(
@@ -605,7 +580,6 @@ class Experiment(NeuXtalVizPresenter):
                 limits=limits,
                 instr_motors=instr_motors,
                 cal=cal,
-                gon=gon,
                 mask=mask,
             )
         )
@@ -652,7 +626,6 @@ class Experiment(NeuXtalVizPresenter):
         limits=None,
         instr_motors=None,
         cal=None,
-        gon=None,
         mask=None,
     ):
         """
@@ -686,8 +659,6 @@ class Experiment(NeuXtalVizPresenter):
             Auxiliary motor ``(name, value)`` settings.
         cal : str, optional
             Detector calibration file path.
-        gon : str, optional
-            Goniometer calibration file path.
         mask : str, optional
             Detector mask file path.
 
@@ -715,7 +686,7 @@ class Experiment(NeuXtalVizPresenter):
                 return None
 
             self.model.initialize_instrument(
-                instrument, instr_motors, cal, gon, mask
+                instrument, instr_motors, cal, mask
             )
 
             progress("Instrument initialized! ", 10)
@@ -1119,7 +1090,6 @@ class Experiment(NeuXtalVizPresenter):
         mode = self.view.get_mode()
         instr_motors = self.view.get_motors()
         cal = self.view.get_detector_calibration()
-        gon = self.view.get_goniometer_calibration()
         mask = self.view.get_mask()
 
         worker = self.view.worker(
@@ -1135,7 +1105,6 @@ class Experiment(NeuXtalVizPresenter):
                 mode=mode,
                 instr_motors=instr_motors,
                 cal=cal,
-                gon=gon,
                 mask=mask,
             )
         )
@@ -1176,7 +1145,6 @@ class Experiment(NeuXtalVizPresenter):
         mode=None,
         instr_motors=None,
         cal=None,
-        gon=None,
         mask=None,
     ):
         """
@@ -1212,8 +1180,6 @@ class Experiment(NeuXtalVizPresenter):
             Auxiliary motor ``(name, value)`` settings.
         cal : str, optional
             Detector calibration file path.
-        gon : str, optional
-            Goniometer calibration file path.
         mask : str, optional
             Detector mask file path.
 
@@ -1236,9 +1202,7 @@ class Experiment(NeuXtalVizPresenter):
         if self.stop_processing(stop_event):
             return None
 
-        self.model.initialize_instrument(
-            instrument, instr_motors, cal, gon, mask
-        )
+        self.model.initialize_instrument(instrument, instr_motors, cal, mask)
 
         if mesh_angles is not None:
             progress("Calculating reflections", 5)
@@ -1293,7 +1257,6 @@ class Experiment(NeuXtalVizPresenter):
         norm = self.get_normal()
         instr_motors = self.view.get_motors()
         cal = self.view.get_detector_calibration()
-        gon = self.view.get_goniometer_calibration()
         mask = self.view.get_mask()
 
         worker = self.view.worker(
@@ -1316,7 +1279,6 @@ class Experiment(NeuXtalVizPresenter):
                 norm=norm,
                 instr_motors=instr_motors,
                 cal=cal,
-                gon=gon,
                 mask=mask,
             )
         )
@@ -1346,7 +1308,6 @@ class Experiment(NeuXtalVizPresenter):
         norm=None,
         instr_motors=None,
         cal=None,
-        gon=None,
         mask=None,
     ):
         """
@@ -1393,8 +1354,6 @@ class Experiment(NeuXtalVizPresenter):
             Auxiliary motor ``(name, value)`` settings.
         cal : str, optional
             Detector calibration file path.
-        gon : str, optional
-            Goniometer calibration file path.
         mask : str, optional
             Detector mask file path.
 
@@ -1446,9 +1405,7 @@ class Experiment(NeuXtalVizPresenter):
         if self.stop_processing(stop_event):
             return None
 
-        self.model.initialize_instrument(
-            instrument, instr_motors, cal, gon, mask
-        )
+        self.model.initialize_instrument(instrument, instr_motors, cal, mask)
         self.model.calculate_footprint(wavelength, d_min)
 
         progress("Calculating plane coverage...", 50)
@@ -1498,7 +1455,6 @@ class Experiment(NeuXtalVizPresenter):
         limits = self.view.get_goniometer_limits()
         instr_motors = self.view.get_motors()
         cal = self.view.get_detector_calibration()
-        gon = self.view.get_goniometer_calibration()
         mask = self.view.get_mask()
 
         worker = self.view.worker(
@@ -1518,7 +1474,6 @@ class Experiment(NeuXtalVizPresenter):
                 limits=limits,
                 instr_motors=instr_motors,
                 cal=cal,
-                gon=gon,
                 mask=mask,
             )
         )
@@ -1563,7 +1518,6 @@ class Experiment(NeuXtalVizPresenter):
         limits=None,
         instr_motors=None,
         cal=None,
-        gon=None,
         mask=None,
     ):
         """
@@ -1604,8 +1558,6 @@ class Experiment(NeuXtalVizPresenter):
             Auxiliary motor ``(name, value)`` settings.
         cal : str, optional
             Detector calibration file path.
-        gon : str, optional
-            Goniometer calibration file path.
         mask : str, optional
             Detector mask file path.
 
@@ -1633,9 +1585,7 @@ class Experiment(NeuXtalVizPresenter):
         if self.stop_processing(stop_event):
             return None
 
-        self.model.initialize_instrument(
-            instrument, instr_motors, cal, gon, mask
-        )
+        self.model.initialize_instrument(instrument, instr_motors, cal, mask)
 
         progress("Calculating plane orientations", 5)
 
@@ -1723,7 +1673,6 @@ class Experiment(NeuXtalVizPresenter):
             wavelength = self.view.get_wavelength()
             instr_motors = self.view.get_motors()
             cal = self.view.get_detector_calibration()
-            gon = self.view.get_goniometer_calibration()
             mask = self.view.get_mask()
 
             worker = self.view.worker(
@@ -1742,7 +1691,6 @@ class Experiment(NeuXtalVizPresenter):
                     wavelength=wavelength,
                     instr_motors=instr_motors,
                     cal=cal,
-                    gon=gon,
                     mask=mask,
                 )
             )
@@ -1784,7 +1732,6 @@ class Experiment(NeuXtalVizPresenter):
         wavelength=None,
         instr_motors=None,
         cal=None,
-        gon=None,
         mask=None,
     ):
         """
@@ -1833,8 +1780,6 @@ class Experiment(NeuXtalVizPresenter):
             Auxiliary motor ``(name, value)`` settings.
         cal : str, optional
             Detector calibration file path.
-        gon : str, optional
-            Goniometer calibration file path.
         mask : str, optional
             Detector mask file path.
 
@@ -1881,7 +1826,7 @@ class Experiment(NeuXtalVizPresenter):
                         return None
 
                     self.model.initialize_instrument(
-                        instrument, instr_motors, cal, gon, mask
+                        instrument, instr_motors, cal, mask
                     )
 
                     self.model.calculate_footprint(wavelength, d_min)
@@ -2026,7 +1971,6 @@ class Experiment(NeuXtalVizPresenter):
         limits = self.view.get_goniometer_limits()
         instr_motors = self.view.get_motors()
         cal = self.view.get_detector_calibration()
-        gon = self.view.get_goniometer_calibration()
         mask = self.view.get_mask()
 
         worker = self.view.worker(
@@ -2044,7 +1988,6 @@ class Experiment(NeuXtalVizPresenter):
                 limits=limits,
                 instr_motors=instr_motors,
                 cal=cal,
-                gon=gon,
                 mask=mask,
             )
         )
@@ -2088,7 +2031,6 @@ class Experiment(NeuXtalVizPresenter):
         limits=None,
         instr_motors=None,
         cal=None,
-        gon=None,
         mask=None,
     ):
         """
@@ -2128,8 +2070,6 @@ class Experiment(NeuXtalVizPresenter):
             Auxiliary motor ``(name, value)`` settings.
         cal : str, optional
             Detector calibration file path.
-        gon : str, optional
-            Goniometer calibration file path.
         mask : str, optional
             Detector mask file path.
 
@@ -2158,7 +2098,7 @@ class Experiment(NeuXtalVizPresenter):
                 return None
 
             self.model.initialize_instrument(
-                instrument, instr_motors, cal, gon, mask
+                instrument, instr_motors, cal, mask
             )
 
             progress("Instrument initialized! ", 10)
@@ -2202,7 +2142,6 @@ class Experiment(NeuXtalVizPresenter):
 
         instrument = self.view.get_instrument()
         cal = self.view.get_detector_calibration()
-        gon = self.view.get_goniometer_calibration()
         mask = self.view.get_mask()
         mode = self.view.get_mode()
         settings = self.view.get_all_settings()
@@ -2225,7 +2164,7 @@ class Experiment(NeuXtalVizPresenter):
         self.model.create_plan(table)
         self.model.create_sample(instrument, mode, UB, wavelength, d_min)
         self.model.update_sample(crysal_system, point_group, lattice_centering)
-        self.model.update_goniometer_motors(limits, motors, cal, gon, mask)
+        self.model.update_goniometer_motors(limits, motors, cal, mask)
 
     def save_CSV(self):
         """
@@ -2291,7 +2230,7 @@ class Experiment(NeuXtalVizPresenter):
             plan, config, symm = self.model.load_experiment(filename)
 
             titles, settings, comments, counts, values, use = plan
-            instrument, mode, wl, d_min, lims, vals, cal, gon, mask = config
+            instrument, mode, wl, d_min, lims, vals, cal, mask = config
             cs, pg, lc = symm
 
             table = titles, settings, comments, counts, values, use
@@ -2307,7 +2246,6 @@ class Experiment(NeuXtalVizPresenter):
             self.view.set_goniometer_limits(lims)
             self.view.set_motors(vals)
             self.view.set_detector_calibration(cal)
-            self.view.set_goniometer_calibration(gon)
             self.view.set_mask(mask)
             self.view.set_crystal_system(cs)
             self.switch_crystal()
@@ -2337,7 +2275,6 @@ class Experiment(NeuXtalVizPresenter):
         limits = self.view.get_goniometer_limits()
         instr_motors = self.view.get_motors()
         cal = self.view.get_detector_calibration()
-        gon = self.view.get_goniometer_calibration()
         mask = self.view.get_mask()
         angle_settings = [
             self.view.get_angle_setting(row) for row in range(rows)
@@ -2354,7 +2291,6 @@ class Experiment(NeuXtalVizPresenter):
                 limits=limits,
                 instr_motors=instr_motors,
                 cal=cal,
-                gon=gon,
                 mask=mask,
                 angle_settings=angle_settings,
             )
@@ -2392,7 +2328,6 @@ class Experiment(NeuXtalVizPresenter):
         limits=None,
         instr_motors=None,
         cal=None,
-        gon=None,
         mask=None,
         angle_settings=None,
     ):
@@ -2426,8 +2361,6 @@ class Experiment(NeuXtalVizPresenter):
             Auxiliary motor ``(name, value)`` settings.
         cal : str, optional
             Detector calibration file path.
-        gon : str, optional
-            Goniometer calibration file path.
         mask : str, optional
             Detector mask file path.
         angle_settings : list, optional
@@ -2451,9 +2384,7 @@ class Experiment(NeuXtalVizPresenter):
         if self.stop_processing(stop_event):
             return None
 
-        self.model.initialize_instrument(
-            instrument, instr_motors, cal, gon, mask
-        )
+        self.model.initialize_instrument(instrument, instr_motors, cal, mask)
         self.model.clear_combined()
 
         for row in range(rows):

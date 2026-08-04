@@ -1,7 +1,11 @@
 from NeuXtalViz.presenters.base_presenter import NeuXtalVizPresenter
+from NeuXtalViz.config.instruments import LIVE_INSTRUMENTS
 
 import functools
 import numpy as np
+
+LIVE_IDLE_TICK_LIMIT = 20
+LIVE_IDLE_WARNING_SECONDS = 120
 
 
 class UB(NeuXtalVizPresenter):
@@ -31,6 +35,13 @@ class UB(NeuXtalVizPresenter):
 
         super(UB, self).__init__(view, model)
 
+        self._live_signal = None
+        self.live_convert_idle = True
+        self.live_tick_count = 0
+        self.live_idle_warning_active = False
+
+        self.view.connect_live_toggle(self.toggle_live)
+
         self.view.connect_load_Q(self.load_Q)
         self.view.connect_save_Q(self.save_Q)
         self.view.connect_load_peaks(self.load_peaks)
@@ -41,7 +52,6 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_wavelength(self.update_wavelength)
 
         self.view.connect_browse_calibration(self.load_detector_calibration)
-        self.view.connect_browse_goniometer(self.load_goniometer_calibration)
         self.view.connect_browse_tube(self.load_tube_calibration)
 
         self.view.connect_convert_Q(self.convert_Q)
@@ -518,13 +528,21 @@ class UB(NeuXtalVizPresenter):
             via ``convert_Q_reload``.
         """
 
+        if self.view.get_live():
+            if self.model.is_live():
+                self.stop_live()
+                self.view.set_convert_button_text("Start Live")
+            else:
+                self.start_live()
+                self.view.set_convert_button_text("Stop Live")
+            return
+
         self.update_data_status()
 
         instrument = self.view.get_instrument()
         wavelength = self.view.get_wavelength()
         tube_cal = self.view.get_tube_calibration()
         det_cal = self.view.get_detector_calibration()
-        gon_cal = self.view.get_goniometer_calibration()
         IPTS = self.view.get_IPTS()
         runs = self.view.get_runs()
         exp = self.view.get_experiment()
@@ -539,7 +557,6 @@ class UB(NeuXtalVizPresenter):
                 wavelength=wavelength,
                 tube_cal=tube_cal,
                 det_cal=det_cal,
-                gon_cal=gon_cal,
                 IPTS=IPTS,
                 runs=runs,
                 exp=exp,
@@ -564,6 +581,222 @@ class UB(NeuXtalVizPresenter):
         """
 
         self.convert_Q(force_reload=True)
+
+    def toggle_live(self, checked):
+        """
+        React to the "Live" checkbox being toggled.
+
+        Connected to the live checkbox's toggled signal. Only adjusts
+        the run-entry fields and the Convert button's label; starting
+        or stopping the listener itself happens on the next Convert
+        button click (handled in ``convert_Q``).
+
+        Parameters
+        ----------
+        checked : bool
+            New checkbox state.
+        """
+
+        self.view.set_run_entry_enabled(not checked)
+
+        if checked:
+            self.view.set_convert_button_text("Start Live")
+        else:
+            if self.model.is_live():
+                self.stop_live()
+            self.view.set_convert_button_text("Convert")
+
+    def start_live(self):
+        """
+        Start live-data streaming for the selected instrument.
+
+        Dispatches ``model.start_live_data`` to a worker thread (the
+        underlying Mantid call blocks briefly for the first chunk),
+        passing a signal whose ``updated`` emission -- marshalled onto
+        the GUI thread -- is connected to ``_on_live_update``.
+        """
+
+        instrument = self.view.get_instrument()
+
+        self.live_tick_count = 0
+        self.live_idle_warning_active = False
+
+        live_signal = self.view.live_signal()
+        self.view.connect_live_signal(live_signal, self._on_live_update)
+        self._live_signal = live_signal
+
+        worker = self.view.worker(
+            functools.partial(
+                self._start_live_process,
+                instrument=instrument,
+                on_update=live_signal.updated.emit,
+            )
+        )
+        self.view.start_worker_pool(worker)
+
+    def _start_live_process(
+        self, progress=None, stop_event=None, instrument=None, on_update=None
+    ):
+        """
+        Worker task that starts the live-data listener.
+
+        Parameters
+        ----------
+        progress, stop_event
+            Injected by the worker infrastructure; unused here since
+            starting the listener is a single quick call.
+        instrument : str
+            Instrument identifier.
+        on_update : callable
+            Forwarded to ``model.start_live_data`` as the per-chunk
+            callback.
+        """
+
+        self.model.start_live_data(
+            instrument, update_every=120, on_update=on_update
+        )
+
+    def stop_live(self):
+        """
+        Stop live-data streaming.
+
+        Leaves whatever has already been merged into "md"/"Q3D" in
+        place; only the listener itself is cancelled.
+        """
+
+        self.model.stop_live_data()
+
+        if self._live_signal is not None:
+            self._live_signal.updated.disconnect(self._on_live_update)
+            self._live_signal = None
+
+    def _on_live_update(self, name):
+        """
+        Handle a live-data chunk landing.
+
+        Connected to the live signal's ``updated`` emission (delivered
+        on the GUI thread). Reconverts the in-progress live run and
+        rebuilds "md"/"Q3D" in a worker thread, then refreshes the
+        instrument view and visualization exactly as a manual Convert
+        click does -- peaks and the UB matrix are only redisplayed, not
+        recomputed. No-ops if the previous tick's conversion is still
+        running, so ticks never overlap.
+
+        Parameters
+        ----------
+        name : str
+            Name of the snapshot workspace for this chunk (unused --
+            the model tracks it internally; conversion always reads
+            the current snapshot).
+        """
+
+        if not self.live_convert_idle:
+            return
+
+        self.live_convert_idle = False
+
+        instrument = self.view.get_instrument()
+        wavelength = self.view.get_wavelength()
+        tube_cal = self.view.get_tube_calibration()
+        det_cal = self.view.get_detector_calibration()
+        lorentz = self.view.get_lorentz()
+        d_min = self.view.get_convert_min_d()
+
+        worker = self.view.worker(
+            functools.partial(
+                self._live_convert_process,
+                instrument=instrument,
+                wavelength=wavelength,
+                tube_cal=tube_cal,
+                det_cal=det_cal,
+                lorentz=lorentz,
+                d_min=d_min,
+            )
+        )
+        worker.connect_finished(self._live_convert_complete)
+        self.view.start_worker_pool(worker)
+
+    def _live_convert_process(
+        self,
+        progress=None,
+        stop_event=None,
+        instrument=None,
+        wavelength=None,
+        tube_cal=None,
+        det_cal=None,
+        lorentz=None,
+        d_min=None,
+    ):
+        """
+        Worker task that reconverts the live run into "md"/"Q3D".
+
+        Applies the goniometer/calibration to the live workspace (as
+        ``calibrate_data`` does for loaded files) before reconverting.
+        """
+
+        self.model.calibrate_data(instrument, det_cal, tube_cal)
+        self.model.convert_data(
+            instrument, wavelength, lorentz, d_min, reset_peaks=False
+        )
+
+    def _live_convert_complete(self):
+        """
+        Refresh the instrument view and visualization after a live tick.
+
+        Populates the run-selector list first (a manual Convert does
+        this via ``convert_Q_complete``; live ticks never go through
+        that path) so ``update_instrument_view`` has a valid selection
+        to render instead of ``None``.
+
+        After every `LIVE_IDLE_TICK_LIMIT` ticks, warns the user that
+        live data is still accumulating unattended -- left unbounded,
+        a long-running/idle session can grow the live workspace large
+        enough to strain memory -- and auto-stops it unless they choose
+        to keep going (see `_warn_live_idle`).
+        """
+
+        self.live_convert_idle = True
+
+        runs = self.model.get_number_workspaces()
+        if runs is not None:
+            self.view.set_data_list(runs)
+
+        self.update_instrument_view()
+        self.visualize(refresh_peaks=False)
+
+        self.live_tick_count += 1
+        if (
+            self.live_tick_count >= LIVE_IDLE_TICK_LIMIT
+            and not self.live_idle_warning_active
+        ):
+            self._warn_live_idle()
+
+    def _warn_live_idle(self):
+        """
+        Warn that live data has run unattended and stop it if ignored.
+
+        Shows a modal countdown dialog; if the user hasn't responded
+        within `LIVE_IDLE_WARNING_SECONDS`, the listener is stopped
+        automatically (whatever has already been merged into "md"/"Q3D"
+        is kept, as with a manual stop). Choosing to keep it running
+        resets the tick counter so the warning can fire again later.
+
+        Set as a no-op re-entry guard (`live_idle_warning_active`)
+        while showing, since further ticks keep landing and calling
+        `_live_convert_complete` while the dialog is up.
+        """
+
+        self.live_idle_warning_active = True
+        keep_going = self.view.show_live_idle_warning(
+            LIVE_IDLE_WARNING_SECONDS
+        )
+        self.live_idle_warning_active = False
+
+        if keep_going:
+            self.live_tick_count = 0
+        elif self.model.is_live():
+            self.stop_live()
+            self.view.set_live_checked(False)
 
     def convert_Q_complete(self, result):
         """
@@ -592,7 +825,6 @@ class UB(NeuXtalVizPresenter):
         wavelength=None,
         tube_cal=None,
         det_cal=None,
-        gon_cal=None,
         IPTS=None,
         runs=None,
         exp=None,
@@ -621,8 +853,6 @@ class UB(NeuXtalVizPresenter):
             Path to a tube calibration file.
         det_cal : str or None
             Path to a detector calibration file.
-        gon_cal : str or None
-            Path to a goniometer calibration file.
         IPTS : int or None
             IPTS proposal number.
         runs : str or None
@@ -692,7 +922,7 @@ class UB(NeuXtalVizPresenter):
 
             progress("Data calibrating...", 50)
 
-            self.model.calibrate_data(instrument, det_cal, gon_cal, tube_cal)
+            self.model.calibrate_data(instrument, det_cal, tube_cal)
 
             if self.stop_processing(stop_event):
                 return None
@@ -1183,7 +1413,7 @@ class UB(NeuXtalVizPresenter):
         self.view.set_UB_status(self.model.get_UB_status())
         self.view.set_undo_filter_enabled(self.model.can_undo_filter_peaks())
 
-    def visualize(self):
+    def visualize(self, refresh_peaks=True):
         """
         Refresh the 3D Q-space visualization and dependent UI state.
 
@@ -1194,6 +1424,15 @@ class UB(NeuXtalVizPresenter):
         status, redraws the Q-space volume, refreshes UB/lattice
         information if a UB matrix is set, and refreshes the peaks
         table.
+
+        Parameters
+        ----------
+        refresh_peaks : bool, optional
+            Whether to redisplay the peaks table (default True). Live
+            ticks pass False -- peaks are only ever added by explicit
+            find/index actions, not by a live tick, so repopulating the
+            table every tick just resets the user's selection/scroll
+            position for no reason.
         """
 
         self.update_data_status()
@@ -1218,9 +1457,7 @@ class UB(NeuXtalVizPresenter):
 
                 self.update_lattice_info()
 
-            if self.model.has_peaks():
-                self.refresh_peak_views()
-            else:
+            if refresh_peaks:
                 self.refresh_peak_views()
 
             self.update_complete("Data visualized!")
@@ -2685,25 +2922,6 @@ class UB(NeuXtalVizPresenter):
         if filename:
             self.view.set_detector_calibration(filename)
 
-    def load_goniometer_calibration(self):
-        """
-        Prompt for and set a goniometer calibration file.
-
-        Connected to the "Browse" button signal for the goniometer
-        calibration field. Opens a file dialog rooted at the
-        instrument's calibration directory and, if a file is chosen,
-        writes its path into the view.
-        """
-
-        inst = self.view.get_instrument()
-
-        path = self.model.get_calibration_file_path(inst)
-
-        filename = self.view.load_goniometer_cal_dialog(path)
-
-        if filename:
-            self.view.set_goniometer_calibration(filename)
-
     def load_tube_calibration(self):
         """
         Prompt for and set a tube calibration file.
@@ -2893,6 +3111,14 @@ class UB(NeuXtalVizPresenter):
         """
 
         instrument = self.view.get_instrument()
+
+        if self.model.is_live() and instrument != self.model.live_instrument:
+            self.stop_live()
+            self.view.set_live_checked(False)
+            self.view.set_convert_button_text("Convert")
+            self.view.set_run_entry_enabled(True)
+
+        self.view.set_live_enabled(instrument in LIVE_INSTRUMENTS)
 
         wavelength = self.model.get_wavelength(instrument)
         self.view.set_wavelength(wavelength)

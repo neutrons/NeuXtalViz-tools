@@ -206,8 +206,15 @@ class NeuXtalViz(QMainWindow):
 
     def closeEvent(self, event):
         """
-        Explicitly close each tool's PyVista plotter before the window
-        and its child widgets are destroyed.
+        Stop any running live-data listener and close each tool's
+        PyVista plotter before the window and its child widgets are
+        destroyed.
+
+        A running ``StartLiveData``/``MonitorLiveData`` listener is a
+        background Mantid algorithm independent of the Qt event loop;
+        it would otherwise keep polling (and holding its DAQ
+        connection open) after the window closes, so it must be
+        cancelled explicitly here.
 
         ``BasePlotter.__del__`` calls ``close()`` on garbage collection
         if a plotter was never explicitly closed. If that happens after
@@ -216,6 +223,9 @@ class NeuXtalViz(QMainWindow):
         shiboken "already deleted" ``RuntimeError``. Closing each
         plotter here, while the widgets are still alive, avoids that.
         """
+        if self.ub.model.is_live():
+            self.ub.stop_live()
+
         for presenter in (self.ub, self.ep, self.vs, self.cs):
             presenter.view.plotter.close()
         super().closeEvent(event)

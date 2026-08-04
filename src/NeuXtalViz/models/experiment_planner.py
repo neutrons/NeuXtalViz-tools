@@ -272,14 +272,14 @@ class ExperimentModel(NeuXtalVizModel):
 
         self.dirname = os.path.dirname(filename)
 
-    def initialize_instrument(self, instrument, logs, cal, gon, mask):
+    def initialize_instrument(self, instrument, logs, cal, mask):
         """
-        Build the ``instrument``, ``goniometer``, and related workspaces.
+        Build the ``instrument`` and related workspaces.
 
         Loads the empty instrument definition (or autoreduce IDF), applies
-        sample logs, calibration, goniometer parameter, and mask files, then
-        groups detectors and precomputes bank-corner coordinates used for the
-        instrument 3D view and background occupancy plot.
+        sample logs, calibration, and mask files, then groups detectors
+        and precomputes bank-corner coordinates used for the instrument
+        3D view and background occupancy plot.
 
         Parameters
         ----------
@@ -293,9 +293,6 @@ class ExperimentModel(NeuXtalVizModel):
         cal : str
             Path to a calibration file (``.xml`` parameter file or ISAW
             DetCal file), or an empty string if none.
-        gon : str
-            Path to a goniometer parameter XML file, or an empty string if
-            none.
         mask : str
             Path to a mask file, or an empty string if none.
         """
@@ -314,10 +311,6 @@ class ExperimentModel(NeuXtalVizModel):
                 InstrumentName=inst if idf is None else None,
                 Filename=idf if idf is not None else None,
                 OutputWorkspace="instrument",
-            )
-
-            CloneWorkspace(
-                InputWorkspace="instrument", OutputWorkspace="goniometer"
             )
 
             for key in logs.keys():
@@ -342,10 +335,6 @@ class ExperimentModel(NeuXtalVizModel):
                     LoadParameterFile(Workspace="instrument", Filename=cal)
                 else:
                     LoadIsawDetCal(InputWorkspace="instrument", Filename=cal)
-
-            if gon != "" and os.path.exists(gon):
-                if os.path.splitext(gon)[1] == ".xml":
-                    LoadParameterFile(Workspace="goniometer", Filename=gon)
 
             ExtractMonitors(
                 InputWorkspace="instrument",
@@ -959,7 +948,7 @@ class ExperimentModel(NeuXtalVizModel):
                 LogType="String",
             )
 
-    def update_goniometer_motors(self, limits, motors, cal, gon, mask):
+    def update_goniometer_motors(self, limits, motors, cal, mask):
         """
         Record goniometer motor limits and auxiliary motor/file settings
         as sample logs so they can be restored by :meth:`load_experiment`.
@@ -973,9 +962,6 @@ class ExperimentModel(NeuXtalVizModel):
             Mapping of auxiliary motor names to their values.
         cal : str
             Calibration file path, stored as the ``"cal"`` sample log.
-        gon : str
-            Goniometer parameter file path, stored as the ``"gon"`` sample
-            log.
         mask : str
             Mask file path, stored as the ``"mask"`` sample log.
         """
@@ -990,7 +976,6 @@ class ExperimentModel(NeuXtalVizModel):
                 mtd["sample"].run()["motors"] = values
 
             mtd["sample"].run()["cal"] = cal
-            mtd["sample"].run()["gon"] = gon
             mtd["sample"].run()["mask"] = mask
 
     def load_UB(self, filename):
@@ -1296,7 +1281,7 @@ class ExperimentModel(NeuXtalVizModel):
             plan table contents, in the same layout consumed by
             :meth:`create_plan`.
         config : tuple
-            ``(instrument, mode, wl, d_min, lims, vals, cal, gon, mask)``
+            ``(instrument, mode, wl, d_min, lims, vals, cal, mask)``
             -- the instrument/goniometer configuration, where ``wl`` is
             either a single wavelength or a [min, max] pair, ``lims`` are
             the goniometer axis limits, and ``vals`` are the auxiliary
@@ -1326,7 +1311,6 @@ class ExperimentModel(NeuXtalVizModel):
         lims = mtd[sample].run().getProperty("limits").value
         mask = mtd[sample].run().getProperty("mask").value
         cal = mtd[sample].run().getProperty("cal").value
-        gon = mtd[sample].run().getProperty("gon").value
         lims = np.array(lims).reshape(-1, 2).tolist()
         vals = []
         if mtd[sample].run().hasProperty("motors"):
@@ -1355,7 +1339,7 @@ class ExperimentModel(NeuXtalVizModel):
             settings.append(angles)
 
         plan = (titles, settings, comments, counts, values, use)
-        config = (instrument, mode, wl, d_min, lims, vals, cal, gon, mask)
+        config = (instrument, mode, wl, d_min, lims, vals, cal, mask)
         symm = (cs, pg, lc)
 
         return plan, config, symm

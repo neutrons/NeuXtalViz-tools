@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(MPLBACKEND=Agg PYTHONPATH=/tmp/claude-30990/-home-zgf-git-NeuXtalViz-tools-tests-applications-TOPAZ/1b9bf58c-2657-42d5-bedc-8eb97cad1315/scratchpad/stubs timeout 100 python3 -c ' *)",
+      "Bash(python3 -c ' *)"
+    ]
+  }
+}

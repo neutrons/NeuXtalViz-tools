@@ -69,6 +69,9 @@ beamlines : dict[str, dict]
         display the current run's title.
 """
 
+LIVE_INSTRUMENTS = ("TOPAZ", "CORELLI", "MANDI")
+"""Instruments with a Mantid SNSLiveEventDataListener entry, eligible for live data."""
+
 beamlines = {
     "SNAP": {
         "Name": "SNAP",

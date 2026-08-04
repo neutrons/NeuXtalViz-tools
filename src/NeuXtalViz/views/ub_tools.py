@@ -24,6 +24,7 @@ from qtpy.QtWidgets import (
     QFrame,
     QSlider,
     QAbstractItemView,
+    QMessageBox,
 )
 
 from qtpy.QtGui import (
@@ -37,6 +38,7 @@ from qtpy.QtCore import (
     QEvent,
     QRegularExpression,
     QItemSelectionModel,
+    QTimer,
 )
 
 from matplotlib.backends.backend_qtagg import FigureCanvas
@@ -528,6 +530,12 @@ class UBView(NeuXtalVizWidget):
         )
         self.auto_scale_dropdown(self.instrument_combo)
 
+        self.live_box = QCheckBox("Live", self)
+        self.live_box.setEnabled(False)
+        self.live_box.setToolTip(
+            "Stream live event data (TOPAZ, CORELLI, MANDI only)."
+        )
+
         ipts_label = QLabel("IPTS:")
         exp_label = QLabel("Experiment:")
         run_label = QLabel("Runs:")
@@ -556,8 +564,6 @@ class UBView(NeuXtalVizWidget):
         self.cal_line.setPlaceholderText("Detector calibration file")
         self.tube_line = QLineEdit("")
         self.tube_line.setPlaceholderText("Tube calibration file")
-        self.gon_line = QLineEdit("")
-        self.gon_line.setPlaceholderText("Goniometer calibration file")
 
         self.wl_min_line = QLineEdit("0.3")
         self.wl_min_line.setToolTip("Minimum wavelength for conversion.")
@@ -590,14 +596,13 @@ class UBView(NeuXtalVizWidget):
 
         self.cal_browse_button = QPushButton("Detector", self)
         self.tube_browse_button = QPushButton("Tube", self)
-        self.gon_browse_button = QPushButton("Goniometer", self)
 
         browse_icon = qta.icon("fa6s.folder-open")
         self.cal_browse_button.setIcon(browse_icon)
         self.tube_browse_button.setIcon(browse_icon)
-        self.gon_browse_button.setIcon(browse_icon)
 
         experiment_params_layout.addWidget(self.instrument_combo)
+        experiment_params_layout.addWidget(self.live_box)
         experiment_params_layout.addWidget(ipts_label)
         experiment_params_layout.addWidget(self.ipts_line)
 
@@ -611,10 +616,8 @@ class UBView(NeuXtalVizWidget):
 
         instrument_params_layout.addWidget(self.cal_line, 1, 0)
         instrument_params_layout.addWidget(self.cal_browse_button, 1, 1)
-        instrument_params_layout.addWidget(self.gon_line, 2, 0)
-        instrument_params_layout.addWidget(self.gon_browse_button, 2, 1)
-        instrument_params_layout.addWidget(self.tube_line, 3, 0)
-        instrument_params_layout.addWidget(self.tube_browse_button, 3, 1)
+        instrument_params_layout.addWidget(self.tube_line, 2, 0)
+        instrument_params_layout.addWidget(self.tube_browse_button, 2, 1)
 
         self.convert_to_q_button = QPushButton("Convert", self)
         self.convert_to_q_button.setToolTip("Convert raw data to Q workspace.")
@@ -2234,20 +2237,19 @@ class UBView(NeuXtalVizWidget):
         )
         self.cluster_table.setHorizontalHeaderLabels(["h", "k", "l"])
 
-        generate_layout = QHBoxLayout()
-        generate_layout.addWidget(self.cluster_button)
-        generate_layout.addStretch(1)
-
         cluster_layout = QVBoxLayout()
         params_layout = QHBoxLayout()
 
         dist_label = QLabel("Maximum distance:", self)
         samp_label = QLabel("Minimum samples:", self)
 
+        params_layout.addWidget(self.cluster_button)
         params_layout.addWidget(dist_label)
         params_layout.addWidget(self.param_eps_line)
+        params_layout.addWidget(QLabel("r.l.u.", self))
         params_layout.addWidget(samp_label)
         params_layout.addWidget(self.param_min_line)
+        params_layout.addWidget(QLabel("#", self))
 
         cluster_layout.addLayout(params_layout)
         cluster_layout.addWidget(self.cluster_table)
@@ -2273,7 +2275,6 @@ class UBView(NeuXtalVizWidget):
         self.ax_clust[1].set_xlabel("$[0k0]$")
         self.ax_clust[2].set_xlabel("$[00l]$")
 
-        modulation_layout.addLayout(generate_layout)
         modulation_layout.addLayout(cluster_layout)
         modulation_layout.addLayout(plot_layout)
 
@@ -2686,19 +2687,6 @@ class UBView(NeuXtalVizWidget):
 
         self.tube_browse_button.clicked.connect(load_tube_cal)
 
-    def connect_browse_goniometer(self, load_goniometer_cal):
-        """
-        Connect a callback to the goniometer calibration browse button.
-
-        Parameters
-        ----------
-        load_goniometer_cal : callable
-            Slot invoked to open a file dialog and load a goniometer
-            calibration file.
-        """
-
-        self.gon_browse_button.clicked.connect(load_goniometer_cal)
-
     def connect_convert_Q(self, convert_Q):
         """
         Connect a callback to the "Convert" button click for Q conversion.
@@ -2710,6 +2698,19 @@ class UBView(NeuXtalVizWidget):
         """
 
         self.convert_to_q_button.clicked.connect(convert_Q)
+
+    def connect_live_toggle(self, toggle_live):
+        """
+        Connect a callback to the "Live" checkbox toggling.
+
+        Parameters
+        ----------
+        toggle_live : callable
+            Slot invoked with the new checkbox state (bool) when the
+            "Live" checkbox is toggled.
+        """
+
+        self.live_box.toggled.connect(toggle_live)
 
     def connect_reload_convert_Q(self, convert_Q):
         """
@@ -3856,36 +3857,6 @@ class UBView(NeuXtalVizWidget):
 
         return filename
 
-    def load_goniometer_cal_dialog(self, path=""):
-        """
-        Open a dialog to select a goniometer calibration file to load.
-
-        Parameters
-        ----------
-        path : str, optional
-            Initial directory or filename shown in the dialog.
-
-        Returns
-        -------
-        filename : str
-            Path to the selected goniometer file, or an empty string
-            if the dialog was cancelled.
-        """
-
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-
-        file_dialog = QFileDialog()
-        file_dialog.setFileMode(QFileDialog.AnyFile)
-
-        file_filters = "Goniometer files (*.xml)"
-
-        filename, _ = file_dialog.getOpenFileName(
-            self, "Load goniometer file", path, file_filters, options=options
-        )
-
-        return filename
-
     def load_tube_cal_dialog(self, path=""):
         """
         Open a dialog to select a tube calibration file to load.
@@ -4264,6 +4235,133 @@ class UBView(NeuXtalVizWidget):
         if idx >= 0:
             self.instrument_combo.setCurrentIndex(idx)
 
+    def get_live(self):
+        """
+        Check whether the "Live" checkbox is checked.
+
+        Returns
+        -------
+        bool
+            True if live-data mode is selected.
+        """
+
+        return self.live_box.isChecked()
+
+    def set_live_enabled(self, enabled):
+        """
+        Enable or disable the "Live" checkbox.
+
+        Parameters
+        ----------
+        enabled : bool
+            True to allow live-data mode (TOPAZ/CORELLI/MANDI only);
+            False disables and unchecks it.
+        """
+
+        self.live_box.setEnabled(enabled)
+        if not enabled:
+            self.live_box.setChecked(False)
+
+    def set_live_checked(self, checked):
+        """
+        Set the "Live" checkbox state without user interaction.
+
+        Parameters
+        ----------
+        checked : bool
+            New checkbox state.
+        """
+
+        self.live_box.setChecked(checked)
+
+    def show_live_idle_warning(self, seconds):
+        """
+        Warn that live data has run unattended and offer to keep it going.
+
+        Shown after many live-data ticks have landed with no user
+        interaction. Blocks (modally) for up to `seconds`, updating the
+        displayed countdown once a second, then closes on its own if
+        the user hasn't responded.
+
+        Parameters
+        ----------
+        seconds : int
+            Countdown duration in seconds before auto-closing.
+
+        Returns
+        -------
+        keep_going : bool
+            True if the user clicked "Keep Live Data Running" before
+            the countdown ran out; False if it ran out (or the user
+            chose to stop).
+        """
+
+        box = QMessageBox(self)
+        box.setWindowTitle("Live Data Still Running")
+        box.setIcon(QMessageBox.Warning)
+        keep_button = box.addButton(
+            "Keep Live Data Running", QMessageBox.AcceptRole
+        )
+        box.addButton("Stop Live Data", QMessageBox.RejectRole)
+        box.setDefaultButton(keep_button)
+
+        remaining = [seconds]
+
+        def message():
+            return (
+                "Live data has been running unattended.\n\n"
+                "It will stop automatically in {} s unless you choose "
+                "to keep it running.".format(remaining[0])
+            )
+
+        def tick():
+            remaining[0] -= 1
+            if remaining[0] <= 0:
+                timer.stop()
+                box.close()
+            else:
+                box.setText(message())
+
+        box.setText(message())
+
+        timer = QTimer(box)
+        timer.timeout.connect(tick)
+        timer.start(1000)
+
+        box.exec_()
+        timer.stop()
+
+        return box.clickedButton() is keep_button
+
+    def set_convert_button_text(self, text):
+        """
+        Set the label of the "Convert" button.
+
+        Parameters
+        ----------
+        text : str
+            New button text, e.g. "Convert", "Start Live", "Stop Live".
+        """
+
+        self.convert_to_q_button.setText(text)
+
+    def set_run_entry_enabled(self, enabled):
+        """
+        Enable or disable the IPTS/run-number entry and reload button.
+
+        Disabled while live-data mode is active, since live streaming
+        does not use an explicit IPTS/run selection.
+
+        Parameters
+        ----------
+        enabled : bool
+            True to enable the fields, False to disable them.
+        """
+
+        self.ipts_line.setEnabled(enabled)
+        self.runs_line.setEnabled(enabled)
+        self.reload_convert_to_q_button.setEnabled(enabled)
+
     def update_diffraction_label(self, mono):
         """
         Update the label describing the diffraction axis units.
@@ -4308,8 +4406,6 @@ class UBView(NeuXtalVizWidget):
             self.cal_browse_button.setEnabled(True)
             self.tube_line.setEnabled(False)
             self.tube_browse_button.setEnabled(False)
-            self.gon_line.setEnabled(True)
-            self.gon_browse_button.setEnabled(True)
             self.reload_convert_to_q_button.setEnabled(True)
             if "CORELLI" in filepath:
                 self.tube_line.setEnabled(True)
@@ -4321,8 +4417,6 @@ class UBView(NeuXtalVizWidget):
             self.cal_browse_button.setEnabled(False)
             self.tube_line.setEnabled(False)
             self.tube_browse_button.setEnabled(False)
-            self.gon_line.setEnabled(False)
-            self.gon_browse_button.setEnabled(False)
             self.reload_convert_to_q_button.setEnabled(False)
 
     def get_tube_calibration(self):
@@ -4349,18 +4443,6 @@ class UBView(NeuXtalVizWidget):
 
         return self.cal_line.text()
 
-    def get_goniometer_calibration(self):
-        """
-        Get the goniometer calibration file path.
-
-        Returns
-        -------
-        filename : str
-            Path to the goniometer calibration file.
-        """
-
-        return self.gon_line.text()
-
     def set_tube_calibration(self, filename):
         """
         Set the tube calibration file path.
@@ -4384,18 +4466,6 @@ class UBView(NeuXtalVizWidget):
         """
 
         return self.cal_line.setText(filename)
-
-    def set_goniometer_calibration(self, filename):
-        """
-        Set the goniometer calibration file path.
-
-        Parameters
-        ----------
-        filename : str
-            Path to the goniometer calibration file.
-        """
-
-        return self.gon_line.setText(filename)
 
     def get_IPTS(self):
         """
