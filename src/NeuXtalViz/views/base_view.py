@@ -1126,6 +1126,20 @@ class NeuXtalVizWidget(QWidget):
             self.reset_view()
         self.cam_ready.emit()
 
+    def forget_camera_position(self):
+        """
+        Drop the cached camera position so the next redraw refits it.
+
+        `clear_scene`/`reset_scene` otherwise keep reapplying whatever
+        position was last cached, which is the right behavior across
+        an in-place redraw (e.g. dragging the slice slider) but wrong
+        right after activating a *different* workspace -- its data may
+        occupy a completely different region of space, so the old
+        position could point at empty space instead of the new volume.
+        """
+
+        self.camera_position = None
+
     def save_screenshot(self, filename):
         """
         Save plotter screenshot.

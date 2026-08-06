@@ -47,8 +47,16 @@ class CrystalStructure(NeuXtalVizPresenter):
 
         self.view.connect_calculate_absorption(self.calculate_absorption)
 
+        self.view.connect_instrument_selector(self.select_instrument)
+        self.view.connect_load_UB(self.load_UB)
+        self.view.connect_clear_UB(self.clear_UB)
+        self.view.connect_calculate_simulator(self.calculate_simulator)
+
+        self.simulator_UB = None
+
         self.generate_groups()
         self.generate_settings()
+        self.select_instrument()
 
     def highlight_row(self):
         """
@@ -622,3 +630,223 @@ class CrystalStructure(NeuXtalVizPresenter):
 
             if filename:
                 self.model.save_ins(filename)
+
+    def select_instrument(self):
+        """
+        Update the Simulator d-min field for the newly selected instrument.
+
+        Parameters
+        ----------
+        None
+        """
+        instrument = self.view.get_simulator_instrument()
+        d_min = self.model.get_instrument_d_min(instrument)
+        self.view.set_simulator_d_min(d_min)
+
+    def load_UB(self):
+        """
+        Load a UB matrix from file for the Simulator tab.
+
+        Parameters
+        ----------
+        None
+        """
+        filename = self.view.load_UB_file_dialog()
+
+        if filename:
+            self.simulator_UB = self.model.load_UB_from_file(filename)
+            self.view.set_UB_status(filename)
+
+    def clear_UB(self):
+        """
+        Clear the loaded Simulator UB matrix, reverting to u/v vectors.
+
+        Parameters
+        ----------
+        None
+        """
+        self.simulator_UB = None
+        self.view.set_UB_status(None)
+
+    def calculate_simulator(self):
+        """
+        Start prediction of observable reflections and expected
+        counts/I-sigma using a worker thread.
+
+        Parameters
+        ----------
+        None
+        """
+        instrument = self.view.get_simulator_instrument()
+        d_min = self.view.get_simulator_d_min()
+        vectors = self.view.get_simulator_vectors()
+        angles = self.view.get_simulator_goniometer()
+        counting_time = self.view.get_simulator_counting_time()
+        shape_params = self.view.get_absorption_shape_constants()
+        shape_vectors = self.view.get_absorption_shape_vectors()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.calculate_simulator_process,
+                instrument=instrument,
+                d_min=d_min,
+                vectors=vectors,
+                angles=angles,
+                counting_time=counting_time,
+                shape_params=shape_params,
+                shape_vectors=shape_vectors,
+                UB_loaded=self.simulator_UB,
+            )
+        )
+        worker.connect_result(self.calculate_simulator_complete)
+        worker.connect_finished(self.update_complete)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def calculate_simulator_complete(self, result):
+        """
+        Complete the simulation and update the view with results.
+
+        Parameters
+        ----------
+        result : tuple or None
+            Result from :meth:`calculate_simulator_process`.
+        """
+        if result is not None:
+            hkls, ds, lambdas, F2s, Is, IsigmaIs, volume = result
+            self.view.set_simulator_results(
+                hkls, ds, lambdas, F2s, Is, IsigmaIs
+            )
+
+    def calculate_simulator_process(
+        self,
+        progress,
+        stop_event=None,
+        instrument=None,
+        d_min=None,
+        vectors=None,
+        angles=None,
+        counting_time=None,
+        shape_params=None,
+        shape_vectors=None,
+        UB_loaded=None,
+    ):
+        """
+        Worker task that predicts observable reflections and their
+        expected counts/I-sigma for a fixed instrument, orientation,
+        goniometer setting, and counting time.
+
+        Intended to run on a background worker thread, reporting
+        progress and checking for a stop request between steps.
+
+        Parameters
+        ----------
+        progress : callable
+            Callback invoked as ``progress(status, value)`` to report
+            status text and percent complete.
+        stop_event : threading.Event, optional
+            Event used to signal that the worker should stop early
+            (default None).
+        instrument : str, optional
+            Instrument name.
+        d_min : float, optional
+            Minimum d-spacing to predict reflections for. If None, it
+            is derived from the instrument default.
+        vectors : tuple of (list, list) or None, optional
+            Sample U/V vectors defining the crystal's orientation, used
+            only if `UB_loaded` is None.
+        angles : list of float, optional
+            Goniometer omega, chi, and phi angles (degrees).
+        counting_time : float, optional
+            Requested counting time (minutes).
+        shape_params : list of float, optional
+            Ellipsoid thickness, width, and height (mm), from the
+            Absorption tab.
+        shape_vectors : tuple of (list, list) or None, optional
+            Shape U/V vectors orienting the shape mesh, from the
+            Absorption tab.
+        UB_loaded : (3, 3) ndarray or None, optional
+            UB matrix loaded from file, taking priority over `vectors`
+            if not None.
+
+        Returns
+        -------
+        hkls, ds, lambdas, F2s, Is, IsigmaIs, volume : tuple or None
+            Result from the model's ``simulate_intensities``, or None
+            if stopped, invalid, or no reflection was observable.
+        """
+        if self.stop_processing(stop_event):
+            return None
+
+        if angles is None or counting_time is None or shape_params is None:
+            progress("Invalid parameters.", 0)
+            return None
+
+        progress("Processing...", 1)
+
+        if d_min is None:
+            d_min = self.model.get_instrument_d_min(instrument)
+
+        if self.stop_processing(stop_event):
+            return None
+
+        progress("Loading instrument response...", 10)
+
+        self.model.load_simulator_response(instrument)
+
+        if self.stop_processing(stop_event):
+            return None
+
+        progress("Building material...", 20)
+
+        chem, Z = self.model.get_chemical_formula_z_parameter()
+        vol = self.model.get_unit_cell_volume()
+        mat_dict = self.model.get_material_dict(
+            " ".join(chem.split("-")), float(Z), vol
+        )
+
+        if self.stop_processing(stop_event):
+            return None
+
+        progress("Building orientation...", 30)
+
+        UB = UB_loaded
+        if UB is None and vectors is not None:
+            UB = self.model.get_UB_from_vectors(*vectors)
+        if UB is None:
+            UB = self.model.UB
+
+        shape_angles = (0, 0, 0)
+        if shape_vectors is not None:
+            values = self.model.get_euler_angles(*shape_vectors, UB)
+            if values is not None:
+                shape_angles = values
+
+        if self.stop_processing(stop_event):
+            return None
+
+        progress("Predicting peaks (Monte Carlo absorption)...", 50)
+
+        omega, chi, phi = angles
+
+        result = self.model.simulate_intensities(
+            instrument,
+            d_min,
+            UB,
+            omega,
+            chi,
+            phi,
+            shape_params,
+            mat_dict,
+            shape_angles,
+            counting_time,
+        )
+
+        if result is None:
+            progress("No observable reflections at this setting.", 0)
+            return None
+
+        progress("Simulation complete!", 100)
+
+        return result

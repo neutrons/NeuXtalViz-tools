@@ -54,7 +54,7 @@ class VolumeSlicer(NeuXtalVizPresenter):
         self.view.connect_slice_line(self.update_slice_value)
         self.view.connect_cut_line(self.update_cut)
 
-        self.view.connect_slice_ready(self.update_slice)
+        self.view.connect_slice_ready(self.update_slice_value)
         self.view.connect_cut_ready(self.update_cut)
 
         self.view.connect_vmin_line(self.update_vmin)
@@ -682,7 +682,6 @@ class VolumeSlicer(NeuXtalVizPresenter):
 
             norm = self.get_normal()
             slice_value = self.view.get_slice_value()
-            thickness = self.view.get_slice_thickness()
             vmin = self.view.get_vmin_value()
             vmax = self.view.get_vmax_value()
 
@@ -691,7 +690,6 @@ class VolumeSlicer(NeuXtalVizPresenter):
                     self.redraw_data_process,
                     norm=norm,
                     slice_value=slice_value,
-                    thickness=thickness,
                     vmin=vmin,
                     vmax=vmax,
                 )
@@ -709,14 +707,14 @@ class VolumeSlicer(NeuXtalVizPresenter):
         Parameters
         ----------
         result : tuple or None
-            Tuple of (histo, norm, value, thickness, vmin, vmax, trans)
-            from `redraw_data_process`, or None if the worker was
-            stopped or the parameters were invalid.
+            Tuple of (histo, norm, value, vmin, vmax, trans) from
+            `redraw_data_process`, or None if the worker was stopped
+            or the parameters were invalid.
         """
         if result is not None:
-            histo, norm, value, thickness, vmin, vmax, trans = result
+            histo, norm, value, vmin, vmax, trans = result
 
-            self.view.add_histo(histo, norm, value, thickness, vmin, vmax)
+            self.view.add_histo(histo, norm, value, vmin, vmax)
 
             self.view.set_transform(trans)
 
@@ -728,7 +726,6 @@ class VolumeSlicer(NeuXtalVizPresenter):
         stop_event=None,
         norm=None,
         slice_value=None,
-        thickness=None,
         vmin=None,
         vmax=None,
     ):
@@ -751,10 +748,6 @@ class VolumeSlicer(NeuXtalVizPresenter):
         slice_value : float, optional
             Position along the normal for the current slice plane
             (default None).
-        thickness : float, optional
-            Slice thickness, applied identically to all 3 of the 3D
-            view's planes (not just the active one) so they're all
-            integrated by the same amount -- see `add_histo`.
         vmin, vmax : float, optional
             Color limits for the 3D slice planes, as currently
             resolved for the 2D slice colorbar (shared rather than
@@ -772,8 +765,6 @@ class VolumeSlicer(NeuXtalVizPresenter):
         slice_value : float
             Position along the normal for the current slice plane, as
             passed in.
-        thickness : float or None
-            Slice thickness, as passed in.
         vmin, vmax : float or None
             Color limits, as passed in.
         transform : numpy.ndarray
@@ -802,7 +793,6 @@ class VolumeSlicer(NeuXtalVizPresenter):
                     histo,
                     norm,
                     slice_value,
-                    thickness,
                     vmin,
                     vmax,
                     self.model.get_transform(),
@@ -1150,7 +1140,15 @@ class VolumeSlicer(NeuXtalVizPresenter):
         """
         Refresh lattice/display state after a new workspace is activated.
 
-        For a real-space (delta-PDF) workspace, defaults the colormap
+        Re-enables automatic color limits so the upcoming redraw
+        recomputes vmin/vmax from the newly activated workspace's own
+        data, rather than carrying over manual limits left behind by
+        whatever workspace was active before -- which may have had a
+        wildly different data range. Also forgets the cached 3D camera
+        position, so the upcoming redraw refits/re-centers the view on
+        the new workspace's data instead of reapplying a camera
+        position framed for whatever workspace was active before. For
+        a real-space (delta-PDF) workspace, also defaults the colormap
         to "Diverging" and checks "Symmetric about Zero" -- these
         remain normal, user-overridable controls afterward.
 
@@ -1159,6 +1157,12 @@ class VolumeSlicer(NeuXtalVizPresenter):
         result : object
             Return value of `model.activate_workspace` (unused).
         """
+        self.view.auto_limits_box.blockSignals(True)
+        self.view.auto_limits_box.setChecked(True)
+        self.view.auto_limits_box.blockSignals(False)
+
+        self.view.forget_camera_position()
+
         self.update_oriented_lattice()
 
         if self.model.active_space == "real":

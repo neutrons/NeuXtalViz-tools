@@ -1950,126 +1950,148 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         return filename
 
-    @staticmethod
-    def _integrate_axis(signal, min_lim, spacing, axis, value, thickness):
-        """
-        Sum `signal` over bins within `+/-thickness` of `value` along `axis`.
+    _MAX_FACE_DIM = 200
+    """int: Cap on cells per in-plane axis for a 3D-view slice face.
+    Bigger faces are block-reduced (nanmean) down to this before
+    rendering -- see `_downsample_face`."""
 
-        Weights each bin by its fractional overlap with the window
-        (not an all-or-nothing "bin center within range" test) to
-        match what the 2D slice plot's own
-        `IntegrateMDHistoWorkspace`-based integration does internally
-        -- confirmed by direct comparison to agree to ~1e-5 relative,
-        including in high-gradient regions near Bragg peaks. Whole-bin
-        inclusion is usually close but can be off by several percent
-        locally whenever a window edge happens to bisect a bin (e.g.
-        thickness an exact multiple of the bin width).
+    @classmethod
+    def _downsample_face(cls, mesh, in_plane, max_dim=None):
+        """
+        Block-reduce (nanmean) a 3D-view slice face down to at most
+        `max_dim` cells along each in-plane axis.
+
+        Each face handed to this is already thin along its 3rd axis
+        (a single point for the 2 fixed planes, a single cell for the
+        active one -- see `add_histo`), so reducing it here is cheap
+        -- a handful of small 2D arrays -- unlike block-reducing the
+        full 3D volume it was cut from, which would pay that cost
+        against every bin in the volume for a result that only ever
+        gets shown one face at a time.
+
+        Any remainder cells that don't fill a whole block are trimmed
+        from the high-coordinate end of that axis (kept simple since
+        this is a display-only resolution cap, not the authoritative
+        2D slice/cut data).
 
         Parameters
         ----------
-        signal : numpy.ndarray
-            Full 3D signal array.
-        min_lim : array-like
-            Per-axis coordinate of the first bin's center.
-        spacing : array-like
-            Per-axis bin width.
-        axis : int
-            Axis (0, 1, or 2) to integrate/collapse.
-        value : float
-            Center of the integration window along `axis`.
-        thickness : float or None
-            Integration half-width. If None, or the window has zero
-            overlap with every bin (e.g. thickness of 0 landing
-            exactly on a bin edge), falls back to weight 1 on the
-            single nearest bin along `axis`.
+        mesh : pv.ImageData
+            Single-index-thick slice face, as returned by
+            `ImageData.slice_index`/`extract_subset`.
+        in_plane : tuple of int
+            The 2 axes (ascending, out of 0/1/2) to reduce -- the
+            caller already knows these from how `mesh` was built, and
+            passing them explicitly avoids having to infer them from
+            `mesh.dimensions` (unreliable now that the active face is
+            1 cell wide rather than 1 point wide along its 3rd axis).
+        max_dim : int, optional
+            Per-axis cell-count cap (default `_MAX_FACE_DIM`).
 
         Returns
         -------
-        integrated : numpy.ndarray
-            2D array, `signal` with `axis` collapsed by (weighted)
-            summation. NaN where every bin with nonzero weight was NaN.
+        mesh : pv.ImageData
+            `mesh` unchanged if already within `max_dim` on both
+            in-plane axes, otherwise a new, smaller `pv.ImageData`
+            covering the same region at reduced resolution.
         """
-        n = signal.shape[axis]
-        centers = min_lim[axis] + spacing[axis] * np.arange(n)
-        edges_lo = centers - 0.5 * spacing[axis]
-        edges_hi = centers + 0.5 * spacing[axis]
+        if max_dim is None:
+            max_dim = cls._MAX_FACE_DIM
 
-        if thickness is None:
-            weights = np.zeros(n)
-        else:
-            lo, hi = value - thickness, value + thickness
-            overlap = np.minimum(edges_hi, hi) - np.maximum(edges_lo, lo)
-            weights = np.clip(overlap, 0, None) / spacing[axis]
+        dims = list(mesh.dimensions)
+        p, q = in_plane
 
-        nz = np.nonzero(weights)[0]
-        if nz.size == 0:
-            idx = int(
-                np.clip(
-                    round((value - min_lim[axis]) / spacing[axis]), 0, n - 1
-                )
-            )
-            nz = np.array([idx])
-            weights = np.zeros(n)
-            weights[idx] = 1.0
+        fr = max(1, int(np.ceil((dims[p] - 1) / max_dim)))
+        fc = max(1, int(np.ceil((dims[q] - 1) / max_dim)))
+        if fr == 1 and fc == 1:
+            return mesh
 
-        # Only the (typically 2-5) bins with nonzero weight are ever
-        # touched -- indexing them out first keeps this a cheap
-        # operation on a thin slab rather than the full 3D volume.
-        block = np.take(signal, nz, axis=axis)
+        # Removing a size-1 axis doesn't change Fortran-order flattening,
+        # so reshaping straight to the 2 in-plane axes (in ascending
+        # original-axis order) reconstructs the same layout used when
+        # this data was first written -- `signal.flatten(order="F")`.
+        values = mesh.cell_data["scalars"].reshape(
+            (dims[p] - 1, dims[q] - 1), order="F"
+        )
 
-        w_shape = [1] * block.ndim
-        w_shape[axis] = -1
-        w = weights[nz].reshape(w_shape)
+        nr, nc = values.shape
+        nr, nc = nr - nr % fr, nc - nc % fc
+        values = values[:nr, :nc].reshape(nr // fr, fr, nc // fc, fc)
+        with np.errstate(invalid="ignore"):
+            values = np.nanmean(values, axis=(1, 3))
 
-        is_nan = np.isnan(block)
-        integrated = np.sum(np.where(is_nan, 0.0, block) * w, axis=axis)
+        spacing = list(mesh.spacing)
+        spacing[p] *= fr
+        spacing[q] *= fc
+        dims[p] = values.shape[0] + 1
+        dims[q] = values.shape[1] + 1
 
-        all_nan = np.all(is_nan | (w == 0), axis=axis)
-        integrated[all_nan] = np.nan
+        small = pv.ImageData()
+        small.origin = mesh.origin
+        small.spacing = spacing
+        small.dimensions = dims
+        small.cell_data["scalars"] = values.flatten(order="F")
 
-        return integrated
+        return small
 
-    def add_histo(
-        self, histo_dict, norm, value, thickness=None, vmin=None, vmax=None
-    ):
+    def add_histo(self, histo_dict, norm, value, vmin=None, vmax=None):
         """
-        Render 3 axis-aligned slice planes for the loaded histogram.
+        Render an opaque 6-face "cutaway box" for the loaded histogram.
 
         Builds a PyVista `ImageData` grid from the histogram signal and
-        cuts it with `ImageData.slice_index` along each of the 3 axes
-        (a plain, non-interactive geometric cut -- no plane widget),
-        colored/scaled with the current opacity/colormap/scale
-        settings, configures the bounding-box axes with the
-        crystallographic transform, and resets the camera to fit the
-        scene. Also (re)configures the slice position slider range for
-        the newly selected plane.
+        cuts it with `ImageData.extract_subset` (a plain,
+        non-interactive geometric cut -- no plane widget), colored/
+        scaled with the current opacity/colormap/scale settings,
+        configures the bounding-box axes with the crystallographic
+        transform, and resets the camera to fit the scene. Also
+        (re)configures the slice position slider range for the newly
+        selected plane.
 
-        Two of the three planes sit at index 0 (the origin); the third
-        -- whichever axis is currently selected -- sits at `value`,
-        the position driven by the slice slider/line edit. This gives
-        the same tri-planar context as PyVista's `slice_orthogonal`
-        example, but built from `slice_index` instead: `slice_index`
-        extracts the requested point layer directly by index (an O(1)
-        structured-grid lookup), whereas `slice`/`slice_orthogonal` run
-        VTK's generic cutter over the *entire* volume for every plane
-        -- about 90x slower on a 201^3 volume in local testing, and
-        3 planes means paying that 3 times over. `slice_index` only
-        gives geometry/position though (a single raw voxel layer), so
-        each plane's own cell data is then overwritten with a sum over
-        `thickness` on either side, matching the *2D slice plot's own*
-        thickness-integration (`IntegrateMDHistoWorkspace`, a plain sum
-        over the included bins -- confirmed by direct comparison) --
-        without that, a single raw layer can look substantially
-        different from the 2D plot even with identical color limits
-        (noisier, and not necessarily even the same sign in the noise
-        floor). A previous version of this used PyVista's
-        `add_mesh_slice`, which additionally builds an interactive
-        plane-widget (handles, outline, VTK interactor observers)
-        around the cut -- and since every reslice already tears down
-        and rebuilds the whole scene from scratch (see `clear_scene`),
-        that widget setup/teardown cost was paid on every single
-        slider tick for no benefit (nothing here supports dragging a
-        plane directly in the 3D view).
+        Rather than a tri-planar cut through the origin, this draws a
+        box that reveals the volume's interior via its own geometry
+        instead of transparency:
+
+        - The currently selected axis (`ind`, driven by the slice
+          slider/line edit) gets 2 faces -- the active slice (the bin
+          nearest `value`), and a fixed cap at that axis's
+          most-negative extent (bin 0).
+        - The other 2 axes each get 2 faces, at their min and max
+          extents -- but cropped along `ind` to only span bins `0`
+          through the active bin (not the axis's full range). The box
+          therefore grows as the active slice moves away from the
+          fixed cap, always exposing the active slice as an interior
+          face -- like a cutaway diorama.
+
+        Every face is a single raw voxel layer (no thickness
+        integration -- that stays specific to the 2D slice plot, via
+        `IntegrateMDHistoWorkspace`), built via the local `bin_voi`
+        helper as an explicit 1-bin-wide `extract_subset` VOI along
+        whichever axis that face is flat against. An earlier version
+        used `ImageData.slice_index` at a
+        single point index for the boundary faces (the fixed cap, the
+        4 side walls) on the assumption that a boundary index is
+        unambiguous about which single neighboring bin's data to
+        inherit, unlike an *interior* point index (used for the active
+        face, which that same reasoning already ruled out
+        `slice_index` for). In practice `slice_index` turned out to
+        also be unreliable at the boundary -- 2 of the 4 side walls
+        and the fixed cap came up empty/wrong -- so every face now
+        uses the same explicit-VOI `extract_subset` construction,
+        active or boundary alike. Every extraction is still an O(1)
+        structured-grid lookup by index, rather than running VTK's
+        generic cutter over the entire volume, as
+        `slice`/`slice_orthogonal` would (about 90x slower on a 201^3
+        volume in local testing). Each face is then further reduced,
+        if needed, by `_downsample_face` -- cheap, since a face is
+        only ever a handful of small 2D arrays, unlike the full 3D
+        volume it was cut from. A previous version of this used
+        PyVista's `add_mesh_slice`, which additionally builds an
+        interactive plane-widget (handles, outline, VTK interactor
+        observers) around the cut -- and since every reslice already
+        tears down and rebuilds the whole scene from scratch (see
+        `clear_scene`), that widget setup/teardown cost was paid on
+        every single slider tick for no benefit (nothing here supports
+        dragging a plane directly in the 3D view).
 
         Parameters
         ----------
@@ -2079,27 +2101,20 @@ class VolumeSlicerView(NeuXtalVizWidget):
             'max_lim', 'spacing', 'projection', 'transform', and 'scales'.
         norm : array-like
             Normal vector identifying the selected slice plane in
-            crystallographic axis space (e.g. [0, 0, 1]); mutated in
-            place to build the slice plane origin.
+            crystallographic axis space (e.g. [0, 0, 1]).
         value : float
-            Position along `norm` at which to place the selected slice
-            plane; the other two planes stay at the origin (index 0).
-        thickness : float, optional
-            Integration half-width applied identically to all 3 planes
-            (the same "Thickness" the 2D slice/cut controls use) --
-            each plane sums the bins within `+/-thickness` of its own
-            position along its own normal, rather than showing a
-            single raw voxel layer. If None or too small to cover any
-            bin, falls back to the single nearest layer.
+            Position along `norm` at which to place the active slice
+            face; the box's fixed cap sits at that axis's
+            most-negative extent instead.
         vmin, vmax : float, optional
             Color limits shared with the 2D slice colorbar (resolved
             by the presenter from the same value-limit controls, so
-            the 3D planes and the 2D slice always agree -- and so a
+            the 3D box and the 2D slice always agree -- and so a
             percentile-based method doesn't need a separate,
             far more expensive pass over the full 3D volume just to
             pick 3D-only limits). If either is None (e.g. nothing has
             been sliced yet to resolve them from), limits fall back to
-            the plain min/max of the 3 slice planes' own data instead
+            the plain min/max of the drawn faces' own data instead
             of the full volume, for the same reason.
         """
         opacity = opacities[self.get_opacity()]
@@ -2114,8 +2129,6 @@ class VolumeSlicerView(NeuXtalVizWidget):
         self.clear_scene()
 
         self.norm = np.array(norm).copy()
-        origin = norm
-        origin[np.abs(origin).tolist().index(1)] = value
 
         signal = histo_dict["signal"]
         labels = histo_dict["labels"]
@@ -2142,6 +2155,8 @@ class VolumeSlicerView(NeuXtalVizWidget):
         limits = np.array([[min_lim[i], max_lim[i]] for i in [0, 1, 2]])
 
         ind = np.abs(self.norm).tolist().index(1)
+        other_axes = [a for a in range(3) if a != ind]
+
         self._volume_limits = limits
         self._volume_nbins = signal.shape
         self._setup_slice_slider(
@@ -2155,26 +2170,75 @@ class VolumeSlicerView(NeuXtalVizWidget):
 
         grid.cell_data["scalars"] = signal.flatten(order="F")
 
-        point_index = np.clip(
-            np.round((np.array(origin) - min_lim) / spacing).astype(int),
-            0,
-            np.array(signal.shape),
+        dims = grid.dimensions
+
+        def bin_voi(ranges):
+            """VOI covering the full grid, except axes in `ranges`
+            (``{axis: (lo_bin, hi_bin_exclusive)}``) restricted to
+            that bin range. Every face below is built this way --
+            explicit bin ranges via `extract_subset` -- rather than
+            `slice_index` at a single point index: even at a boundary
+            (e.g. bin 0, or the last bin), that turned out to be
+            unreliable about which neighboring bin's data a degenerate
+            point-slice inherits (confirmed by 2 of the 4 side walls,
+            and the fixed cap, coming up empty/wrong at exactly that
+            style of index, while the same-shaped `extract_subset`-based
+            active face was fine)."""
+            voi = [0, dims[0] - 1, 0, dims[1] - 1, 0, dims[2] - 1]
+            for axis, (lo, hi) in ranges.items():
+                voi[2 * axis] = lo
+                voi[2 * axis + 1] = hi
+            return voi
+
+        # A bin index (into `signal`, `[0, n-1]`), not a point index.
+        bin_idx = int(
+            np.clip(
+                round((value - min_lim[ind]) / spacing[ind]),
+                0,
+                signal.shape[ind] - 1,
+            )
         )
 
+        in_plane_ind = tuple(other_axes)
         slices = [
-            grid.slice_index(i=point_index[0]),
-            grid.slice_index(j=point_index[1]),
-            grid.slice_index(k=point_index[2]),
+            (
+                "active",
+                grid.extract_subset(bin_voi({ind: (bin_idx, bin_idx + 1)})),
+                in_plane_ind,
+            ),
+            (
+                "cap",
+                grid.extract_subset(bin_voi({ind: (0, 1)})),
+                in_plane_ind,
+            ),
         ]
 
-        for axis, slice_mesh in enumerate(slices):
-            integrated = self._integrate_axis(
-                signal, min_lim, spacing, axis, origin[axis], thickness
-            )
-            slice_mesh.cell_data["scalars"] = integrated.flatten(order="F")
+        # The 4 side-wall faces (min/max of the other 2 axes) are
+        # cropped along `ind` to bins [0, bin_idx] -- rather than the
+        # axis's full range -- so they never rise above the active
+        # face, and always meet it at bin_idx's far edge.
+        for axis in other_axes:
+            in_plane = tuple(a for a in range(3) if a != axis)
+            for side_bin in (0, signal.shape[axis] - 1):
+                slices.append(
+                    (
+                        "side axis={} bin={}".format(axis, side_bin),
+                        grid.extract_subset(
+                            bin_voi(
+                                {
+                                    ind: (0, bin_idx + 1),
+                                    axis: (side_bin, side_bin + 1),
+                                }
+                            )
+                        ),
+                        in_plane,
+                    )
+                )
 
         if vmin is None or vmax is None:
-            shown = np.concatenate([s.cell_data["scalars"] for s in slices])
+            shown = np.concatenate(
+                [mesh.cell_data["scalars"] for _, mesh, _ in slices]
+            )
             vmin, vmax = np.nanmin(shown), np.nanmax(shown)
 
         clim = [vmin, vmax]
@@ -2182,19 +2246,54 @@ class VolumeSlicerView(NeuXtalVizWidget):
         if not np.all(np.isfinite(clim)):
             clim = [0.1, 10]
 
-        self._plane_actors = [
-            self.plotter.add_mesh(
-                slice_mesh,
-                opacity=opacity,
-                log_scale=log_scale,
-                clim=clim,
-                show_scalar_bar=(i == 0),
-                cmap=cmap,
-                user_matrix=b,
-                nan_opacity=0,
-            )
-            for i, slice_mesh in enumerate(slices)
-        ]
+        # NaN cells are dropped from each face's geometry rather than
+        # rendered transparently via `nan_opacity`: that puts an alpha
+        # < 1 entry in the face's lookup table, which forces the whole
+        # mapper into VTK's translucent geometry pass regardless of
+        # the chosen `opacity` (even "None" / fully opaque). Without
+        # depth peeling enabled -- unsupported/unreliable enough on
+        # some OpenGL backends that turning it on made every 3D
+        # surface stop rendering -- translucent primitives there blend
+        # in draw order rather than true visibility order, so one
+        # plane can wrongly show through another even where both are
+        # fully opaque per-pixel. An actual hole in the mesh needs no
+        # blending at all and depth-tests correctly on its own.
+        self._plane_actors = []
+        scalar_bar_shown = False
+        for face_name, slice_mesh, in_plane in slices:
+            # TEMPORARY diagnostic (see conversation): logs why a face
+            # was skipped or failed, instead of silently vanishing --
+            # remove once the missing-face issue is understood.
+            try:
+                slice_mesh = self._downsample_face(slice_mesh, in_plane)
+                values = slice_mesh.cell_data["scalars"]
+                finite = np.isfinite(values)
+                n_finite = int(np.count_nonzero(finite))
+                self.append_to_console(
+                    "3D face '{}': {}/{} finite cells".format(
+                        face_name, n_finite, finite.size
+                    )
+                )
+                if not finite.any():
+                    continue
+                if not finite.all():
+                    slice_mesh = slice_mesh.extract_cells(np.where(finite)[0])
+
+                actor = self.plotter.add_mesh(
+                    slice_mesh,
+                    opacity=opacity,
+                    log_scale=log_scale,
+                    clim=clim,
+                    show_scalar_bar=not scalar_bar_shown,
+                    cmap=cmap,
+                    user_matrix=b,
+                )
+                scalar_bar_shown = True
+                self._plane_actors.append(actor)
+            except Exception as error:
+                self.append_to_console(
+                    "3D face '{}' failed: {}".format(face_name, error)
+                )
 
         actor = self.plotter.show_grid(
             xtitle=labels[0],

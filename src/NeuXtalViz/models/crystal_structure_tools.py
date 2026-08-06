@@ -11,12 +11,17 @@ from mantid.geometry import (
 )
 
 from mantid.simpleapi import (
+    CloneWorkspace,
     CreateSampleWorkspace,
     CreatePeaksWorkspace,
     DeleteWorkspace,
     LoadCIF,
+    LoadIsawUB,
+    LoadNexus,
     LoadSampleShape,
+    PredictPeaks,
     SaveINS,
+    SetGoniometer,
     SetSample,
     SetUB,
     HFIRCalculateGoniometer,
@@ -32,6 +37,7 @@ import scipy.linalg
 
 import pyvista as pv
 
+from NeuXtalViz.config.instruments import beamlines
 from NeuXtalViz.models.periodic_table import PeriodicTableModel
 from NeuXtalViz.models.base_model import NeuXtalVizModel
 
@@ -47,6 +53,24 @@ class CrystalStructureModel(NeuXtalVizModel):
     """
 
     PEAKS_WORKSPACE = "absorption_peaks"
+
+    SIM_RESPONSE_WORKSPACE = "simulator_response"
+    SIM_BACKGROUND_WORKSPACE = "simulator_background"
+    SIM_PEAKS_WORKSPACE = "simulator_peaks"
+
+    # Coulombs of proton charge per minute of counting at full nominal
+    # beam power (per the simulator's calibration convention: 0.08 C
+    # is equivalent to 1 minute at full power).
+    CHARGE_PER_MINUTE = 0.08
+
+    # Structure-factor-squared threshold below which a PredictPeaks
+    # reflection is treated as systematically absent. Must be an
+    # absolute (not exactly-zero) cutoff: ReflectionGenerator.getFsSquared
+    # evaluates trig functions of pi multiples for forbidden
+    # reflections, so it returns floating-point noise (e.g. 1e-30)
+    # rather than an exact 0 -- filtering on "<= 0" alone lets that
+    # noise through as a spuriously "observed" reflection.
+    F2_EPSILON = 1e-3
 
     def __init__(self):
         """
@@ -889,6 +913,479 @@ class CrystalStructureModel(NeuXtalVizModel):
         best = np.argmax(directions @ beam_dir)
 
         return np.linalg.norm(vertices[best])
+
+    def load_UB_from_file(self, filename):
+        """
+        Load a UB matrix from an ISAW UB file, for the Simulator tab.
+
+        Loaded onto a throwaway scratch workspace (``LoadIsawUB``
+        requires an existing sample), independent of the ``"crystal"``
+        workspace's own UB from :meth:`calculate_UB`, so switching the
+        Simulator to a loaded UB never disturbs the Structure/Factors/
+        Absorption tabs' orientation.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the ISAW UB matrix file.
+
+        Returns
+        -------
+        UB : (3, 3) ndarray
+            Orientation matrix loaded from `filename`.
+        """
+        scratch = "_simulator_UB_scratch"
+        CreateSampleWorkspace(OutputWorkspace=scratch)
+        LoadIsawUB(InputWorkspace=scratch, Filename=filename)
+        UB = mtd[scratch].sample().getOrientedLattice().getUB().copy()
+        DeleteWorkspace(Workspace=scratch)
+
+        return UB
+
+    def load_simulator_response(self, instrument):
+        """
+        Load an instrument's calibrated bank response and background-rate
+        workspaces for the Simulator tab.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument name ("TOPAZ", "MANDI", or "CORELLI"), used to
+            look up the ``count_rate.nxs``/``background_count_rate.nxs``
+            paths in ``config.instruments.beamlines``.
+        """
+        sim = beamlines[instrument]["Simulator"]
+
+        LoadNexus(
+            Filename=sim["CountRate"],
+            OutputWorkspace=self.SIM_RESPONSE_WORKSPACE,
+        )
+        LoadNexus(
+            Filename=sim["Background"],
+            OutputWorkspace=self.SIM_BACKGROUND_WORKSPACE,
+        )
+
+    def get_instrument_d_min(self, instrument):
+        """
+        Default minimum d-spacing for an instrument.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument name.
+
+        Returns
+        -------
+        d_min : float
+            Instrument-default minimum d-spacing (Å).
+        """
+        return beamlines[instrument]["MinD"]
+
+    def get_goniometer_axes(self, instrument, omega, chi, phi):
+        """
+        Build ``SetGoniometer`` Axis0-2 strings for fixed numeric angles.
+
+        Substitutes the given numeric angles in place of the motor-name
+        token of each configured axis string (the same convention used
+        for scan-orientation goniometer settings elsewhere in
+        NeuXtalViz, e.g. the Experiment Planner), so the axis rotation
+        vectors and sense come from the instrument configuration while
+        the angle itself is a literal value rather than a sample log.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument name.
+        omega, chi, phi : float
+            Goniometer angles, in degrees.
+
+        Returns
+        -------
+        axes : list of str
+            ``SetGoniometer`` Axis0, Axis1, Axis2 argument strings.
+        """
+        axes_cfg = beamlines[instrument]["Goniometers"]
+        angles = (omega, chi, phi)
+
+        axes = []
+        for cfg, angle in zip(axes_cfg, angles):
+            _, x, y, z, sense = cfg.split(",")
+            axes.append(",".join([str(angle), x, y, z, sense]))
+
+        return axes
+
+    def predict_simulator_peaks(self, instrument, UB, omega, chi, phi, d_min):
+        """
+        Predict the reflections observable by an instrument at a fixed
+        goniometer setting.
+
+        Clones the already-loaded response workspace (which carries
+        the instrument's real detector geometry, from
+        :meth:`load_simulator_response`) so Mantid's ``PredictPeaks``
+        can determine which reflections actually land on a detector
+        element at this orientation and wavelength band, rather than
+        just which are geometrically allowed by the lattice. The
+        clone's sample is also given the loaded CIF's actual
+        ``CrystalStructure`` (not just its UB), so ``PredictPeaks``
+        can compute each reflection's structure factor squared
+        directly (via ``CalculateStructureFactors=True``, read back
+        as ``peak.getIntensity()``) instead of a separate
+        ``ReflectionGenerator`` pass.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument name.
+        UB : (3, 3) ndarray
+            Sample orientation matrix at the zero-goniometer setting.
+        omega, chi, phi : float
+            Goniometer angles, in degrees.
+        d_min : float
+            Minimum d-spacing (Å).
+
+        Returns
+        -------
+        peaks : mantid.dataobjects.PeaksWorkspace
+            Predicted peaks, with detector ID, wavelength, d-spacing,
+            HKL, and structure factor squared (``getIntensity()``) set
+            for each. Systematically absent reflections come back with
+            F² approximately (not exactly) zero -- callers must filter
+            on an epsilon (see :attr:`F2_EPSILON`), not exact equality.
+        """
+        ws = "_{}_input".format(self.SIM_PEAKS_WORKSPACE)
+
+        CloneWorkspace(
+            InputWorkspace=self.SIM_RESPONSE_WORKSPACE, OutputWorkspace=ws
+        )
+
+        cs = mtd["crystal"].sample().getCrystalStructure()
+        mtd[ws].sample().setCrystalStructure(cs)
+
+        SetUB(Workspace=ws, UB=UB)
+
+        axes = self.get_goniometer_axes(instrument, omega, chi, phi)
+        SetGoniometer(
+            Workspace=ws, Axis0=axes[0], Axis1=axes[1], Axis2=axes[2]
+        )
+
+        a, b, c = self.get_lattice_constants()[0:3]
+        d_max = max(a, b, c)
+
+        wl_min, wl_max = beamlines[instrument]["Wavelength"]
+
+        PredictPeaks(
+            InputWorkspace=ws,
+            MinDSpacing=d_min,
+            MaxDSpacing=d_max,
+            WavelengthMin=wl_min,
+            WavelengthMax=wl_max,
+            ReflectionCondition="Primitive",
+            CalculateStructureFactors=True,
+            OutputWorkspace=self.SIM_PEAKS_WORKSPACE,
+        )
+
+        DeleteWorkspace(Workspace=ws)
+
+        return mtd[self.SIM_PEAKS_WORKSPACE]
+
+    def spectrum_for_detector(self, ws, det_id):
+        """
+        Spectrum (workspace) index of a response/background workspace
+        containing a given detector.
+
+        Uses Mantid's own detector-ID-to-workspace-index map rather
+        than matching bank names between the peak's instrument and the
+        workspace's vertical-axis labels -- the calibration file's
+        axis label convention isn't guaranteed (in practice, generated
+        ``count_rate.nxs``/``background_count_rate.nxs`` files have
+        used a plain spectrum-number ``SpectraAxis``, not a bank-name
+        ``TextAxis``), but each spectrum's own detector grouping is
+        always authoritative, so this works regardless of what (if
+        anything) the axis labels say.
+
+        Parameters
+        ----------
+        ws : str
+            Workspace name.
+        det_id : int
+            Detector ID.
+
+        Returns
+        -------
+        spectrum_index : int or None
+            Spectrum index containing `det_id`, or None if no spectrum
+            of `ws` contains it.
+        """
+        indices = mtd[ws].getIndicesFromDetectorIDs([det_id])
+
+        return indices[0] if indices else None
+
+    def response_value(self, ws, spectrum_index, wavelength):
+        """
+        Calibrated response/background density at a given wavelength.
+
+        ``count_rate.nxs``/``background_count_rate.nxs`` store Y as a
+        distribution (density per Angstrom, not a per-bin integrated
+        count), so the matching bin's value is used directly with no
+        bin-width division.
+
+        Parameters
+        ----------
+        ws : str
+            Workspace name.
+        spectrum_index : int
+            Spectrum (workspace) index, from
+            :meth:`spectrum_for_detector`.
+        wavelength : float
+            Wavelength, in Angstrom.
+
+        Returns
+        -------
+        value : float
+            Response/background density at `wavelength` (0 if outside
+            the calibrated wavelength range).
+        error : float
+            One-sigma uncertainty of `value`.
+        """
+        x = mtd[ws].readX(spectrum_index)
+        y = mtd[ws].readY(spectrum_index)
+        e = mtd[ws].readE(spectrum_index)
+
+        if wavelength < x[0] or wavelength >= x[-1]:
+            return 0.0, 0.0
+
+        bin_index = np.searchsorted(x, wavelength, side="right") - 1
+        bin_index = min(max(bin_index, 0), len(y) - 1)
+
+        return y[bin_index], e[bin_index]
+
+    def simulate_intensities(
+        self,
+        instrument,
+        d_min,
+        UB,
+        omega,
+        chi,
+        phi,
+        shape_params,
+        mat_dict,
+        shape_angles,
+        counting_time,
+        n_sigma=3.0,
+        k_diffraction=1.0,
+    ):
+        """
+        Predict observable reflections and their expected counts and
+        I/sigma for a fixed goniometer setting on a calibrated
+        instrument.
+
+        Combines the instrument's calibrated bank response/background
+        (loaded via :meth:`load_simulator_response`) with the
+        structure factor of every reflection ``PredictPeaks`` finds
+        observable, and the sample's Monte Carlo absorption (via the
+        same ellipsoid-shape machinery as the Absorption tab, applied
+        directly to the predicted-peaks workspace since it already
+        carries the real goniometer/detector geometry -- no separate
+        vertical-axis solve is needed here, unlike
+        :meth:`predict_transmission`).
+
+        The Lorentz factor uses the standard TOF Laue convention
+        ``L = lambda^4 / sin(theta)^2 = 4 d^2 lambda^2`` (via Bragg's
+        law), matching the correction applied in the opposite direction
+        when extracting |F|^2 from observed SNS single-crystal data
+        (e.g. Mantid's ``AnvredCorrection``/``LorentzCorrection``).
+
+        The background ROI (solid angle and wavelength width) is a
+        placeholder built directly from the instrument's divergence
+        sigmas (``DivergenceParams``) rather than a full resolution
+        ellipsoid -- to be replaced once the
+        ``garnet.reduction.resolution.ResolutionEllipsoid`` model is
+        wired in. Likewise, rocking-curve coverage and extinction are
+        both assumed to be 1 (single static setting, not a scan), and
+        the full sample volume is assumed illuminated (no beam
+        footprint calculation).
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument name.
+        d_min : float
+            Minimum d-spacing (Å).
+        UB : (3, 3) ndarray
+            Sample orientation matrix at the zero-goniometer setting.
+        omega, chi, phi : float
+            Goniometer angles, in degrees.
+        shape_params : list of float
+            Ellipsoid thickness, width, and height, in mm.
+        mat_dict : dict
+            Material dictionary from :meth:`get_material_dict`.
+        shape_angles : tuple of float
+            Ellipsoid shape orientation Euler angles, from
+            :meth:`get_euler_angles`.
+        counting_time : float
+            Requested counting time, in minutes.
+        n_sigma : float, optional
+            Angular/wavelength half-width, in divergence sigmas, of
+            the placeholder background ROI (default 3).
+        k_diffraction : float, optional
+            Overall normalization constant absorbing any remaining
+            unit-convention difference between the calculated |F|^2
+            and the calibrated response's "barn" unit -- tune against
+            a measured crystal standard (default 1).
+
+        Returns
+        -------
+        hkls : (N, 3) ndarray
+            Miller indices, sorted by decreasing d-spacing.
+        ds : (N,) ndarray
+            d-spacing (Å) of each reflection.
+        lambdas : (N,) ndarray
+            Wavelength (Å) of each reflection.
+        F2s : (N,) ndarray
+            Squared structure factor of each reflection.
+        Is : (N,) ndarray
+            Predicted integrated counts.
+        IsigmaIs : (N,) ndarray
+            Predicted I/sigma.
+        volume : float
+            Ellipsoid volume, in cm^3.
+
+        Returns None if no reflection is both geometrically observable
+        and has a nonzero structure factor.
+        """
+        peaks = self.predict_simulator_peaks(
+            instrument, UB, omega, chi, phi, d_min
+        )
+
+        n_peaks = peaks.getNumberPeaks()
+        if n_peaks == 0:
+            return None
+
+        hkls = np.empty((n_peaks, 3))
+        F2s = np.empty(n_peaks)
+        for i in range(n_peaks):
+            peak = peaks.getPeak(i)
+            hkls[i] = peak.getH(), peak.getK(), peak.getL()
+            F2s[i] = peak.getIntensity()
+
+        bad = np.flatnonzero(F2s <= self.F2_EPSILON).tolist()
+        if bad:
+            peaks.removePeaks(bad)
+            keep = np.flatnonzero(F2s > self.F2_EPSILON)
+            hkls = hkls[keep]
+            F2s = F2s[keep]
+
+        if peaks.getNumberPeaks() == 0:
+            return None
+
+        ellipsoid_stl, ellipsoid_volume = self.write_ellipsoid_stl(
+            shape_params
+        )
+        try:
+            self.set_sample_shape(
+                self.SIM_PEAKS_WORKSPACE,
+                mat_dict,
+                *shape_angles,
+                ellipsoid_stl,
+            )
+        finally:
+            os.remove(ellipsoid_stl)
+
+        AddAbsorptionWeightedPathLengths(
+            InputWorkspace=self.SIM_PEAKS_WORKSPACE
+        )
+
+        mat = peaks.sample().getMaterial()
+        n = mat.numberDensityEffective
+
+        cell_volume = self.get_unit_cell_volume()
+        N_cell = (ellipsoid_volume * 1e24) / cell_volume
+
+        div = beamlines[instrument].get("DivergenceParams", {})
+        sigma_alpha_f = np.radians(div.get("sigma_alpha_f", 0.5))
+        sigma_beta_f = np.radians(div.get("sigma_beta_f", 0.5))
+        sigma_dl_mod = div.get("sigma_dl_mod", 0.01)
+
+        q_eff = counting_time * self.CHARGE_PER_MINUTE
+
+        ds, lambdas, Is, IsigmaIs = [], [], [], []
+        keep_rows = []
+
+        for i in range(peaks.getNumberPeaks()):
+            peak = peaks.getPeak(i)
+
+            d = peak.getDSpacing()
+            lam = peak.getWavelength()
+
+            det_id = peak.getDetectorID()
+            response_spectrum = self.spectrum_for_detector(
+                self.SIM_RESPONSE_WORKSPACE, det_id
+            )
+            if response_spectrum is None:
+                continue
+
+            R, _ = self.response_value(
+                self.SIM_RESPONSE_WORKSPACE, response_spectrum, lam
+            )
+            if R <= 0:
+                continue
+
+            B = 0.0
+            background_spectrum = self.spectrum_for_detector(
+                self.SIM_BACKGROUND_WORKSPACE, det_id
+            )
+            if background_spectrum is not None:
+                B, _ = self.response_value(
+                    self.SIM_BACKGROUND_WORKSPACE, background_spectrum, lam
+                )
+
+            mu = n * (mat.absorbXSection(lam) + mat.totalScatterXSection())
+            tbar = peak.getAbsorptionWeightedPathLength()
+            T = np.exp(-mu * tbar)
+
+            L = 4 * d**2 * lam**2
+
+            S = k_diffraction * N_cell * F2s[i] * L * T
+
+            I = q_eff * R * S
+
+            d_omega_roi = (2 * n_sigma * sigma_alpha_f) * (
+                2 * n_sigma * sigma_beta_f
+            )
+            d_lambda_roi = 2 * n_sigma * sigma_dl_mod * lam
+
+            b = q_eff * B * d_omega_roi * d_lambda_roi
+
+            variance = I + 2 * b
+            IsigmaI = I / np.sqrt(variance) if variance > 0 else 0.0
+
+            keep_rows.append(i)
+            ds.append(d)
+            lambdas.append(lam)
+            Is.append(I)
+            IsigmaIs.append(IsigmaI)
+
+        if not keep_rows:
+            return None
+
+        hkls = hkls[keep_rows]
+        F2s = F2s[keep_rows]
+        ds = np.array(ds)
+        lambdas = np.array(lambdas)
+        Is = np.array(Is)
+        IsigmaIs = np.array(IsigmaIs)
+
+        order = np.argsort(ds)[::-1]
+
+        return (
+            hkls[order],
+            ds[order],
+            lambdas[order],
+            F2s[order],
+            Is[order],
+            IsigmaIs[order],
+            ellipsoid_volume,
+        )
 
     def get_crystal_system(self):
         """

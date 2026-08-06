@@ -2,7 +2,21 @@
   "permissions": {
     "allow": [
       "Bash(MPLBACKEND=Agg PYTHONPATH=/tmp/claude-30990/-home-zgf-git-NeuXtalViz-tools-tests-applications-TOPAZ/1b9bf58c-2657-42d5-bedc-8eb97cad1315/scratchpad/stubs timeout 100 python3 -c ' *)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(PYTHONPATH=src /home/zgf/miniforge3/envs/nxv/bin/python -c ' *)",
+      "Bash(ls -la /SNS/CORELLI/shared/Vanadium/2026B_0804_CCR/ 2>&1 | head -20)",
+      "Read(//SNS/CORELLI/shared/Vanadium/2026B_0804_CCR/**)",
+      "Bash(timeout 60 env PYTHONPATH=src /home/zgf/miniforge3/envs/nxv/bin/python -c ' *)",
+      "Bash(timeout 100 env PYTHONPATH=src /home/zgf/miniforge3/envs/nxv/bin/python -c ' *)",
+      "Bash(ls -la /SNS/CORELLI/shared/simulation/ 2>&1)",
+      "Read(//SNS/CORELLI/shared/simulation/**)",
+      "Bash(python -c \"import ast; ast.parse\\(open\\('tests/applications/volume-slicer.py'\\).read\\(\\)\\)\")",
+      "Bash(python3 -c \"import ast; ast.parse\\(open\\('tests/applications/volume-slicer.py'\\).read\\(\\)\\)\")",
+      "Bash(python3 -c \"import ast; ast.parse\\(open\\('src/NeuXtalViz/models/volume_slicer.py'\\).read\\(\\)\\)\")",
+      "Bash(python3 -c \"import ast; ast.parse\\(open\\('src/garnet/reduction/normalization.py'\\).read\\(\\)\\)\")"
+    ],
+    "additionalDirectories": [
+      "/home/zgf/git/NeuXtalViz-tools/tests/applications"
     ]
   }
 }

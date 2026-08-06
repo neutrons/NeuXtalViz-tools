@@ -332,9 +332,270 @@ def CORELLI_Bixbyite_deltaPDF(app, window):
     copy_generated_pngs(directory)
 
 
+def TOPAZ_TbRuSn_deltaPDF(app, window):
+    directory = os.path.join(DIRECTORY, "TOPAZ")
+
+    app_stack = window.centralWidget().layout().itemAt(0).widget()
+    app_stack.setCurrentIndex(2)
+
+    vs_presenter = window.vs
+    vs_view = vs_presenter.view
+
+    SLICE_TAB, TRANSFORM_TAB = 0, 1
+
+    def show_slice(value):
+        vs_view.slice_line.setText(value)
+        vs_presenter.redraw_data()
+        QTest.qWait(1000 * 5)
+
+    def show_l2_slice():
+        show_slice("2.0")
+
+    # --- Step 1: load the room-temperature data -----------------------
+    vs_presenter.model.load_md_histo_workspace(
+        "/SNS/EXAMPLES/TOPAZ/IPTS-12345/shared/"
+        + "TbRuSn_293K_Fm-3m_(h,k,0)_[0,0,l]_"
+        + "[-25.0,25.0]_[-25.0,25.0]_[-25.0,25.0]_201x201x201_m-3m.nxs",
+        display_name="293K",
+    )
+    vs_presenter.refresh_workspace_lists()
+    vs_presenter.update_oriented_lattice()
+    vs_view.set_transform(vs_presenter.model.get_transform())
+    vs_presenter.redraw_data()
+    show_l2_slice()
+
+    vs_view.load_NXS_button.setStyleSheet("background-color: green;")
+
+    QTest.qWait(1000 * 10)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "TbRuSn_deltaPDF_load_293K.png"), "png"
+    )
+
+    vs_view.load_NXS_button.setStyleSheet("")
+
+    # --- Step 2: load the no-sample background data -------------------
+    vs_presenter.model.load_md_histo_workspace(
+        "/SNS/EXAMPLES/TOPAZ/IPTS-12345/shared/"
+        + "TbRuSn_293K_Fm-3m_(h,k,0)_[0,0,l]_"
+        + "[-25.0,25.0]_[-25.0,25.0]_[-25.0,25.0]_201x201x201_m-3m_bkg.nxs",
+        display_name="bkg",
+    )
+    vs_presenter.refresh_workspace_lists()
+    vs_presenter.redraw_data()
+    show_l2_slice()
+
+    vs_view.load_NXS_button.setStyleSheet("background-color: green;")
+
+    QTest.qWait(1000 * 10)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "TbRuSn_deltaPDF_load_bkg.png"), "png"
+    )
+
+    vs_view.load_NXS_button.setStyleSheet("")
+
+    # --- Step 3: subtract the no-sample background --------------------
+    vs_view.tab_widget.setCurrentIndex(TRANSFORM_TAB)
+
+    vs_view.combine_ws_a_combo.setCurrentText("293K")
+    vs_view.combine_ws_b_combo.setCurrentText("bkg")
+    vs_view.combine_output_line.setText("subtracted")
+
+    vs_view.combine_ws_a_combo.setStyleSheet("background-color: yellow;")
+    vs_view.combine_ws_b_combo.setStyleSheet("background-color: yellow;")
+    vs_view.combine_output_line.setStyleSheet("background-color: yellow;")
+    vs_view.combine_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(vs_view.combine_button, Qt.LeftButton)
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "TbRuSn_deltaPDF_subtract.png"), "png"
+    )
+
+    vs_view.combine_ws_a_combo.setStyleSheet("")
+    vs_view.combine_ws_b_combo.setStyleSheet("")
+    vs_view.combine_output_line.setStyleSheet("")
+    vs_view.combine_button.setStyleSheet("")
+
+    # --- Step 4: view the subtracted data (l = 2 slice) ----------------
+    vs_view.tab_widget.setCurrentIndex(SLICE_TAB)
+    vs_view.workspace_combo.setCurrentText("subtracted")
+    QTest.qWait(1000 * 10)
+
+    show_l2_slice()
+
+    vs_view.vmin_line.setText("0")
+    vs_view.vmax_line.setText("0.01")
+    vs_presenter.update_cvals()
+
+    vs_view.workspace_combo.setStyleSheet("background-color: yellow;")
+    vs_view.slice_line.setStyleSheet("background-color: yellow;")
+    vs_view.vmin_line.setStyleSheet("background-color: yellow;")
+    vs_view.vmax_line.setStyleSheet("background-color: yellow;")
+
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "TbRuSn_deltaPDF_view_subtracted.png"), "png"
+    )
+
+    vs_view.workspace_combo.setStyleSheet("")
+    vs_view.slice_line.setStyleSheet("")
+    vs_view.vmin_line.setStyleSheet("")
+    vs_view.vmax_line.setStyleSheet("")
+
+    # --- Step 5: punch the Bragg peaks --------------------------------
+    vs_view.tab_widget.setCurrentIndex(TRANSFORM_TAB)
+
+    index = vs_view.pdf_crystal_system_combo.findText("Cubic")
+    vs_view.pdf_crystal_system_combo.setCurrentIndex(index)
+    vs_presenter.update_pdf_space_groups()
+    _select_combo_item_starting_with(vs_view.pdf_space_group_combo, "225:")
+
+    vs_view.punch_input_combo.setCurrentText("subtracted")
+    vs_view.punch_q_size_line.setText("0.25")
+
+    vs_view.pdf_crystal_system_combo.setStyleSheet("background-color: yellow;")
+    vs_view.pdf_space_group_combo.setStyleSheet("background-color: yellow;")
+    vs_view.punch_input_combo.setStyleSheet("background-color: yellow;")
+    vs_view.punch_q_size_line.setStyleSheet("background-color: yellow;")
+    vs_view.run_punch_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(vs_view.run_punch_button, Qt.LeftButton)
+    QTest.qWait(1000 * 20)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "TbRuSn_deltaPDF_punch.png"), "png"
+    )
+
+    vs_view.pdf_crystal_system_combo.setStyleSheet("")
+    vs_view.pdf_space_group_combo.setStyleSheet("")
+    vs_view.punch_input_combo.setStyleSheet("")
+    vs_view.punch_q_size_line.setStyleSheet("")
+    vs_view.run_punch_button.setStyleSheet("")
+
+    # --- Step 5b: view the punched data (l = 2 slice) -------------------
+    vs_view.tab_widget.setCurrentIndex(SLICE_TAB)
+    vs_view.workspace_combo.setCurrentText("punched")
+    QTest.qWait(1000 * 10)
+
+    show_l2_slice()
+    vs_presenter.update_cvals()
+
+    vs_view.workspace_combo.setStyleSheet("background-color: yellow;")
+    vs_view.slice_line.setStyleSheet("background-color: yellow;")
+
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "TbRuSn_deltaPDF_view_punched.png"), "png"
+    )
+
+    vs_view.workspace_combo.setStyleSheet("")
+    vs_view.slice_line.setStyleSheet("")
+
+    # --- Step 6: fill the punched regions (blur) ----------------------
+    vs_view.tab_widget.setCurrentIndex(TRANSFORM_TAB)
+
+    vs_view.blur_input_combo.setCurrentText("punched")
+    vs_view.blur_output_line.setText("filled")
+    vs_view.blur_q_blur_line.setText("0.1")
+
+    vs_view.blur_input_combo.setStyleSheet("background-color: yellow;")
+    vs_view.blur_output_line.setStyleSheet("background-color: yellow;")
+    vs_view.blur_q_blur_line.setStyleSheet("background-color: yellow;")
+    vs_view.run_blur_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(vs_view.run_blur_button, Qt.LeftButton)
+    QTest.qWait(1000 * 15)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "TbRuSn_deltaPDF_fill.png"), "png"
+    )
+
+    vs_view.blur_input_combo.setStyleSheet("")
+    vs_view.blur_output_line.setStyleSheet("")
+    vs_view.blur_q_blur_line.setStyleSheet("")
+    vs_view.run_blur_button.setStyleSheet("")
+
+    # --- Step 6b: view the filled data (l = 2 slice) --------------------
+    vs_view.tab_widget.setCurrentIndex(SLICE_TAB)
+    vs_view.workspace_combo.setCurrentText("filled")
+    QTest.qWait(1000 * 10)
+
+    show_l2_slice()
+    vs_presenter.update_cvals()
+
+    vs_view.workspace_combo.setStyleSheet("background-color: yellow;")
+    vs_view.slice_line.setStyleSheet("background-color: yellow;")
+
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "TbRuSn_deltaPDF_view_filled.png"), "png"
+    )
+
+    vs_view.workspace_combo.setStyleSheet("")
+    vs_view.slice_line.setStyleSheet("")
+
+    # --- Step 7: calculate the 3D-delta PDF ---------------------------
+    vs_view.tab_widget.setCurrentIndex(TRANSFORM_TAB)
+
+    vs_view.pdf_input_combo.setCurrentText("filled")
+    index = vs_view.pdf_window_combo.findText("Lorch")
+    vs_view.pdf_window_combo.setCurrentIndex(index)
+
+    vs_view.pdf_input_combo.setStyleSheet("background-color: yellow;")
+    vs_view.pdf_window_combo.setStyleSheet("background-color: yellow;")
+    vs_view.calculate_pdf_button.setStyleSheet("background-color: green;")
+
+    QTest.mouseClick(vs_view.calculate_pdf_button, Qt.LeftButton)
+    QTest.qWait(1000 * 15)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "TbRuSn_deltaPDF_transform.png"), "png"
+    )
+
+    vs_view.pdf_input_combo.setStyleSheet("")
+    vs_view.pdf_window_combo.setStyleSheet("")
+    vs_view.calculate_pdf_button.setStyleSheet("")
+
+    # --- Step 8: view the 3D-delta PDF (real space, z = 0 slice) -------
+    vs_view.tab_widget.setCurrentIndex(SLICE_TAB)
+    vs_view.workspace_combo.setCurrentText("transformed")
+    QTest.qWait(1000 * 10)
+
+    show_slice("0.0")
+
+    vs_view.vmin_line.setText("-100")
+    vs_view.vmax_line.setText("100")
+    vs_presenter.update_cvals()
+
+    vs_view.workspace_combo.setStyleSheet("background-color: yellow;")
+    vs_view.slice_line.setStyleSheet("background-color: yellow;")
+    vs_view.vmin_line.setStyleSheet("background-color: yellow;")
+    vs_view.vmax_line.setStyleSheet("background-color: yellow;")
+
+    QTest.qWait(1000 * 5)
+
+    app.primaryScreen().grabWindow(window.winId()).save(
+        os.path.join(directory, "TbRuSn_deltaPDF_view_pdf.png"), "png"
+    )
+
+    vs_view.workspace_combo.setStyleSheet("")
+    vs_view.slice_line.setStyleSheet("")
+    vs_view.vmin_line.setStyleSheet("")
+    vs_view.vmax_line.setStyleSheet("")
+
+    copy_generated_pngs(directory)
+
+
 SCENARIOS = {
     "TOPAZ_Si_volume": TOPAZ_Si_volume,
     "CORELLI_Bixbyite_deltaPDF": CORELLI_Bixbyite_deltaPDF,
+    "TOPAZ_TbRuSn_deltaPDF": TOPAZ_TbRuSn_deltaPDF,
 }
 
 if __name__ == "__main__":

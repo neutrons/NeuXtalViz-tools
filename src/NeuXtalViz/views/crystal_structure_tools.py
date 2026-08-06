@@ -32,47 +32,6 @@ from NeuXtalViz.views.base_view import NeuXtalVizWidget
 import qtawesome as qta
 
 
-def _cubehelix_colormap(
-    start_hue=240.0,
-    end_hue=-300.0,
-    min_sat=1.0,
-    max_sat=2.5,
-    min_light=0.3,
-    max_light=0.8,
-    gamma=0.9,
-    n=256,
-):
-    """
-    Cubehelix color scheme matching palettable's ``Cubehelix.make``
-    (github.com/jiffyclub/palettable), computed directly since
-    palettable isn't installed here. Defaults reproduce its
-    "perceptual_rainbow_16" preset: ``start``/``rotation`` are derived
-    from ``start_hue``/``end_hue`` the same way palettable does, and
-    lightness/saturation are each swept over their own explicit range
-    rather than vanishing at the endpoints (as in the classic Dave
-    Green (2011) cubehelix), so hues stay vivid all the way to the
-    ends instead of fading to gray.
-    """
-    start = (start_hue / 360.0 - 1.0) * 3.0
-    rotation = end_hue / 360.0 - start / 3.0 - 1.0
-
-    lam = np.linspace(min_light, max_light, n)
-    lam_gamma = lam**gamma
-
-    phi = 2.0 * np.pi * (start / 3.0 + rotation * lam)
-
-    sat = np.linspace(min_sat, max_sat, n)
-    a = sat * lam_gamma * (1.0 - lam_gamma) / 2.0
-
-    r = lam_gamma + a * (-0.14861 * np.cos(phi) + 1.78277 * np.sin(phi))
-    g = lam_gamma + a * (-0.29227 * np.cos(phi) - 0.90649 * np.sin(phi))
-    b = lam_gamma + a * (1.97294 * np.cos(phi))
-
-    rgb = np.clip(np.stack([r, g, b], axis=1), 0, 1)
-
-    return matplotlib.colors.ListedColormap(rgb)
-
-
 class CrystalStructureView(NeuXtalVizWidget):
     """
     View for visualizing and editing crystal structures in NeuXtalViz.
@@ -100,6 +59,7 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.structure_tab()
         self.factors_tab()
         self.absorption_tab()
+        self.simulator_tab()
 
         self.layout().addWidget(self.tab_widget, stretch=1)
 
@@ -791,6 +751,223 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.abs_rho_line.setToolTip("Mass density (g/cm^3).")
         self.abs_v_line.setToolTip("Sample volume (cm^3).")
         self.abs_m_line.setToolTip("Sample mass (g).")
+
+    def simulator_tab(self):
+        """
+        Build the "Simulator" tab layout and widgets.
+
+        Constructs the instrument selector and d-min field, the UB
+        load/clear controls and beam-/in-plane-direction u/v vector
+        fields (used only when no UB has been loaded from file), the
+        goniometer angle fields, the counting time field and calculate
+        button, and the results table, and adds them to the tab
+        widget. The sample shape and its orientation are not
+        duplicated here -- they are read directly from the Absorption
+        tab (:meth:`get_absorption_shape_constants`,
+        :meth:`get_absorption_shape_vectors`) when calculating.
+        """
+
+        sim_tab = QWidget()
+        self.tab_widget.addTab(sim_tab, "Simulator")
+
+        sim_layout = QVBoxLayout()
+
+        notation = QDoubleValidator.StandardNotation
+
+        # --- Instrument / d-min -----------------------------------------
+        instrument_label = QLabel("Instrument", self)
+        dmin_label = QLabel("d(min)", self)
+        angstrom_label = QLabel("Å", self)
+
+        self.sim_instrument_combo = QComboBox(self)
+        self.sim_instrument_combo.addItem("TOPAZ")
+        self.sim_instrument_combo.addItem("MANDI")
+        self.sim_instrument_combo.addItem("CORELLI")
+
+        self.auto_scale_dropdown(self.sim_instrument_combo)
+
+        self.sim_dmin_line = QLineEdit(self)
+        self.sim_dmin_line.setValidator(
+            QDoubleValidator(0.1, 1000, 4, notation=notation)
+        )
+        self.sim_dmin_line.setPlaceholderText("d-min (Å)")
+
+        instrument_layout = QHBoxLayout()
+        instrument_layout.addWidget(instrument_label)
+        instrument_layout.addWidget(self.sim_instrument_combo)
+        instrument_layout.addWidget(dmin_label)
+        instrument_layout.addWidget(self.sim_dmin_line)
+        instrument_layout.addWidget(angstrom_label)
+        instrument_layout.addStretch(1)
+
+        # --- UB load/clear ------------------------------------------------
+        self.sim_load_UB_button = QPushButton("Load UB", self)
+        self.sim_load_UB_button.setIcon(qta.icon("fa6s.folder-open"))
+
+        self.sim_clear_UB_button = QPushButton("Clear UB", self)
+        self.sim_clear_UB_button.setIcon(qta.icon("fa6s.xmark"))
+
+        self.sim_UB_line = QLineEdit(self)
+        self.sim_UB_line.setReadOnly(True)
+        self.sim_UB_line.setPlaceholderText(
+            "No UB loaded -- using u/v vectors below"
+        )
+
+        UB_layout = QHBoxLayout()
+        UB_layout.addWidget(self.sim_load_UB_button)
+        UB_layout.addWidget(self.sim_clear_UB_button)
+        UB_layout.addWidget(self.sim_UB_line)
+
+        # --- Sample orientation (u/v vectors, same convention as the
+        # Absorption tab's sample-orientation fields) --------------------
+        a_star_label = QLabel("a*", self)
+        b_star_label = QLabel("b*", self)
+        c_star_label = QLabel("c*", self)
+
+        orient_label = QLabel("Sample Orientation", self)
+        u_label = QLabel("Beam Direction:", self)
+        v_label = QLabel("In-plane Direction:", self)
+
+        self.sim_hu_line = QLineEdit("0")
+        self.sim_ku_line = QLineEdit("0")
+        self.sim_lu_line = QLineEdit("1")
+
+        self.sim_hv_line = QLineEdit("1")
+        self.sim_kv_line = QLineEdit("0")
+        self.sim_lv_line = QLineEdit("0")
+
+        orient_layout = QGridLayout()
+
+        orient_layout.addWidget(orient_label, 0, 0, Qt.AlignCenter)
+        orient_layout.addWidget(a_star_label, 0, 1, Qt.AlignCenter)
+        orient_layout.addWidget(b_star_label, 0, 2, Qt.AlignCenter)
+        orient_layout.addWidget(c_star_label, 0, 3, Qt.AlignCenter)
+
+        orient_layout.addWidget(u_label, 1, 0)
+        orient_layout.addWidget(self.sim_hu_line, 1, 1)
+        orient_layout.addWidget(self.sim_ku_line, 1, 2)
+        orient_layout.addWidget(self.sim_lu_line, 1, 3)
+        orient_layout.addWidget(v_label, 2, 0)
+        orient_layout.addWidget(self.sim_hv_line, 2, 1)
+        orient_layout.addWidget(self.sim_kv_line, 2, 2)
+        orient_layout.addWidget(self.sim_lv_line, 2, 3)
+
+        # --- Goniometer ----------------------------------------------------
+        gon_label = QLabel("Goniometer", self)
+        omega_label = QLabel("ω", self)
+        chi_label = QLabel("χ", self)
+        phi_label = QLabel("φ", self)
+        degree_label = QLabel("°", self)
+
+        validator = QDoubleValidator(-360, 360, 4, notation=notation)
+
+        self.sim_omega_line = QLineEdit("0")
+        self.sim_chi_line = QLineEdit("0")
+        self.sim_phi_line = QLineEdit("0")
+
+        self.sim_omega_line.setValidator(validator)
+        self.sim_chi_line.setValidator(validator)
+        self.sim_phi_line.setValidator(validator)
+
+        gon_layout = QHBoxLayout()
+        gon_layout.addWidget(gon_label)
+        gon_layout.addWidget(omega_label)
+        gon_layout.addWidget(self.sim_omega_line)
+        gon_layout.addWidget(chi_label)
+        gon_layout.addWidget(self.sim_chi_line)
+        gon_layout.addWidget(phi_label)
+        gon_layout.addWidget(self.sim_phi_line)
+        gon_layout.addWidget(degree_label)
+        gon_layout.addStretch(1)
+
+        # --- Counting time / Calculate -------------------------------------
+        time_label = QLabel("Counting Time", self)
+        minute_label = QLabel("min", self)
+
+        self.sim_time_line = QLineEdit("2")
+        self.sim_time_line.setValidator(
+            QDoubleValidator(0.01, 10000, 4, notation=notation)
+        )
+
+        self.sim_calculate_button = QPushButton("Calculate", self)
+        self.sim_calculate_button.setIcon(qta.icon("fa6s.calculator"))
+
+        time_layout = QHBoxLayout()
+        time_layout.addWidget(time_label)
+        time_layout.addWidget(self.sim_time_line)
+        time_layout.addWidget(minute_label)
+        time_layout.addStretch(1)
+        time_layout.addWidget(self.sim_calculate_button)
+
+        # --- Results table ---------------------------------------------
+        stretch = QHeaderView.Stretch
+
+        self.sim_table = QTableWidget()
+        self.sim_table.setRowCount(0)
+        self.sim_table.setColumnCount(8)
+        self.sim_table.horizontalHeader().setSectionResizeMode(stretch)
+        self.sim_table.setHorizontalHeaderLabels(
+            ["h", "k", "l", "d", "λ", "F²", "I", "I/σ"]
+        )
+        self.sim_table.setEditTriggers(QTableWidget.NoEditTriggers)
+
+        sim_layout.addLayout(instrument_layout)
+        sim_layout.addLayout(UB_layout)
+        sim_layout.addLayout(orient_layout)
+        sim_layout.addLayout(gon_layout)
+        sim_layout.addLayout(time_layout)
+        sim_layout.addWidget(self.sim_table)
+
+        sim_tab.setLayout(sim_layout)
+
+        self.sim_instrument_combo.setToolTip(
+            "Instrument to simulate (determines the wavelength band, "
+            "goniometer convention, and calibrated bank response)."
+        )
+        self.sim_dmin_line.setToolTip(
+            "Minimum d-spacing (Å) for the predicted reflections "
+            "(defaults to the instrument's nominal minimum)."
+        )
+        self.sim_load_UB_button.setToolTip(
+            "Load a UB matrix from an ISAW UB file, overriding the "
+            "u/v vectors below."
+        )
+        self.sim_clear_UB_button.setToolTip(
+            "Clear the loaded UB matrix and use the u/v vectors below "
+            "instead."
+        )
+        self.sim_UB_line.setToolTip(
+            "Path of the currently loaded UB file, if any."
+        )
+        self.sim_hu_line.setToolTip(
+            "h-index of the crystallographic direction to align with "
+            "the beam direction (ignored if a UB file is loaded)."
+        )
+        self.sim_ku_line.setToolTip("k-index of the beam direction vector.")
+        self.sim_lu_line.setToolTip("l-index of the beam direction vector.")
+        self.sim_hv_line.setToolTip(
+            "h-index of the in-plane direction vector."
+        )
+        self.sim_kv_line.setToolTip(
+            "k-index of the in-plane direction vector."
+        )
+        self.sim_lv_line.setToolTip(
+            "l-index of the in-plane direction vector."
+        )
+        self.sim_omega_line.setToolTip("Goniometer ω angle (degrees).")
+        self.sim_chi_line.setToolTip("Goniometer χ angle (degrees).")
+        self.sim_phi_line.setToolTip("Goniometer φ angle (degrees).")
+        self.sim_time_line.setToolTip("Requested counting time (minutes).")
+        self.sim_calculate_button.setToolTip(
+            "Predict observable reflections and their expected counts "
+            "and I/σ for the current instrument, orientation, "
+            "goniometer setting, and counting time."
+        )
+        self.sim_table.setToolTip(
+            "Predicted reflections sorted by decreasing d-spacing: "
+            "Miller indices, d-spacing (Å), wavelength (Å), squared "
+            "structure factor, expected integrated counts, and I/σ."
+        )
 
     def connect_save_INS(self, save_INS):
         """
@@ -1940,7 +2117,7 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.plotter.add_composite(
             multiblock,
             scalars="Transmission",
-            cmap=_cubehelix_colormap(),
+            cmap="gist_rainbow",
             clim=[0, 1],
             smooth_shading=True,
             show_scalar_bar=True,
@@ -1984,3 +2161,254 @@ class CrystalStructureView(NeuXtalVizWidget):
         )
 
         self.reset_view()
+
+    def connect_instrument_selector(self, select_instrument):
+        """
+        Connect the Simulator instrument combo box to a handler.
+
+        Parameters
+        ----------
+        select_instrument : callable
+            Slot invoked when the instrument combo box is activated.
+        """
+
+        self.sim_instrument_combo.activated.connect(select_instrument)
+
+    def connect_load_UB(self, load_UB):
+        """
+        Connect the Simulator "Load UB" button to a handler.
+
+        Parameters
+        ----------
+        load_UB : callable
+            Slot invoked when the load UB button is clicked.
+        """
+
+        self.sim_load_UB_button.clicked.connect(load_UB)
+
+    def connect_clear_UB(self, clear_UB):
+        """
+        Connect the Simulator "Clear UB" button to a handler.
+
+        Parameters
+        ----------
+        clear_UB : callable
+            Slot invoked when the clear UB button is clicked.
+        """
+
+        self.sim_clear_UB_button.clicked.connect(clear_UB)
+
+    def connect_calculate_simulator(self, calculate_simulator):
+        """
+        Connect the Simulator calculate button to a handler.
+
+        Parameters
+        ----------
+        calculate_simulator : callable
+            Slot invoked when the Simulator calculate button is
+            clicked.
+        """
+
+        self.sim_calculate_button.clicked.connect(calculate_simulator)
+
+    def load_UB_file_dialog(self):
+        """
+        Open a file dialog to select an ISAW UB matrix file to load.
+
+        Returns
+        -------
+        filename : str
+            Path to the selected UB file, or an empty string if the
+            dialog was cancelled.
+        """
+
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.AnyFile)
+
+        filename, _ = file_dialog.getOpenFileName(
+            self,
+            "Load UB file",
+            self._get_file_dialog_dir(),
+            "UB files (*.mat *.ub)",
+            options=options,
+        )
+
+        if filename:
+            self._remember_file_dialog_dir(os.path.dirname(filename))
+
+        return filename
+
+    def get_simulator_instrument(self):
+        """
+        Currently selected Simulator instrument.
+
+        Returns
+        -------
+        instrument : str
+            Selected instrument name ("TOPAZ", "MANDI", or "CORELLI").
+        """
+
+        return self.sim_instrument_combo.currentText()
+
+    def set_simulator_d_min(self, d_min):
+        """
+        Populate the Simulator d-min field.
+
+        Parameters
+        ----------
+        d_min : float
+            Minimum d-spacing (Å).
+        """
+
+        self.sim_dmin_line.setText("{:.4f}".format(d_min))
+
+    def get_simulator_d_min(self):
+        """
+        Minimum d-spacing entered by the user, if valid.
+
+        Returns
+        -------
+        d_min : float or None
+            Minimum d-spacing (Å), or None if the field does not
+            currently contain acceptable input.
+        """
+
+        if self.sim_dmin_line.hasAcceptableInput():
+            return float(self.sim_dmin_line.text())
+
+    def set_UB_status(self, filename):
+        """
+        Show or clear the loaded UB filename, enabling/disabling the
+        u/v vector fields accordingly.
+
+        Parameters
+        ----------
+        filename : str or None
+            Path of the loaded UB file, or None if no UB is loaded
+            (the u/v vector fields are then re-enabled).
+        """
+
+        self.sim_UB_line.setText(filename if filename else "")
+
+        enabled = not filename
+
+        for line in (
+            self.sim_hu_line,
+            self.sim_ku_line,
+            self.sim_lu_line,
+            self.sim_hv_line,
+            self.sim_kv_line,
+            self.sim_lv_line,
+        ):
+            line.setEnabled(enabled)
+
+    def get_simulator_UB_filename(self):
+        """
+        Path of the currently loaded UB file.
+
+        Returns
+        -------
+        filename : str
+            Path of the loaded UB file, or an empty string if none is
+            loaded.
+        """
+
+        return self.sim_UB_line.text()
+
+    def get_simulator_vectors(self):
+        """
+        Beam-/in-plane-direction vectors entered by the user.
+
+        Returns
+        -------
+        u_vector : list of float
+            Reciprocal lattice indices (h, k, l) of the beam
+            direction.
+        v_vector : list of float
+            Reciprocal lattice indices (h, k, l) of the in-plane
+            direction.
+        """
+
+        params = (
+            self.sim_hu_line,
+            self.sim_ku_line,
+            self.sim_lu_line,
+            self.sim_hv_line,
+            self.sim_kv_line,
+            self.sim_lv_line,
+        )
+
+        if all(param.hasAcceptableInput() for param in params):
+            vals = [float(param.text()) for param in params]
+            return vals[0:3], vals[3:6]
+
+    def get_simulator_goniometer(self):
+        """
+        Goniometer angles entered by the user, if valid.
+
+        Returns
+        -------
+        angles : list of float or None
+            Omega, chi, and phi angles (degrees), or None if any field
+            has invalid input.
+        """
+
+        params = self.sim_omega_line, self.sim_chi_line, self.sim_phi_line
+
+        if all(param.hasAcceptableInput() for param in params):
+            return [float(param.text()) for param in params]
+
+    def get_simulator_counting_time(self):
+        """
+        Counting time entered by the user, if valid.
+
+        Returns
+        -------
+        counting_time : float or None
+            Counting time (minutes), or None if the field does not
+            currently contain acceptable input.
+        """
+
+        if self.sim_time_line.hasAcceptableInput():
+            return float(self.sim_time_line.text())
+
+    def set_simulator_results(self, hkls, ds, lambdas, F2s, Is, IsigmaIs):
+        """
+        Repopulate the Simulator results table.
+
+        Parameters
+        ----------
+        hkls : iterable of array-like
+            Miller indices (h, k, l) for each reflection.
+        ds : iterable of float
+            d-spacing (Å) for each reflection.
+        lambdas : iterable of float
+            Wavelength (Å) for each reflection.
+        F2s : iterable of float
+            Squared structure factor for each reflection.
+        Is : iterable of float
+            Predicted integrated counts for each reflection.
+        IsigmaIs : iterable of float
+            Predicted I/σ for each reflection.
+        """
+
+        self.sim_table.setRowCount(0)
+        self.sim_table.setRowCount(len(hkls))
+
+        rows = zip(hkls, ds, lambdas, F2s, Is, IsigmaIs)
+        for row, (hkl, d, lam, F2, I, IsigmaI) in enumerate(rows):
+            values = [
+                "{:.0f}".format(hkl[0]),
+                "{:.0f}".format(hkl[1]),
+                "{:.0f}".format(hkl[2]),
+                "{:.4f}".format(d),
+                "{:.4f}".format(lam),
+                "{:.2f}".format(F2),
+                "{:.2f}".format(I),
+                "{:.2f}".format(IsigmaI),
+            ]
+            for col, val in enumerate(values):
+                self.sim_table.setItem(row, col, QTableWidgetItem(val))

@@ -67,6 +67,15 @@ beamlines : dict[str, dict]
     Title : str
         EPICS PV name providing the run/scan title, used to read or
         display the current run's title.
+    DivergenceParams : dict[str, float], optional
+        Beam-divergence and wavelength-spread sigmas (degrees, except
+        ``sigma_dl_mod`` which is dimensionless dλ/λ) feeding the
+        ``ResolutionEllipsoid`` model (see ``garnet.reduction.resolution``)
+        used to predict the Q-lab resolution ellipsoid for a reflection:
+        ``sigma_alpha_i``/``sigma_beta_i`` (incident beam divergence),
+        ``sigma_alpha_f``/``sigma_beta_f`` (scattered beam divergence),
+        ``sigma_dl_mod`` (moderator wavelength spread), and
+        ``sigma_mosaic`` (crystal mosaic spread).
 """
 
 LIVE_INSTRUMENTS = ("TOPAZ", "CORELLI", "MANDI")
@@ -138,6 +147,18 @@ beamlines = {
         "RawFile": "nexus/CORELLI_{}.nxs.h5",
         "Counting": ["BL9:Det:PCharge:C", "seconds"],
         "Title": "BL9:SMS:RunInfo:RunTitle",
+        "DivergenceParams": {
+            "sigma_alpha_i": 0.595,
+            "sigma_beta_i": 0.955,
+            "sigma_alpha_f": 0.630,
+            "sigma_beta_f": 0.509,
+            "sigma_dl_mod": 0.017,
+            "sigma_mosaic": 0.201,
+        },
+        "Simulator": {
+            "CountRate": "/SNS/CORELLI/simulator/count_rate.nxs",
+            "Background": "/SNS/CORELLI/simulator/background_count_rate.nxs",
+        },
     },
     "TOPAZ": {
         "Name": "TOPAZ",
@@ -171,6 +192,18 @@ beamlines = {
         "RawFile": "nexus/TOPAZ_{}.nxs.h5",
         "Counting": ["BL12:Det:PCharge:C", "seconds"],
         "Title": "BL12:SMS:RunInfo:RunTitle",
+        "DivergenceParams": {
+            "sigma_alpha_i": 1.072,
+            "sigma_beta_i": 1.054,
+            "sigma_alpha_f": 0.414,
+            "sigma_beta_f": 0.288,
+            "sigma_dl_mod": 0.006,
+            "sigma_mosaic": 0.223,
+        },
+        "Simulator": {
+            "CountRate": "/SNS/TOPAZ/simulator/count_rate.nxs",
+            "Background": "/SNS/TOPAZ/simulator/background_count_rate.nxs",
+        },
     },
     "MANDI": {
         "Name": "MANDI",
@@ -199,6 +232,18 @@ beamlines = {
         "RawFile": "nexus/MANDI_{}.nxs.h5",
         "Counting": ["BL11B:Det:PCharge:C", "seconds"],
         "Title": "BL11B:SMS:RunInfo:RunTitle",
+        "DivergenceParams": {
+            "sigma_alpha_i": 1.072,
+            "sigma_beta_i": 1.054,
+            "sigma_alpha_f": 0.414,
+            "sigma_beta_f": 0.288,
+            "sigma_dl_mod": 0.006,
+            "sigma_mosaic": 0.223,
+        },
+        "Simulator": {
+            "CountRate": "/SNS/MANDI/simulator/count_rate.nxs",
+            "Background": "/SNS/MANDI/simulator/background_count_rate.nxs",
+        },
     },
     "IMAGINE": {
         "Name": "IMAGINE",

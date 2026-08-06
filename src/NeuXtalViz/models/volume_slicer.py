@@ -572,14 +572,15 @@ class VolumeSlicerModel(NeuXtalVizModel):
         """
         Set the W matrix from the workspace log if available, otherwise identity.
         """
-        ei = mtd["histo"].getExperimentInfo(0)
-
         self.W = np.eye(3)
 
-        if ei.run().hasProperty("W_MATRIX"):
-            self.W = np.array(ei.run().getLogData("W_MATRIX").value).reshape(
-                3, 3
-            )
+        if mtd["histo"].getNumExperimentInfo() > 0:
+            ei = mtd["histo"].getExperimentInfo(0)
+
+            if ei.run().hasProperty("W_MATRIX"):
+                self.W = np.array(
+                    ei.run().getLogData("W_MATRIX").value
+                ).reshape(3, 3)
 
     def get_histo_info(self):
         """
@@ -592,7 +593,13 @@ class VolumeSlicerModel(NeuXtalVizModel):
         """
         histo_dict = {}
 
-        histo_dict["signal"] = self.signal.copy()
+        # `self.signal` is only ever read downstream (`add_histo`
+        # flattens/reshapes it into new arrays, never mutates it in
+        # place), and every other field below is already handed out
+        # as a live reference -- copying just this one, unlike them,
+        # meant re-copying the full volume (tens of MB) on every
+        # reslice/redraw for no benefit.
+        histo_dict["signal"] = self.signal
 
         histo_dict["min_lim"] = self.min_lim
         histo_dict["max_lim"] = self.max_lim

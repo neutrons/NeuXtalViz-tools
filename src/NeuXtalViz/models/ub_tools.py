@@ -204,6 +204,7 @@ class UBModel(NeuXtalVizModel):
         self.live_snapshot = None
         self.live_instrument = None
         self.live_grouping = None
+        self.live_goniometers = []
         self.live_monitor_handle = None
         self.live_observer = None
         self.live_previous_facility = None
@@ -438,6 +439,26 @@ class UBModel(NeuXtalVizModel):
         """
 
         return beamlines[instrument]["Goniometers"]
+
+    @staticmethod
+    def _rbv_goniometer_axis(axis):
+        """
+        Convert a goniometer axis spec's motor PV to its readback (.RBV).
+
+        Parameters
+        ----------
+        axis : str
+            "PVName,x,y,z,sense" axis spec, as stored in
+            `beamlines[instrument]["Goniometers"]`.
+
+        Returns
+        -------
+        axis : str
+            Same spec with ".RBV" appended to the PV name.
+        """
+
+        pv_name, _, rest = axis.partition(",")
+        return "{}.RBV,{}".format(pv_name, rest)
 
     def get_wavelength(self, instrument):
         """
@@ -1368,6 +1389,17 @@ class UBModel(NeuXtalVizModel):
             int(v) for v in self.live_grouping.split("x")
         ]
 
+        # .RBV (readback), not the base setpoint PV in
+        # beamlines[instrument]["Goniometers"] -- see
+        # _prepare_live_snapshot for why. Computed once here rather
+        # than per tick.
+        self.live_goniometers = [
+            self._rbv_goniometer_axis(axis)
+            for axis in self.get_goniometers(instrument)
+        ]
+        while len(self.live_goniometers) < 6:
+            self.live_goniometers.append(None)
+
         alg = AlgorithmManager.create("StartLiveData")
         alg.initialize()
         alg.setProperty("Instrument", inst["InstrumentName"])
@@ -1413,7 +1445,7 @@ class UBModel(NeuXtalVizModel):
 
     def _prepare_live_snapshot(self, snapshot_name):
         """
-        Strip monitors and apply standard masking/grouping to a live
+        Strip monitors, mask/group, and set the goniometer on a live
         snapshot clone, in place.
 
         A raw file load excludes monitor spectra by default
@@ -1423,6 +1455,28 @@ class UBModel(NeuXtalVizModel):
         `convert_data` and `_get_detector_grouping_pattern`) raise if
         any monitor spectrum is present. `ExtractMonitors` removes them
         before masking/grouping.
+
+        Also sets the goniometer here (not left to `calibrate_data`
+        alone): `self.live_snapshot` is a shared, fixed workspace name
+        that `_LiveDataObserver.replaceHandle` deletes and recreates on
+        Mantid's own thread whenever a chunk lands, independent of
+        whether the presenter's worker thread has finished consuming
+        the previous one. If that swap happens between `calibrate_data`
+        setting the goniometer and `convert_data` reading it, the new
+        instance would reach `ConvertToMD` with no goniometer at all
+        (a hard failure -- "Sample frame needs goniometer to be defined
+        on the workspace"). Setting it unconditionally on every
+        snapshot at creation time, before any consumer sees the name,
+        closes that race regardless of scheduling.
+
+        Uses each axis's ``.RBV`` (readback) PV rather than the base
+        motor PV in `beamlines[instrument]["Goniometers"]`: the base PV
+        is a setpoint that only logs a new value when a move is
+        commanded, so right after a run transition it can have zero
+        entries for the new run yet, leaving `Average=True` nothing to
+        average. The ``.RBV`` PV is continuously updated by the IOC
+        with the motor's actual position regardless of new commands, so
+        it already has data from the moment the run starts.
 
         Only ever called on the disposable snapshot clone
         (`self.live_snapshot`), never on `self.live_workspace` itself
@@ -1454,6 +1508,14 @@ class UBModel(NeuXtalVizModel):
             1,
             None,
             self.live_grouping,
+        )
+
+        SetGoniometer(
+            Workspace=snapshot_name,
+            Axis0=self.live_goniometers[0],
+            Axis1=self.live_goniometers[1],
+            Axis2=self.live_goniometers[2],
+            Average=True,
         )
 
     def stop_live_data(self):
@@ -2121,6 +2183,21 @@ class UBModel(NeuXtalVizModel):
 
         live_ws = mtd[self.live_snapshot]
         run = live_ws.run()
+
+        if run.getNumGoniometers() == 0:
+            # Right after a run transition, the new run's motor-position
+            # logs may genuinely have zero entries yet, leaving
+            # _prepare_live_snapshot's SetGoniometer(Average=True) with
+            # nothing to average. Skip this tick's conversion rather
+            # than crash in ConvertToMD -- self.live_current_run is left
+            # untouched, so the next chunk (once logs have caught up)
+            # still detects the transition and archives the old run.
+            return (
+                list(self.live_completed_md_workspaces),
+                list(self.live_completed_runs),
+                list(self.live_completed_metadata),
+            )
+
         run_number = (
             run.getProperty("run_number").value
             if run.hasProperty("run_number")
