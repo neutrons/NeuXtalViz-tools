@@ -529,6 +529,15 @@ counting.</p>
 <dt>Title<span class="classifier">str</span></dt><dd><p>EPICS PV name providing the run/scan title, used to read or
 display the current run’s title.</p>
 </dd>
+<dt>DivergenceParams<span class="classifier">dict[str, float], optional</span></dt><dd><p>Beam-divergence and wavelength-spread sigmas (degrees, except
+<code class="docutils literal notranslate"><span class="pre">sigma_dl_mod</span></code> which is dimensionless dλ/λ) feeding the
+<code class="docutils literal notranslate"><span class="pre">ResolutionEllipsoid</span></code> model (see <code class="docutils literal notranslate"><span class="pre">garnet.reduction.resolution</span></code>)
+used to predict the Q-lab resolution ellipsoid for a reflection:
+<code class="docutils literal notranslate"><span class="pre">sigma_alpha_i</span></code>/<code class="docutils literal notranslate"><span class="pre">sigma_beta_i</span></code> (incident beam divergence),
+<code class="docutils literal notranslate"><span class="pre">sigma_alpha_f</span></code>/<code class="docutils literal notranslate"><span class="pre">sigma_beta_f</span></code> (scattered beam divergence),
+<code class="docutils literal notranslate"><span class="pre">sigma_dl_mod</span></code> (moderator wavelength spread), and
+<code class="docutils literal notranslate"><span class="pre">sigma_mosaic</span></code> (crystal mosaic spread).</p>
+</dd>
 </dl>
 </dd>
 </dl>
