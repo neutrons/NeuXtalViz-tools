@@ -95,6 +95,10 @@ import re
 
 from NeuXtalViz.models.base_model import NeuXtalVizModel
 from NeuXtalViz.config.instruments import beamlines, LIVE_INSTRUMENTS
+from NeuXtalViz.models.goniometer_calibration import (
+    setup_goniometer_calibration,
+    correct_goniometer,
+)
 
 lattice_group = {
     "Triclinic": "-1",
@@ -1219,6 +1223,14 @@ class UBModel(NeuXtalVizModel):
             Minimum and maximum momentum transfer used for cropping and
             setting the MD conversion extents.
 
+        Notes
+        -----
+        Reuses the "detectors" table already populated by the caller
+        (`convert_data`) via `PreprocessDetectorsToMD` -- detector
+        geometry (TwoTheta/Azimuthal per spectrum) is the same for
+        every run of a given instrument, so recomputing it per run
+        here was pure overhead.
+
         Returns
         -------
         d_spacing : ndarray
@@ -1286,11 +1298,6 @@ class UBModel(NeuXtalVizModel):
         d_spacing = mtd[temp_workspace].extractX()[0]
         d_spacing = 0.5 * (d_spacing[1:] + d_spacing[:-1])
         counts = mtd[temp_workspace].extractY().copy()
-
-        PreprocessDetectorsToMD(
-            InputWorkspace=temp_workspace,
-            OutputWorkspace="detectors",
-        )
 
         two_theta = np.array(mtd["detectors"].column("TwoTheta"))
         az_phi = np.array(mtd["detectors"].column("Azimuthal"))
@@ -1629,12 +1636,6 @@ class UBModel(NeuXtalVizModel):
 
         self.requested_filenames = requested_filenames
 
-        LoadEmptyInstrument(
-            InstrumentName=inst["Name"] if idf is None else None,
-            Filename=idf if idf is not None else None,
-            OutputWorkspace="goniometer",
-        )
-
         filenames = ",".join(requested_filenames)
 
         if instrument == "DEMAND":
@@ -1762,10 +1763,10 @@ class UBModel(NeuXtalVizModel):
 
             return True
 
-    def calibrate_data(self, instrument, det_cal, tube_cal):
+    def calibrate_data(self, instrument, det_cal, gon_cal, tube_cal):
         """
-        Calibrate the loaded data using detector and tube calibration
-        files.
+        Calibrate the loaded data using detector, goniometer, and tube
+        calibration files.
 
         Parameters
         ----------
@@ -1773,6 +1774,8 @@ class UBModel(NeuXtalVizModel):
             Instrument identifier.
         det_cal : str
             Detector calibration file.
+        gon_cal : str
+            Goniometer calibration file.
         tube_cal : str
             Tube calibration file.
         """
@@ -1829,6 +1832,18 @@ class UBModel(NeuXtalVizModel):
                         LoadIsawDetCal(
                             InputWorkspace=workspace, Filename=det_cal
                         )
+
+            if (
+                gon_cal != ""
+                and os.path.exists(gon_cal)
+                and os.path.splitext(gon_cal)[1] == ".xml"
+            ):
+                setup_goniometer_calibration(
+                    beamlines[instrument]["Name"], gon_cal
+                )
+                axes = [a for a in goniometers[:3] if a is not None]
+                for workspace in workspaces:
+                    correct_goniometer(workspace, axes)
 
     def get_number_workspaces(self):
         """

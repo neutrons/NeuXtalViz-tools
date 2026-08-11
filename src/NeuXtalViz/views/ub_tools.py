@@ -562,6 +562,8 @@ class UBView(NeuXtalVizWidget):
 
         self.cal_line = QLineEdit("")
         self.cal_line.setPlaceholderText("Detector calibration file")
+        self.gon_line = QLineEdit("")
+        self.gon_line.setPlaceholderText("Goniometer calibration file")
         self.tube_line = QLineEdit("")
         self.tube_line.setPlaceholderText("Tube calibration file")
 
@@ -595,10 +597,12 @@ class UBView(NeuXtalVizWidget):
         )
 
         self.cal_browse_button = QPushButton("Detector", self)
+        self.gon_browse_button = QPushButton("Goniometer", self)
         self.tube_browse_button = QPushButton("Tube", self)
 
         browse_icon = qta.icon("fa6s.folder-open")
         self.cal_browse_button.setIcon(browse_icon)
+        self.gon_browse_button.setIcon(browse_icon)
         self.tube_browse_button.setIcon(browse_icon)
 
         experiment_params_layout.addWidget(self.instrument_combo)
@@ -616,8 +620,10 @@ class UBView(NeuXtalVizWidget):
 
         instrument_params_layout.addWidget(self.cal_line, 1, 0)
         instrument_params_layout.addWidget(self.cal_browse_button, 1, 1)
-        instrument_params_layout.addWidget(self.tube_line, 2, 0)
-        instrument_params_layout.addWidget(self.tube_browse_button, 2, 1)
+        instrument_params_layout.addWidget(self.gon_line, 2, 0)
+        instrument_params_layout.addWidget(self.gon_browse_button, 2, 1)
+        instrument_params_layout.addWidget(self.tube_line, 3, 0)
+        instrument_params_layout.addWidget(self.tube_browse_button, 3, 1)
 
         self.convert_to_q_button = QPushButton("Convert", self)
         self.convert_to_q_button.setToolTip("Convert raw data to Q workspace.")
@@ -2674,6 +2680,19 @@ class UBView(NeuXtalVizWidget):
 
         self.cal_browse_button.clicked.connect(load_detector_cal)
 
+    def connect_browse_goniometer(self, load_goniometer_cal):
+        """
+        Connect a callback to the goniometer calibration browse button.
+
+        Parameters
+        ----------
+        load_goniometer_cal : callable
+            Slot invoked to open a file dialog and load a goniometer
+            calibration file.
+        """
+
+        self.gon_browse_button.clicked.connect(load_goniometer_cal)
+
     def connect_browse_tube(self, load_tube_cal):
         """
         Connect a callback to the tube calibration browse button.
@@ -3857,6 +3876,36 @@ class UBView(NeuXtalVizWidget):
 
         return filename
 
+    def load_goniometer_cal_dialog(self, path=""):
+        """
+        Open a dialog to select a goniometer calibration file to load.
+
+        Parameters
+        ----------
+        path : str, optional
+            Initial directory or filename shown in the dialog.
+
+        Returns
+        -------
+        filename : str
+            Path to the selected goniometer calibration file, or an
+            empty string if the dialog was cancelled.
+        """
+
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.AnyFile)
+
+        file_filters = "Goniometer files (*.xml)"
+
+        filename, _ = file_dialog.getOpenFileName(
+            self, "Load goniometer file", path, file_filters, options=options
+        )
+
+        return filename
+
     def load_tube_cal_dialog(self, path=""):
         """
         Open a dialog to select a tube calibration file to load.
@@ -4392,6 +4441,7 @@ class UBView(NeuXtalVizWidget):
 
         self.exp_line.setText("")
         self.cal_line.setText("")
+        self.gon_line.setText("")
         self.tube_line.setText("")
 
         if "exp" in filepath:
@@ -4404,6 +4454,8 @@ class UBView(NeuXtalVizWidget):
             self.filter_time_line.setText("")
             self.cal_line.setEnabled(True)
             self.cal_browse_button.setEnabled(True)
+            self.gon_line.setEnabled(True)
+            self.gon_browse_button.setEnabled(True)
             self.tube_line.setEnabled(False)
             self.tube_browse_button.setEnabled(False)
             self.reload_convert_to_q_button.setEnabled(True)
@@ -4415,6 +4467,8 @@ class UBView(NeuXtalVizWidget):
             self.filter_time_line.setText("")
             self.cal_line.setEnabled(False)
             self.cal_browse_button.setEnabled(False)
+            self.gon_line.setEnabled(False)
+            self.gon_browse_button.setEnabled(False)
             self.tube_line.setEnabled(False)
             self.tube_browse_button.setEnabled(False)
             self.reload_convert_to_q_button.setEnabled(False)
@@ -4466,6 +4520,30 @@ class UBView(NeuXtalVizWidget):
         """
 
         return self.cal_line.setText(filename)
+
+    def get_goniometer_calibration(self):
+        """
+        Get the goniometer calibration file path.
+
+        Returns
+        -------
+        filename : str
+            Path to the goniometer calibration file.
+        """
+
+        return self.gon_line.text()
+
+    def set_goniometer_calibration(self, filename):
+        """
+        Set the goniometer calibration file path.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the goniometer calibration file.
+        """
+
+        return self.gon_line.setText(filename)
 
     def get_IPTS(self):
         """

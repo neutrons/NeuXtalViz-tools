@@ -63,6 +63,20 @@ class CrystalStructureModel(NeuXtalVizModel):
     # is equivalent to 1 minute at full power).
     CHARGE_PER_MINUTE = 0.08
 
+    # Coulombs per microamp-hour (1 uAh = 1e-6 A * 3600 s). count_rate.nxs/
+    # background_count_rate.nxs are normalized by garnet's vanadium
+    # calibration (garnet.utilities.vanadium), which runs Mantid's
+    # NormaliseByCurrent against the "gd_prtn_chrg" sample log without
+    # any unit conversion -- that log is in uA.hour, not Coulombs, so
+    # the saved response/background are actually counts/(uAh*Angstrom*sr),
+    # not counts/(C*Angstrom*barn). CHARGE_PER_MINUTE above is correctly
+    # in Coulombs (it matches SNS's ~1.4 mA nominal full-power current),
+    # so the requested counting time must be converted to uAh before
+    # multiplying by the calibration response, not left in Coulombs.
+    # If garnet's calibration is ever fixed to normalize in Coulombs
+    # directly, this conversion must be removed too.
+    COULOMB_PER_UAH = 3.6e-3
+
     # Structure-factor-squared threshold below which a PredictPeaks
     # reflection is treated as systematically absent. Must be an
     # absolute (not exactly-zero) cutoff: ReflectionGenerator.getFsSquared
@@ -947,21 +961,26 @@ class CrystalStructureModel(NeuXtalVizModel):
         Load an instrument's calibrated bank response and background-rate
         workspaces for the Simulator tab.
 
+        The path follows the fixed convention
+        ``/{Facility}/{instrument}/shared/simulation/count_rate.nxs``
+        (and ``background_count_rate.nxs``) -- not stored in
+        ``config.instruments.beamlines`` since it's derived directly
+        from the instrument name and facility already there.
+
         Parameters
         ----------
         instrument : str
-            Instrument name ("TOPAZ", "MANDI", or "CORELLI"), used to
-            look up the ``count_rate.nxs``/``background_count_rate.nxs``
-            paths in ``config.instruments.beamlines``.
+            Instrument name ("TOPAZ", "MANDI", or "CORELLI").
         """
-        sim = beamlines[instrument]["Simulator"]
+        facility = beamlines[instrument]["Facility"]
+        base = "/{}/{}/shared/simulation".format(facility, instrument)
 
         LoadNexus(
-            Filename=sim["CountRate"],
+            Filename="{}/count_rate.nxs".format(base),
             OutputWorkspace=self.SIM_RESPONSE_WORKSPACE,
         )
         LoadNexus(
-            Filename=sim["Background"],
+            Filename="{}/background_count_rate.nxs".format(base),
             OutputWorkspace=self.SIM_BACKGROUND_WORKSPACE,
         )
 
@@ -1013,6 +1032,233 @@ class CrystalStructureModel(NeuXtalVizModel):
             axes.append(",".join([str(angle), x, y, z, sense]))
 
         return axes
+
+    def get_resolution_prior(self, instrument):
+        """
+        Prior (unfit) resolution-model variance parameters from an
+        instrument's characterized divergence parameters.
+
+        Ported from ``garnet.reduction.resolution.ResolutionEllipsoid
+        .set_variance_parameters_deg`` (isotropic-mosaic case only --
+        NeuXtalViz has no runtime dependency on garnet-tools, and
+        ``DivergenceParams`` only carries a scalar ``sigma_mosaic``,
+        not the diagonal/full anisotropic mosaic terms the full class
+        also supports). No peak shapes are fit against; this seeds the
+        model directly from the beamline's characterized divergence,
+        exactly as garnet's own integration step does before any
+        per-run peaks exist to fit against.
+
+        Parameters
+        ----------
+        instrument : str
+            Instrument name.
+
+        Returns
+        -------
+        variance_parameters : (6,) ndarray
+            Squared sigmas, in the order (sigma_alpha_i, sigma_beta_i,
+            sigma_alpha_f, sigma_beta_f, sigma_dl_mod, sigma_mosaic)^2,
+            angles in radians and sigma_dl_mod dimensionless.
+        """
+        div = beamlines[instrument]["DivergenceParams"]
+
+        keys = (
+            "sigma_alpha_i",
+            "sigma_beta_i",
+            "sigma_alpha_f",
+            "sigma_beta_f",
+            "sigma_dl_mod",
+            "sigma_mosaic",
+        )
+
+        sigmas = [
+            div[key] if key == "sigma_dl_mod" else np.radians(div[key])
+            for key in keys
+        ]
+
+        return np.square(sigmas)
+
+    @staticmethod
+    def stoica_wilkinson_transform(two_theta, phi):
+        """
+        Local instrument-frame resolution axes (n, u, v) in the Q-lab
+        frame: n is radial (along Q, so its width maps to wavelength
+        spread Δλ/λ), u and v are the two transverse directions (their
+        widths map to angular/beam-divergence spread).
+
+        Ported verbatim from
+        ``garnet.reduction.resolution.stoica_wilkinson_transform``.
+
+        Parameters
+        ----------
+        two_theta : float
+            Scattering angle, in radians.
+        phi : float
+            Azimuthal angle, in radians.
+
+        Returns
+        -------
+        T : (3, 3) ndarray
+            Rows are the orthonormal n, u, v directions.
+        """
+        ki_hat = np.array([0.0, 0.0, 1.0])
+
+        kf_hat = np.array(
+            [
+                np.sin(two_theta) * np.cos(phi),
+                np.sin(two_theta) * np.sin(phi),
+                np.cos(two_theta),
+            ]
+        )
+
+        n = kf_hat - ki_hat
+        n /= np.linalg.norm(n)
+
+        u = kf_hat + ki_hat
+        u /= np.linalg.norm(u)
+
+        v = np.cross(n, u)
+        v /= np.linalg.norm(v)
+
+        return np.vstack([n, u, v])
+
+    def predict_resolution_S_lab(
+        self, two_theta, phi, wavelength, variance_parameters
+    ):
+        """
+        Predicted Q-lab resolution covariance (99.7%-containment
+        convention) for a reflection at a given scattering geometry.
+
+        Ported from ``garnet.reduction.resolution.ResolutionEllipsoid
+        ._model_design_lab``/``._predict_S_lab``, isotropic-mosaic
+        branch only (see :meth:`get_resolution_prior`).
+
+        Parameters
+        ----------
+        two_theta : float
+            Scattering angle, in radians.
+        phi : float
+            Azimuthal angle, in radians.
+        wavelength : float
+            Wavelength, in Angstrom.
+        variance_parameters : (6,) ndarray
+            From :meth:`get_resolution_prior`.
+
+        Returns
+        -------
+        S_lab : (3, 3) ndarray
+            Symmetric Q-lab covariance-like matrix (Å^-2, containment
+            scale, not literal 1-sigma).
+        """
+        k = 2.0 * np.pi / wavelength
+
+        s, c = np.sin(two_theta), np.cos(two_theta)
+        cp, sp = np.cos(phi), np.sin(phi)
+
+        alpha_i = np.array([1.0, 0.0, 0.0])
+        beta_i = np.array([0.0, 1.0, 0.0])
+
+        ki = np.array([0.0, 0.0, 1.0])
+        kf = np.array([s * cp, s * sp, c])
+
+        alpha_f = np.array([c * cp, c * sp, -s])
+        beta_f = np.array([-sp, cp, 0.0])
+
+        q_lambda = kf - ki
+
+        Q_vec = k * q_lambda
+        Q2 = np.dot(Q_vec, Q_vec)
+
+        def outer6(a):
+            M = np.outer(a, a)
+            return np.array(
+                [M[0, 0], M[1, 1], M[2, 2], M[1, 2], M[0, 2], M[0, 1]]
+            )
+
+        mosaic_iso = Q2 * np.eye(3) - np.outer(Q_vec, Q_vec)
+
+        cols = np.column_stack(
+            [
+                k**2 * outer6(alpha_i),
+                k**2 * outer6(beta_i),
+                k**2 * outer6(alpha_f),
+                k**2 * outer6(beta_f),
+                k**2 * outer6(q_lambda),
+                np.array(
+                    [
+                        mosaic_iso[0, 0],
+                        mosaic_iso[1, 1],
+                        mosaic_iso[2, 2],
+                        mosaic_iso[1, 2],
+                        mosaic_iso[0, 2],
+                        mosaic_iso[0, 1],
+                    ]
+                ),
+            ]
+        )
+
+        y = cols @ variance_parameters
+
+        S = np.array(
+            [[y[0], y[5], y[4]], [y[5], y[1], y[3]], [y[4], y[3], y[2]]]
+        )
+
+        return 0.5 * (S + S.T)
+
+    def predict_roi(self, two_theta, phi, wavelength, variance_parameters):
+        """
+        Background-integration ROI (wavelength width and solid angle)
+        for a reflection, from the resolution ellipsoid.
+
+        Projects the predicted Q-lab covariance
+        (:meth:`predict_resolution_S_lab`) onto the (n, u, v) frame
+        (:meth:`stoica_wilkinson_transform`): the radial ("n")
+        containment radius maps to a wavelength half-width via
+        Bragg's law (``Q = 4*pi*sin(theta)/lambda``, so at fixed
+        theta, ``d(lambda)/lambda = -d(Q)/Q``); the transverse ("u",
+        "v") containment radii map to angular half-widths by dividing
+        by ``k = 2*pi/lambda`` (small-angle), whose product
+        approximates the peak's solid-angle footprint on the detector.
+
+        Parameters
+        ----------
+        two_theta : float
+            Scattering angle, in radians.
+        phi : float
+            Azimuthal angle, in radians.
+        wavelength : float
+            Wavelength, in Angstrom.
+        variance_parameters : (6,) ndarray
+            From :meth:`get_resolution_prior`.
+
+        Returns
+        -------
+        d_lambda_roi : float
+            Full wavelength width of the ROI, in Angstrom.
+        d_omega_roi : float
+            Approximate solid-angle footprint of the ROI, in
+            steradians.
+        """
+        S_lab = self.predict_resolution_S_lab(
+            two_theta, phi, wavelength, variance_parameters
+        )
+
+        T = self.stoica_wilkinson_transform(two_theta, phi)
+
+        S_w = T @ S_lab @ T.T
+        S_w = 0.5 * (S_w + S_w.T)
+
+        Q = (4.0 * np.pi / wavelength) * np.sin(0.5 * two_theta)
+        k = 2.0 * np.pi / wavelength
+
+        r_n = np.sqrt(max(S_w[0, 0], 0.0))
+        r_u = np.sqrt(max(S_w[1, 1], 0.0))
+        r_v = np.sqrt(max(S_w[2, 2], 0.0))
+
+        d_lambda_roi = 2 * (r_n / Q) * wavelength if Q > 0 else 0.0
+        d_omega_roi = (2 * r_u / k) * (2 * r_v / k)
+
+        return d_lambda_roi, d_omega_roi
 
     def predict_simulator_peaks(self, instrument, UB, omega, chi, phi, d_min):
         """
@@ -1171,7 +1417,6 @@ class CrystalStructureModel(NeuXtalVizModel):
         mat_dict,
         shape_angles,
         counting_time,
-        n_sigma=3.0,
         k_diffraction=1.0,
     ):
         """
@@ -1195,15 +1440,17 @@ class CrystalStructureModel(NeuXtalVizModel):
         when extracting |F|^2 from observed SNS single-crystal data
         (e.g. Mantid's ``AnvredCorrection``/``LorentzCorrection``).
 
-        The background ROI (solid angle and wavelength width) is a
-        placeholder built directly from the instrument's divergence
-        sigmas (``DivergenceParams``) rather than a full resolution
-        ellipsoid -- to be replaced once the
-        ``garnet.reduction.resolution.ResolutionEllipsoid`` model is
-        wired in. Likewise, rocking-curve coverage and extinction are
-        both assumed to be 1 (single static setting, not a scan), and
-        the full sample volume is assumed illuminated (no beam
-        footprint calculation).
+        The background ROI (solid angle and wavelength width) comes
+        from the resolution ellipsoid predicted at each peak's own
+        scattering geometry (:meth:`predict_roi`), seeded from the
+        instrument's characterized divergence (``DivergenceParams``)
+        -- an isotropic-mosaic prior model ported from
+        ``garnet.reduction.resolution.ResolutionEllipsoid``, not a fit
+        against real per-run peak shapes (none exist yet for a
+        not-yet-measured setting). Rocking-curve coverage and
+        extinction are both still assumed to be 1 (single static
+        setting, not a scan), and the full sample volume is assumed
+        illuminated (no beam footprint calculation).
 
         Parameters
         ----------
@@ -1224,9 +1471,6 @@ class CrystalStructureModel(NeuXtalVizModel):
             :meth:`get_euler_angles`.
         counting_time : float
             Requested counting time, in minutes.
-        n_sigma : float, optional
-            Angular/wavelength half-width, in divergence sigmas, of
-            the placeholder background ROI (default 3).
         k_diffraction : float, optional
             Overall normalization constant absorbing any remaining
             unit-convention difference between the calculated |F|^2
@@ -1301,12 +1545,10 @@ class CrystalStructureModel(NeuXtalVizModel):
         cell_volume = self.get_unit_cell_volume()
         N_cell = (ellipsoid_volume * 1e24) / cell_volume
 
-        div = beamlines[instrument].get("DivergenceParams", {})
-        sigma_alpha_f = np.radians(div.get("sigma_alpha_f", 0.5))
-        sigma_beta_f = np.radians(div.get("sigma_beta_f", 0.5))
-        sigma_dl_mod = div.get("sigma_dl_mod", 0.01)
+        variance_parameters = self.get_resolution_prior(instrument)
 
-        q_eff = counting_time * self.CHARGE_PER_MINUTE
+        q_eff_coulombs = counting_time * self.CHARGE_PER_MINUTE
+        q_eff = q_eff_coulombs / self.COULOMB_PER_UAH
 
         ds, lambdas, Is, IsigmaIs = [], [], [], []
         keep_rows = []
@@ -1349,10 +1591,12 @@ class CrystalStructureModel(NeuXtalVizModel):
 
             I = q_eff * R * S
 
-            d_omega_roi = (2 * n_sigma * sigma_alpha_f) * (
-                2 * n_sigma * sigma_beta_f
+            d_lambda_roi, d_omega_roi = self.predict_roi(
+                peak.getScattering(),
+                peak.getAzimuthal(),
+                lam,
+                variance_parameters,
             )
-            d_lambda_roi = 2 * n_sigma * sigma_dl_mod * lam
 
             b = q_eff * B * d_omega_roi * d_lambda_roi
 

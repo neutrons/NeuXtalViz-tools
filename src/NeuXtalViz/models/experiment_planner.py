@@ -59,6 +59,10 @@ import skimage
 
 from NeuXtalViz.models.base_model import NeuXtalVizModel
 from NeuXtalViz.config.instruments import beamlines
+from NeuXtalViz.models.goniometer_calibration import (
+    setup_goniometer_calibration,
+    correct_goniometer,
+)
 
 point_group_centering = {
     "1": ["P"],
@@ -272,7 +276,7 @@ class ExperimentModel(NeuXtalVizModel):
 
         self.dirname = os.path.dirname(filename)
 
-    def initialize_instrument(self, instrument, logs, cal, mask):
+    def initialize_instrument(self, instrument, logs, cal, gon_cal, mask):
         """
         Build the ``instrument`` and related workspaces.
 
@@ -293,6 +297,10 @@ class ExperimentModel(NeuXtalVizModel):
         cal : str
             Path to a calibration file (``.xml`` parameter file or ISAW
             DetCal file), or an empty string if none.
+        gon_cal : str
+            Path to a goniometer calibration file (``.xml``), or an empty
+            string if none. Applied per predicted orientation by
+            :meth:`add_orientation`.
         mask : str
             Path to a mask file, or an empty string if none.
         """
@@ -498,6 +506,15 @@ class ExperimentModel(NeuXtalVizModel):
             self.yc = y[:, [0, 0, -1, -1], [0, -1, -1, 0]][mask]
             self.zc = z[:, [0, 0, -1, -1], [0, -1, -1, 0]][mask]
             self.detc = det_ID[:, 0, 0][mask]
+
+        self.gon_cal_enabled = False
+        if (
+            gon_cal != ""
+            and os.path.exists(gon_cal)
+            and os.path.splitext(gon_cal)[1] == ".xml"
+        ):
+            setup_goniometer_calibration(inst, gon_cal)
+            self.gon_cal_enabled = True
 
     def grouping_list(self, detectors, cols, rows, c, r):
         """
@@ -948,7 +965,7 @@ class ExperimentModel(NeuXtalVizModel):
                 LogType="String",
             )
 
-    def update_goniometer_motors(self, limits, motors, cal, mask):
+    def update_goniometer_motors(self, limits, motors, cal, gon_cal, mask):
         """
         Record goniometer motor limits and auxiliary motor/file settings
         as sample logs so they can be restored by :meth:`load_experiment`.
@@ -962,6 +979,9 @@ class ExperimentModel(NeuXtalVizModel):
             Mapping of auxiliary motor names to their values.
         cal : str
             Calibration file path, stored as the ``"cal"`` sample log.
+        gon_cal : str
+            Goniometer calibration file path, stored as the ``"gon_cal"``
+            sample log.
         mask : str
             Mask file path, stored as the ``"mask"`` sample log.
         """
@@ -976,6 +996,7 @@ class ExperimentModel(NeuXtalVizModel):
                 mtd["sample"].run()["motors"] = values
 
             mtd["sample"].run()["cal"] = cal
+            mtd["sample"].run()["gon_cal"] = gon_cal
             mtd["sample"].run()["mask"] = mask
 
     def load_UB(self, filename):
@@ -1281,11 +1302,11 @@ class ExperimentModel(NeuXtalVizModel):
             plan table contents, in the same layout consumed by
             :meth:`create_plan`.
         config : tuple
-            ``(instrument, mode, wl, d_min, lims, vals, cal, mask)``
-            -- the instrument/goniometer configuration, where ``wl`` is
-            either a single wavelength or a [min, max] pair, ``lims`` are
-            the goniometer axis limits, and ``vals`` are the auxiliary
-            motor values.
+            ``(instrument, mode, wl, d_min, lims, vals, cal, gon_cal,
+            mask)`` -- the instrument/goniometer configuration, where
+            ``wl`` is either a single wavelength or a [min, max] pair,
+            ``lims`` are the goniometer axis limits, and ``vals`` are
+            the auxiliary motor values.
         symm : tuple
             ``(cs, pg, lc)`` -- crystal system, point group, and lattice
             centering.
@@ -1311,6 +1332,9 @@ class ExperimentModel(NeuXtalVizModel):
         lims = mtd[sample].run().getProperty("limits").value
         mask = mtd[sample].run().getProperty("mask").value
         cal = mtd[sample].run().getProperty("cal").value
+        gon_cal = ""
+        if mtd[sample].run().hasProperty("gon_cal"):
+            gon_cal = mtd[sample].run().getProperty("gon_cal").value
         lims = np.array(lims).reshape(-1, 2).tolist()
         vals = []
         if mtd[sample].run().hasProperty("motors"):
@@ -1339,7 +1363,7 @@ class ExperimentModel(NeuXtalVizModel):
             settings.append(angles)
 
         plan = (titles, settings, comments, counts, values, use)
-        config = (instrument, mode, wl, d_min, lims, vals, cal, mask)
+        config = (instrument, mode, wl, d_min, lims, vals, cal, gon_cal, mask)
         symm = (cs, pg, lc)
 
         return plan, config, symm
@@ -2413,6 +2437,11 @@ class ExperimentModel(NeuXtalVizModel):
             Axis4=axes[4],
             Axis5=axes[5],
         )
+
+        if self.gon_cal_enabled:
+            correct_goniometer(
+                "instrument", [a for a in axes[:3] if a is not None]
+            )
 
         d_max = float("inf")
 
@@ -3641,6 +3670,12 @@ class ExperimentModel(NeuXtalVizModel):
                     Axis4=axes[4],
                     Axis5=axes[5],
                 )
+
+                if self.gon_cal_enabled:
+                    correct_goniometer(
+                        "instrument", [a for a in axes[:3] if a is not None]
+                    )
+
                 R = mtd["instrument"].run().getGoniometer().getR()
 
                 Q1, Q2, Q3 = np.einsum("ij,j...->i...", R.T, Q)

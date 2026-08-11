@@ -377,6 +377,10 @@ class ExperimentView(NeuXtalVizWidget):
         self.cal_line.setToolTip("Path to detector calibration file.")
         self.cal_line.setPlaceholderText("Detector calibration file")
 
+        self.gon_line = QLineEdit("")
+        self.gon_line.setToolTip("Path to goniometer calibration file.")
+        self.gon_line.setPlaceholderText("Goniometer calibration file")
+
         self.mask_line = QLineEdit("")
         self.mask_line.setToolTip("Path to detector mask file.")
         self.mask_line.setPlaceholderText("Detector mask file")
@@ -385,18 +389,26 @@ class ExperimentView(NeuXtalVizWidget):
         self.cal_browse_button.setToolTip(
             "Browse for detector calibration file."
         )
+        self.gon_browse_button = QPushButton("Goniometer", self)
+        self.gon_browse_button.setToolTip(
+            "Browse for goniometer calibration file."
+        )
         self.mask_browse_button = QPushButton("Mask", self)
         self.mask_browse_button.setToolTip("Browse for detector mask file.")
 
         browse_icon = qta.icon("fa6s.folder-open")
         self.cal_browse_button.setIcon(browse_icon)
+        self.gon_browse_button.setIcon(browse_icon)
         self.mask_browse_button.setIcon(browse_icon)
 
         cal_layout.addWidget(self.cal_line, 0, 0)
         cal_layout.addWidget(self.cal_browse_button, 0, 1)
 
-        cal_layout.addWidget(self.mask_line, 1, 0)
-        cal_layout.addWidget(self.mask_browse_button, 1, 1)
+        cal_layout.addWidget(self.gon_line, 1, 0)
+        cal_layout.addWidget(self.gon_browse_button, 1, 1)
+
+        cal_layout.addWidget(self.mask_line, 2, 0)
+        cal_layout.addWidget(self.mask_browse_button, 2, 1)
 
         motor_layout.addLayout(cal_layout)
         motor_layout.addWidget(self.motor_table)
@@ -1567,6 +1579,19 @@ class ExperimentView(NeuXtalVizWidget):
         """
         self.cal_browse_button.clicked.connect(load_detector_cal)
 
+    def connect_load_goniometer(self, load_goniometer_cal):
+        """
+        Connect the "Goniometer" browse button to loading a goniometer
+        calibration file.
+
+        Parameters
+        ----------
+        load_goniometer_cal : callable
+            Handler invoked when the button is clicked.
+
+        """
+        self.gon_browse_button.clicked.connect(load_goniometer_cal)
+
     def connect_peak_row_highlighter(self, highlight_row):
         """
         Connect peaks-table row selection to highlighting the peak.
@@ -1655,6 +1680,30 @@ class ExperimentView(NeuXtalVizWidget):
         """
         return self.cal_line.setText(filename)
 
+    def get_goniometer_calibration(self):
+        """
+        Get the path to the goniometer calibration file.
+
+        Returns
+        -------
+        filename : str
+            Path to the goniometer calibration file.
+
+        """
+        return self.gon_line.text()
+
+    def set_goniometer_calibration(self, filename):
+        """
+        Set the path to the goniometer calibration file.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the goniometer calibration file.
+
+        """
+        return self.gon_line.setText(filename)
+
     def get_mask(self):
         """
         Get the path to the detector mask file.
@@ -1707,6 +1756,44 @@ class ExperimentView(NeuXtalVizWidget):
         filename, _ = file_dialog.getOpenFileName(
             self,
             "Load calibration file",
+            path or self._get_file_dialog_dir(),
+            file_filters,
+            options=options,
+        )
+
+        if filename:
+            self._remember_file_dialog_dir(os.path.dirname(filename))
+
+        return filename
+
+    def load_goniometer_cal_dialog(self, path=""):
+        """
+        Open a file dialog to select a goniometer calibration file.
+
+        Parameters
+        ----------
+        path : str, optional
+            Initial directory for the dialog. If empty, the last used
+            directory is used.
+
+        Returns
+        -------
+        filename : str
+            Selected file path, or an empty string if the dialog was
+            canceled.
+
+        """
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.AnyFile)
+
+        file_filters = "Calibration files (*.xml)"
+
+        filename, _ = file_dialog.getOpenFileName(
+            self,
+            "Load goniometer file",
             path or self._get_file_dialog_dir(),
             file_filters,
             options=options,

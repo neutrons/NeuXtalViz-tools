@@ -153,11 +153,7 @@ beamlines = {
             "sigma_alpha_f": 0.630,
             "sigma_beta_f": 0.509,
             "sigma_dl_mod": 0.017,
-            "sigma_mosaic": 0.201,
-        },
-        "Simulator": {
-            "CountRate": "/SNS/CORELLI/simulator/count_rate.nxs",
-            "Background": "/SNS/CORELLI/simulator/background_count_rate.nxs",
+            "sigma_mosaic": 0.3,
         },
     },
     "TOPAZ": {
@@ -198,11 +194,7 @@ beamlines = {
             "sigma_alpha_f": 0.414,
             "sigma_beta_f": 0.288,
             "sigma_dl_mod": 0.006,
-            "sigma_mosaic": 0.223,
-        },
-        "Simulator": {
-            "CountRate": "/SNS/TOPAZ/simulator/count_rate.nxs",
-            "Background": "/SNS/TOPAZ/simulator/background_count_rate.nxs",
+            "sigma_mosaic": 0.3,
         },
     },
     "MANDI": {
@@ -233,16 +225,12 @@ beamlines = {
         "Counting": ["BL11B:Det:PCharge:C", "seconds"],
         "Title": "BL11B:SMS:RunInfo:RunTitle",
         "DivergenceParams": {
-            "sigma_alpha_i": 1.072,
-            "sigma_beta_i": 1.054,
-            "sigma_alpha_f": 0.414,
-            "sigma_beta_f": 0.288,
-            "sigma_dl_mod": 0.006,
-            "sigma_mosaic": 0.223,
-        },
-        "Simulator": {
-            "CountRate": "/SNS/MANDI/simulator/count_rate.nxs",
-            "Background": "/SNS/MANDI/simulator/background_count_rate.nxs",
+            "sigma_alpha_i": 0.3564,
+            "sigma_beta_i": 0.3525,
+            "sigma_alpha_f": 0.2685,
+            "sigma_beta_f": 0.1470,
+            "sigma_dl_mod": 0.005672,
+            "sigma_mosaic": 0.3,
         },
     },
     "IMAGINE": {
