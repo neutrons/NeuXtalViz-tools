@@ -26,7 +26,6 @@ from mantid.simpleapi import (
     LoadInstrument,
     LoadMask,
     LoadIsawDetCal,
-    LoadParameterFile,
     MaskDetectors,
     MaskDetectorsIf,
     ExtractMonitors,
@@ -339,10 +338,7 @@ class ExperimentModel(NeuXtalVizModel):
                 )
 
             if cal != "" and os.path.exists(cal):
-                if os.path.splitext(cal)[1] == ".xml":
-                    LoadParameterFile(Workspace="instrument", Filename=cal)
-                else:
-                    LoadIsawDetCal(InputWorkspace="instrument", Filename=cal)
+                LoadIsawDetCal(InputWorkspace="instrument", Filename=cal)
 
             ExtractMonitors(
                 InputWorkspace="instrument",

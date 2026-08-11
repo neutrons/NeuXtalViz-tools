@@ -55,7 +55,6 @@ from mantid.simpleapi import (
     SaveMD,
     MergeMD,
     LoadIsawDetCal,
-    LoadParameterFile,
     LoadEmptyInstrument,
     ApplyCalibration,
     BinMD,
@@ -1822,16 +1821,8 @@ class UBModel(NeuXtalVizModel):
                     )
 
             if det_cal != "" and os.path.exists(det_cal):
-                if os.path.splitext(det_cal)[1] == ".xml":
-                    for workspace in workspaces:
-                        LoadParameterFile(
-                            Workspace=workspace, Filename=det_cal
-                        )
-                else:
-                    for workspace in workspaces:
-                        LoadIsawDetCal(
-                            InputWorkspace=workspace, Filename=det_cal
-                        )
+                for workspace in workspaces:
+                    LoadIsawDetCal(InputWorkspace=workspace, Filename=det_cal)
 
             if (
                 gon_cal != ""

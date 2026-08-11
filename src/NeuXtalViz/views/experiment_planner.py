@@ -1751,7 +1751,7 @@ class ExperimentView(NeuXtalVizWidget):
         file_dialog = QFileDialog()
         file_dialog.setFileMode(QFileDialog.AnyFile)
 
-        file_filters = "Calibration files (*.DetCal *.detcal *.xml)"
+        file_filters = "Calibration files (*.DetCal *.detcal)"
 
         filename, _ = file_dialog.getOpenFileName(
             self,
