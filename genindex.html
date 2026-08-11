@@ -711,6 +711,8 @@
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.connect_browse_calibration">connect_browse_calibration() (UBView method)</a>
 </li>
+      <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.connect_browse_goniometer">connect_browse_goniometer() (UBView method)</a>
+</li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.connect_browse_tube">connect_browse_tube() (UBView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_calculate_absorption">connect_calculate_absorption() (CrystalStructureView method)</a>
@@ -845,10 +847,10 @@
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.connect_integer_h_index">connect_integer_h_index() (UBView method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.connect_integer_k_index">connect_integer_k_index() (UBView method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.connect_integer_l_index">connect_integer_l_index() (UBView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.connect_integer_m_index">connect_integer_m_index() (UBView method)</a>
@@ -880,6 +882,8 @@
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.connect_load_detector">connect_load_detector() (ExperimentView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.connect_load_experiment">connect_load_experiment() (ExperimentView method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.connect_load_goniometer">connect_load_goniometer() (ExperimentView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.connect_load_mask">connect_load_mask() (ExperimentView method)</a>
 </li>
@@ -1172,6 +1176,8 @@
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_peaks">copy_UB_to_peaks() (UBModel method)</a>
 </li>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.copy_UB_to_Q">copy_UB_to_Q() (UBModel method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.COULOMB_PER_UAH">COULOMB_PER_UAH (CrystalStructureModel attribute)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.coverage_tab">coverage_tab() (ExperimentView method)</a>
 </li>
@@ -1613,6 +1619,12 @@
         <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.get_goniometer_axes">(UBModel method)</a>
 </li>
       </ul></li>
+      <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.get_goniometer_calibration">get_goniometer_calibration() (ExperimentView method)</a>
+
+      <ul>
+        <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.get_goniometer_calibration">(UBView method)</a>
+</li>
+      </ul></li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.get_goniometer_limits">get_goniometer_limits() (ExperimentView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.experiment_planner.ExperimentModel.get_goniometers">get_goniometers() (ExperimentModel method)</a>
@@ -1888,6 +1900,8 @@
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.get_refine_UB_option">get_refine_UB_option() (UBView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.get_refine_UB_tol">get_refine_UB_tol() (UBView method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.get_resolution_prior">get_resolution_prior() (CrystalStructureModel method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.base_view.NeuXtalVizWidget.get_rotate_step">get_rotate_step() (NeuXtalVizWidget method)</a>
 </li>
@@ -2269,12 +2283,22 @@
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.command_browser.CommandBrowser.load_files_in_directory">load_files_in_directory() (CommandBrowser method)</a>
 </li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.load_goniometer">load_goniometer() (Experiment method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.load_goniometer_cal_dialog">load_goniometer_cal_dialog() (ExperimentView method)</a>
+
+      <ul>
+        <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.load_goniometer_cal_dialog">(UBView method)</a>
+</li>
+      </ul></li>
+      <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.load_goniometer_calibration">load_goniometer_calibration() (UB method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.experiment_planner.Experiment.load_mask">load_mask() (Experiment method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.load_mask_dialog">load_mask_dialog() (ExperimentView method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.volume_slicer.VolumeSlicerModel.load_md_histo_workspace">load_md_histo_workspace() (VolumeSlicerModel method)</a>
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.volume_slicer.VolumeSlicer.load_NXS">load_NXS() (VolumeSlicer method)</a>
@@ -2710,10 +2734,10 @@
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.plot_harmonics_alternate">plot_harmonics_alternate() (ExperimentView method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.plot_instrument">plot_instrument() (ExperimentView method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.plot_instrument_alternate">plot_instrument_alternate() (ExperimentView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.plot_laue">plot_laue() (ExperimentView method)</a>
@@ -2733,6 +2757,10 @@
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.predict_peaks_complete">predict_peaks_complete() (UB method)</a>
 </li>
       <li><a href="source/NeuXtalViz.presenters.html#NeuXtalViz.presenters.ub_tools.UB.predict_peaks_process">predict_peaks_process() (UB method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.predict_resolution_S_lab">predict_resolution_S_lab() (CrystalStructureModel method)</a>
+</li>
+      <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.predict_roi">predict_roi() (CrystalStructureModel method)</a>
 </li>
       <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.ub_tools.UBModel.predict_satellite_peaks">predict_satellite_peaks() (UBModel method)</a>
 </li>
@@ -3066,6 +3094,12 @@
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.set_goniometer_axes">set_goniometer_axes() (UBView method)</a>
 </li>
+      <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.set_goniometer_calibration">set_goniometer_calibration() (ExperimentView method)</a>
+
+      <ul>
+        <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.set_goniometer_calibration">(UBView method)</a>
+</li>
+      </ul></li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.experiment_planner.ExperimentView.set_goniometer_limits">set_goniometer_limits() (ExperimentView method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.ub_tools.UBView.set_goniometer_setting">set_goniometer_setting() (UBView method)</a>
@@ -3368,6 +3402,8 @@
         <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.utilities.ThreadPool.start_worker_pool">(ThreadPool method)</a>
 </li>
       </ul></li>
+      <li><a href="source/NeuXtalViz.models.html#NeuXtalViz.models.crystal_structure_tools.CrystalStructureModel.stoica_wilkinson_transform">stoica_wilkinson_transform() (CrystalStructureModel static method)</a>
+</li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.utilities.Worker.stop">stop() (Worker method)</a>
 </li>
       <li><a href="source/NeuXtalViz.views.html#NeuXtalViz.views.utilities.ThreadPool.stop_all_workers">stop_all_workers() (ThreadPool method)</a>
