@@ -1522,13 +1522,22 @@ class UBModel(NeuXtalVizModel):
             self.live_grouping,
         )
 
-        SetGoniometer(
-            Workspace=snapshot_name,
-            Axis0=self.live_goniometers[0],
-            Axis1=self.live_goniometers[1],
-            Axis2=self.live_goniometers[2],
-            Average=True,
-        )
+        run = mtd[snapshot_name].run()
+        axis_names = [axis.split(",")[0] for axis in self.live_goniometers[:3]]
+        if all(run.hasProperty(name) for name in axis_names):
+            SetGoniometer(
+                Workspace=snapshot_name,
+                Axis0=self.live_goniometers[0],
+                Axis1=self.live_goniometers[1],
+                Axis2=self.live_goniometers[2],
+                Average=True,
+            )
+        else:
+            SetGoniometer(
+                Workspace=snapshot_name,
+                Goniometers="Universal",
+                Average=True,
+            )
 
     def stop_live_data(self):
         """
