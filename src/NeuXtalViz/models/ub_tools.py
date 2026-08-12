@@ -441,7 +441,11 @@ class UBModel(NeuXtalVizModel):
             List of goniometer settings.
         """
 
-        return beamlines[instrument]["Goniometers"]
+        # A copy -- callers (e.g. `calibrate_data`) pad this list with
+        # `.append(None)`, which would otherwise mutate the shared
+        # `beamlines` config in place and corrupt it for every later
+        # caller, including `start_live_data`.
+        return list(beamlines[instrument]["Goniometers"])
 
     @staticmethod
     def _rbv_goniometer_axis(axis):
