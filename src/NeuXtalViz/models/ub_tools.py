@@ -1245,7 +1245,10 @@ class UBModel(NeuXtalVizModel):
         az_phi : ndarray
             Azimuthal angle for each detector.
         """
-        temp_workspace = str(raw_workspace) + "_convert"
+        # Named from md_workspace, not raw_workspace -- the live caller
+        # passes raw_workspace as a workspace object (see
+        # `_update_live_md`), not a name.
+        temp_workspace = str(md_workspace) + "_convert"
 
         if mtd.doesExist(temp_workspace):
             DeleteWorkspace(Workspace=temp_workspace)
@@ -2236,8 +2239,19 @@ class UBModel(NeuXtalVizModel):
         if mtd.doesExist(md_workspace):
             DeleteWorkspace(Workspace=md_workspace)
 
+        # Passes the already-fetched `live_ws` object, not the
+        # `self.live_snapshot` name -- `_LiveDataObserver.replaceHandle`
+        # can delete and recreate that name at any time on Mantid's own
+        # thread (see its docstring), independent of this method's
+        # worker thread. Re-resolving the name here instead of reusing
+        # this call's already-goniometer-checked `live_ws` handle would
+        # race: `_convert_white_beam_run`'s own CloneWorkspace could
+        # pick up a freshly recreated snapshot that hasn't reached
+        # `_prepare_live_snapshot`'s SetGoniometer step yet, failing
+        # ConvertToMD with "Sample frame needs goniometer to be defined
+        # on the workspace" despite the check above having passed.
         d, vals, two_theta, az_phi = self._convert_white_beam_run(
-            self.live_snapshot,
+            live_ws,
             md_workspace,
             wavelength,
             lorentz,
