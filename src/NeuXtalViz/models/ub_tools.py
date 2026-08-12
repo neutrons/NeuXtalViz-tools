@@ -1,4 +1,5 @@
 import os
+import threading
 
 from mantid.simpleapi import (
     SelectCellWithForm,
@@ -145,26 +146,38 @@ class _LiveDataObserver(AnalysisDataServiceObserver):
     Mantid's own thread right after a chunk is stored and before the
     next one starts, so it is the only safe place to snapshot the
     workspace; everything downstream operates on that static clone.
+
+    The snapshot name itself is still shared, mutable state: this
+    deletes and recreates it, then runs `callback` (which prepares it
+    in place -- masking/grouping/goniometer -- over several non-atomic
+    Mantid calls) all under `lock`. Any consumer touching the same
+    snapshot name (`calibrate_data`, `convert_data`) must take the same
+    lock, or it can observe the snapshot mid-rebuild -- e.g. cloned
+    fresh but not yet through `SetGoniometer` -- and fail deep inside
+    `ConvertToMD` with "Sample frame needs goniometer to be defined on
+    the workspace" despite an earlier goniometer check having passed.
     """
 
-    def __init__(self, workspace_name, snapshot_name, callback):
+    def __init__(self, workspace_name, snapshot_name, callback, lock):
         super().__init__()
         self._workspace_name = workspace_name
         self._snapshot_name = snapshot_name
         self._callback = callback
+        self._lock = lock
 
     def replaceHandle(self, name, workspace):
         if name != self._workspace_name:
             return
 
-        if mtd.doesExist(self._snapshot_name):
-            DeleteWorkspace(Workspace=self._snapshot_name)
+        with self._lock:
+            if mtd.doesExist(self._snapshot_name):
+                DeleteWorkspace(Workspace=self._snapshot_name)
 
-        CloneWorkspace(
-            InputWorkspace=name, OutputWorkspace=self._snapshot_name
-        )
+            CloneWorkspace(
+                InputWorkspace=name, OutputWorkspace=self._snapshot_name
+            )
 
-        self._callback(self._snapshot_name)
+            self._callback(self._snapshot_name)
 
 
 class UBModel(NeuXtalVizModel):
@@ -203,6 +216,13 @@ class UBModel(NeuXtalVizModel):
         self.detector_grouping_key = None
         self.detector_grouping_pattern = None
 
+        # Guards every read/write of the live snapshot workspace
+        # (`self.live_snapshot`) against `_LiveDataObserver.replaceHandle`,
+        # which deletes and recreates it on Mantid's own thread
+        # independent of any consumer -- see `_LiveDataObserver`.
+        # Reentrant so `convert_data` can hold it across its own call
+        # into `_update_live_md`.
+        self.live_lock = threading.RLock()
         self.live_workspace = None
         self.live_snapshot = None
         self.live_instrument = None
@@ -1434,7 +1454,10 @@ class UBModel(NeuXtalVizModel):
                 on_update(name)
 
             self.live_observer = _LiveDataObserver(
-                self.live_workspace, self.live_snapshot, _forward_live_update
+                self.live_workspace,
+                self.live_snapshot,
+                _forward_live_update,
+                self.live_lock,
             )
             self.live_observer.observeReplace(True)
 
@@ -1443,16 +1466,19 @@ class UBModel(NeuXtalVizModel):
             # never fired a replaceHandle callback. Snapshot and notify
             # for it explicitly here, or the view shows nothing until
             # the *next* MonitorLiveData chunk arrives a full
-            # update_every later.
-            if mtd.doesExist(self.live_snapshot):
-                DeleteWorkspace(Workspace=self.live_snapshot)
+            # update_every later. Under the same lock as
+            # `_LiveDataObserver.replaceHandle` -- this is the same
+            # delete-clone-prepare sequence on the same shared name.
+            with self.live_lock:
+                if mtd.doesExist(self.live_snapshot):
+                    DeleteWorkspace(Workspace=self.live_snapshot)
 
-            CloneWorkspace(
-                InputWorkspace=self.live_workspace,
-                OutputWorkspace=self.live_snapshot,
-            )
+                CloneWorkspace(
+                    InputWorkspace=self.live_workspace,
+                    OutputWorkspace=self.live_snapshot,
+                )
 
-            self._prepare_live_snapshot(self.live_snapshot)
+                self._prepare_live_snapshot(self.live_snapshot)
 
             on_update(self.live_snapshot)
 
@@ -1551,10 +1577,11 @@ class UBModel(NeuXtalVizModel):
             config["default.facility"] = self.live_previous_facility
             self.live_previous_facility = None
 
-        if self.live_snapshot is not None and mtd.doesExist(
-            self.live_snapshot
-        ):
-            DeleteWorkspace(Workspace=self.live_snapshot)
+        with self.live_lock:
+            if self.live_snapshot is not None and mtd.doesExist(
+                self.live_snapshot
+            ):
+                DeleteWorkspace(Workspace=self.live_snapshot)
 
         self.live_workspace = None
         self.live_snapshot = None
@@ -1788,60 +1815,69 @@ class UBModel(NeuXtalVizModel):
 
         filepath = self.get_raw_file_path(instrument)
 
-        if mtd.doesExist("data") or self.is_live():
-            goniometers = self.get_goniometers(instrument)
-            while len(goniometers) < 6:
-                goniometers.append(None)
+        # Held for the whole block below, not just the live-snapshot
+        # lookup -- SetGoniometer/ApplyCalibration/LoadIsawDetCal all
+        # mutate `workspaces` in place, which can include the live
+        # snapshot. Without this, any of them can run concurrently with
+        # `_LiveDataObserver.replaceHandle` rebuilding that same shared
+        # name on Mantid's own thread (see `_LiveDataObserver`).
+        with self.live_lock:
+            if mtd.doesExist("data") or self.is_live():
+                goniometers = self.get_goniometers(instrument)
+                while len(goniometers) < 6:
+                    goniometers.append(None)
 
-            white_beam_workspaces = self._get_requested_loaded_workspaces()
-            if (
-                self.is_live()
-                and self.live_snapshot is not None
-                and mtd.doesExist(self.live_snapshot)
-            ):
-                white_beam_workspaces = white_beam_workspaces + [
-                    self.live_snapshot
-                ]
-            if "HFIR" in filepath or len(white_beam_workspaces) == 0:
-                workspaces = (
-                    list(mtd["data"].getNames())
-                    if mtd["data"].isGroup()
-                    else ["data"]
-                )
-            else:
-                workspaces = white_beam_workspaces
+                white_beam_workspaces = self._get_requested_loaded_workspaces()
+                if (
+                    self.is_live()
+                    and self.live_snapshot is not None
+                    and mtd.doesExist(self.live_snapshot)
+                ):
+                    white_beam_workspaces = white_beam_workspaces + [
+                        self.live_snapshot
+                    ]
+                if "HFIR" in filepath or len(white_beam_workspaces) == 0:
+                    workspaces = (
+                        list(mtd["data"].getNames())
+                        if mtd["data"].isGroup()
+                        else ["data"]
+                    )
+                else:
+                    workspaces = white_beam_workspaces
 
-            for workspace in workspaces:
-                SetGoniometer(
-                    Workspace=workspace,
-                    Axis0=goniometers[0],
-                    Axis1=goniometers[1],
-                    Axis2=goniometers[2],
-                    Average=False if "HFIR" in filepath else True,
-                )
-
-            if tube_cal != "" and os.path.exists(tube_cal):
-                LoadNexus(Filename=tube_cal, OutputWorkspace="tube_table")
                 for workspace in workspaces:
-                    ApplyCalibration(
-                        Workspace=workspace, CalibrationTable="tube_table"
+                    SetGoniometer(
+                        Workspace=workspace,
+                        Axis0=goniometers[0],
+                        Axis1=goniometers[1],
+                        Axis2=goniometers[2],
+                        Average=False if "HFIR" in filepath else True,
                     )
 
-            if det_cal != "" and os.path.exists(det_cal):
-                for workspace in workspaces:
-                    LoadIsawDetCal(InputWorkspace=workspace, Filename=det_cal)
+                if tube_cal != "" and os.path.exists(tube_cal):
+                    LoadNexus(Filename=tube_cal, OutputWorkspace="tube_table")
+                    for workspace in workspaces:
+                        ApplyCalibration(
+                            Workspace=workspace, CalibrationTable="tube_table"
+                        )
 
-            if (
-                gon_cal != ""
-                and os.path.exists(gon_cal)
-                and os.path.splitext(gon_cal)[1] == ".xml"
-            ):
-                setup_goniometer_calibration(
-                    beamlines[instrument]["Name"], gon_cal
-                )
-                axes = [a for a in goniometers[:3] if a is not None]
-                for workspace in workspaces:
-                    correct_goniometer(workspace, axes)
+                if det_cal != "" and os.path.exists(det_cal):
+                    for workspace in workspaces:
+                        LoadIsawDetCal(
+                            InputWorkspace=workspace, Filename=det_cal
+                        )
+
+                if (
+                    gon_cal != ""
+                    and os.path.exists(gon_cal)
+                    and os.path.splitext(gon_cal)[1] == ".xml"
+                ):
+                    setup_goniometer_calibration(
+                        beamlines[instrument]["Name"], gon_cal
+                    )
+                    axes = [a for a in goniometers[:3] if a is not None]
+                    for workspace in workspaces:
+                        correct_goniometer(workspace, axes)
 
     def get_number_workspaces(self):
         """
@@ -2085,9 +2121,18 @@ class UBModel(NeuXtalVizModel):
                 ]
 
                 if self.is_live():
-                    live_md_workspaces, live_run_numbers, live_metadata = (
-                        self._update_live_md(wavelength, lorentz, Q_min, Q_max)
-                    )
+                    # Same lock `calibrate_data` and
+                    # `_LiveDataObserver.replaceHandle` take -- see
+                    # `_LiveDataObserver` for why `_update_live_md`
+                    # can't safely read the live snapshot without it.
+                    with self.live_lock:
+                        (
+                            live_md_workspaces,
+                            live_run_numbers,
+                            live_metadata,
+                        ) = self._update_live_md(
+                            wavelength, lorentz, Q_min, Q_max
+                        )
                     md_workspaces = md_workspaces + live_md_workspaces
                     for d, vals, two_theta, az_phi, R, conv in live_metadata:
                         Rs.append(R)
@@ -2136,12 +2181,18 @@ class UBModel(NeuXtalVizModel):
         """
         Reconvert the in-progress live run into its MD workspace.
 
-        Operates on `live_snapshot` -- a static clone taken safely on
-        Mantid's own background thread right after a chunk landed (see
+        Operates on `live_snapshot` -- a clone taken on Mantid's own
+        background thread right after a chunk landed (see
         `_LiveDataObserver`) -- never on `live_workspace` directly,
         since that one is still being mutated in place by Mantid's
         `MonitorLiveData` and reading it concurrently from here would
         race with the next chunk landing.
+
+        Must be called with `self.live_lock` held (`convert_data`'s
+        caller does this): `live_snapshot` is a shared, fixed name that
+        `replaceHandle` can delete and recreate at any time, on a
+        different thread, independent of this call -- see
+        `_LiveDataObserver`.
 
         Reads the run number off the snapshot. If it has changed since
         the previous call, the previous run has finished: its MD
