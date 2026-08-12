@@ -467,26 +467,6 @@ class UBModel(NeuXtalVizModel):
         # caller, including `start_live_data`.
         return list(beamlines[instrument]["Goniometers"])
 
-    @staticmethod
-    def _rbv_goniometer_axis(axis):
-        """
-        Convert a goniometer axis spec's motor PV to its readback (.RBV).
-
-        Parameters
-        ----------
-        axis : str
-            "PVName,x,y,z,sense" axis spec, as stored in
-            `beamlines[instrument]["Goniometers"]`.
-
-        Returns
-        -------
-        axis : str
-            Same spec with ".RBV" appended to the PV name.
-        """
-
-        pv_name, _, rest = axis.partition(",")
-        return "{}.RBV,{}".format(pv_name, rest)
-
     def get_wavelength(self, instrument):
         """
         Get the wavelength for a given instrument.
@@ -1422,16 +1402,8 @@ class UBModel(NeuXtalVizModel):
             int(v) for v in self.live_grouping.split("x")
         ]
 
-        # .RBV (readback), not the base setpoint PV in
-        # beamlines[instrument]["Goniometers"] -- see
-        # _prepare_live_snapshot for why. Computed once here rather
-        # than per tick.
-        self.live_goniometers = [
-            self._rbv_goniometer_axis(axis)
-            for axis in self.get_goniometers(instrument)
-        ]
-        while len(self.live_goniometers) < 6:
-            self.live_goniometers.append(None)
+        # Computed once here rather than per tick.
+        self.live_goniometers = self.get_goniometers(instrument)
 
         alg = AlgorithmManager.create("StartLiveData")
         alg.initialize()
@@ -1508,14 +1480,15 @@ class UBModel(NeuXtalVizModel):
         snapshot at creation time, before any consumer sees the name,
         closes that race regardless of scheduling.
 
-        Uses each axis's ``.RBV`` (readback) PV rather than the base
-        motor PV in `beamlines[instrument]["Goniometers"]`: the base PV
-        is a setpoint that only logs a new value when a move is
-        commanded, so right after a run transition it can have zero
-        entries for the new run yet, leaving `Average=True` nothing to
-        average. The ``.RBV`` PV is continuously updated by the IOC
-        with the motor's actual position regardless of new commands, so
-        it already has data from the moment the run starts.
+        `beamlines[instrument]["Goniometers"]` is a setpoint PV that
+        only logs a new value when a move is commanded, so right after
+        a run transition (or for a run that never moves the
+        goniometer) it can have zero entries, leaving `Average=True`
+        nothing to average -- `SetGoniometer` doesn't raise for this,
+        it just logs an error and leaves the workspace's goniometer at
+        whatever it already was (a fresh clone's default, axis-less
+        one). `_update_live_md` checks for exactly that before
+        converting.
 
         Only ever called on the disposable snapshot clone
         (`self.live_snapshot`), never on `self.live_workspace` itself
@@ -2248,14 +2221,24 @@ class UBModel(NeuXtalVizModel):
         live_ws = mtd[self.live_snapshot]
         run = live_ws.run()
 
-        if run.getNumGoniometers() == 0:
-            # Right after a run transition, the new run's motor-position
-            # logs may genuinely have zero entries yet, leaving
-            # _prepare_live_snapshot's SetGoniometer(Average=True) with
-            # nothing to average. Skip this tick's conversion rather
-            # than crash in ConvertToMD -- self.live_current_run is left
-            # untouched, so the next chunk (once logs have caught up)
-            # still detects the transition and archives the old run.
+        # A `Run` always has at least one Goniometer -- Mantid default
+        # -constructs an axis-less one, so `getNumGoniometers() == 0`
+        # never actually happens. What signals "SetGoniometer never
+        # found log values to work with" is that leftover default:
+        # zero axes. Right after a run transition (or for a run that
+        # never moves the goniometer), the motor-position logs can
+        # genuinely have zero entries, leaving
+        # `_prepare_live_snapshot`'s SetGoniometer(Average=True)
+        # nothing to average -- it doesn't raise for that, it just logs
+        # an error and leaves this axis-less goniometer in place. Skip
+        # this tick's conversion rather than crash in ConvertToMD --
+        # self.live_current_run is left untouched, so the next chunk
+        # (once logs have caught up) still detects the transition and
+        # archives the old run.
+        if (
+            run.getNumGoniometers() == 0
+            or run.getGoniometer(0).getNumberAxes() == 0
+        ):
             return (
                 list(self.live_completed_md_workspaces),
                 list(self.live_completed_runs),
