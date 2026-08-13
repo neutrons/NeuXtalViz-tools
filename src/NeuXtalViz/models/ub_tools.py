@@ -1892,6 +1892,8 @@ class UBModel(NeuXtalVizModel):
         min_d=None,
         force_reload=False,
         reset_peaks=True,
+        progress=None,
+        stop_event=None,
     ):
         """
         Convert loaded data to Q-space using Mantid algorithms.
@@ -1913,6 +1915,16 @@ class UBModel(NeuXtalVizModel):
             matching existing Convert behavior). Live ticks pass False
             so already-found/indexed peaks survive each automatic
             reconversion instead of being wiped every cycle.
+        progress : callable, optional
+            ``progress(message, percent)`` callback (injected by the
+            worker infrastructure), called once per run as it converts.
+            Reports within 70-90% -- the sub-range the caller (see
+            ``UBToolsPresenter.convert_Q_process``) budgets for this
+            step, bookended by its own "Data converting..."/"Data
+            converted..." messages at 70/99.
+        stop_event : threading.Event, optional
+            Cooperative-cancellation event (injected by the worker
+            infrastructure), checked between runs.
         """
 
         filepath = self.get_raw_file_path(instrument)
@@ -2038,7 +2050,20 @@ class UBModel(NeuXtalVizModel):
                 # be appended to the same list further down.
                 file_runs = dict(zip(self.requested_filenames, self.runs))
 
-                for filename in self.requested_filenames:
+                total = len(self.requested_filenames)
+
+                for n, filename in enumerate(
+                    self.requested_filenames, start=1
+                ):
+                    if stop_event is not None and stop_event.is_set():
+                        return
+
+                    if progress is not None:
+                        progress(
+                            f"Converting run {file_runs.get(filename)}...",
+                            int(70 + 20 * n / total),
+                        )
+
                     raw_workspace = self.loaded_data_workspaces.get(filename)
                     if raw_workspace is None or not mtd.doesExist(
                         raw_workspace
