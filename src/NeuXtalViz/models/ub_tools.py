@@ -1285,7 +1285,7 @@ class UBModel(NeuXtalVizModel):
 
         CompressEvents(
             InputWorkspace=temp_workspace,
-            Tolerance=1e-3,
+            Tolerance=1e-2,
             OutputWorkspace=temp_workspace,
         )
 
