@@ -86,6 +86,16 @@ class CrystalStructureModel(NeuXtalVizModel):
     # noise through as a spuriously "observed" reflection.
     F2_EPSILON = 1e-3
 
+    # Mantid's ReflectionGenerator/PredictPeaks structure factor squared
+    # is in fm^2 (the natural unit for nuclear scattering lengths, which
+    # Mantid materials store in fm), not barn -- confirmed against Si's
+    # (220) reflection: F(220) = 8*b (all 8 basis atoms in phase),
+    # 64*(4.1491 fm)^2 = 1101.7, matching Mantid's F2(220) exactly.
+    # count_rate.nxs/background_count_rate.nxs are calibrated in barn
+    # (1 barn = 100 fm^2), so F2 must be converted before combining the
+    # two in the cross-section calculation.
+    FM2_PER_BARN = 100.0
+
     def __init__(self):
         """
         Initialize the model and create the underlying sample workspace.
@@ -1438,7 +1448,18 @@ class CrystalStructureModel(NeuXtalVizModel):
         ``L = lambda^4 / sin(theta)^2 = 4 d^2 lambda^2`` (via Bragg's
         law), matching the correction applied in the opposite direction
         when extracting |F|^2 from observed SNS single-crystal data
-        (e.g. Mantid's ``AnvredCorrection``/``LorentzCorrection``).
+        (e.g. Mantid's ``AnvredCorrection``/``LorentzCorrection``). That
+        Lorentz factor is purely kinematic (confirmed against Mantid's
+        own source -- no unit-cell-volume dependence at all), but the
+        standard kinematic mosaic-crystal integrated-intensity formula
+        (Squires/Bacon; the Schultz-style TOF Laue formalism used for
+        SNS single-crystal reduction) also requires an explicit
+        ``N_cell / V_uc`` factor on top of it. Real reduction software
+        skips this because it is the same constant for every reflection
+        of a given crystal and gets absorbed into an overall refined
+        scale factor during structure refinement -- but this simulator
+        is predicting absolute counts, not relative ones, so it has to
+        be included explicitly rather than folded away.
 
         The background ROI (solid angle and wavelength width) comes
         from the resolution ellipsoid predicted at each peak's own
@@ -1587,9 +1608,19 @@ class CrystalStructureModel(NeuXtalVizModel):
 
             L = 4 * d**2 * lam**2
 
-            S = k_diffraction * N_cell * F2s[i] * L * T
+            F2_barn = F2s[i] / self.FM2_PER_BARN
 
-            I = q_eff * R * S
+            # Mantid's own Lorentz factor (L, matching its
+            # LorentzCorrection/AnvredCorrection convention exactly) is
+            # purely kinematic -- confirmed to carry no unit-cell-volume
+            # dependence at all. The standard kinematic mosaic-crystal
+            # formula (Squires/Bacon; Schultz-style TOF Laue formalism)
+            # requires an explicit N_cell/V_uc on top of it -- real
+            # reduction software skips this because it's the same
+            # constant for every peak of a given crystal and gets
+            # absorbed into an overall refined scale factor, but this
+            # simulator wants absolute counts, so it must be explicit.
+            S = k_diffraction * (N_cell / cell_volume) * F2_barn * L * T
 
             d_lambda_roi, d_omega_roi = self.predict_roi(
                 peak.getScattering(),
@@ -1597,6 +1628,8 @@ class CrystalStructureModel(NeuXtalVizModel):
                 lam,
                 variance_parameters,
             )
+
+            I = q_eff * R * S
 
             b = q_eff * B * d_omega_roi * d_lambda_roi
 
