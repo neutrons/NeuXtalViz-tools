@@ -2322,7 +2322,7 @@ signals connected and be passed to
 
 <span class="target" id="module-NeuXtalViz.views.crystal_structure_tools"></span><dl class="py class">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CrystalStructureView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L35-L2414"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CrystalStructureView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L35-L2410"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#NeuXtalViz.views.base_view.NeuXtalVizWidget" title="NeuXtalViz.views.base_view.NeuXtalVizWidget"><code class="xref py py-class docutils literal notranslate"><span class="pre">NeuXtalVizWidget</span></code></a></p>
 <p>View for visualizing and editing crystal structures in NeuXtalViz.</p>
 <p>Provides user interface elements for entering lattice parameters,
@@ -3716,7 +3716,7 @@ widget.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.add_absorption_sample">
-<span class="sig-name descname"><span class="pre">add_absorption_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_incident</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2070-L2163"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.add_absorption_sample" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_absorption_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_incident</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2066-L2159"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.add_absorption_sample" title="Link to this definition">#</a></dt>
 <dd><p>Draw the absorption sample mesh in the 3D view.</p>
 <p>Clears the current scene, adds the sample as a collection of
 triangles colored by the transmission from the incident beam
@@ -3753,7 +3753,7 @@ radius before computing transmission.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.add_atoms">
-<span class="sig-name descname"><span class="pre">add_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_dict</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1625-L1739"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.add_atoms" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_dict</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1621-L1735"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.add_atoms" title="Link to this definition">#</a></dt>
 <dd><p>Draw atom sites as spheres in the 3D view.</p>
 <p>Merges symmetry-equivalent atoms that fall on the same fractional
 coordinate (within rounding) into a single occupancy-weighted
@@ -3777,7 +3777,7 @@ corresponding to each coordinate.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_F2_calculator">
-<span class="sig-name descname"><span class="pre">connect_F2_calculator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculate_F2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1011-L1022"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_F2_calculator" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_F2_calculator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculate_F2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1007-L1018"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_F2_calculator" title="Link to this definition">#</a></dt>
 <dd><p>Connect the structure factor calculate button to a handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3791,7 +3791,7 @@ corresponding to each coordinate.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_atom_table">
-<span class="sig-name descname"><span class="pre">connect_atom_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">set_atom_table</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1084-L1100"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_atom_table" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_atom_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">set_atom_table</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1080-L1096"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_atom_table" title="Link to this definition">#</a></dt>
 <dd><p>Connect atom site field edits to a handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3806,7 +3806,7 @@ occupancy, or Uiso line edits for the current atom.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_calculate_absorption">
-<span class="sig-name descname"><span class="pre">connect_calculate_absorption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculate_absorption</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1038-L1049"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_calculate_absorption" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_calculate_absorption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculate_absorption</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1034-L1045"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_calculate_absorption" title="Link to this definition">#</a></dt>
 <dd><p>Connect the absorption calculate button to a handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3821,7 +3821,7 @@ clicked.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_calculate_simulator">
-<span class="sig-name descname"><span class="pre">connect_calculate_simulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculate_simulator</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2201-L2212"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_calculate_simulator" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_calculate_simulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculate_simulator</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2197-L2208"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_calculate_simulator" title="Link to this definition">#</a></dt>
 <dd><p>Connect the Simulator calculate button to a handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3836,7 +3836,7 @@ clicked.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_clear_UB">
-<span class="sig-name descname"><span class="pre">connect_clear_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clear_UB</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2189-L2199"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_clear_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_clear_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clear_UB</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2185-L2195"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_clear_UB" title="Link to this definition">#</a></dt>
 <dd><p>Connect the Simulator “Clear UB” button to a handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3850,7 +3850,7 @@ clicked.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_group_generator">
-<span class="sig-name descname"><span class="pre">connect_group_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generate_groups</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L985-L996"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_group_generator" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_group_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generate_groups</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L981-L992"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_group_generator" title="Link to this definition">#</a></dt>
 <dd><p>Connect crystal system selection to a handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3864,7 +3864,7 @@ clicked.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_hkl_calculator">
-<span class="sig-name descname"><span class="pre">connect_hkl_calculator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculate_hkl</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1024-L1036"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_hkl_calculator" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_hkl_calculator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculate_hkl</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1020-L1032"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_hkl_calculator" title="Link to this definition">#</a></dt>
 <dd><p>Connect the individual hkl calculate button to a handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3879,7 +3879,7 @@ clicked.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_instrument_selector">
-<span class="sig-name descname"><span class="pre">connect_instrument_selector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">select_instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2165-L2175"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_instrument_selector" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_instrument_selector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">select_instrument</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2161-L2171"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_instrument_selector" title="Link to this definition">#</a></dt>
 <dd><p>Connect the Simulator instrument combo box to a handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3893,7 +3893,7 @@ clicked.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_lattice_parameters">
-<span class="sig-name descname"><span class="pre">connect_lattice_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update_parameters</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1065-L1082"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_lattice_parameters" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_lattice_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update_parameters</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1061-L1078"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_lattice_parameters" title="Link to this definition">#</a></dt>
 <dd><p>Connect lattice parameter edits to a handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3908,7 +3908,7 @@ alpha, beta, or gamma line edits.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_load_CIF">
-<span class="sig-name descname"><span class="pre">connect_load_CIF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_CIF</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1102-L1113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_load_CIF" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_load_CIF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_CIF</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1098-L1109"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_load_CIF" title="Link to this definition">#</a></dt>
 <dd><p>Connect the load CIF button to a handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3922,7 +3922,7 @@ alpha, beta, or gamma line edits.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_load_UB">
-<span class="sig-name descname"><span class="pre">connect_load_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_UB</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2177-L2187"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_load_UB" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_load_UB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_UB</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2173-L2183"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_load_UB" title="Link to this definition">#</a></dt>
 <dd><p>Connect the Simulator “Load UB” button to a handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3936,7 +3936,7 @@ alpha, beta, or gamma line edits.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_row_highligter">
-<span class="sig-name descname"><span class="pre">connect_row_highligter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">highlight_row</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1051-L1063"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_row_highligter" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_row_highligter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">highlight_row</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1047-L1059"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_row_highligter" title="Link to this definition">#</a></dt>
 <dd><p>Connect atom table row selection to a handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3951,7 +3951,7 @@ changes.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_save_INS">
-<span class="sig-name descname"><span class="pre">connect_save_INS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_INS</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L972-L983"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_save_INS" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_save_INS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_INS</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L968-L979"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_save_INS" title="Link to this definition">#</a></dt>
 <dd><p>Connect the save INS button to a handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3965,7 +3965,7 @@ changes.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_select_isotope">
-<span class="sig-name descname"><span class="pre">connect_select_isotope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">select_isotope</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1115-L1126"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_select_isotope" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_select_isotope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">select_isotope</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1111-L1122"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_select_isotope" title="Link to this definition">#</a></dt>
 <dd><p>Connect the atom/isotope button to a handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3979,7 +3979,7 @@ changes.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_setting_generator">
-<span class="sig-name descname"><span class="pre">connect_setting_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generate_settings</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L998-L1009"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_setting_generator" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">connect_setting_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generate_settings</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L994-L1005"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.connect_setting_generator" title="Link to this definition">#</a></dt>
 <dd><p>Connect space group selection to a handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3993,7 +3993,7 @@ changes.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.constrain_parameters">
-<span class="sig-name descname"><span class="pre">constrain_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">const</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1600-L1623"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.constrain_parameters" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">constrain_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">const</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1596-L1619"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.constrain_parameters" title="Link to this definition">#</a></dt>
 <dd><p>Enable or disable lattice parameter fields based on constraints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4009,7 +4009,7 @@ gamma, whether the corresponding field should be disabled
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.draw_cell">
-<span class="sig-name descname"><span class="pre">draw_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1128-L1148"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.draw_cell" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">draw_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1124-L1144"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.draw_cell" title="Link to this definition">#</a></dt>
 <dd><p>Draw the unit cell as a wireframe box in the 3D view.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4034,7 +4034,7 @@ tab widget.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_absorption_d_min">
-<span class="sig-name descname"><span class="pre">get_absorption_d_min</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1924-L1936"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_absorption_d_min" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_absorption_d_min</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1920-L1932"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_absorption_d_min" title="Link to this definition">#</a></dt>
 <dd><p>Minimum d-spacing entered by the user, if valid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4049,7 +4049,7 @@ currently contain acceptable input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_absorption_sample_vectors">
-<span class="sig-name descname"><span class="pre">get_absorption_sample_vectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1938-L1966"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_absorption_sample_vectors" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_absorption_sample_vectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1934-L1962"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_absorption_sample_vectors" title="Link to this definition">#</a></dt>
 <dd><p>Beam-/in-plane-direction vectors entered by the user.</p>
 <p>These define the crystal’s own orientation for the absorption
 prediction, independent of <a class="reference internal" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_absorption_shape_vectors" title="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_absorption_shape_vectors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_absorption_shape_vectors()</span></code></a>
@@ -4069,7 +4069,7 @@ direction.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_absorption_shape_constants">
-<span class="sig-name descname"><span class="pre">get_absorption_shape_constants</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1890-L1908"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_absorption_shape_constants" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_absorption_shape_constants</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1886-L1904"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_absorption_shape_constants" title="Link to this definition">#</a></dt>
 <dd><p>Ellipsoid dimension values entered by the user.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4084,7 +4084,7 @@ field has invalid input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_absorption_shape_vectors">
-<span class="sig-name descname"><span class="pre">get_absorption_shape_vectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1968-L1993"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_absorption_shape_vectors" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_absorption_shape_vectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1964-L1989"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_absorption_shape_vectors" title="Link to this definition">#</a></dt>
 <dd><p>Shape-orientation U/V vectors entered by the user.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4102,7 +4102,7 @@ direction.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_atom_site">
-<span class="sig-name descname"><span class="pre">get_atom_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1445-L1470"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_atom_site" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_atom_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1441-L1466"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_atom_site" title="Link to this definition">#</a></dt>
 <dd><p>Atom site values from a specific table row.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4123,7 +4123,7 @@ values (float) for the given row.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_crystal_system">
-<span class="sig-name descname"><span class="pre">get_crystal_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1212-L1223"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_crystal_system" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_crystal_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1208-L1219"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_crystal_system" title="Link to this definition">#</a></dt>
 <dd><p>Current crystal system selection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4137,7 +4137,7 @@ values (float) for the given row.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_hkl">
-<span class="sig-name descname"><span class="pre">get_hkl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1809-L1826"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_hkl" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_hkl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1805-L1822"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_hkl" title="Link to this definition">#</a></dt>
 <dd><p>Individual hkl indices entered by the user.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4152,7 +4152,7 @@ input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_isotope">
-<span class="sig-name descname"><span class="pre">get_isotope</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1506-L1517"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_isotope" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_isotope</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1502-L1513"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_isotope" title="Link to this definition">#</a></dt>
 <dd><p>Current isotope/atom button label.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4166,7 +4166,7 @@ input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_lattice_constants">
-<span class="sig-name descname"><span class="pre">get_lattice_constants</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1346-L1370"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_lattice_constants" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_lattice_constants</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1342-L1366"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_lattice_constants" title="Link to this definition">#</a></dt>
 <dd><p>Lattice parameter values entered by the user.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4181,7 +4181,7 @@ input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_minimum_d_spacing">
-<span class="sig-name descname"><span class="pre">get_minimum_d_spacing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1585-L1598"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_minimum_d_spacing" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_minimum_d_spacing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1581-L1594"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_minimum_d_spacing" title="Link to this definition">#</a></dt>
 <dd><p>Minimum d-spacing entered by the user.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4196,7 +4196,7 @@ None if the field has invalid input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_periodic_table">
-<span class="sig-name descname"><span class="pre">get_periodic_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1863-L1874"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_periodic_table" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_periodic_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1859-L1870"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_periodic_table" title="Link to this definition">#</a></dt>
 <dd><p>Create a periodic table dialog view.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4210,7 +4210,7 @@ None if the field has invalid input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_scatterer">
-<span class="sig-name descname"><span class="pre">get_scatterer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1429-L1443"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_scatterer" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_scatterer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1425-L1439"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_scatterer" title="Link to this definition">#</a></dt>
 <dd><p>Atom site values for the currently selected table row.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4225,7 +4225,7 @@ selected row, or None if no row is selected.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_scatterers">
-<span class="sig-name descname"><span class="pre">get_scatterers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1472-L1491"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_scatterers" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_scatterers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1468-L1487"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_scatterers" title="Link to this definition">#</a></dt>
 <dd><p>Atom site values for all rows of the atom site table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4240,7 +4240,7 @@ row of the table.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_setting">
-<span class="sig-name descname"><span class="pre">get_setting</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1298-L1309"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_setting" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_setting</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1294-L1305"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_setting" title="Link to this definition">#</a></dt>
 <dd><p>Current space group setting selection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4254,7 +4254,7 @@ row of the table.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_UB_filename">
-<span class="sig-name descname"><span class="pre">get_simulator_UB_filename</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2308-L2319"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_UB_filename" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_simulator_UB_filename</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2304-L2315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_UB_filename" title="Link to this definition">#</a></dt>
 <dd><p>Path of the currently loaded UB file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4269,7 +4269,7 @@ loaded.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_counting_time">
-<span class="sig-name descname"><span class="pre">get_simulator_counting_time</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2364-L2376"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_counting_time" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_simulator_counting_time</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2360-L2372"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_counting_time" title="Link to this definition">#</a></dt>
 <dd><p>Counting time entered by the user, if valid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4284,7 +4284,7 @@ currently contain acceptable input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_d_min">
-<span class="sig-name descname"><span class="pre">get_simulator_d_min</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2268-L2280"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_d_min" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_simulator_d_min</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2264-L2276"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_d_min" title="Link to this definition">#</a></dt>
 <dd><p>Minimum d-spacing entered by the user, if valid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4299,7 +4299,7 @@ currently contain acceptable input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_goniometer">
-<span class="sig-name descname"><span class="pre">get_simulator_goniometer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2348-L2362"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_goniometer" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_simulator_goniometer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2344-L2358"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_goniometer" title="Link to this definition">#</a></dt>
 <dd><p>Goniometer angles entered by the user, if valid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4314,7 +4314,7 @@ has invalid input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_instrument">
-<span class="sig-name descname"><span class="pre">get_simulator_instrument</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2244-L2254"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_instrument" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_simulator_instrument</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2240-L2250"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_instrument" title="Link to this definition">#</a></dt>
 <dd><p>Currently selected Simulator instrument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4328,7 +4328,7 @@ has invalid input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_vectors">
-<span class="sig-name descname"><span class="pre">get_simulator_vectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2321-L2346"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_vectors" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_simulator_vectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2317-L2342"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_simulator_vectors" title="Link to this definition">#</a></dt>
 <dd><p>Beam-/in-plane-direction vectors entered by the user.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4346,7 +4346,7 @@ direction.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_space_group">
-<span class="sig-name descname"><span class="pre">get_space_group</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1255-L1266"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_space_group" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_space_group</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1251-L1262"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_space_group" title="Link to this definition">#</a></dt>
 <dd><p>Current space group selection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4360,7 +4360,7 @@ direction.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_wavelength">
-<span class="sig-name descname"><span class="pre">get_wavelength</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1910-L1922"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_wavelength" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_wavelength</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1906-L1918"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.get_wavelength" title="Link to this definition">#</a></dt>
 <dd><p>Incident wavelength entered by the user, if valid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4375,7 +4375,7 @@ contain acceptable input.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.highlight">
-<span class="sig-name descname"><span class="pre">highlight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1741-L1779"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.highlight" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">highlight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1737-L1775"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.highlight" title="Link to this definition">#</a></dt>
 <dd><p>Toggle highlight color while preserving original atom color.</p>
 <p>Callback for block picking on the 3D view: recolors the picked
 atom block pink (or restores its original color if already
@@ -4396,7 +4396,7 @@ callback (unused).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.load_CIF_file_dialog">
-<span class="sig-name descname"><span class="pre">load_CIF_file_dialog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1150-L1179"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.load_CIF_file_dialog" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_CIF_file_dialog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1146-L1175"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.load_CIF_file_dialog" title="Link to this definition">#</a></dt>
 <dd><p>Open a file dialog to select a CIF file to load.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4411,7 +4411,7 @@ the dialog was cancelled.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.load_UB_file_dialog">
-<span class="sig-name descname"><span class="pre">load_UB_file_dialog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2214-L2242"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.load_UB_file_dialog" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_UB_file_dialog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2210-L2238"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.load_UB_file_dialog" title="Link to this definition">#</a></dt>
 <dd><p>Open a file dialog to select an ISAW UB matrix file to load.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4426,7 +4426,7 @@ dialog was cancelled.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.save_INS_file_dialog">
-<span class="sig-name descname"><span class="pre">save_INS_file_dialog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1181-L1210"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.save_INS_file_dialog" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_INS_file_dialog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1177-L1206"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.save_INS_file_dialog" title="Link to this definition">#</a></dt>
 <dd><p>Open a file dialog to select a destination INS file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -4441,7 +4441,7 @@ the dialog was cancelled.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_UB_status">
-<span class="sig-name descname"><span class="pre">set_UB_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2282-L2306"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_UB_status" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_UB_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2278-L2302"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_UB_status" title="Link to this definition">#</a></dt>
 <dd><p>Show or clear the loaded UB filename, enabling/disabling the
 u/v vector fields accordingly.</p>
 <dl class="field-list simple">
@@ -4457,7 +4457,7 @@ u/v vector fields accordingly.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_absorption_parameters">
-<span class="sig-name descname"><span class="pre">set_absorption_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">abs_dict</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2014-L2039"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_absorption_parameters" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_absorption_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">abs_dict</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2010-L2035"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_absorption_parameters" title="Link to this definition">#</a></dt>
 <dd><p>Populate the scattering/absorption and material property fields.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4475,7 +4475,7 @@ and mass, respectively.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_absorption_results">
-<span class="sig-name descname"><span class="pre">set_absorption_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hkls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tbars</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2041-L2068"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_absorption_results" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_absorption_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hkls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tbars</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2037-L2064"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_absorption_results" title="Link to this definition">#</a></dt>
 <dd><p>Repopulate the absorption results table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4497,7 +4497,7 @@ chosen wavelength).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_absorption_shape_constants">
-<span class="sig-name descname"><span class="pre">set_absorption_shape_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1876-L1888"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_absorption_shape_constants" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_absorption_shape_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1872-L1884"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_absorption_shape_constants" title="Link to this definition">#</a></dt>
 <dd><p>Populate the ellipsoid dimension fields.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4511,7 +4511,7 @@ chosen wavelength).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_atom">
-<span class="sig-name descname"><span class="pre">set_atom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scatterer</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1519-L1536"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_atom" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_atom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scatterer</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1515-L1532"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_atom" title="Link to this definition">#</a></dt>
 <dd><p>Populate the atom entry fields.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4526,7 +4526,7 @@ in that order.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_atom_table">
-<span class="sig-name descname"><span class="pre">set_atom_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1538-L1567"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_atom_table" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_atom_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1534-L1563"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_atom_table" title="Link to this definition">#</a></dt>
 <dd><p>Apply the atom entry fields to the currently selected row.</p>
 <p>Reads the x, y, z, occupancy, and Uiso line edits and, if they
 all contain valid input and a row is selected, writes the
@@ -4536,7 +4536,7 @@ that row of the atom site table.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_crystal_system">
-<span class="sig-name descname"><span class="pre">set_crystal_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crystal_system</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1225-L1238"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_crystal_system" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_crystal_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crystal_system</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1221-L1234"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_crystal_system" title="Link to this definition">#</a></dt>
 <dd><p>Select a crystal system in the combo box.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4550,7 +4550,7 @@ that row of the atom site table.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_equivalents">
-<span class="sig-name descname"><span class="pre">set_equivalents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hkls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1828-L1861"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_equivalents" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_equivalents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hkls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1824-L1857"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_equivalents" title="Link to this definition">#</a></dt>
 <dd><p>Repopulate the structure factor table with symmetry equivalents.</p>
 <p>Unlike <a class="reference internal" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_factors" title="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_factors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_factors()</span></code></a>, all rows share the same d-spacing
 and squared structure factor since they are symmetry equivalents
@@ -4573,7 +4573,7 @@ reflections.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_factors">
-<span class="sig-name descname"><span class="pre">set_factors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hkls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F2s</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1781-L1807"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_factors" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_factors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hkls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F2s</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1777-L1803"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_factors" title="Link to this definition">#</a></dt>
 <dd><p>Repopulate the structure factor table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4591,7 +4591,7 @@ reflections.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_formula_z">
-<span class="sig-name descname"><span class="pre">set_formula_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chemical_formula</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_parameter</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1569-L1583"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_formula_z" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_formula_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chemical_formula</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_parameter</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1565-L1579"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_formula_z" title="Link to this definition">#</a></dt>
 <dd><p>Populate the chemical formula and Z fields.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4607,7 +4607,7 @@ reflections.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_isotope">
-<span class="sig-name descname"><span class="pre">set_isotope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1493-L1504"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_isotope" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_isotope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1489-L1500"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_isotope" title="Link to this definition">#</a></dt>
 <dd><p>Set the isotope/atom button label.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4621,7 +4621,7 @@ reflections.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_lattice_constants">
-<span class="sig-name descname"><span class="pre">set_lattice_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1326-L1344"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_lattice_constants" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_lattice_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1322-L1340"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_lattice_constants" title="Link to this definition">#</a></dt>
 <dd><p>Populate the lattice parameter fields.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4636,7 +4636,7 @@ reflections.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_material_display">
-<span class="sig-name descname"><span class="pre">set_material_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chemical_formula</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1995-L2012"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_material_display" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_material_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chemical_formula</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1991-L2008"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_material_display" title="Link to this definition">#</a></dt>
 <dd><p>Populate the (read-only) absorption-tab material fields.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4655,7 +4655,7 @@ reflections.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_scatterer">
-<span class="sig-name descname"><span class="pre">set_scatterer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scatterer</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1404-L1427"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_scatterer" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_scatterer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scatterer</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1400-L1423"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_scatterer" title="Link to this definition">#</a></dt>
 <dd><p>Populate a row of the atom site table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4672,7 +4672,7 @@ in that order.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_scatterers">
-<span class="sig-name descname"><span class="pre">set_scatterers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scatterers</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1385-L1402"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_scatterers" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_scatterers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scatterers</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1381-L1398"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_scatterers" title="Link to this definition">#</a></dt>
 <dd><p>Repopulate the atom site table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4687,7 +4687,7 @@ in that order.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_setting">
-<span class="sig-name descname"><span class="pre">set_setting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">setting</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1311-L1324"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_setting" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_setting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">setting</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1307-L1320"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_setting" title="Link to this definition">#</a></dt>
 <dd><p>Select a space group setting in the combo box.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4701,7 +4701,7 @@ in that order.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_simulator_d_min">
-<span class="sig-name descname"><span class="pre">set_simulator_d_min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2256-L2266"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_simulator_d_min" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_simulator_d_min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_min</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2252-L2262"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_simulator_d_min" title="Link to this definition">#</a></dt>
 <dd><p>Populate the Simulator d-min field.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4715,7 +4715,7 @@ in that order.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_simulator_results">
-<span class="sig-name descname"><span class="pre">set_simulator_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hkls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambdas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F2s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Is</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IsigmaIs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2378-L2414"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_simulator_results" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_simulator_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hkls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambdas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F2s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Is</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IsigmaIs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L2374-L2410"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_simulator_results" title="Link to this definition">#</a></dt>
 <dd><p>Repopulate the Simulator results table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4739,7 +4739,7 @@ in that order.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_space_group">
-<span class="sig-name descname"><span class="pre">set_space_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">space_group</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1268-L1281"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_space_group" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_space_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">space_group</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1264-L1277"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_space_group" title="Link to this definition">#</a></dt>
 <dd><p>Select a space group in the combo box.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4753,7 +4753,7 @@ in that order.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_unit_cell_volume">
-<span class="sig-name descname"><span class="pre">set_unit_cell_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vol</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1372-L1383"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_unit_cell_volume" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_unit_cell_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vol</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1368-L1379"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.set_unit_cell_volume" title="Link to this definition">#</a></dt>
 <dd><p>Populate the unit cell volume field.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4767,7 +4767,7 @@ in that order.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.simulator_tab">
-<span class="sig-name descname"><span class="pre">simulator_tab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L755-L970"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.simulator_tab" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">simulator_tab</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L755-L966"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.simulator_tab" title="Link to this definition">#</a></dt>
 <dd><p>Build the “Simulator” tab layout and widgets.</p>
 <p>Constructs the instrument selector and d-min field, the UB
 load/clear controls and beam-/in-plane-direction u/v vector
@@ -4792,7 +4792,7 @@ adds them to the tab widget.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.update_settings">
-<span class="sig-name descname"><span class="pre">update_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1283-L1296"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.update_settings" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1279-L1292"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.update_settings" title="Link to this definition">#</a></dt>
 <dd><p>Repopulate the space group setting combo box.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -4806,7 +4806,7 @@ adds them to the tab widget.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.update_space_groups">
-<span class="sig-name descname"><span class="pre">update_space_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nos</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1240-L1253"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.update_space_groups" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_space_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nos</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/neutrons/NeuXtalViz-tools/blob/main/src/NeuXtalViz/views/crystal_structure_tools.py#L1236-L1249"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#NeuXtalViz.views.crystal_structure_tools.CrystalStructureView.update_space_groups" title="Link to this definition">#</a></dt>
 <dd><p>Repopulate the space group combo box.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
