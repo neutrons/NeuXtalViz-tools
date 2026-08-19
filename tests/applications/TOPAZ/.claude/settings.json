@@ -13,7 +13,10 @@
       "Bash(python -c \"import ast; ast.parse\\(open\\('tests/applications/volume-slicer.py'\\).read\\(\\)\\)\")",
       "Bash(python3 -c \"import ast; ast.parse\\(open\\('tests/applications/volume-slicer.py'\\).read\\(\\)\\)\")",
       "Bash(python3 -c \"import ast; ast.parse\\(open\\('src/NeuXtalViz/models/volume_slicer.py'\\).read\\(\\)\\)\")",
-      "Bash(python3 -c \"import ast; ast.parse\\(open\\('src/garnet/reduction/normalization.py'\\).read\\(\\)\\)\")"
+      "Bash(python3 -c \"import ast; ast.parse\\(open\\('src/garnet/reduction/normalization.py'\\).read\\(\\)\\)\")",
+      "Bash(python3 -m py_compile /home/zgf/git/NeuXtalViz-tools/src/NeuXtalViz/views/crystal_structure_tools.py /home/zgf/git/NeuXtalViz-tools/src/NeuXtalViz/models/crystal_structure_tools.py /home/zgf/git/NeuXtalViz-tools/src/NeuXtalViz/presenters/crystal_structure_tools.py)",
+      "Bash(python3 -c \"import mantid; print\\(mantid.__file__\\)\")",
+      "WebFetch(domain:docs.mantidproject.org)"
     ],
     "additionalDirectories": [
       "/home/zgf/git/NeuXtalViz-tools/tests/applications"

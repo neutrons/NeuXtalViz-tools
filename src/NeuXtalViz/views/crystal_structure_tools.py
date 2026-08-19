@@ -869,18 +869,7 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.sim_chi_line.setValidator(validator)
         self.sim_phi_line.setValidator(validator)
 
-        gon_layout = QHBoxLayout()
-        gon_layout.addWidget(gon_label)
-        gon_layout.addWidget(omega_label)
-        gon_layout.addWidget(self.sim_omega_line)
-        gon_layout.addWidget(chi_label)
-        gon_layout.addWidget(self.sim_chi_line)
-        gon_layout.addWidget(phi_label)
-        gon_layout.addWidget(self.sim_phi_line)
-        gon_layout.addWidget(degree_label)
-        gon_layout.addStretch(1)
-
-        # --- Counting time / Calculate -------------------------------------
+        # --- Counting time --------------------------------------------------
         time_label = QLabel("Counting Time", self)
         minute_label = QLabel("min", self)
 
@@ -892,12 +881,20 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.sim_calculate_button = QPushButton("Calculate", self)
         self.sim_calculate_button.setIcon(qta.icon("fa6s.calculator"))
 
-        time_layout = QHBoxLayout()
-        time_layout.addWidget(time_label)
-        time_layout.addWidget(self.sim_time_line)
-        time_layout.addWidget(minute_label)
-        time_layout.addStretch(1)
-        time_layout.addWidget(self.sim_calculate_button)
+        gon_layout = QHBoxLayout()
+        gon_layout.addWidget(gon_label)
+        gon_layout.addWidget(omega_label)
+        gon_layout.addWidget(self.sim_omega_line)
+        gon_layout.addWidget(chi_label)
+        gon_layout.addWidget(self.sim_chi_line)
+        gon_layout.addWidget(phi_label)
+        gon_layout.addWidget(self.sim_phi_line)
+        gon_layout.addWidget(degree_label)
+        gon_layout.addWidget(time_label)
+        gon_layout.addWidget(self.sim_time_line)
+        gon_layout.addWidget(minute_label)
+        gon_layout.addStretch(1)
+        gon_layout.addWidget(self.sim_calculate_button)
 
         # --- Results table ---------------------------------------------
         stretch = QHeaderView.Stretch
@@ -915,7 +912,6 @@ class CrystalStructureView(NeuXtalVizWidget):
         sim_layout.addLayout(UB_layout)
         sim_layout.addLayout(orient_layout)
         sim_layout.addLayout(gon_layout)
-        sim_layout.addLayout(time_layout)
         sim_layout.addWidget(self.sim_table)
 
         sim_tab.setLayout(sim_layout)

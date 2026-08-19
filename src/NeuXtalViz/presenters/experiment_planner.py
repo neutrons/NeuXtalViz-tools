@@ -889,10 +889,14 @@ class Experiment(NeuXtalVizPresenter):
 
         row = self.view.get_selected_angle()
         no = self.view.get_number_of_orientations()
-        if row is not None and row > 0:
+        if row is None:
+            return
+        if row > 0:
             self.model.swap_angles([row, (row - 1) % no])
             self.view.swap_angles([row, (row - 1) % no])
             self.update_peaks(True)
+        else:
+            self.view.swap_angles([row, row])
 
     def move_orientation_down(self):
         """
@@ -905,10 +909,14 @@ class Experiment(NeuXtalVizPresenter):
 
         row = self.view.get_selected_angle()
         no = self.view.get_number_of_orientations()
-        if row is not None and row < no - 1:
+        if row is None:
+            return
+        if row < no - 1:
             self.model.swap_angles([row, (row + 1) % no])
             self.view.swap_angles([row, (row + 1) % no])
             self.update_peaks(True)
+        else:
+            self.view.swap_angles([row, row])
 
     def delete_angles(self):
         """

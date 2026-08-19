@@ -3103,7 +3103,7 @@ class ExperimentView(NeuXtalVizWidget):
             checkbox.setCheckState(Qt.Checked)
             self.plan_table.setItem(row, col, checkbox)
 
-        self.plan_table.setSortingEnabled(False)
+        self.plan_table.setSortingEnabled(True)
         self.plan_table.setUpdatesEnabled(True)
         self.plan_table.blockSignals(False)
         self.set_peak_list(self.get_number_of_orientations())
@@ -3180,7 +3180,7 @@ class ExperimentView(NeuXtalVizWidget):
             self.plan_table.setItem(row, col, checkbox)
 
         self.plan_table.setUpdatesEnabled(True)
-        self.plan_table.setSortingEnabled(False)
+        self.plan_table.setSortingEnabled(True)
         self.plan_table.blockSignals(False)
 
         self.set_peak_list(self.get_number_of_orientations())
