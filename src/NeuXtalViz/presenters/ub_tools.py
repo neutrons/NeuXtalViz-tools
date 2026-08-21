@@ -2991,20 +2991,27 @@ class UB(NeuXtalVizPresenter):
         filename = self.view.load_Q_file_dialog(path)
 
         if filename:
-            d_min, wavelength = self.model.load_Q(filename)
+            self.update_processing("Loading Q...", 1)
+            d_min, wavelength, runs = self.model.load_Q(filename)
+            self.update_processing("Q loaded...", 40)
             self.view.set_convert_min_d(d_min)
             self.view.set_d_min(d_min)
             if wavelength is not None:
                 self.view.set_wavelength(wavelength)
+            self.view.set_data_list(runs)
             inst = self.model.get_instrument_from_Q()
             if inst is not None:
                 self.view.set_instrument(inst)
                 self.switch_instrument()
+            self.update_processing("Updating lattice info...", 60)
             self.update_lattice_info()
             self.view.set_Q_status(3)
             if self.model.has_peaks():
+                self.update_processing("Refreshing peaks...", 80)
                 self.refresh_peak_views()
+            self.update_processing("Rendering...", 90)
             self.visualize()
+            self.update_complete("Q loaded!")
 
     def save_Q(self):
         """

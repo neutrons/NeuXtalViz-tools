@@ -4539,6 +4539,13 @@ class UBModel(NeuXtalVizModel):
             Minimum d-spacing derived from Q_max.
         wavelength : list or None
             [lambda_min, lambda_max] for DGS data, None otherwise.
+        runs : list
+            Run number for each ExperimentInfo (goniometer setting) in
+            the loaded workspace, in the same order as `self.Rs` --
+            needed to index peaks added via `add_peak`/
+            `add_peak_from_hkl` (see those and `convert_data`, which
+            populates `self.runs`/`self.Rs` the same way from freshly
+            loaded raw files).
 
         """
 
@@ -4612,7 +4619,22 @@ class UBModel(NeuXtalVizModel):
 
         d_min = round(2 * np.pi / Q_max, 4)
 
-        return d_min, wavelength
+        runs = []
+        Rs = []
+        for i in range(ws.getNumExperimentInfo()):
+            run = ws.getExperimentInfo(i).run()
+            try:
+                run_number = int(run.getProperty("run_number").value)
+            except Exception:
+                run_number = i + 1
+            Rs.append(run.getGoniometer(0).getR())
+            runs.append(run_number)
+
+        self.runs = runs
+        self.Rs = Rs
+        self.scan = None
+
+        return d_min, wavelength, runs
 
     def get_instrument_from_Q(self):
         """
