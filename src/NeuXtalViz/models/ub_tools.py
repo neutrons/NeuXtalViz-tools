@@ -22,6 +22,8 @@ from mantid.simpleapi import (
     PredictSatellitePeaks,
     CentroidPeaksMD,
     IntegratePeaksMD,
+    PeakIntensityVsRadius,
+    ExtractSingleSpectrum,
     FilterPeaks,
     SortPeaksWorkspace,
     LoadIsawPeaks,
@@ -121,6 +123,34 @@ centering_reflection = {
     "B": "B-face centred",
     "C": "C-face centred",
 }
+
+
+def _reflection_allowed(centering, h, k, l):
+    """
+    Whether hkl is not systematically absent for a lattice centering.
+
+    Same reflection conditions as the table in ``predict_peaks``.
+    Centerings without a known condition here (e.g. "H") are treated
+    as unfiltered (always allowed).
+    """
+
+    if centering == "I":
+        return (h + k + l) % 2 == 0
+    if centering == "F":
+        return h % 2 == k % 2 == l % 2
+    if centering == "A":
+        return (k + l) % 2 == 0
+    if centering == "B":
+        return (l + h) % 2 == 0
+    if centering == "C":
+        return (h + k) % 2 == 0
+    if centering == "R(obv)":
+        return (-h + k + l) % 3 == 0
+    if centering == "R(rev)":
+        return (h - k + l) % 3 == 0
+
+    return True
+
 
 variable = {
     "I/σ": "Signal/Noise",
@@ -3850,6 +3880,48 @@ class UBModel(NeuXtalVizModel):
 
         return cells
 
+    def preview_transform_lattice(self, transform):
+        """
+        Predict the lattice parameters a lattice-transform matrix
+        would produce, without changing the UB or peaks table.
+
+        Parameters
+        ----------
+        transform : array-like
+            Nine matrix elements, row-major, same as passed to
+            ``transform_lattice``.
+
+        Returns
+        -------
+        params : tuple of float
+            ``(a, b, c, alpha, beta, gamma)`` of the transformed cell,
+            or None if no UB is set or the transform is singular.
+
+        """
+
+        if not self.has_UB():
+            return None
+
+        T = np.asarray(transform, dtype=float).reshape(3, 3)
+
+        if abs(np.linalg.det(T)) < 1e-10:
+            return None
+
+        ol = mtd[self.cell].sample().getOrientedLattice()
+        uc = UnitCell(
+            ol.a(), ol.b(), ol.c(), ol.alpha(), ol.beta(), ol.gamma()
+        )
+
+        G = uc.getG()
+        Gp = T @ G @ T.T
+
+        try:
+            uc.recalculateFromGstar(np.linalg.inv(Gp))
+        except (RuntimeError, ValueError, np.linalg.LinAlgError):
+            return None
+
+        return uc.a(), uc.b(), uc.c(), uc.alpha(), uc.beta(), uc.gamma()
+
     def transform_lattice(self, transform, tol=0.1):
         """
         Apply a cell transformation to the lattice.
@@ -4180,6 +4252,153 @@ class UBModel(NeuXtalVizModel):
             MaskEdgeTubes=False,
             OutputWorkspace=self.table,
         )
+
+    def intensity_vs_radius(
+        self,
+        max_radius,
+        background_inner_fact=np.cbrt(2),
+        background_outer_fact=np.cbrt(3),
+        steps=51,
+        fix=True,
+    ):
+        """
+        Scan signal/noise vs integration radius, from zero to a cutoff.
+
+        Used to visually pick a peak-integration radius before
+        running ``integrate_peaks``, instead of guessing a value.
+
+        Parameters
+        ----------
+        max_radius : float
+            Outer background-shell limit -- the largest radius
+            background is sampled out to (e.g. half the shortest
+            Q-spacing, so background never reaches a neighboring
+            peak). The peak-radius scan and background inner shell
+            are scaled down from this so all three (peak, background
+            inner shell, background outer shell) carry equal volume.
+        background_inner_fact : float, optional
+            Factor of the scanned peak radius for the background
+            shell inner bound. The default is cbrt(2), matching
+            equal-volume background shells used elsewhere.
+        background_outer_fact : float, optional
+            Factor of the scanned peak radius for the background
+            shell outer bound -- also the factor relating
+            ``max_radius`` back to the scanned peak-radius upper
+            bound (``max_radius / background_outer_fact``). The
+            default is cbrt(3).
+        steps : int, optional
+            Number of radius steps. The default is 51.
+        fix : bool, optional
+            Fix the background shell to ``max_radius`` instead of
+            scaling it with each step's radius. The default is True.
+
+        Returns
+        -------
+        radii : ndarray
+            Radius at each step.
+        sig_noise : ndarray
+            Peak count passing the strictest signal/noise level, at
+            each radius.
+
+        """
+
+        radius_end = max_radius / background_outer_fact if fix else max_radius
+
+        background_inner_radius = (
+            radius_end * background_inner_fact if fix else 0
+        )
+        background_outer_radius = max_radius if fix else 0
+
+        background_inner_fact = 0 if fix else background_inner_fact
+        background_outer_fact = 0 if fix else background_outer_fact
+
+        intens_ws = self.table + "_intens_vs_rad"
+        sig_noise_ws = self.table + "_sig_noise_vs_rad"
+        sig_noise_strong_ws = sig_noise_ws + "_strong"
+
+        PeakIntensityVsRadius(
+            InputWorkspace=self.Q,
+            PeaksWorkspace=self.table,
+            RadiusStart=0.0,
+            RadiusEnd=radius_end,
+            NumSteps=steps,
+            BackgroundInnerFactor=background_inner_fact,
+            BackgroundOuterFactor=background_outer_fact,
+            BackgroundInnerRadius=background_inner_radius,
+            BackgroundOuterRadius=background_outer_radius,
+            OutputWorkspace=intens_ws,
+            OutputWorkspace2=sig_noise_ws,
+        )
+
+        n = mtd[sig_noise_ws].getNumberHistograms()
+
+        ExtractSingleSpectrum(
+            InputWorkspace=sig_noise_ws,
+            OutputWorkspace=sig_noise_strong_ws,
+            WorkspaceIndex=n - 1,
+        )
+
+        radii = mtd[sig_noise_strong_ws].extractX().ravel()
+        sig_noise = mtd[sig_noise_strong_ws].extractY().ravel()
+
+        DeleteWorkspace(Workspace=intens_ws)
+        DeleteWorkspace(Workspace=sig_noise_ws)
+        DeleteWorkspace(Workspace=sig_noise_strong_ws)
+
+        return radii, sig_noise
+
+    def get_min_q_spacing(self, centering=None, max_index=2):
+        """
+        Shortest |Q| from the origin to a neighboring reciprocal
+        lattice node, from the current UB matrix.
+
+        Parameters
+        ----------
+        centering : str or None, optional
+            Lattice centering symbol (see ``centering_reflection``).
+            When given, systematically absent nodes are skipped so
+            the search reflects the primitive lattice (the actual
+            observable reflections) instead of the conventional one.
+            None (default) considers every conventional-cell node,
+            which is always safe but can be more conservative than
+            necessary for a centered lattice.
+        max_index : int, optional
+            Search hkl indices over [-max_index, max_index]. The
+            default is 2.
+
+        Returns
+        -------
+        q_min : float
+            Shortest reciprocal-lattice spacing (Å⁻¹) among allowed
+            nodes, or None if no UB matrix is set.
+
+        """
+
+        UB = self.get_UB()
+
+        if UB is None:
+            return None
+
+        q_min = np.inf
+
+        for h in range(-max_index, max_index + 1):
+            for k in range(-max_index, max_index + 1):
+                for l in range(-max_index, max_index + 1):
+                    if h == 0 and k == 0 and l == 0:
+                        continue
+
+                    if centering is not None and not _reflection_allowed(
+                        centering, h, k, l
+                    ):
+                        continue
+
+                    Q = 2 * np.pi * UB @ np.array([h, k, l], dtype=float)
+                    q = np.linalg.norm(Q)
+
+                    if q < q_min:
+                        q_min = q
+
+        return q_min if np.isfinite(q_min) else None
 
     def clear_intensity(self):
         """

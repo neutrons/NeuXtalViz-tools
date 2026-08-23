@@ -58,10 +58,15 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_convert_Q(self.convert_Q)
         self.view.connect_reload_convert_Q(self.convert_Q_reload)
         self.view.connect_find_peaks(self.find_peaks)
+        self.view.connect_limit_min_distance_from_ub(
+            self.limit_min_distance_from_ub
+        )
         self.view.connect_find_spacing(self.update_find_spacing)
         self.view.connect_find_distance(self.update_find_distance)
         self.view.connect_index_peaks(self.index_peaks)
         self.view.connect_predict_peaks(self.predict_peaks)
+        self.view.connect_limit_radius_from_ub(self.limit_radius_from_ub)
+        self.view.connect_calculate_peak_radius(self.calculate_peak_radius)
         self.view.connect_integrate_peaks(self.integrate_peaks)
         self.view.connect_filter_peaks(self.filter_peaks)
         self.view.connect_undo_filter_peaks(self.undo_filter_peaks)
@@ -69,6 +74,9 @@ class UB(NeuXtalVizPresenter):
         self.view.connect_lattice_transform(self.lattice_transform)
         self.view.connect_symmetry_transform(self.symmetry_transform)
         self.view.connect_transform_UB(self.transform_UB)
+        self.view.connect_transform_matrix_changed(
+            self.update_transform_preview
+        )
         self.view.connect_optimize_UB(self.refine_UB)
         self.view.connect_find_niggli(self.find_niggli)
         self.view.connect_calculate_peaks(self.calculate_peaks)
@@ -1492,6 +1500,27 @@ class UB(NeuXtalVizPresenter):
         if params is not None:
             self.view.set_sample_directions(params)
 
+    def limit_min_distance_from_ub(self):
+        """
+        Set the min peak-finding distance to half the shortest
+        allowed Q-spacing from the UB matrix.
+
+        Connected to the "Limit from UB" button signal (Find Peaks
+        tab). Uses the centering selected in the Predict Peaks tab to
+        skip systematically absent reciprocal-lattice nodes, so the
+        result reflects the primitive lattice rather than the
+        conventional one.
+        """
+
+        centering = self.view.get_predict_peaks_centering()
+
+        q_min = self.model.get_min_q_spacing(centering=centering)
+
+        if q_min is not None:
+            self.view.set_min_distance(0.5 * q_min)
+        else:
+            self.update_processing("Limit from UB requires a UB matrix.", 0)
+
     def find_peaks(self):
         """
         Search for peaks in Q-space in a background worker.
@@ -2163,6 +2192,22 @@ class UB(NeuXtalVizPresenter):
 
             self.view.set_transform_matrix(T)
 
+    def update_transform_preview(self):
+        """
+        Recompute and display the lattice parameters the current
+        transform matrix would produce, without applying it.
+
+        Connected to edits of any of the transform matrix fields.
+        """
+
+        transform = self.view.get_transform_matrix()
+
+        params = None
+        if transform is not None:
+            params = self.model.preview_transform_lattice(transform)
+
+        self.view.set_transform_preview(params)
+
     def transform_UB(self):
         """
         Apply a lattice transformation matrix to the UB matrix.
@@ -2646,6 +2691,115 @@ class UB(NeuXtalVizPresenter):
 
             else:
                 progress("Invalid parameters.", 0)
+
+    def limit_radius_from_ub(self):
+        """
+        Set the max radius to half the shortest Q-spacing from the UB.
+
+        Connected to the "Limit from UB" button signal. Half the
+        shortest distance between neighboring reciprocal lattice
+        nodes is the largest radius a peak-centered sphere can have
+        without reaching its nearest neighbor.
+        """
+
+        q_min = self.model.get_min_q_spacing()
+
+        if q_min is not None:
+            self.view.set_max_radius(0.5 * q_min)
+        else:
+            self.update_processing("Limit from UB requires a UB matrix.", 0)
+
+    def calculate_peak_radius(self):
+        """
+        Scan signal/noise vs integration radius, up to a max radius.
+
+        Connected to the "Calculate Radius" button signal. Gathers the
+        max radius from the view, then dispatches
+        ``calculate_peak_radius_process`` to a worker thread whose
+        completion plots the resulting signal/noise-vs-radius curve.
+        """
+
+        max_radius = self.view.get_peak_radius_max()
+
+        worker = self.view.worker(
+            functools.partial(
+                self.calculate_peak_radius_process,
+                max_radius=max_radius,
+            )
+        )
+        worker.connect_result(self.calculate_peak_radius_complete)
+        worker.connect_progress(self.update_processing)
+
+        self.view.start_worker_pool(worker)
+
+    def calculate_peak_radius_complete(self, result):
+        """
+        Handle completion of the peak-radius-scan worker.
+
+        Parameters
+        ----------
+        result : dict or None
+            ``{"radii": ndarray, "sig_noise": ndarray, "suggested":
+            float}`` returned by ``calculate_peak_radius_process``, or
+            None if the calculation did not succeed. If present, the
+            signal/noise-vs-radius plot is updated.
+        """
+
+        if result is not None:
+            self.update_processing("Rendering radius scan.", 75)
+            self.view.plot_peak_radius(result)
+            self.update_processing("Radius scanned!", 0)
+
+    def calculate_peak_radius_process(
+        self, progress=None, stop_event=None, max_radius=None
+    ):
+        """
+        Worker task that scans signal/noise vs integration radius.
+
+        Parameters
+        ----------
+        progress : callable or None, optional
+            Callback ``progress(message, percent)`` used to report
+            status back to the view.
+        stop_event : threading.Event or None, optional
+            Event used to signal that processing should stop early.
+        max_radius : float or None, optional
+            Outer background-shell limit, or None if the input field
+            is invalid.
+
+        Returns
+        -------
+        result : dict
+            ``{"radii": ndarray, "sig_noise": ndarray, "suggested":
+            float}``, returned only if peaks and Q are present and
+            ``max_radius`` is valid.
+        """
+
+        if self.stop_processing(stop_event):
+            return None
+
+        if self.model.has_peaks() and self.model.has_Q():
+            if max_radius is not None:
+                progress("Scanning radius...", 25)
+
+                radii, sig_noise = self.model.intensity_vs_radius(max_radius)
+
+                if self.stop_processing(stop_event):
+                    return None
+
+                progress("Radius scanned!", 100)
+
+                suggested = float(radii[np.argmax(sig_noise)])
+
+                return {
+                    "radii": radii,
+                    "sig_noise": sig_noise,
+                    "suggested": suggested,
+                }
+            else:
+                progress("Invalid radius.", 0)
+        else:
+            progress("Radius scan requires peaks and Q.", 0)
 
     def integrate_peaks(self):
         """

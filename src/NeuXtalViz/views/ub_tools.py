@@ -104,6 +104,7 @@ class UBView(NeuXtalVizWidget):
         self.verify_tab()
         self.modulation_tab()
         self.alignment_tab()
+        self.peak_radius_tab()
 
         self.layout().addWidget(self.tab_widget, stretch=1)
 
@@ -776,12 +777,20 @@ class UBView(NeuXtalVizWidget):
         self.find_button.setIcon(qta.icon("fa6s.magnifying-glass"))
         self.find_button.setToolTip("Find peaks in the Q workspace.")
 
+        self.limit_min_distance_button = QPushButton("Limit from UB", self)
+        self.limit_min_distance_button.setIcon(qta.icon("fa6s.ruler"))
+        self.limit_min_distance_button.setToolTip(
+            "Set Min Distance to half the shortest allowed Q-spacing, "
+            "from the UB matrix and the Predict Peaks centering."
+        )
+
         find_action_layout = QHBoxLayout()
         find_action_layout.addWidget(self.find_button)
         find_action_layout.addWidget(self.aluminum_box)
         find_action_layout.addWidget(self.copper_box)
         find_action_layout.addWidget(self.iron_box)
         find_action_layout.addStretch(1)
+        find_action_layout.addWidget(self.limit_min_distance_button)
 
         find_tab_layout.addLayout(find_params_layout)
         find_tab_layout.addStretch(1)
@@ -1294,6 +1303,49 @@ class UBView(NeuXtalVizWidget):
         transform_matrix_layout.addWidget(self.T31_line, 3, 1)
         transform_matrix_layout.addWidget(self.T32_line, 3, 2)
         transform_matrix_layout.addWidget(self.T33_line, 3, 3)
+
+        a_prime_label = QLabel("a′:")
+        b_prime_label = QLabel("b′:")
+        c_prime_label = QLabel("c′:")
+        alpha_prime_label = QLabel("α′:")
+        beta_prime_label = QLabel("β′:")
+        gamma_prime_label = QLabel("γ′:")
+
+        self.a_prime_value = QLabel("—")
+        self.b_prime_value = QLabel("—")
+        self.c_prime_value = QLabel("—")
+        self.alpha_prime_value = QLabel("—")
+        self.beta_prime_value = QLabel("—")
+        self.gamma_prime_value = QLabel("—")
+
+        for label in (
+            self.a_prime_value,
+            self.b_prime_value,
+            self.c_prime_value,
+            self.alpha_prime_value,
+            self.beta_prime_value,
+            self.gamma_prime_value,
+        ):
+            label.setToolTip(
+                "Lattice parameter this transform would produce, "
+                "before clicking Transform."
+            )
+
+        transform_preview_layout = QGridLayout()
+        transform_preview_layout.addWidget(a_prime_label, 0, 0)
+        transform_preview_layout.addWidget(self.a_prime_value, 0, 1)
+        transform_preview_layout.addWidget(alpha_prime_label, 0, 2)
+        transform_preview_layout.addWidget(self.alpha_prime_value, 0, 3)
+        transform_preview_layout.addWidget(b_prime_label, 1, 0)
+        transform_preview_layout.addWidget(self.b_prime_value, 1, 1)
+        transform_preview_layout.addWidget(beta_prime_label, 1, 2)
+        transform_preview_layout.addWidget(self.beta_prime_value, 1, 3)
+        transform_preview_layout.addWidget(c_prime_label, 2, 0)
+        transform_preview_layout.addWidget(self.c_prime_value, 2, 1)
+        transform_preview_layout.addWidget(gamma_prime_label, 2, 2)
+        transform_preview_layout.addWidget(self.gamma_prime_value, 2, 3)
+
+        transform_matrix_layout.addLayout(transform_preview_layout, 0, 5, 4, 1)
 
         self.transform_button = QPushButton("Transform", self)
         self.transform_button.setIcon(qta.icon("fa6s.arrow-right-arrow-left"))
@@ -2379,6 +2431,89 @@ class UBView(NeuXtalVizWidget):
 
         align_tab.setLayout(alignment_layout)
 
+    def peak_radius_tab(self):
+        """
+        Build the "Radius" tab.
+
+        Creates the max-radius input, the calculate-radius button, the
+        matplotlib canvas showing signal/noise vs radius, and the
+        suggested-radius readout with a button to copy it into the
+        Integrate Peaks radius field, then adds the tab to the main
+        tab widget.
+        """
+
+        radius_tab = QWidget()
+        self.tab_widget.addTab(radius_tab, "Radius")
+
+        radius_tab_layout = QVBoxLayout()
+
+        max_radius_label = QLabel("Max Radius:")
+        max_radius_unit_label = QLabel("Å⁻¹")
+        suggested_radius_label = QLabel("Suggested:")
+
+        notation = QDoubleValidator.StandardNotation
+        validator = QDoubleValidator(0, 1, 3, notation=notation)
+
+        self.limit_radius_button = QPushButton("Limit from UB", self)
+        self.limit_radius_button.setIcon(qta.icon("fa6s.ruler"))
+        self.limit_radius_button.setToolTip(
+            "Set the max radius to half the shortest Q-spacing from the UB."
+        )
+
+        self.max_radius_line = QLineEdit("0.25")
+        self.max_radius_line.setValidator(validator)
+        self.max_radius_line.setToolTip(
+            "Outer background-shell limit (Å⁻¹) -- the peak-radius "
+            "scan and background inner shell are scaled down from "
+            "this for equal volumes."
+        )
+
+        self.calculate_radius_button = QPushButton("Calculate Radius", self)
+        self.calculate_radius_button.setIcon(qta.icon("fa6s.chart-line"))
+        self.calculate_radius_button.setToolTip(
+            "Scan signal/noise vs radius for the current peaks."
+        )
+
+        self.suggested_radius_line = QLineEdit("")
+        self.suggested_radius_line.setReadOnly(True)
+        self.suggested_radius_line.setToolTip(
+            "Radius with the highest signal/noise from the last scan."
+        )
+
+        self.use_radius_button = QPushButton("Use", self)
+        self.use_radius_button.setIcon(qta.icon("fa6s.arrow-right"))
+        self.use_radius_button.setToolTip(
+            "Copy the suggested radius into the Integrate Peaks radius."
+        )
+        self.use_radius_button.clicked.connect(self._apply_suggested_radius)
+
+        controls_layout = QHBoxLayout()
+        controls_layout.addWidget(self.limit_radius_button)
+        controls_layout.addWidget(max_radius_label)
+        controls_layout.addWidget(self.max_radius_line)
+        controls_layout.addWidget(max_radius_unit_label)
+        controls_layout.addWidget(self.calculate_radius_button)
+        controls_layout.addStretch(1)
+        controls_layout.addWidget(suggested_radius_label)
+        controls_layout.addWidget(self.suggested_radius_line)
+        controls_layout.addWidget(self.use_radius_button)
+
+        plot_layout = QVBoxLayout()
+
+        self.canvas_radius = FigureCanvas(Figure(tight_layout=True))
+
+        plot_layout.addWidget(NavigationToolbar2QT(self.canvas_radius, self))
+        plot_layout.addWidget(self.canvas_radius)
+
+        self.ax_radius = self.canvas_radius.figure.subplots()
+
+        self.clear_peak_radius_plot()
+
+        radius_tab_layout.addLayout(controls_layout)
+        radius_tab_layout.addLayout(plot_layout)
+
+        radius_tab.setLayout(radius_tab_layout)
+
     def connect_cluster(self, cluster):
         """
         Connect a callback to the cluster button click.
@@ -2756,6 +2891,32 @@ class UBView(NeuXtalVizWidget):
 
         self.find_button.clicked.connect(find_peaks)
 
+    def connect_limit_min_distance_from_ub(self, limit_min_distance_from_ub):
+        """
+        Connect a callback to the "Limit from UB" (Find Peaks) button click.
+
+        Parameters
+        ----------
+        limit_min_distance_from_ub : callable
+            Slot invoked to set Min Distance from the UB matrix.
+        """
+
+        self.limit_min_distance_button.clicked.connect(
+            limit_min_distance_from_ub
+        )
+
+    def set_min_distance(self, value):
+        """
+        Set the minimum peak-distance field.
+
+        Parameters
+        ----------
+        value : float
+            Value to display in the minimum-distance field.
+        """
+
+        self.min_distance_line.setText("{:.4f}".format(value))
+
     def connect_find_distance(self, update):
         """
         Connect a callback to editing-finished on the minimum peak distance field.
@@ -2988,6 +3149,61 @@ class UBView(NeuXtalVizWidget):
 
         self.transform_button.clicked.connect(transform_UB)
 
+    def connect_transform_matrix_changed(self, update_transform_preview):
+        """
+        Connect a callback to any edit of the transform matrix fields.
+
+        Parameters
+        ----------
+        update_transform_preview : callable
+            Slot invoked to recompute the previewed lattice
+            parameters from the current (not-yet-applied) transform
+            matrix.
+        """
+
+        for line in (
+            self.T11_line,
+            self.T12_line,
+            self.T13_line,
+            self.T21_line,
+            self.T22_line,
+            self.T23_line,
+            self.T31_line,
+            self.T32_line,
+            self.T33_line,
+        ):
+            line.textChanged.connect(update_transform_preview)
+
+    def set_transform_preview(self, params):
+        """
+        Display the lattice parameters the current transform would produce.
+
+        Parameters
+        ----------
+        params : tuple of float or None
+            ``(a, b, c, alpha, beta, gamma)``, or None to clear the
+            preview (e.g. invalid/singular transform, or no UB set).
+        """
+
+        values = (
+            self.a_prime_value,
+            self.b_prime_value,
+            self.c_prime_value,
+            self.alpha_prime_value,
+            self.beta_prime_value,
+            self.gamma_prime_value,
+        )
+
+        if params is None:
+            for value in values:
+                value.setText("—")
+            return
+
+        a, b, c, alpha, beta, gamma = params
+
+        for value, number in zip(values, (a, b, c, alpha, beta, gamma)):
+            value.setText("{:.4f}".format(number))
+
     def connect_optimize_UB(self, optimize_UB):
         """
         Connect a callback to the "Refine" button click.
@@ -3061,6 +3277,30 @@ class UBView(NeuXtalVizWidget):
         """
 
         self.undo_filter_button.setEnabled(enabled)
+
+    def connect_limit_radius_from_ub(self, limit_radius_from_ub):
+        """
+        Connect a callback to the "Limit from UB" button click.
+
+        Parameters
+        ----------
+        limit_radius_from_ub : callable
+            Slot invoked to set the max radius from the UB matrix.
+        """
+
+        self.limit_radius_button.clicked.connect(limit_radius_from_ub)
+
+    def connect_calculate_peak_radius(self, calculate_peak_radius):
+        """
+        Connect a callback to the "Calculate Radius" button click.
+
+        Parameters
+        ----------
+        calculate_peak_radius : callable
+            Slot invoked to scan signal/noise vs integration radius.
+        """
+
+        self.calculate_radius_button.clicked.connect(calculate_peak_radius)
 
     def connect_integrate_peaks(self, integrate_peaks):
         """
@@ -5681,6 +5921,32 @@ class UBView(NeuXtalVizWidget):
 
         return self.predict_sat_box.isChecked()
 
+    def set_max_radius(self, value):
+        """
+        Set the max-radius field.
+
+        Parameters
+        ----------
+        value : float
+            Value to display in the max-radius field.
+        """
+
+        self.max_radius_line.setText("{:.3f}".format(value))
+
+    def get_peak_radius_max(self):
+        """
+        Get the outer background-shell limit.
+
+        Returns
+        -------
+        max_radius : float
+            Value of the max-radius field, or None if it contains
+            invalid input.
+        """
+
+        if self.max_radius_line.hasAcceptableInput():
+            return float(self.max_radius_line.text())
+
     def get_integrate_peaks_parameters(self):
         """
         Get the peak and background shell radii for integration.
@@ -7407,6 +7673,65 @@ class UBView(NeuXtalVizWidget):
 
         if valid_params:
             return tuple(float(param.text()) for param in params)
+
+    def _apply_suggested_radius(self):
+        """
+        Copy the last suggested radius into the Integrate Peaks radius field.
+        """
+
+        text = self.suggested_radius_line.text()
+
+        try:
+            value = float(text)
+        except ValueError:
+            return
+
+        self.radius_line.setText("{:.3f}".format(value))
+
+    def clear_peak_radius_plot(self):
+        """
+        Clear the signal/noise-vs-radius plot.
+        """
+
+        self.ax_radius.clear()
+        self.ax_radius.set_xlabel("Radius [Å⁻¹]")
+        self.ax_radius.set_ylabel("Signal/Noise")
+        self.ax_radius.minorticks_on()
+
+        self.canvas_radius.draw_idle()
+
+    def plot_peak_radius(self, result):
+        """
+        Draw the signal/noise-vs-radius scan and mark the suggested radius.
+
+        Parameters
+        ----------
+        result : dict
+            ``{"radii": ndarray, "sig_noise": ndarray, "suggested":
+            float}`` as produced by the model's ``intensity_vs_radius``.
+        """
+
+        radii = np.asarray(result["radii"])
+        sig_noise = np.asarray(result["sig_noise"])
+        suggested = result["suggested"]
+
+        self.clear_peak_radius_plot()
+
+        if radii.size == 0:
+            return
+
+        self.ax_radius.plot(radii, sig_noise, marker=".")
+        self.ax_radius.axvline(
+            suggested,
+            color="C1",
+            linestyle="--",
+            label="radius={:.4f}".format(suggested),
+        )
+        self.ax_radius.legend()
+
+        self.suggested_radius_line.setText("{:.4f}".format(suggested))
+
+        self.canvas_radius.draw_idle()
 
     def clear_alignment_plot(self):
         """
