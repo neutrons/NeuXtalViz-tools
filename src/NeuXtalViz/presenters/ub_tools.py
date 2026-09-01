@@ -1503,7 +1503,8 @@ class UB(NeuXtalVizPresenter):
     def limit_min_distance_from_ub(self):
         """
         Set the min peak-finding distance to half the shortest
-        allowed Q-spacing from the UB matrix.
+        allowed Q-spacing from the UB matrix, and update the
+        max d-spacing field to match.
 
         Connected to the "Limit from UB" button signal (Find Peaks
         tab). Uses the centering selected in the Predict Peaks tab to
@@ -1517,7 +1518,9 @@ class UB(NeuXtalVizPresenter):
         q_min = self.model.get_min_q_spacing(centering=centering)
 
         if q_min is not None:
-            self.view.set_min_distance(0.5 * q_min)
+            distance = 0.5 * q_min
+            self.view.set_min_distance(distance)
+            self.view.set_find_peaks_spacing(self.model.get_d(distance))
         else:
             self.update_processing("Limit from UB requires a UB matrix.", 0)
 

@@ -38,6 +38,8 @@ import scipy.linalg
 import pyvista as pv
 
 from NeuXtalViz.config.instruments import beamlines
+from NeuXtalViz.config.magnetic_form_factors import J0 as MAGNETIC_J0
+from NeuXtalViz.config.magnetic_form_factors import J2 as MAGNETIC_J2
 from NeuXtalViz.models.periodic_table import PeriodicTableModel
 from NeuXtalViz.models.base_model import NeuXtalVizModel
 
@@ -95,6 +97,13 @@ class CrystalStructureModel(NeuXtalVizModel):
     # (1 barn = 100 fm^2), so F2 must be converted before combining the
     # two in the cross-section calculation.
     FM2_PER_BARN = 100.0
+
+    # Classical magnetic scattering length prefactor p = gamma*r_e/2, in
+    # fm per Bohr magneton -- same convention and value as rmc-discord's
+    # disorder.diffuse.magnetic.parameter, so F_mag comes out in fm just
+    # like the nuclear scattering length b, and FM2_PER_BARN above
+    # converts it the same way.
+    MAGNETIC_P = 2.695
 
     def __init__(self):
         """
@@ -1415,6 +1424,196 @@ class CrystalStructureModel(NeuXtalVizModel):
 
         return y[bin_index], e[bin_index]
 
+    @staticmethod
+    def magnetic_form_factor(Q, ion, g=2.0):
+        """
+        Dipole-approximation magnetic form factor
+        :math:`f(Q) = \\langle j_0(Q)\\rangle + (2/g-1)\\langle j_2(Q)\\rangle`.
+
+        Coefficients are rmc-discord's copy of the standard tabulated
+        :math:`\\langle j_0\\rangle`/:math:`\\langle j_2\\rangle`
+        approximation (see
+        :mod:`NeuXtalViz.config.magnetic_form_factors`).
+
+        Parameters
+        ----------
+        Q : array_like
+            Magnitude of the scattering vector (1/Å).
+        ion : str
+            Magnetic ion label (e.g. ``"Fe2+"``), a key of
+            :data:`NeuXtalViz.config.magnetic_form_factors.J0`.
+        g : float, optional
+            Landé g-factor (default 2, the free-electron value).
+
+        Returns
+        -------
+        f : numpy.ndarray
+            Form factor, same shape as `Q`, or all zeros if `ion` has no
+            tabulated coefficients.
+        """
+        Q = np.asarray(Q, dtype=float)
+
+        coeffs0 = MAGNETIC_J0.get(ion)
+        coeffs2 = MAGNETIC_J2.get(ion)
+
+        if coeffs0 is None:
+            return np.zeros_like(Q)
+
+        s2 = (Q / (4 * np.pi)) ** 2
+
+        A0, a0, B0, b0, C0, c0, D0 = coeffs0
+        j0 = (
+            A0 * np.exp(-a0 * s2)
+            + B0 * np.exp(-b0 * s2)
+            + C0 * np.exp(-c0 * s2)
+            + D0
+        )
+
+        A2, a2, B2, b2, C2, c2, D2 = coeffs2
+        j2 = (
+            A2 * np.exp(-a2 * s2)
+            + B2 * np.exp(-b2 * s2)
+            + C2 * np.exp(-c2 * s2)
+            + D2
+        ) * s2
+
+        return j0 + (2.0 / g - 1.0) * j2
+
+    def get_moment_direction(self, axis_type, indices, UB):
+        """
+        Cartesian unit vector for a moment easy axis given in either
+        direct-lattice or reciprocal-lattice indices.
+
+        Uses the same Cartesian frame as `UB` (i.e. ``Q = 2*pi*UB@hkl``)
+        so the angle between a moment direction and a reflection's Q can
+        be found by a plain dot product: a reciprocal-lattice axis is
+        transformed exactly like a reflection (via `UB` itself), and a
+        direct-lattice axis is transformed by the same crystal rotation
+        `U` (recovered as ``UB @ inv(B)``, matching
+        :meth:`get_UB_from_vectors`'s construction) applied to the
+        direct-lattice metric `A` instead of the reciprocal metric `B`.
+
+        Parameters
+        ----------
+        axis_type : str
+            ``"direct"`` for a ``[uvw]`` crystal-axis direction, or
+            ``"reciprocal"`` for an ``[hkl]`` reciprocal-lattice
+            direction.
+        indices : 3-element array-like
+            The direction's indices.
+        UB : (3, 3) ndarray
+            Sample orientation matrix (the same one used to predict Q
+            for the reflections being compared against).
+
+        Returns
+        -------
+        n_hat : (3,) ndarray or None
+            Unit vector in the same Cartesian frame as `UB`, or None if
+            `indices` is the null vector.
+        """
+        indices = np.asarray(indices, dtype=float)
+
+        if axis_type == "direct":
+            cryst_struct = mtd["crystal"].sample().getCrystalStructure()
+            uc = cryst_struct.getUnitCell()
+            G = uc.getG()
+            G_star = np.linalg.inv(G)
+            A = scipy.linalg.cholesky(G, lower=False)
+            B = scipy.linalg.cholesky(G_star, lower=False)
+            U = UB @ np.linalg.inv(B)
+            v = U @ A @ indices
+        else:
+            v = UB @ indices
+
+        norm = np.linalg.norm(v)
+
+        if norm == 0:
+            return None
+
+        return v / norm
+
+    def magnetic_structure_factor2(self, hkls, magnetic_sites, n_hat, UB):
+        """
+        Squared magnetic structure factor of a simplified, commensurate
+        (k=0) collinear magnetic structure.
+
+        Every symmetry-equivalent copy of each selected magnetic site
+        is assumed to carry an identical moment vector ``mu * n_hat``
+        (same magnitude and direction) -- so this cannot represent
+        antiferromagnetic order *within* one crystallographic site's
+        symmetry-equivalent atoms (enter such sublattices as separate
+        `magnetic_sites` entries with independently signed `mu`
+        instead). No propagation vector or magnetic space group is
+        used or needed as a result.
+
+        Only the component of the moment perpendicular to Q scatters
+        (the standard unpolarized magnetic interaction vector), and
+        since every site shares the same axis `n_hat`, that reduces to
+        an overall ``sin(alpha)**2`` factor (`alpha` = angle between
+        `n_hat` and Q) on top of an ordinary structure-factor-squared
+        sum -- i.e. this is computed exactly like a nuclear F², phase
+        sum over symmetry-equivalent positions, but with each site's
+        neutron scattering length ``b`` replaced by
+        ``MAGNETIC_P * f(Q) * mu * occ`` (`f` from
+        :meth:`magnetic_form_factor`).
+
+        Parameters
+        ----------
+        hkls : (N, 3) array_like
+            Miller indices of the reflections to evaluate.
+        magnetic_sites : list of dict
+            One dict per magnetic site, each with keys ``"x"``, ``"y"``,
+            ``"z"``, ``"occ"``, ``"ion"``, ``"g"``, ``"mu"`` (the last a
+            signed moment magnitude, in Bohr magnetons).
+        n_hat : (3,) array_like or None
+            Cartesian moment-direction unit vector, from
+            :meth:`get_moment_direction`. Result is all zeros if None.
+        UB : (3, 3) ndarray
+            Sample orientation matrix used to predict `hkls`' Q vectors
+            (pre-goniometer -- the angle between `n_hat` and Q is a
+            crystal-fixed quantity, independent of goniometer setting).
+
+        Returns
+        -------
+        F2_mag : (N,) ndarray
+            Squared magnetic structure factor, in fm² (consistent with
+            the nuclear F² convention elsewhere in this model).
+        """
+        hkls = np.asarray(hkls, dtype=float)
+        n = len(hkls)
+
+        if n_hat is None or not magnetic_sites:
+            return np.zeros(n)
+
+        Q_cart = 2 * np.pi * np.einsum("ij,kj->ki", UB, hkls)
+        Q_mag = np.linalg.norm(Q_cart, axis=1)
+
+        cos_alpha = np.zeros(n)
+        nonzero = Q_mag > 0
+        cos_alpha[nonzero] = (Q_cart[nonzero] @ n_hat) / Q_mag[nonzero]
+        sin2_alpha = np.clip(1.0 - cos_alpha**2, 0.0, 1.0)
+
+        cryst_struct = mtd["crystal"].sample().getCrystalStructure()
+        sg = cryst_struct.getSpaceGroup()
+
+        F = np.zeros(n, dtype=complex)
+
+        for site in magnetic_sites:
+            f_Q = self.magnetic_form_factor(Q_mag, site["ion"], site["g"])
+
+            equivalents = sg.getEquivalentPositions(
+                [site["x"], site["y"], site["z"]]
+            )
+
+            phase = np.zeros(n, dtype=complex)
+            for x, y, z in equivalents:
+                arg = hkls[:, 0] * x + hkls[:, 1] * y + hkls[:, 2] * z
+                phase += np.exp(2j * np.pi * arg)
+
+            F += self.MAGNETIC_P * f_Q * site["mu"] * site["occ"] * phase
+
+        return (np.abs(F) ** 2) * sin2_alpha
+
     def simulate_intensities(
         self,
         instrument,
@@ -1427,6 +1626,8 @@ class CrystalStructureModel(NeuXtalVizModel):
         mat_dict,
         shape_angles,
         counting_time,
+        magnetic_sites=None,
+        moment_axis=None,
         k_diffraction=1.0,
     ):
         """
@@ -1492,6 +1693,14 @@ class CrystalStructureModel(NeuXtalVizModel):
             :meth:`get_euler_angles`.
         counting_time : float
             Requested counting time, in minutes.
+        magnetic_sites : list of dict, optional
+            Magnetic sites for :meth:`magnetic_structure_factor2`, or
+            None (default) to skip the magnetic calculation entirely
+            (F2_mag/I_mag/IsigmaI_mag then come back all zero).
+        moment_axis : tuple of (str, 3-element array-like), optional
+            ``(axis_type, indices)`` easy-axis direction for
+            :meth:`get_moment_direction`, or None (default) to skip the
+            magnetic calculation.
         k_diffraction : float, optional
             Overall normalization constant absorbing any remaining
             unit-convention difference between the calculated |F|^2
@@ -1507,16 +1716,29 @@ class CrystalStructureModel(NeuXtalVizModel):
         lambdas : (N,) ndarray
             Wavelength (Å) of each reflection.
         F2s : (N,) ndarray
-            Squared structure factor of each reflection.
+            Squared nuclear structure factor of each reflection.
+        F2s_mag : (N,) ndarray
+            Squared magnetic structure factor of each reflection (all
+            zero if `magnetic_sites`/`moment_axis` weren't given).
         Is : (N,) ndarray
-            Predicted integrated counts.
+            Predicted integrated nuclear counts.
         IsigmaIs : (N,) ndarray
-            Predicted I/sigma.
+            Predicted nuclear I/sigma.
+        Is_mag : (N,) ndarray
+            Predicted integrated magnetic counts.
+        IsigmaIs_mag : (N,) ndarray
+            Predicted magnetic I/sigma.
+        R_sigma : float
+            ``sum(sigma(I)) / sum(I)`` over every predicted nuclear
+            reflection (0 if the total predicted nuclear intensity is
+            0).
+        R_sigma_mag : float
+            Same as `R_sigma`, for the predicted magnetic intensities.
         volume : float
             Ellipsoid volume, in cm^3.
 
         Returns None if no reflection is both geometrically observable
-        and has a nonzero structure factor.
+        and has a nonzero nuclear or magnetic structure factor.
         """
         peaks = self.predict_simulator_peaks(
             instrument, UB, omega, chi, phi, d_min
@@ -1533,12 +1755,32 @@ class CrystalStructureModel(NeuXtalVizModel):
             hkls[i] = peak.getH(), peak.getK(), peak.getL()
             F2s[i] = peak.getIntensity()
 
-        bad = np.flatnonzero(F2s <= self.F2_EPSILON).tolist()
+        n_hat = None
+        if magnetic_sites and moment_axis is not None:
+            axis_type, axis_indices = moment_axis
+            n_hat = self.get_moment_direction(axis_type, axis_indices, UB)
+
+        F2s_mag = self.magnetic_structure_factor2(
+            hkls, magnetic_sites, n_hat, UB
+        )
+
+        # A reflection is kept if it is observable either nuclearly or
+        # magnetically -- a k=0 magnetic structure can put intensity at
+        # hkl positions the nuclear structure factor forbids (the
+        # classic case for many simple antiferromagnets), so filtering
+        # on the nuclear F2_EPSILON alone, as before magnetic scattering
+        # existed here, would silently drop those peaks.
+        keep = np.flatnonzero(
+            (F2s > self.F2_EPSILON) | (F2s_mag > self.F2_EPSILON)
+        )
+        bad = np.flatnonzero(
+            (F2s <= self.F2_EPSILON) & (F2s_mag <= self.F2_EPSILON)
+        ).tolist()
         if bad:
             peaks.removePeaks(bad)
-            keep = np.flatnonzero(F2s > self.F2_EPSILON)
-            hkls = hkls[keep]
-            F2s = F2s[keep]
+        hkls = hkls[keep]
+        F2s = F2s[keep]
+        F2s_mag = F2s_mag[keep]
 
         if peaks.getNumberPeaks() == 0:
             return None
@@ -1572,6 +1814,8 @@ class CrystalStructureModel(NeuXtalVizModel):
         q_eff = q_eff_coulombs / self.COULOMB_PER_UAH
 
         ds, lambdas, Is, IsigmaIs = [], [], [], []
+        Is_mag, IsigmaIs_mag = [], []
+        sigmas, sigmas_mag = [], []
         keep_rows = []
 
         for i in range(peaks.getNumberPeaks()):
@@ -1622,6 +1866,11 @@ class CrystalStructureModel(NeuXtalVizModel):
             # simulator wants absolute counts, so it must be explicit.
             S = k_diffraction * (N_cell / cell_volume) * F2_barn * L * T
 
+            F2_mag_barn = F2s_mag[i] / self.FM2_PER_BARN
+            S_mag = (
+                k_diffraction * (N_cell / cell_volume) * F2_mag_barn * L * T
+            )
+
             d_lambda_roi, d_omega_roi = self.predict_roi(
                 peak.getScattering(),
                 peak.getAzimuthal(),
@@ -1630,27 +1879,56 @@ class CrystalStructureModel(NeuXtalVizModel):
             )
 
             I = q_eff * R * S
+            I_mag = q_eff * R * S_mag
 
             b = q_eff * B * d_omega_roi * d_lambda_roi
 
             variance = I + 2 * b
-            IsigmaI = I / np.sqrt(variance) if variance > 0 else 0.0
+            sigma = np.sqrt(variance) if variance > 0 else 0.0
+            IsigmaI = I / sigma if sigma > 0 else 0.0
+
+            # Reported independently of the nuclear I/sigma above (not
+            # against a combined I_nuc+I_mag variance) -- unpolarized
+            # nuclear and magnetic scattering add without an
+            # interference term, so this is the same I/sigma the
+            # nuclear column would show if the structure had no
+            # magnetic order, and vice versa.
+            variance_mag = I_mag + 2 * b
+            sigma_mag = np.sqrt(variance_mag) if variance_mag > 0 else 0.0
+            IsigmaI_mag = I_mag / sigma_mag if sigma_mag > 0 else 0.0
 
             keep_rows.append(i)
             ds.append(d)
             lambdas.append(lam)
             Is.append(I)
             IsigmaIs.append(IsigmaI)
+            Is_mag.append(I_mag)
+            IsigmaIs_mag.append(IsigmaI_mag)
+            sigmas.append(sigma)
+            sigmas_mag.append(sigma_mag)
 
         if not keep_rows:
             return None
 
         hkls = hkls[keep_rows]
         F2s = F2s[keep_rows]
+        F2s_mag = F2s_mag[keep_rows]
         ds = np.array(ds)
         lambdas = np.array(lambdas)
         Is = np.array(Is)
         IsigmaIs = np.array(IsigmaIs)
+        Is_mag = np.array(Is_mag)
+        IsigmaIs_mag = np.array(IsigmaIs_mag)
+
+        # R(sigma) = sum(sigma(I)) / sum(I) over every predicted
+        # reflection -- a standard data-quality/completeness statistic
+        # (lower is better), computed independently for the nuclear and
+        # magnetic intensities.
+        sum_I = np.sum(Is)
+        R_sigma = np.sum(sigmas) / sum_I if sum_I > 0 else 0.0
+
+        sum_I_mag = np.sum(Is_mag)
+        R_sigma_mag = np.sum(sigmas_mag) / sum_I_mag if sum_I_mag > 0 else 0.0
 
         order = np.argsort(ds)[::-1]
 
@@ -1659,8 +1937,13 @@ class CrystalStructureModel(NeuXtalVizModel):
             ds[order],
             lambdas[order],
             F2s[order],
+            F2s_mag[order],
             Is[order],
             IsigmaIs[order],
+            Is_mag[order],
+            IsigmaIs_mag[order],
+            R_sigma,
+            R_sigma_mag,
             ellipsoid_volume,
         )
 

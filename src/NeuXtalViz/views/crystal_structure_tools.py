@@ -1,4 +1,5 @@
 import os
+import re
 
 import numpy as np
 
@@ -26,10 +27,65 @@ import pyvista as pv
 import matplotlib.colors
 
 from NeuXtalViz.config.atoms import colors, radii
+from NeuXtalViz.config.magnetic_form_factors import J0 as MAGNETIC_J0
 from NeuXtalViz.views.periodic_table import PeriodicTableView
 from NeuXtalViz.views.base_view import NeuXtalVizWidget
 
 import qtawesome as qta
+
+
+def _default_ion_for_atom(label, ions):
+    """
+    Best-guess magnetic ion key for an atom site label.
+
+    The atom site table's label is a plain element/isotope symbol (e.g.
+    ``"Fe"`` or ``"Fe57"``, with no oxidation state), while the
+    magnetic ion table's keys carry an explicit charge (e.g. ``"Fe2+"``)
+    -- some elements have no neutral entry at all (many lanthanides and
+    actinides are only tabulated as one or more charged ions). This
+    matches by element symbol alone (stripping a trailing isotope mass
+    number from `label` and a trailing charge from each ion key), and
+    among matches prefers the neutral entry if present, else the lowest
+    tabulated oxidation state, as an arbitrary but reproducible default
+    the user is free to override.
+
+    Parameters
+    ----------
+    label : str
+        Atom site label, from the Structure tab's atom site table.
+    ions : list of str
+        Candidate ion keys (e.g. from
+        :data:`NeuXtalViz.config.magnetic_form_factors.J0`).
+
+    Returns
+    -------
+    ion : str or None
+        Best-guess ion key, or None if no ion shares `label`'s element
+        symbol.
+    """
+
+    element_match = re.match(r"^([A-Za-z]+)", label)
+    if element_match is None:
+        return None
+    element = element_match.group(1)
+
+    def ion_element(ion):
+        match = re.match(r"^([A-Za-z]+)", ion)
+        return match.group(1) if match else ion
+
+    def charge(ion):
+        match = re.match(r"^[A-Za-z]+(\d+)\+$", ion)
+        return int(match.group(1)) if match else 0
+
+    matches = [ion for ion in ions if ion_element(ion) == element]
+
+    if not matches:
+        return None
+
+    if element in matches:
+        return element
+
+    return sorted(matches, key=charge)[0]
 
 
 class CrystalStructureView(NeuXtalVizWidget):
@@ -896,23 +952,99 @@ class CrystalStructureView(NeuXtalVizWidget):
         gon_layout.addStretch(1)
         gon_layout.addWidget(self.sim_calculate_button)
 
-        # --- Results table ---------------------------------------------
+        # --- Magnetic scattering options ---------------------------------
         stretch = QHeaderView.Stretch
 
+        self.mag_table = QTableWidget()
+        self.mag_table.setRowCount(0)
+        self.mag_table.setColumnCount(6)
+        self.mag_table.horizontalHeader().setSectionResizeMode(stretch)
+        self.mag_table.setHorizontalHeaderLabels(
+            ["Mag?", "Atom", "Ion", "S", "g", "μ_eff"]
+        )
+        self.mag_table.setEditTriggers(QTableWidget.NoEditTriggers)
+
+        axis_label = QLabel("Easy Axis", self)
+
+        self.axis_type_combo = QComboBox(self)
+        self.axis_type_combo.addItem("Reciprocal Lattice [hkl]")
+        self.axis_type_combo.addItem("Crystal Axis [uvw]")
+
+        self.auto_scale_dropdown(self.axis_type_combo)
+
+        notation = QDoubleValidator.StandardNotation
+        validator = QDoubleValidator(-100, 100, 5, notation=notation)
+
+        self.axis_i_line = QLineEdit("0")
+        self.axis_j_line = QLineEdit("0")
+        self.axis_k_line = QLineEdit("1")
+
+        self.axis_i_line.setValidator(validator)
+        self.axis_j_line.setValidator(validator)
+        self.axis_k_line.setValidator(validator)
+
+        axis_layout = QHBoxLayout()
+        axis_layout.addWidget(axis_label)
+        axis_layout.addWidget(self.axis_type_combo)
+        axis_layout.addWidget(self.axis_i_line)
+        axis_layout.addWidget(self.axis_j_line)
+        axis_layout.addWidget(self.axis_k_line)
+        axis_layout.addStretch(1)
+
+        mag_layout = QVBoxLayout()
+        mag_layout.addWidget(self.mag_table)
+        mag_layout.addLayout(axis_layout)
+
+        # --- Results table ---------------------------------------------
         self.sim_table = QTableWidget()
         self.sim_table.setRowCount(0)
-        self.sim_table.setColumnCount(8)
+        self.sim_table.setColumnCount(11)
         self.sim_table.horizontalHeader().setSectionResizeMode(stretch)
         self.sim_table.setHorizontalHeaderLabels(
-            ["h", "k", "l", "d", "λ", "F²", "I", "I/σ"]
+            [
+                "h",
+                "k",
+                "l",
+                "d",
+                "λ",
+                "F²(nuc)",
+                "F²(mag)",
+                "I(nuc)",
+                "I(nuc)/σ",
+                "I(mag)",
+                "I(mag)/σ",
+            ]
         )
         self.sim_table.setEditTriggers(QTableWidget.NoEditTriggers)
+
+        # --- R(sigma) summary statistics ---------------------------------
+        R_sigma_label = QLabel("R(σ) nuc", self)
+        R_sigma_mag_label = QLabel("R(σ) mag", self)
+        R_sigma_unit_label = QLabel("%", self)
+        R_sigma_mag_unit_label = QLabel("%", self)
+
+        self.sim_R_sigma_line = QLineEdit(self)
+        self.sim_R_sigma_mag_line = QLineEdit(self)
+
+        self.sim_R_sigma_line.setReadOnly(True)
+        self.sim_R_sigma_mag_line.setReadOnly(True)
+
+        R_sigma_layout = QHBoxLayout()
+        R_sigma_layout.addWidget(R_sigma_label)
+        R_sigma_layout.addWidget(self.sim_R_sigma_line)
+        R_sigma_layout.addWidget(R_sigma_unit_label)
+        R_sigma_layout.addWidget(R_sigma_mag_label)
+        R_sigma_layout.addWidget(self.sim_R_sigma_mag_line)
+        R_sigma_layout.addWidget(R_sigma_mag_unit_label)
+        R_sigma_layout.addStretch(1)
 
         sim_layout.addLayout(instrument_layout)
         sim_layout.addLayout(UB_layout)
         sim_layout.addLayout(orient_layout)
         sim_layout.addLayout(gon_layout)
+        sim_layout.addLayout(mag_layout)
         sim_layout.addWidget(self.sim_table)
+        sim_layout.addLayout(R_sigma_layout)
 
         sim_tab.setLayout(sim_layout)
 
@@ -959,10 +1091,37 @@ class CrystalStructureView(NeuXtalVizWidget):
             "and I/σ for the current instrument, orientation, "
             "goniometer setting, and counting time."
         )
+        self.mag_table.setToolTip(
+            "Check a row to include it as a magnetic site. Assumes a "
+            "commensurate (k=0), collinear magnetic structure: every "
+            "symmetry-equivalent copy of a checked site carries an "
+            "identical moment along the easy axis below (so this can't "
+            "represent antiferromagnetic order between symmetry-related "
+            "copies of one site -- use separate rows with oppositely "
+            "signed μ_eff for that instead). μ_eff defaults to the "
+            "spin-only value g√(S(S+1)) and can be overwritten directly; "
+            "editing S or g afterwards recomputes it."
+        )
+        self.axis_type_combo.setToolTip(
+            "Whether the easy axis indices below are a crystal-axis "
+            "[uvw] direction or a reciprocal-lattice [hkl] direction."
+        )
+        self.axis_i_line.setToolTip("First index of the easy axis.")
+        self.axis_j_line.setToolTip("Second index of the easy axis.")
+        self.axis_k_line.setToolTip("Third index of the easy axis.")
         self.sim_table.setToolTip(
             "Predicted reflections sorted by decreasing d-spacing: "
             "Miller indices, d-spacing (Å), wavelength (Å), squared "
-            "structure factor, expected integrated counts, and I/σ."
+            "nuclear and magnetic structure factors, and expected "
+            "integrated counts and I/σ for each."
+        )
+        self.sim_R_sigma_line.setToolTip(
+            "R(σ) = Σσ(I) / ΣI over every predicted nuclear reflection, "
+            "as a percentage (lower is better)."
+        )
+        self.sim_R_sigma_mag_line.setToolTip(
+            "R(σ) = Σσ(I) / ΣI over every predicted magnetic reflection, "
+            "as a percentage (lower is better)."
         )
 
     def connect_save_INS(self, save_INS):
@@ -2371,7 +2530,185 @@ class CrystalStructureView(NeuXtalVizWidget):
         if self.sim_time_line.hasAcceptableInput():
             return float(self.sim_time_line.text())
 
-    def set_simulator_results(self, hkls, ds, lambdas, F2s, Is, IsigmaIs):
+    def refresh_magnetic_sites(self, atom_labels):
+        """
+        Rebuild the magnetic sites table to match the current atom site
+        table, unless it already matches.
+
+        Editing a lattice parameter or an atom's fractional coordinate
+        doesn't change which sites exist, so comparing against the
+        current row labels first leaves the user's magnetic ion/S/g and
+        checkbox choices alone in that case; adding, removing, or
+        reordering scatterers (e.g. loading a new CIF) does invalidate
+        the prior row correspondence and rebuilds from scratch.
+
+        Parameters
+        ----------
+        atom_labels : list of str
+            Atom label of each row of the Structure tab's atom site
+            table, in order.
+        """
+
+        current = [
+            self.mag_table.item(row, 1).text()
+            for row in range(self.mag_table.rowCount())
+        ]
+
+        if current == list(atom_labels):
+            return
+
+        ions = sorted(MAGNETIC_J0.keys())
+
+        self.mag_table.setRowCount(0)
+        self.mag_table.setRowCount(len(atom_labels))
+
+        notation = QDoubleValidator.StandardNotation
+
+        for row, label in enumerate(atom_labels):
+            check_item = QTableWidgetItem()
+            check_item.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+            check_item.setCheckState(Qt.Unchecked)
+            self.mag_table.setItem(row, 0, check_item)
+
+            atom_item = QTableWidgetItem(label)
+            atom_item.setFlags(Qt.ItemIsEnabled)
+            self.mag_table.setItem(row, 1, atom_item)
+
+            ion_combo = QComboBox()
+            ion_combo.addItems(ions)
+            guess = _default_ion_for_atom(label, ions)
+            if guess is not None:
+                ion_combo.setCurrentText(guess)
+            self.mag_table.setCellWidget(row, 2, ion_combo)
+
+            S_line = QLineEdit("0.5")
+            S_line.setValidator(QDoubleValidator(0, 10, 4, notation=notation))
+            self.mag_table.setCellWidget(row, 3, S_line)
+
+            g_line = QLineEdit("2.0")
+            g_line.setValidator(
+                QDoubleValidator(0.01, 10, 4, notation=notation)
+            )
+            self.mag_table.setCellWidget(row, 4, g_line)
+
+            mu_line = QLineEdit()
+            mu_line.setValidator(
+                QDoubleValidator(-20, 20, 4, notation=notation)
+            )
+            self.mag_table.setCellWidget(row, 5, mu_line)
+
+            self._reset_default_moment(row)
+
+            S_line.editingFinished.connect(
+                lambda r=row: self._reset_default_moment(r)
+            )
+            g_line.editingFinished.connect(
+                lambda r=row: self._reset_default_moment(r)
+            )
+
+    def _reset_default_moment(self, row):
+        """
+        Fill a magnetic site row's μ_eff field with the spin-only
+        default g√(S(S+1)), overwriting any previous value.
+
+        The value actually used at calculation time is whatever
+        :meth:`get_magnetic_sites` reads back from the same field --
+        editing it directly after this fill overrides the default.
+
+        Parameters
+        ----------
+        row : int
+            Row index in the magnetic sites table.
+        """
+
+        S_line = self.mag_table.cellWidget(row, 3)
+        g_line = self.mag_table.cellWidget(row, 4)
+        mu_line = self.mag_table.cellWidget(row, 5)
+
+        if S_line.hasAcceptableInput() and g_line.hasAcceptableInput():
+            S = float(S_line.text())
+            g = float(g_line.text())
+            mu_line.setText("{:.4f}".format(g * np.sqrt(S * (S + 1))))
+
+    def get_magnetic_sites(self):
+        """
+        Selected magnetic sites and their ion/g/moment settings.
+
+        Returns
+        -------
+        sites : list of dict or None
+            One dict per checked row, each with keys ``"row"`` (int,
+            row index into the Structure tab's atom site table),
+            ``"ion"`` (str), ``"g"`` (float), and ``"mu"`` (float,
+            signed effective moment in Bohr magnetons). Empty list if
+            no row is checked. None if a checked row's g or μ_eff field
+            has invalid input.
+        """
+
+        sites = []
+
+        for row in range(self.mag_table.rowCount()):
+            if self.mag_table.item(row, 0).checkState() != Qt.Checked:
+                continue
+
+            ion_combo = self.mag_table.cellWidget(row, 2)
+            g_line = self.mag_table.cellWidget(row, 4)
+            mu_line = self.mag_table.cellWidget(row, 5)
+
+            if not (
+                g_line.hasAcceptableInput() and mu_line.hasAcceptableInput()
+            ):
+                return None
+
+            sites.append(
+                {
+                    "row": row,
+                    "ion": ion_combo.currentText(),
+                    "g": float(g_line.text()),
+                    "mu": float(mu_line.text()),
+                }
+            )
+
+        return sites
+
+    def get_moment_axis(self):
+        """
+        Easy-axis direction entered by the user, if valid.
+
+        Returns
+        -------
+        axis : tuple of (str, list of float) or None
+            ``("direct", [u, v, w])`` or ``("reciprocal", [h, k, l])``,
+            or None if any index field has invalid input.
+        """
+
+        params = self.axis_i_line, self.axis_j_line, self.axis_k_line
+
+        if not all(param.hasAcceptableInput() for param in params):
+            return None
+
+        indices = [float(param.text()) for param in params]
+
+        axis_type = (
+            "direct"
+            if self.axis_type_combo.currentText().startswith("Crystal")
+            else "reciprocal"
+        )
+
+        return axis_type, indices
+
+    def set_simulator_results(
+        self,
+        hkls,
+        ds,
+        lambdas,
+        F2s,
+        F2s_mag,
+        Is,
+        IsigmaIs,
+        Is_mag,
+        IsigmaIs_mag,
+    ):
         """
         Repopulate the Simulator results table.
 
@@ -2384,18 +2721,36 @@ class CrystalStructureView(NeuXtalVizWidget):
         lambdas : iterable of float
             Wavelength (Å) for each reflection.
         F2s : iterable of float
-            Squared structure factor for each reflection.
+            Squared nuclear structure factor for each reflection.
+        F2s_mag : iterable of float
+            Squared magnetic structure factor for each reflection.
         Is : iterable of float
-            Predicted integrated counts for each reflection.
+            Predicted integrated nuclear counts for each reflection.
         IsigmaIs : iterable of float
-            Predicted I/σ for each reflection.
+            Predicted nuclear I/σ for each reflection.
+        Is_mag : iterable of float
+            Predicted integrated magnetic counts for each reflection.
+        IsigmaIs_mag : iterable of float
+            Predicted magnetic I/σ for each reflection.
         """
 
         self.sim_table.setRowCount(0)
         self.sim_table.setRowCount(len(hkls))
 
-        rows = zip(hkls, ds, lambdas, F2s, Is, IsigmaIs)
-        for row, (hkl, d, lam, F2, I, IsigmaI) in enumerate(rows):
+        rows = zip(
+            hkls, ds, lambdas, F2s, F2s_mag, Is, IsigmaIs, Is_mag, IsigmaIs_mag
+        )
+        for row, (
+            hkl,
+            d,
+            lam,
+            F2,
+            F2_mag,
+            I,
+            IsigmaI,
+            I_mag,
+            IsigmaI_mag,
+        ) in enumerate(rows):
             values = [
                 "{:.0f}".format(hkl[0]),
                 "{:.0f}".format(hkl[1]),
@@ -2403,8 +2758,26 @@ class CrystalStructureView(NeuXtalVizWidget):
                 "{:.4f}".format(d),
                 "{:.4f}".format(lam),
                 "{:.2f}".format(F2),
+                "{:.2f}".format(F2_mag),
                 "{:.2f}".format(I),
                 "{:.2f}".format(IsigmaI),
+                "{:.2f}".format(I_mag),
+                "{:.2f}".format(IsigmaI_mag),
             ]
             for col, val in enumerate(values):
                 self.sim_table.setItem(row, col, QTableWidgetItem(val))
+
+    def set_R_sigma(self, R_sigma, R_sigma_mag):
+        """
+        Populate the R(σ) summary statistic fields, as percentages.
+
+        Parameters
+        ----------
+        R_sigma : float
+            Σσ(I) / ΣI over the predicted nuclear reflections.
+        R_sigma_mag : float
+            Σσ(I) / ΣI over the predicted magnetic reflections.
+        """
+
+        self.sim_R_sigma_line.setText("{:.2f}".format(R_sigma * 100))
+        self.sim_R_sigma_mag_line.setText("{:.2f}".format(R_sigma_mag * 100))

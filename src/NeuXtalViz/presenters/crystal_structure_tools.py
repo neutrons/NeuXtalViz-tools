@@ -181,6 +181,8 @@ class CrystalStructure(NeuXtalVizPresenter):
             self.view.set_unit_cell_volume(vol)
             self.view.set_material_display(form, z, vol)
 
+            self.refresh_magnetic_sites()
+
             self.update_complete("CIF loaded!")
 
         else:
@@ -208,6 +210,20 @@ class CrystalStructure(NeuXtalVizPresenter):
 
         self.view.draw_cell(self.model.get_unit_cell_transform())
         self.view.set_transform(self.model.get_transform())
+
+        self.refresh_magnetic_sites()
+
+    def refresh_magnetic_sites(self):
+        """
+        Rebuild the Simulator tab's magnetic sites table to match the
+        current Structure tab atom site table.
+
+        Parameters
+        ----------
+        None
+        """
+        labels = [scatterer[0] for scatterer in self.model.get_scatterers()]
+        self.view.refresh_magnetic_sites(labels)
 
     def calculate_F2(self):
         """
@@ -684,6 +700,8 @@ class CrystalStructure(NeuXtalVizPresenter):
         counting_time = self.view.get_simulator_counting_time()
         shape_params = self.view.get_absorption_shape_constants()
         shape_vectors = self.view.get_absorption_shape_vectors()
+        magnetic_sites = self.view.get_magnetic_sites()
+        moment_axis = self.view.get_moment_axis()
 
         worker = self.view.worker(
             functools.partial(
@@ -696,6 +714,8 @@ class CrystalStructure(NeuXtalVizPresenter):
                 shape_params=shape_params,
                 shape_vectors=shape_vectors,
                 UB_loaded=self.simulator_UB,
+                magnetic_sites=magnetic_sites,
+                moment_axis=moment_axis,
             )
         )
         worker.connect_result(self.calculate_simulator_complete)
@@ -714,10 +734,32 @@ class CrystalStructure(NeuXtalVizPresenter):
             Result from :meth:`calculate_simulator_process`.
         """
         if result is not None:
-            hkls, ds, lambdas, F2s, Is, IsigmaIs, volume = result
+            (
+                hkls,
+                ds,
+                lambdas,
+                F2s,
+                F2s_mag,
+                Is,
+                IsigmaIs,
+                Is_mag,
+                IsigmaIs_mag,
+                R_sigma,
+                R_sigma_mag,
+                volume,
+            ) = result
             self.view.set_simulator_results(
-                hkls, ds, lambdas, F2s, Is, IsigmaIs
+                hkls,
+                ds,
+                lambdas,
+                F2s,
+                F2s_mag,
+                Is,
+                IsigmaIs,
+                Is_mag,
+                IsigmaIs_mag,
             )
+            self.view.set_R_sigma(R_sigma, R_sigma_mag)
 
     def calculate_simulator_process(
         self,
@@ -731,6 +773,8 @@ class CrystalStructure(NeuXtalVizPresenter):
         shape_params=None,
         shape_vectors=None,
         UB_loaded=None,
+        magnetic_sites=None,
+        moment_axis=None,
     ):
         """
         Worker task that predicts observable reflections and their
@@ -769,10 +813,19 @@ class CrystalStructure(NeuXtalVizPresenter):
         UB_loaded : (3, 3) ndarray or None, optional
             UB matrix loaded from file, taking priority over `vectors`
             if not None.
+        magnetic_sites : list of dict or None, optional
+            Magnetic sites from the view's ``get_magnetic_sites``, each
+            with keys ``"row"``, ``"ion"``, ``"g"``, ``"mu"`` -- `row`
+            is resolved here against the model's current scatterers to
+            attach the ``x``, ``y``, ``z``, ``occ`` the model's
+            ``magnetic_structure_factor2`` needs.
+        moment_axis : tuple of (str, list of float) or None, optional
+            Easy-axis direction from the view's ``get_moment_axis``.
 
         Returns
         -------
-        hkls, ds, lambdas, F2s, Is, IsigmaIs, volume : tuple or None
+        hkls, ds, lambdas, F2s, F2s_mag, Is, IsigmaIs, Is_mag,
+        IsigmaIs_mag, R_sigma, R_sigma_mag, volume : tuple or None
             Result from the model's ``simulate_intensities``, or None
             if stopped, invalid, or no reflection was observable.
         """
@@ -830,6 +883,24 @@ class CrystalStructure(NeuXtalVizPresenter):
 
         omega, chi, phi = angles
 
+        resolved_sites = None
+        if magnetic_sites:
+            scatterers = self.model.get_scatterers()
+            resolved_sites = []
+            for site in magnetic_sites:
+                _, x, y, z, occ, _ = scatterers[site["row"]]
+                resolved_sites.append(
+                    {
+                        "x": x,
+                        "y": y,
+                        "z": z,
+                        "occ": occ,
+                        "ion": site["ion"],
+                        "g": site["g"],
+                        "mu": site["mu"],
+                    }
+                )
+
         result = self.model.simulate_intensities(
             instrument,
             d_min,
@@ -841,6 +912,8 @@ class CrystalStructure(NeuXtalVizPresenter):
             mat_dict,
             shape_angles,
             counting_time,
+            magnetic_sites=resolved_sites,
+            moment_axis=moment_axis,
         )
 
         if result is None:

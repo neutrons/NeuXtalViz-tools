@@ -2065,6 +2065,7 @@ class UBView(NeuXtalVizWidget):
         self.check_hkl_button.setToolTip(
             "Check the validity of the hkl indices."
         )
+        self.check_hkl_button.setIcon(qta.icon("fa6s.square-check"))
 
         notation = QDoubleValidator.StandardNotation
 

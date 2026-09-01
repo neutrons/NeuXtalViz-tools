@@ -16,7 +16,7 @@ jobs:
     - name: Set up Miniconda with nxv environment
       uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: 3.12
+        python-version: 3.13
         environment-file: environment.yml
         activate-environment: nxv
 
@@ -42,7 +42,7 @@ jobs:
       - name: Set up Miniconda for conda-build
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: 3.12
+          python-version: 3.13
           channels: conda-forge
           auto-update-conda: true
 
@@ -82,7 +82,7 @@ jobs:
           package-name: ${{ env.PKG_NAME }}
           local-channel: /tmp/local-channel
           extra-channels: mantid/label/nightly oncat
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Verify conda package
         uses: neutrons/conda-actions/pkg-verify@v2
@@ -108,7 +108,7 @@ jobs:
       - name: Set up Miniconda for publishing
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: 3.12
+          python-version: 3.13
           channels: conda-forge
           auto-update-conda: true
 

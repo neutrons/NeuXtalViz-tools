@@ -268,7 +268,7 @@ class NeuXtalViz(QMainWindow):
                         ["mantidpython", main_py_path],
                         cwd=directory,
                     )
-                except subprocess.CalledProcessError as e:
+                except OSError as e:
                     QMessageBox.critical(
                         self, "Error", f"Failed to execute main.py:\n{e}"
                     )
@@ -288,7 +288,7 @@ class NeuXtalViz(QMainWindow):
         """
         try:
             subprocess.Popen(["shelxle"])
-        except subprocess.CalledProcessError as e:
+        except OSError as e:
             QMessageBox.critical(
                 self, "Error", f"Failed to execute shelxle:\n{e}"
             )
@@ -302,7 +302,7 @@ class NeuXtalViz(QMainWindow):
         """
         try:
             subprocess.Popen(["/SNS/software/scd/experiment.sh"])
-        except subprocess.CalledProcessError as e:
+        except OSError as e:
             QMessageBox.critical(
                 self, "Error", f"Failed to execute experiment browser:\n{e}"
             )
@@ -316,7 +316,7 @@ class NeuXtalViz(QMainWindow):
         """
         try:
             subprocess.Popen(["/SNS/software/scd/garnet.sh"])
-        except subprocess.CalledProcessError as e:
+        except OSError as e:
             QMessageBox.critical(
                 self, "Error", f"Failed to execute garnet:\n{e}"
             )
@@ -330,7 +330,7 @@ class NeuXtalViz(QMainWindow):
         """
         try:
             subprocess.Popen(["/SNS/software/scd/olex2/olex2"])
-        except subprocess.CalledProcessError as e:
+        except OSError as e:
             QMessageBox.critical(
                 self, "Error", f"Failed to execute olex2:\n{e}"
             )
@@ -344,7 +344,7 @@ class NeuXtalViz(QMainWindow):
         """
         try:
             subprocess.Popen(["fullprof"])
-        except subprocess.CalledProcessError as e:
+        except OSError as e:
             QMessageBox.critical(
                 self, "Error", f"Failed to execute fullprof:\n{e}"
             )
@@ -358,7 +358,7 @@ class NeuXtalViz(QMainWindow):
         """
         try:
             subprocess.Popen(["VESTA"])
-        except subprocess.CalledProcessError as e:
+        except OSError as e:
             QMessageBox.critical(
                 self, "Error", f"Failed to execute VESTA:\n{e}"
             )
@@ -375,7 +375,7 @@ class NeuXtalViz(QMainWindow):
         file = os.path.join(path, "views/command_browser.py")
         try:
             subprocess.Popen(["python", file])
-        except subprocess.CalledProcessError as e:
+        except OSError as e:
             QMessageBox.critical(
                 self, "Error", f"Failed to execute structdiff:\n{e}"
             )
