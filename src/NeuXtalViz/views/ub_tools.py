@@ -1144,7 +1144,7 @@ class UBView(NeuXtalVizWidget):
 
         self.niggli_button = QPushButton("Find Primitive Cell", self)
         self.niggli_button.setToolTip("Calculate primitive (Niggli) cell.")
-        self.niggli_button.setIcon(qta.icon("fa6s.bone"))
+        self.niggli_button.setIcon(qta.icon("fa6s.fire"))
         self.select_button = QPushButton("Select Conventional Cell", self)
         self.select_button.setToolTip("Select the highlighted cell.")
         self.select_button.setIcon(qta.icon("fa6s.square-check"))
