@@ -1,13 +1,9 @@
 FROM ubuntu:noble
 
-ARG GITLAB_TOKEN
-
-ENV HOME /home/novnc_user
 ENV DEBIAN_FRONTEND noninteractive
 ENV LC_ALL C.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
-ENV USER=root
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && apt-get -y install libegl1 libgl1 libglx-mesa0 libegl-mesa0 libglapi-mesa libosmesa6 libasound2t64 python3 libnss3 pip \
@@ -16,12 +12,13 @@ RUN dpkg --add-architecture i386 && \
     curl libxm4 && \
     apt-get -y full-upgrade && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-COPY ndip/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN mkdir -p /opt/run
+WORKDIR /opt/run
+COPY ndip/supervisord.conf /opt/run/supervisord.conf
 ENV DISPLAY :1
 
-WORKDIR $HOME/
-RUN wget -O - https://github.com/novnc/noVNC/archive/v1.4.0.tar.gz | tar -xzv -C /root/ && mv /root/noVNC-1.4.0 /root/novnc && ln -s /root/novnc/vnc_lite.html /root/novnc/index.html && \
-    wget -O - https://github.com/novnc/websockify/archive/v0.11.0.tar.gz | tar -xzv -C /root/ && mv /root/websockify-0.11.0 /root/novnc/utils/websockify && \
+RUN wget -O - https://github.com/novnc/noVNC/archive/v1.4.0.tar.gz | tar -xzv -C /opt/run/ && mv /opt/run/noVNC-1.4.0 /opt/run/novnc && ln -s /opt/run/novnc/vnc_lite.html /opt/run/novnc/index.html && \
+    wget -O - https://github.com/novnc/websockify/archive/v0.11.0.tar.gz | tar -xzv -C /opt/run/ && mv /opt/run/websockify-0.11.0 /opt/run/novnc/utils/websockify && \
     wget https://sourceforge.net/projects/tigervnc/files/stable/1.15.0/ubuntu-24.04LTS/amd64/tigervncserver_1.15.0-1ubuntu1_amd64.deb && dpkg -i ./tigervncserver_1.15.0-1ubuntu1_amd64.deb
 
 # Install Pixi
@@ -30,17 +27,20 @@ ENV PATH="${HOME}/.pixi/bin:${PATH}"
 ENV UV_COMPILE_BYTECODE=1
 
 # Setup pixi.toml dependency files for /SNS/software scripts
-RUN curl -fsSL --create-dirs -o /usr/local/pixi/scd-reduction-tools/pixi.toml \
+RUN --mount=type=secret,id=gitlab GITLAB_TOKEN=/run/secrets/gitlab \
+    curl -fsSL --create-dirs -o /usr/local/pixi/scd-reduction-tools/pixi.toml \
     --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
     "https://code.ornl.gov/api/v4/projects/18110/repository/files/prod%2Fdefault%2Fpixi.toml/raw?ref=main"
 WORKDIR /usr/local/pixi/scd-reduction-tools
 RUN pixi install
-RUN curl -fsSL --create-dirs -o /usr/local/pixi/scd-reduction-tools_dev/pixi.toml \
+RUN --mount=type=secret,id=gitlab GITLAB_TOKEN=/run/secrets/gitlab \
+    curl -fsSL --create-dirs -o /usr/local/pixi/scd-reduction-tools_dev/pixi.toml \
     --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
     "https://code.ornl.gov/api/v4/projects/18111/repository/files/prod%2Fdefault%2Fpixi.toml/raw?ref=main"
 WORKDIR /usr/local/pixi/scd-reduction-tools_dev
 RUN pixi install
-RUN curl -fsSL --create-dirs -o /usr/local/pixi/shiver/pixi.toml \
+RUN --mount=type=secret,id=gitlab GITLAB_TOKEN=/run/secrets/gitlab \
+    curl -fsSL --create-dirs -o /usr/local/pixi/shiver/pixi.toml \
     --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
     "https://code.ornl.gov/api/v4/projects/18123/repository/files/prod%2Fdefault%2Fpixi.toml/raw?ref=main"
 WORKDIR /usr/local/pixi/shiver
@@ -76,13 +76,13 @@ COPY ndip/openbox/menu.xml /etc/xdg/openbox/menu.xml
 COPY ndip/openbox/menu.xml /var/lib/openbox/debian-menu.xml
 COPY ndip/openbox/tint2rc /etc/xdg/tint2/tint2rc
 
-COPY ndip/start.sh /start.sh
-RUN chmod +x /start.sh
-COPY ndip/vnc_lite.html /root/novnc/vnc_lite.html
-RUN mkdir -p $HOME/.config/tigervnc
-COPY ndip/tigervnc.conf $HOME/.config/tigervnc/config
-COPY ndip/user_command.sh $HOME/user_command.sh
-RUN chmod +x $HOME/user_command.sh
+COPY ndip/start.sh /opt/run/start.sh
+RUN chmod +x /opt/run/start.sh
+COPY ndip/vnc_lite.html /opt/run/novnc/vnc_lite.html
+RUN mkdir -p /opt/run/.config/tigervnc
+COPY ndip/tigervnc.conf /opt/run/.config/tigervnc/config
+COPY ndip/user_command.sh /opt/run/user_command.sh
+RUN chmod +x /opt/run/user_command.sh
 
 RUN chmod -R og+rwX /opt /usr/local/pixi
 
