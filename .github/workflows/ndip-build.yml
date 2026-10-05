@@ -22,7 +22,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
       - name: Parse version
-        run: echo "VERSION=$(cat src/NeuXtalViz/_version.py | grep "__version__ =" | head -n 1 | awk '{ print $3 }' | tr -d '"' | cut -f1 -d '+')" >> $GITHUB_ENV
+        run: echo "VERSION=0.2.0" >> $GITHUB_ENV
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
