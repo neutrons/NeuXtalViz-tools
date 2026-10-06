@@ -27,21 +27,21 @@ ENV PATH="${HOME}/.pixi/bin:${PATH}"
 ENV UV_COMPILE_BYTECODE=1
 
 # Setup pixi.toml dependency files for /SNS/software scripts
-RUN --mount=type=secret,id=GITLAB_TOKEN GITLAB_TOKEN=$(cat /run/secrets/GITLAB_TOKEN) \
+RUN --mount=type=secret,id=GITLAB_TOKEN \
     curl -fsSL --create-dirs -o /usr/local/pixi/scd-reduction-tools/pixi.toml \
-    --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+    --header "PRIVATE-TOKEN: $(cat /run/secrets/GITLAB_TOKEN)" \
     "https://code.ornl.gov/api/v4/projects/18110/repository/files/prod%2Fdefault%2Fpixi.toml/raw?ref=main"
 WORKDIR /usr/local/pixi/scd-reduction-tools
 RUN pixi install
-RUN --mount=type=secret,id=GITLAB_TOKEN GITLAB_TOKEN=$(cat /run/secrets/GITLAB_TOKEN) \
+RUN --mount=type=secret,id=GITLAB_TOKEN \
     curl -fsSL --create-dirs -o /usr/local/pixi/scd-reduction-tools_dev/pixi.toml \
-    --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+    --header "PRIVATE-TOKEN: $(cat /run/secrets/GITLAB_TOKEN)" \
     "https://code.ornl.gov/api/v4/projects/18111/repository/files/prod%2Fdefault%2Fpixi.toml/raw?ref=main"
 WORKDIR /usr/local/pixi/scd-reduction-tools_dev
 RUN pixi install
-RUN --mount=type=secret,id=GITLAB_TOKEN GITLAB_TOKEN=$(cat /run/secrets/GITLAB_TOKEN) \
+RUN --mount=type=secret,id=GITLAB_TOKEN \
     curl -fsSL --create-dirs -o /usr/local/pixi/shiver/pixi.toml \
-    --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+    --header "PRIVATE-TOKEN: $(cat /run/secrets/GITLAB_TOKEN)" \
     "https://code.ornl.gov/api/v4/projects/18123/repository/files/prod%2Fdefault%2Fpixi.toml/raw?ref=main"
 WORKDIR /usr/local/pixi/shiver
 RUN pixi install
