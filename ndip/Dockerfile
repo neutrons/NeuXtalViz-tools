@@ -22,8 +22,7 @@ RUN wget -O - https://github.com/novnc/noVNC/archive/v1.4.0.tar.gz | tar -xzv -C
     wget https://sourceforge.net/projects/tigervnc/files/stable/1.15.0/ubuntu-24.04LTS/amd64/tigervncserver_1.15.0-1ubuntu1_amd64.deb && dpkg -i ./tigervncserver_1.15.0-1ubuntu1_amd64.deb
 
 # Install Pixi
-RUN curl -fsSL https://pixi.sh/install.sh | sh
-ENV PATH="${HOME}/.pixi/bin:${PATH}"
+RUN curl -fsSL https://pixi.sh/install.sh | PIXI_HOME=/usr/local PIXI_NO_PATH_UPDATE=1 sh
 ENV UV_COMPILE_BYTECODE=1
 
 # Setup pixi.toml dependency files for /SNS/software scripts
