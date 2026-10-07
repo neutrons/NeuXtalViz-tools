@@ -31,19 +31,22 @@ RUN --mount=type=secret,id=GITLAB_TOKEN \
     --header "PRIVATE-TOKEN: $(cat /run/secrets/GITLAB_TOKEN)" \
     "https://code.ornl.gov/api/v4/projects/18110/repository/files/prod%2Fdefault%2Fpixi.toml/raw?ref=main"
 WORKDIR /usr/local/pixi/scd-reduction-tools
-RUN pixi install
+RUN sed -i -e 's/^python = .*/python = "3.13.*"/' -e 's/^platforms = .*/platforms = ["linux-64"]/' pixi.toml && \
+    pixi install
 RUN --mount=type=secret,id=GITLAB_TOKEN \
     curl -fsSL --create-dirs -o /usr/local/pixi/scd-reduction-tools_dev/pixi.toml \
     --header "PRIVATE-TOKEN: $(cat /run/secrets/GITLAB_TOKEN)" \
     "https://code.ornl.gov/api/v4/projects/18111/repository/files/prod%2Fdefault%2Fpixi.toml/raw?ref=main"
 WORKDIR /usr/local/pixi/scd-reduction-tools_dev
-RUN pixi install
+RUN sed -i -e 's/^python = .*/python = "3.13.*"/' -e 's/^platforms = .*/platforms = ["linux-64"]/' pixi.toml && \
+    pixi install
 RUN --mount=type=secret,id=GITLAB_TOKEN \
     curl -fsSL --create-dirs -o /usr/local/pixi/shiver/pixi.toml \
     --header "PRIVATE-TOKEN: $(cat /run/secrets/GITLAB_TOKEN)" \
     "https://code.ornl.gov/api/v4/projects/18123/repository/files/prod%2Fdefault%2Fpixi.toml/raw?ref=main"
 WORKDIR /usr/local/pixi/shiver
-RUN pixi install
+RUN sed -i -e 's/^python = .*/python = "3.13.*"/' -e 's/^platforms = .*/platforms = ["linux-64"]/' pixi.toml && \
+    pixi install
 
 # Install FullProf
 RUN curl -fsSL --create-dirs -o /opt/fullprof/fullprof.tgz https://www2017.ill.eu/sites/fullprof/downloads/FullProf_Suite_April2026_Linux.tgz
@@ -62,7 +65,7 @@ ENV PATH="/opt/vesta/VESTA-gtk3:${PATH}"
 # Build NeuXtalViz
 COPY . /opt/NeuXtalViz
 WORKDIR /opt/NeuXtalViz
-RUN pixi init --import environment.yml
+RUN rm pixi.toml pixi.lock && pixi init --import environment.yml
 RUN pixi add pyqt qdarkstyle qtawesome
 RUN pixi install
 RUN pixi clean cache -y
