@@ -77,7 +77,7 @@ jobs:
 
       - name: Install conda package
         id: install
-        uses: neutrons/conda-actions/pkg-install@v2
+        uses: neutrons/gh-actions/pkg-install@eb7a7c6fcfd0cda1a7b238329afc0afd09a4f4af # v2
         with:
           package-name: ${{ env.PKG_NAME }}
           local-channel: /tmp/local-channel
@@ -85,11 +85,11 @@ jobs:
           python-version: "3.13"
 
       - name: Verify conda package
-        uses: neutrons/conda-actions/pkg-verify@v2
+        uses: neutrons/gh-actions/pkg-verify@eb7a7c6fcfd0cda1a7b238329afc0afd09a4f4af # v2
         with:
           package-name: ${{ env.PKG_NAME }}
           module-name: ${{ env.MODULE_NAME }}
-          conda-env-name: ${{ steps.install.outputs.conda_env }}
+          conda-env-name: ${{ steps.install.outputs.conda-env }}
 
       - name: Upload conda package as artifact
         uses: actions/upload-artifact@v4
@@ -132,7 +132,7 @@ jobs:
           name: artifact-conda-package
 
       - name: Upload package to anaconda
-        uses: neutrons/conda-actions/publish@v2
+        uses: neutrons/gh-actions/publish@eb7a7c6fcfd0cda1a7b238329afc0afd09a4f4af # v2
         with:
           anaconda-token: ${{ secrets.ANACONDA_TOKEN }}
           organization: neutrons
@@ -141,10 +141,10 @@ jobs:
 
       - name: Remove old packages
         if: github.ref == 'refs/heads/main'
-        uses: neutrons/conda-actions/pkg-remove@v2
+        uses: neutrons/gh-actions/pkg-remove@eb7a7c6fcfd0cda1a7b238329afc0afd09a4f4af # v2
         with:
-          anaconda_token: ${{ secrets.ANACONDA_TOKEN }}
+          anaconda-token: ${{ secrets.ANACONDA_TOKEN }}
           organization: neutrons
-          package_name: ${{ env.PKG_NAME }}
+          package-name: ${{ env.PKG_NAME }}
           label: dev
           keep: 5
