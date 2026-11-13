@@ -247,37 +247,55 @@ class NeuXtalViz(QMainWindow):
 
     def topaz_reduction_GUI(self):
         """
-        Prompt for a TOPAZ reduction directory and launch its main.py.
+        Prompt for a TOPAZ reduction main.py and launch it.
 
-        Opens a directory selection dialog (starting from the last used
-        TOPAZ path), and if the chosen directory contains a
-        ``main.py`` script, launches it with ``mantidpython``. Shows a
-        warning if ``main.py`` is missing, or a critical error dialog
-        if launching fails.
+        Opens a file selection dialog (starting from the last used
+        TOPAZ path) filtered to ``main.py``, and launches the chosen
+        script with ``mantidpython`` from its parent directory. Whenever
+        the user enters a directory containing ``main.py``, the file is
+        selected automatically. Shows a warning if the selection is not
+        a ``main.py`` file, or a critical error dialog if launching
+        fails.
         """
-        directory = QFileDialog.getExistingDirectory(
-            self, "Select Directory", self._topaz_path
+        dialog = QFileDialog(self, "Select TOPAZ reduction main.py")
+        # The directoryEntered signal is only emitted by Qt's own dialog.
+        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
+        dialog.setFileMode(QFileDialog.ExistingFile)
+        dialog.setNameFilters(
+            ["TOPAZ reduction script (main.py)", "All files (*)"]
         )
 
-        if directory:
-            self._topaz_path = directory
-            main_py_path = os.path.join(directory, "main.py")
-            if os.path.isfile(main_py_path):
-                try:
-                    subprocess.Popen(
-                        ["mantidpython", main_py_path],
-                        cwd=directory,
-                    )
-                except OSError as e:
-                    QMessageBox.critical(
-                        self, "Error", f"Failed to execute main.py:\n{e}"
-                    )
-            else:
-                QMessageBox.warning(
-                    self,
-                    "Warning",
-                    "The selected directory does not contain main.py.",
-                )
+        def select_main_py(directory):
+            if os.path.isfile(os.path.join(directory, "main.py")):
+                dialog.selectFile("main.py")
+
+        dialog.directoryEntered.connect(select_main_py)
+        dialog.setDirectory(self._topaz_path)
+        select_main_py(self._topaz_path)
+
+        if not dialog.exec():
+            return
+
+        main_py_path = dialog.selectedFiles()[0]
+
+        directory = os.path.dirname(main_py_path)
+        self._topaz_path = directory
+        if os.path.basename(main_py_path) != "main.py" or not os.path.isfile(
+            main_py_path
+        ):
+            QMessageBox.warning(
+                self,
+                "Warning",
+                "Please select the main.py script of a TOPAZ reduction.",
+            )
+            return
+
+        try:
+            subprocess.Popen(["mantidpython", main_py_path], cwd=directory)
+        except OSError as e:
+            QMessageBox.critical(
+                self, "Error", f"Failed to execute main.py:\n{e}"
+            )
 
     def shelxle_GUI(self):
         """
