@@ -29,7 +29,7 @@ import matplotlib.colors
 from NeuXtalViz.config.atoms import colors, radii
 from NeuXtalViz.config.magnetic_form_factors import J0 as MAGNETIC_J0
 from NeuXtalViz.views.periodic_table import PeriodicTableView
-from NeuXtalViz.views.base_view import NeuXtalVizWidget
+from NeuXtalViz.views.base_view import NeuXtalVizWidget, group_box
 
 import qtawesome as qta
 
@@ -227,8 +227,10 @@ class CrystalStructureView(NeuXtalVizWidget):
         crystal_layout.addWidget(self.load_CIF_button)
         crystal_layout.addWidget(self.save_INS_button)
 
-        structure_layout.addLayout(crystal_layout)
-        structure_layout.addLayout(parameters_layout)
+        structure_layout.addWidget(group_box("Space Group", crystal_layout))
+        structure_layout.addWidget(
+            group_box("Lattice Parameters", parameters_layout)
+        )
 
         stretch = QHeaderView.Stretch
 
@@ -243,8 +245,6 @@ class CrystalStructureView(NeuXtalVizWidget):
         )
         self.atm_table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.atm_table.setSelectionBehavior(QTableWidget.SelectRows)
-
-        structure_layout.addWidget(self.atm_table)
 
         scatterer_layout = QHBoxLayout()
 
@@ -309,8 +309,12 @@ class CrystalStructureView(NeuXtalVizWidget):
         sample_layout.addWidget(self.V_line)
         sample_layout.addWidget(uc_vol_label)
 
-        structure_layout.addLayout(scatterer_layout)
-        structure_layout.addLayout(sample_layout)
+        atoms_layout = QVBoxLayout()
+        atoms_layout.addWidget(self.atm_table)
+        atoms_layout.addLayout(scatterer_layout)
+
+        structure_layout.addWidget(group_box("Atoms", atoms_layout))
+        structure_layout.addWidget(group_box("Composition", sample_layout))
 
         struct_tab.setLayout(structure_layout)
 
@@ -438,9 +442,14 @@ class CrystalStructureView(NeuXtalVizWidget):
         indivdual_layout.addStretch(1)
         indivdual_layout.addWidget(self.individual_button)
 
-        factors_layout.addLayout(calculate_layout)
-        factors_layout.addWidget(self.f2_table)
-        factors_layout.addLayout(indivdual_layout)
+        all_layout = QVBoxLayout()
+        all_layout.addLayout(calculate_layout)
+        all_layout.addWidget(self.f2_table)
+
+        factors_layout.addWidget(group_box("All Reflections", all_layout))
+        factors_layout.addWidget(
+            group_box("Single Reflection", indivdual_layout)
+        )
 
         fact_tab.setLayout(factors_layout)
 
@@ -553,7 +562,6 @@ class CrystalStructureView(NeuXtalVizWidget):
         b_star_label1 = QLabel("b*", self)
         c_star_label1 = QLabel("c*", self)
 
-        sample_orient_label = QLabel("Sample Orientation", self)
         sample_u_label = QLabel("Beam Direction:", self)
         sample_v_label = QLabel("In-plane Direction:", self)
 
@@ -567,9 +575,6 @@ class CrystalStructureView(NeuXtalVizWidget):
 
         sample_orient_layout = QGridLayout()
 
-        sample_orient_layout.addWidget(
-            sample_orient_label, 0, 0, Qt.AlignCenter
-        )
         sample_orient_layout.addWidget(a_star_label1, 0, 1, Qt.AlignCenter)
         sample_orient_layout.addWidget(b_star_label1, 0, 2, Qt.AlignCenter)
         sample_orient_layout.addWidget(c_star_label1, 0, 3, Qt.AlignCenter)
@@ -588,7 +593,6 @@ class CrystalStructureView(NeuXtalVizWidget):
         b_star_label2 = QLabel("b*", self)
         c_star_label2 = QLabel("c*", self)
 
-        shape_orient_label = QLabel("Shape Orientation", self)
         shape_u_label = QLabel("Along Thickness:", self)
         shape_v_label = QLabel("In-plane Lateral:", self)
 
@@ -602,7 +606,6 @@ class CrystalStructureView(NeuXtalVizWidget):
 
         shape_orient_layout = QGridLayout()
 
-        shape_orient_layout.addWidget(shape_orient_label, 0, 0, Qt.AlignCenter)
         shape_orient_layout.addWidget(a_star_label2, 0, 1, Qt.AlignCenter)
         shape_orient_layout.addWidget(b_star_label2, 0, 2, Qt.AlignCenter)
         shape_orient_layout.addWidget(c_star_label2, 0, 3, Qt.AlignCenter)
@@ -733,12 +736,20 @@ class CrystalStructureView(NeuXtalVizWidget):
         cryst_layout.addWidget(self.abs_m_line, 8, 1)
         cryst_layout.addWidget(m_unit_label, 8, 2)
 
-        abs_layout.addLayout(shape_layout)
+        abs_layout.addWidget(
+            group_box("Ellipsoid and Wavelength", shape_layout)
+        )
         abs_layout.addWidget(self.abs_table)
-        abs_layout.addLayout(sample_orient_layout)
-        abs_layout.addLayout(shape_orient_layout)
-        abs_layout.addLayout(material_layout)
-        abs_layout.addLayout(cryst_layout)
+        abs_layout.addWidget(
+            group_box("Sample Orientation", sample_orient_layout)
+        )
+        abs_layout.addWidget(
+            group_box("Shape Orientation", shape_orient_layout)
+        )
+        abs_layout.addWidget(group_box("Material", material_layout))
+        abs_layout.addWidget(
+            group_box("Scattering and Absorption", cryst_layout)
+        )
 
         abs_tab.setLayout(abs_layout)
 
@@ -831,7 +842,6 @@ class CrystalStructureView(NeuXtalVizWidget):
         notation = QDoubleValidator.StandardNotation
 
         # --- Instrument / d-min -----------------------------------------
-        instrument_label = QLabel("Instrument", self)
         dmin_label = QLabel("d(min)", self)
         angstrom_label = QLabel("Å", self)
 
@@ -849,7 +859,6 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.sim_dmin_line.setPlaceholderText("d-min (Å)")
 
         instrument_layout = QHBoxLayout()
-        instrument_layout.addWidget(instrument_label)
         instrument_layout.addWidget(self.sim_instrument_combo)
         instrument_layout.addWidget(dmin_label)
         instrument_layout.addWidget(self.sim_dmin_line)
@@ -880,7 +889,6 @@ class CrystalStructureView(NeuXtalVizWidget):
         b_star_label = QLabel("b*", self)
         c_star_label = QLabel("c*", self)
 
-        orient_label = QLabel("Sample Orientation", self)
         u_label = QLabel("Beam Direction:", self)
         v_label = QLabel("In-plane Direction:", self)
 
@@ -894,7 +902,6 @@ class CrystalStructureView(NeuXtalVizWidget):
 
         orient_layout = QGridLayout()
 
-        orient_layout.addWidget(orient_label, 0, 0, Qt.AlignCenter)
         orient_layout.addWidget(a_star_label, 0, 1, Qt.AlignCenter)
         orient_layout.addWidget(b_star_label, 0, 2, Qt.AlignCenter)
         orient_layout.addWidget(c_star_label, 0, 3, Qt.AlignCenter)
@@ -909,7 +916,6 @@ class CrystalStructureView(NeuXtalVizWidget):
         orient_layout.addWidget(self.sim_lv_line, 2, 3)
 
         # --- Goniometer ----------------------------------------------------
-        gon_label = QLabel("Goniometer", self)
         omega_label = QLabel("ω", self)
         chi_label = QLabel("χ", self)
         phi_label = QLabel("φ", self)
@@ -938,7 +944,6 @@ class CrystalStructureView(NeuXtalVizWidget):
         self.sim_calculate_button.setIcon(qta.icon("fa6s.calculator"))
 
         gon_layout = QHBoxLayout()
-        gon_layout.addWidget(gon_label)
         gon_layout.addWidget(omega_label)
         gon_layout.addWidget(self.sim_omega_line)
         gon_layout.addWidget(chi_label)
@@ -1038,13 +1043,23 @@ class CrystalStructureView(NeuXtalVizWidget):
         R_sigma_layout.addWidget(R_sigma_mag_unit_label)
         R_sigma_layout.addStretch(1)
 
-        sim_layout.addLayout(instrument_layout)
-        sim_layout.addLayout(UB_layout)
-        sim_layout.addLayout(orient_layout)
-        sim_layout.addLayout(gon_layout)
-        sim_layout.addLayout(mag_layout)
-        sim_layout.addWidget(self.sim_table)
-        sim_layout.addLayout(R_sigma_layout)
+        sample_layout = QVBoxLayout()
+        sample_layout.addLayout(UB_layout)
+        sample_layout.addLayout(orient_layout)
+
+        reflections_layout = QVBoxLayout()
+        reflections_layout.addWidget(self.sim_table)
+        reflections_layout.addLayout(R_sigma_layout)
+
+        sim_layout.addWidget(group_box("Instrument", instrument_layout))
+        sim_layout.addWidget(group_box("Sample Orientation", sample_layout))
+        sim_layout.addWidget(
+            group_box("Goniometer and Counting Time", gon_layout)
+        )
+        sim_layout.addWidget(group_box("Magnetic Ions", mag_layout))
+        sim_layout.addWidget(
+            group_box("Simulated Reflections", reflections_layout)
+        )
 
         sim_tab.setLayout(sim_layout)
 
