@@ -24,6 +24,29 @@ Core libraries and technologies:
 
 NeuXtalViz is designed for extensibility, reproducibility, and ease of use for both novice and expert crystallographers.
 
+Citation
+--------
+
+If you use NeuXtalViz in your work, please cite:
+
+Z. Morgan, Z. Xiao, S. Pawledzio, I. Ye, K. Loughlin, S. Jin, V. Lynch,
+T. Proffen, C. Hoffmann, and X. Wang, "*NeuXtalViz*: interactive
+three-dimensional visualization and analysis for single-crystal neutron
+diffraction," *J. Appl. Cryst.* **59**\ (6) (2026).
+https://doi.org/10.1107/S1600576726009106
+
+.. code-block:: bibtex
+
+   @article{morgan2026neuxtalviz,
+     author  = {Morgan, Zachary and Xiao, Zhongcan and Pawledzio, Sylwia and Ye, Iris and Loughlin, Kathleen and Jin, Shiyun and Lynch, Vickie and Proffen, Thomas and Hoffmann, Christina and Wang, Xiaoping},
+     title   = {{NeuXtalViz}: interactive three-dimensional visualization and analysis for single-crystal neutron diffraction},
+     journal = {Journal of Applied Crystallography},
+     volume  = {59},
+     number  = {6},
+     year    = {2026},
+     doi     = {10.1107/S1600576726009106}
+   }
+
 
 .. toctree::
    :maxdepth: 2
