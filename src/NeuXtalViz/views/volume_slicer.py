@@ -40,7 +40,7 @@ from mpl_toolkits.axisartist.grid_finder import (
     MaxNLocator,
 )
 
-from NeuXtalViz.views.base_view import NeuXtalVizWidget
+from NeuXtalViz.views.base_view import NeuXtalVizWidget, group_box
 from NeuXtalViz.config import colormap
 
 import qtawesome as qta
@@ -831,11 +831,16 @@ class VolumeSlicerView(NeuXtalVizWidget):
         steps_layout.addWidget(self.pdf_output_line, 3, 7)
         steps_layout.addWidget(self.calculate_pdf_button, 3, 8)
 
-        layout.addLayout(manage_layout)
-        layout.addLayout(combine_layout)
-        layout.addLayout(crystal_layout)
-        layout.addLayout(steps_layout)
-        layout.addLayout(self._bond_network_layout())
+        pdf_layout = QVBoxLayout()
+        pdf_layout.addLayout(crystal_layout)
+        pdf_layout.addLayout(steps_layout)
+
+        layout.addWidget(group_box("Workspaces", manage_layout))
+        layout.addWidget(group_box("Arithmetic", combine_layout))
+        layout.addWidget(group_box("3D-ΔPDF", pdf_layout))
+        layout.addWidget(
+            group_box("Bond Network", self._bond_network_layout())
+        )
         layout.addStretch(1)
 
         transform_tab.setLayout(layout)

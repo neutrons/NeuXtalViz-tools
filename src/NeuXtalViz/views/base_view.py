@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from qtpy.QtWidgets import (
     QWidget,
     QFrame,
+    QGroupBox,
     QGridLayout,
     QHBoxLayout,
     QVBoxLayout,
@@ -55,6 +56,37 @@ _MPL_STYLE_BY_THEME = {
     "dark": "dark_background",
     "paraview": "Solarize_Light2",
 }
+
+
+def group_box(title, layout, parent=None, margins=(6, 4, 6, 4)):
+    """
+    Titled frame around a section of a tool's controls.
+
+    QDarkStyle draws the title bold on a thin frame, in light and dark.
+
+    Parameters
+    ----------
+    title : str
+        Section title.
+    layout : QLayout
+        Layout holding the section's widgets.
+    parent : QWidget, optional
+        Parent widget.
+    margins : tuple of int, optional
+        Left, top, right, and bottom margins of the layout inside the box.
+        Smaller than Qt's default, to keep tall tabs compact.
+
+    Returns
+    -------
+    box : QGroupBox
+        The box, to add to the tab's layout with ``addWidget``.
+
+    """
+
+    box = QGroupBox(title, parent)
+    layout.setContentsMargins(*margins)
+    box.setLayout(layout)
+    return box
 
 
 class NeuXtalVizWidget(QWidget):

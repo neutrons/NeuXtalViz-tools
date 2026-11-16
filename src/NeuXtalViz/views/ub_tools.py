@@ -21,7 +21,6 @@ from qtpy.QtWidgets import (
     QGridLayout,
     QTabWidget,
     QFileDialog,
-    QFrame,
     QSlider,
     QAbstractItemView,
     QMessageBox,
@@ -53,7 +52,7 @@ from mpl_toolkits.axisartist.grid_finder import (
     MaxNLocator,
 )
 
-from NeuXtalViz.views.base_view import NeuXtalVizWidget
+from NeuXtalViz.views.base_view import NeuXtalVizWidget, group_box
 
 import qtawesome as qta
 
@@ -136,6 +135,7 @@ class UBView(NeuXtalVizWidget):
         self.tab_widget.addTab(ub_peaks_tab, "Parameters")
 
         ub_layout = QVBoxLayout()
+        ub_layout.setSpacing(2)
 
         self.save_q_button = QPushButton("Save Q", self)
         self.save_q_button.setToolTip("Save the Q workspace to a file.")
@@ -166,18 +166,6 @@ class UBView(NeuXtalVizWidget):
         self.peaks_label.setStyleSheet("color: red;")
         self.ub_label.setStyleSheet("color: red;")
 
-        convert_frame = QFrame()
-        convert_frame.setFrameShape(QFrame.Shape.HLine)
-        convert_frame.setFrameShadow(QFrame.Shadow.Sunken)
-
-        peaks_frame = QFrame()
-        peaks_frame.setFrameShape(QFrame.Shape.HLine)
-        peaks_frame.setFrameShadow(QFrame.Shadow.Sunken)
-
-        ubS_frame = QFrame()
-        ubS_frame.setFrameShape(QFrame.Shape.HLine)
-        ubS_frame.setFrameShadow(QFrame.Shadow.Sunken)
-
         convert_io_layout = QHBoxLayout()
 
         convert_io_layout.addWidget(self.q_label)
@@ -204,17 +192,19 @@ class UBView(NeuXtalVizWidget):
         self.ub_tab = self.__init_ub_tab()
         values_tab = self.__init_values_tab()
 
-        ub_layout.addWidget(convert_tab)
-        ub_layout.addLayout(convert_io_layout)
-        ub_layout.addWidget(convert_frame)
-
-        ub_layout.addWidget(self.peaks_tab)
-        ub_layout.addLayout(peaks_io_layout)
-        ub_layout.addWidget(peaks_frame)
-
-        ub_layout.addWidget(self.ub_tab)
-        ub_layout.addLayout(ub_io_layout)
-        ub_layout.addWidget(ubS_frame)
+        sections = [
+            ("Q-Sample", convert_tab, convert_io_layout),
+            ("Peaks", self.peaks_tab, peaks_io_layout),
+            ("UB Matrix", self.ub_tab, ub_io_layout),
+        ]
+        for title, tab, io_layout in sections:
+            section_layout = QVBoxLayout()
+            section_layout.setSpacing(2)
+            section_layout.addWidget(tab)
+            section_layout.addLayout(io_layout)
+            ub_layout.addWidget(
+                group_box(title, section_layout, margins=(2, 8, 2, 2))
+            )
 
         ub_layout.addWidget(values_tab)
 
@@ -1762,11 +1752,17 @@ class UBView(NeuXtalVizWidget):
         peak_info.addWidget(self.int_n_line, 1, 4)
         peak_info.addWidget(self.int_p_line, 1, 5)
 
-        peaks_layout.addLayout(calculator_layout)
-        peaks_layout.addWidget(self.peaks_table)
-        peaks_layout.addLayout(hkl_info)
-        peaks_layout.addLayout(peak_info)
-        peaks_layout.addLayout(extended_info)
+        table_layout = QVBoxLayout()
+        table_layout.addWidget(self.peaks_table)
+        table_layout.addLayout(hkl_info)
+
+        selected_layout = QVBoxLayout()
+        selected_layout.addLayout(peak_info)
+        selected_layout.addLayout(extended_info)
+
+        peaks_layout.addWidget(group_box("Peak Calculator", calculator_layout))
+        peaks_layout.addWidget(group_box("Peaks Table", table_layout))
+        peaks_layout.addWidget(group_box("Selected Peak", selected_layout))
 
         peaks_table_tab.setLayout(peaks_layout)
 
@@ -1979,7 +1975,9 @@ class UBView(NeuXtalVizWidget):
         convert_to_hkl_view_layout.addWidget(QLabel("V Max:", self))
         convert_to_hkl_view_layout.addWidget(self.vmax_line)
 
-        convert_to_hkl_tab_layout.addLayout(convert_to_hkl_params_layout)
+        convert_to_hkl_tab_layout.addWidget(
+            group_box("Projection", convert_to_hkl_params_layout)
+        )
         convert_to_hkl_tab_layout.addStretch(1)
         convert_to_hkl_tab_layout.addLayout(convert_to_hkl_action_layout)
 

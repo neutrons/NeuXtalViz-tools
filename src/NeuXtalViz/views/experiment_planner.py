@@ -40,7 +40,7 @@ from mpl_toolkits.axisartist.grid_finder import (
     ExtremeFinderSimple,
     MaxNLocator,
 )
-from NeuXtalViz.views.base_view import NeuXtalVizWidget
+from NeuXtalViz.views.base_view import NeuXtalVizWidget, group_box
 
 import qtawesome as qta
 
@@ -464,7 +464,7 @@ class ExperimentView(NeuXtalVizWidget):
         data_layout.addWidget(l_max_label)
         data_layout.addWidget(self.l_max_line)
 
-        result_layout.addLayout(data_layout)
+        result_layout.addWidget(group_box("Display", data_layout))
 
         self.canvas_cov = FigureCanvas(
             Figure(constrained_layout=True, figsize=(6.4, 4.8))
@@ -511,7 +511,9 @@ class ExperimentView(NeuXtalVizWidget):
         results_tab.addTab(coverage_tab, "Resolution")
         results_tab.addTab(cumulative_tab, "Cumulative")
 
-        planner_layout.addLayout(details_layout)
+        planner_layout.addWidget(
+            group_box("Experiment Settings", details_layout)
+        )
         planner_layout.addLayout(result_layout)
         planner_layout.addWidget(results_tab)
 
@@ -793,7 +795,9 @@ class ExperimentView(NeuXtalVizWidget):
         mesh_layout.addLayout(control_layout)
         mesh_layout.addWidget(NavigationToolbar2QT(self.canvas_slice, self))
         mesh_layout.addWidget(self.canvas_slice)
-        mesh_layout.addLayout(convert_to_hkl_params_layout)
+        mesh_layout.addWidget(
+            group_box("Projection", convert_to_hkl_params_layout)
+        )
 
         inst_tab.setLayout(mesh_layout)
 
@@ -971,7 +975,7 @@ class ExperimentView(NeuXtalVizWidget):
         calculator_layout.addWidget(self.d_spacing_line, 1, 9)
         calculator_layout.addWidget(self.d_spacing_alt_line, 2, 9)
 
-        peak_layout.addLayout(calculator_layout)
+        peak_layout.addWidget(group_box("Peak Calculator", calculator_layout))
 
         self.canvas_inst = FigureCanvas(Figure(constrained_layout=True))
         self.canvas_laue = FigureCanvas(Figure(constrained_layout=True))
@@ -1059,7 +1063,7 @@ class ExperimentView(NeuXtalVizWidget):
         orientation_layout.addWidget(self.comment_line)
         orientation_layout.addWidget(self.add_button)
 
-        peak_layout.addLayout(orientation_layout)
+        peak_layout.addWidget(group_box("Orientation", orientation_layout))
 
         stretch = QHeaderView.Stretch
 

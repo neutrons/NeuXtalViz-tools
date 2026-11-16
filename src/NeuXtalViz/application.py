@@ -242,6 +242,11 @@ class NeuXtalViz(QMainWindow):
                 "Modern toolkit for single-crystal neutron diffraction analysis and visualization.<br>"
                 "<br>Project webpage: "
                 '<a href="https://neutrons.github.io/NeuXtalViz-tools/index.html">https://neutrons.github.io/NeuXtalViz-tools/index.html</a>'
+                "<br><br>If you use NeuXtalViz, please cite:<br>"
+                "Z. Morgan, Z. Xiao, S. Pawledzio, I. Ye, K. Loughlin, "
+                "S. Jin, V. Lynch, T. Proffen, C. Hoffmann, and X. Wang, "
+                "<i>J. Appl. Cryst.</i> <b>59</b>(6) (2026).<br>"
+                '<a href="https://doi.org/10.1107/S1600576726009106">https://doi.org/10.1107/S1600576726009106</a>'
             ),
         )
 
